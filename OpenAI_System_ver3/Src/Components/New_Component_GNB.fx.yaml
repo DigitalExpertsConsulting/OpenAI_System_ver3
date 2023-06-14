@@ -1,0 +1,712 @@
+New_Component_GNB As CanvasComponent:
+    Fill: =ColorValue(gnbColor1)
+    Height: |
+        =App.DesignHeight
+    SelectedGNB: =SelectedMenu
+    Width: =240
+    X: =0
+    Y: =0
+    ZIndex: =1
+
+    Gallery_GNBMain_GNB As gallery.variableTemplateHeightGallery:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Fill: =ColorValue(gnbColor1)
+        Height: =New_Component_GNB.Height - Rectangle_GNBEdit_GNB.Height -Self.Y
+        Items: |+
+            =ForAll(
+                Distinct(
+                    Filter(
+                        SortByColumns(
+                            GNB_MENU,
+                            "LV1Order",
+                            SortOrder.Ascending
+                        ),
+                        !IsNumeric(LV1),
+                        !IsBlank(Users) || !IsBlank(Teams),
+                        Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                    ),
+                    LV1
+                ),
+                {Result: ThisRecord.Value}
+            )
+            
+        Layout: =Layout.Vertical
+        TemplatePadding: =0
+        TemplateSize: =280
+        Width: =Parent.Width
+        X: =0.00
+        Y: =Separator_GNBMain_GNB.Y + Separator_GNBMain_GNB.Height
+        ZIndex: =1
+
+        Gallery_GNBSub_GNB As gallery.variableTemplateHeightGallery:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =ColorValue(LV2BGColor1)
+            Height: |
+                =CountRows(
+                    SortByColumns(
+                    
+                        Filter(
+                            GNB_MENU, 
+                            LV1=ThisItem.Result, 
+                            제목<>LV2Order, 
+                            !IsNumeric(제목),
+                            !IsEmpty(Users) Or !IsEmpty(Teams),
+                            Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                
+                
+                        ), 
+                        "LV2Order", 
+                        SortOrder.Ascending
+                    )
+                ) * 64
+            Items: |+
+                =SortByColumns(
+                    Filter(
+                        GNB_MENU,
+                        LV1 = ThisItem.Result,
+                        제목 <> LV2Order,
+                        !IsNumeric(제목),
+                        !IsEmpty(Users) || !IsEmpty(Teams),
+                        Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                    ),
+                    "LV2Order",
+                    SortOrder.Ascending
+                ) 
+                
+            Layout: =Layout.Vertical
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: |+
+                =If(
+                    Gallery_GNBSub_GNB.Visible=true,
+                    CountRows(
+                        Filter(
+                            GNB_MENU, LV1=CheckedLV1,
+                            !IsEmpty(Users) Or
+                            !IsEmpty(Teams)
+                        )
+                    ) *64
+                )
+                
+                
+            Visible: |
+                =If(ThisItem.Result=LV1Title, true, false)
+            Width: =240
+            Y: =Label_MainMenuName_GNB.Height
+            ZIndex: =1
+
+            Label_GNBSubMenuName_GNB As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                Color: =ColorValue(FontColor1)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                Fill: =If(ThisItem.제목=Label_LV2_GNB.Text, ColorValue(LV2Selected1), ColorValue(LV2BGColor1))
+                Font: =gnbFont1
+                FontWeight: =FontWeight.Semibold
+                Height: =64
+                OnSelect: |-
+                    =Set(SelectedMenu,ThisItem.제목);
+                    If(
+                        ThisItem.제목="메뉴관리", Navigate(EditMenu),
+                        ThisItem.제목="권한관리", Navigate(MAMenu),
+                        ThisItem.제목="질의/응답 로그",Navigate(QALog),
+                        ThisItem.제목="금칙어관리", Navigate(BadWordManage),
+                        ThisItem.제목="QA관리", Navigate(QALogEdit),
+                        ThisItem.제목="토큰관리", Navigate(TokenMenu),
+                        ThisItem.제목="파일관리", Navigate(FileManage),
+                        ThisItem.제목="검색설정", Navigate(SearchOptions),
+                        ThisItem.제목="카테고리관리",Navigate(CategoryMenu),
+                        Navigate(BiReport)
+                    );
+                PaddingBottom: =10
+                PaddingLeft: =Image_GNBSub_GNB.X + Image_GNBSub_GNB.Width + 10
+                PaddingRight: =0
+                PaddingTop: =10
+                Size: =FontSize1-2
+                Text: =ThisItem.제목
+                Tooltip: =ThisItem.제목
+                Visible: |-
+                    =true
+                    
+                    /*
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(최준_메뉴, 제목=ThisItem.제목, Users.Email),
+                        true,
+                        false
+                    ) Or
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(최준_메뉴, 제목=ThisItem.제목, Teams2.Email),
+                        true,
+                        false
+                    )
+                    
+                    */
+                    
+                    /*
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(최준_메뉴, 제목=ThisItem.제목, Users.Email),
+                        true,
+                        false
+                    )
+                    */
+                Width: =240
+                Wrap: =false
+                ZIndex: =2
+
+            Image_GNBSub_GNB As image:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =40
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Image: ='MicrosoftTeams-image (10)'
+                OnSelect: =Select(Label_GNBSubMenuName_GNB)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Visible: =Label_GNBSubMenuName_GNB.Visible
+                Width: =Self.Height
+                X: =25
+                Y: =Label_GNBSubMenuName_GNB.Y + (Label_GNBSubMenuName_GNB.Height - Self.Height)/2
+                ZIndex: =3
+
+        Rectangle_GNBMain_GNB As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =ColorValue(LV1Selected1)
+            FocusedBorderThickness: =4
+            Height: =Gallery_GNBSub_GNB.Y
+            HoverFill: =RGBA(33, 42, 55, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: =Separator_SignatureColor_GNB.Visible
+            Width: =Parent.Width
+            ZIndex: =2
+
+        Image_MainMenu_GNB As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =45
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: ='MicrosoftTeams-image (6)'
+            ImageRotation: =If(Separator_SignatureColor_GNB.Visible, ImageRotation.Rotate90, ImageRotation.None)
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =Label_MainMenuName_GNB.Visible
+            Width: =45
+            X: =178
+            Y: =9
+            ZIndex: =3
+
+        Label_MainMenuName_GNB As label:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =ColorValue(FontColor1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =gnbFont1
+            FontWeight: =FontWeight.Bold
+            Height: =64
+            OnSelect: |
+                =If(
+                    LV1Title <> ThisItem.Result,
+                    Set(
+                        LV1Title,
+                        ThisItem.Result
+                    ),
+                    Set(
+                        LV1Title,
+                        ""
+                    )
+                );
+            PaddingBottom: =10
+            PaddingLeft: =3.5
+            PaddingRight: =10
+            PaddingTop: =10
+            Size: =FontSize1
+            Text: =ThisItem.Result
+            Tooltip: =ThisItem.Result
+            Visible: |
+                =If(
+                    Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = ThisItem.Result
+                        ).Users,
+                        Concat(
+                            Users,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                ) Or
+                If(Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = ThisItem.Result
+                        ).Teams,
+                        Concat(
+                            Teams,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                )
+            Width: =Parent.Width - Self.X
+            X: =52
+            ZIndex: =4
+
+        Icon_GNBMain_GNB As icon.Airplane:
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =3
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(244, 244, 244, 1)
+            Height: =Label_MainMenuName_GNB.Height
+            Icon: =Icon.Settings
+            OnSelect: =Select(Label_MainMenuName_GNB)
+            PaddingBottom: =15
+            PaddingLeft: =15
+            PaddingRight: =15
+            PaddingTop: =15
+            Visible: |
+                =If(ThisItem.Result="Admin" && Label_MainMenuName_GNB.Visible, true, false)//Label3_1.Visible
+            Width: =Self.Height
+            Y: |
+                =0
+            ZIndex: =5
+
+        Separator_SignatureColor_GNB As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            Fill: =ColorValue(Signature1)
+            Height: =Label_MainMenuName_GNB.Height
+            Visible: =If(ThisItem.Result=Label_LV1_GNB.Text && Label_MainMenuName_GNB.Visible, true, false)
+            Width: =8
+            ZIndex: =6
+
+        Circle_GNBMain_GNB As circle:
+            BorderColor: |-
+                =//ColorValue(FontColor1)
+                RGBA(255, 255, 255, 1)
+            BorderThickness: =2
+            DisabledFill: =RGBA(105, 121, 126, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Icon_GNBMain_GNB.Height-52
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: =!Icon_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible
+            Width: =Icon_GNBMain_GNB.Width-52
+            X: =Icon_GNBMain_GNB.X + (Icon_GNBMain_GNB.Width - Self.Width)/2
+            Y: =Icon_GNBMain_GNB.Y + (Icon_GNBMain_GNB.Height - Self.Height)/2
+            ZIndex: =7
+
+    Label_LV2_GNB As label:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        BorderStyle: =BorderStyle.None
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledBorderColor: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FontWeight: =FontWeight.Bold
+        Height: =45
+        PaddingLeft: =16
+        Size: =13
+        Text: =SelectedMenu
+        Visible: =false
+        Width: =Parent.Width
+        Y: =152
+        ZIndex: =2
+
+    Label_LV1_GNB As label:
+        BorderColor: =RGBA(0, 18, 107, 1)
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Height: =74
+        PaddingRight: =0
+        PaddingTop: =0
+        Size: =13
+        Text: =LV1Title
+        Visible: =false
+        Width: =Parent.Width
+        Y: =1005
+        ZIndex: =3
+
+    Separator_GNBMain_GNB As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =1
+        Width: =Parent.Width
+        Y: =Label_Login_GNB.Y + Label_Login_GNB.Height + 20
+        ZIndex: =4
+
+    Label_Login_GNB As label:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        BorderStyle: =BorderStyle.None
+        Color: =ColorValue(FontColor1)
+        DisabledBorderColor: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Font: =gnbFont1
+        FontWeight: =FontWeight.Bold
+        Height: =45
+        PaddingLeft: =0
+        Size: =FontSize1
+        Text: =Office365사용자.MyProfile().DisplayName
+        Width: =176
+        X: =64
+        Y: =121
+        ZIndex: =5
+
+    Circle_GNBUserImg_GNB As circle:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(105, 121, 126, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =50
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Width: =50
+        X: =5
+        Y: =121
+        ZIndex: =6
+
+    Separator_GNBHeader_GNB As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =1
+        Width: =Parent.Width
+        Y: =100
+        ZIndex: =8
+
+    Rectangle_GNBLogo_GNB As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 1)
+        BorderThickness: =1
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =Separator_GNBHeader_GNB.Y
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Width: =Parent.Width
+        ZIndex: =9
+
+    Image_ChangeLogo_GNB As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        DisplayMode: =DisplayMode.View
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: |+
+            =//Logo
+            Logo2.imgtest2
+            //varImage
+            
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: |
+            =If(
+                IsBlank(Choi)=false, true, false
+            )
+        Width: =Parent.Width
+        ZIndex: =11
+
+    Image_MainLogo_GNB As image:
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =캡처
+        PaddingBottom: =10
+        PaddingLeft: =10
+        PaddingRight: =10
+        PaddingTop: =10
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: |+
+            =If(
+                IsBlank(Choi),true, false
+            )
+            
+            
+            
+        Width: =240
+        ZIndex: =14
+
+    Image_GNBUserImg_GNB As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =33
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =User().Image
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =36
+        X: =12
+        Y: =129
+        ZIndex: =16
+
+    Group_GNBEdit_GNB As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =16
+
+        Rectangle_GNBEdit_GNB As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =ColorValue(LV1Selected1)
+            FocusedBorderThickness: =4
+            Height: =64
+            HoverFill: =RGBA(33, 42, 55, 1)
+            OnSelect: =Select(Label_GNBEdit_GNB)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |
+                =If(
+                    Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Users,
+                        Concat(
+                            Users,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                ) Or
+                If(Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Teams,
+                        Concat(
+                            Teams,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                )
+            Width: =240
+            Y: =1015
+            ZIndex: =10
+
+        Separator_GNBEdit_GNB As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            Fill: =ColorValue(Signature1)
+            Height: =64
+            Visible: |
+                =If(
+                    Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Users,
+                        Concat(
+                            Users,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                ) Or
+                If(Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Teams,
+                        Concat(
+                            Teams,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                )
+            Width: =240
+            X: =Rectangle_GNBEdit_GNB.X
+            Y: =1016
+            ZIndex: =12
+
+        Label_GNBEdit_GNB As label:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =ColorValue(FontColor1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =gnbFont1
+            FontWeight: =FontWeight.Bold
+            Height: =68
+            OnSelect: |
+                =Set(SelectedMenu,Self.Text);
+                Set(LV1Title, "");
+                Navigate(gnbMenu);
+            PaddingBottom: =10
+            PaddingLeft: =3.5
+            PaddingRight: =10
+            PaddingTop: =10
+            Size: =FontSize1
+            Text: ="GNB 편집"
+            Visible: |
+                =If(
+                    Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Users,
+                        Concat(
+                            Users,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                ) Or
+                If(Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Teams,
+                        Concat(
+                            Teams,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                )
+            Width: =141
+            X: =81
+            Y: =Icon_GNBEdit_GNB.Y
+            ZIndex: =13
+
+        Icon_GNBEdit_GNB As icon.Airplane:
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =3
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(244, 244, 244, 1)
+            Icon: =Icon.Text
+            OnSelect: =Select(Label_GNBEdit_GNB)
+            PaddingBottom: =15
+            PaddingLeft: =15
+            PaddingRight: =15
+            PaddingTop: =15
+            Visible: |
+                =If(
+                    Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Users,
+                        Concat(
+                            Users,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                ) Or
+                If(Office365사용자.MyProfile().Mail in Concat(
+                        Filter(
+                            SortByColumns(
+                                GNB_MENU,
+                                "LV1Order",
+                                SortOrder.Ascending
+                            ),
+                            LV1 = "Admin"
+                        ).Teams,
+                        Concat(
+                            Teams,
+                            Email,
+                            " , "
+                        ),
+                        " , "
+                    ),
+                    true,
+                    false
+                )
+            Width: =87
+            Y: =1010
+            ZIndex: =15
+

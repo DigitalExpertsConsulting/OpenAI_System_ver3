@@ -1,0 +1,1281 @@
+FileManage As screen:
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =UpdateContext({ModalVisible: false});
+
+    New_Component_GNB_FM As New_Component_GNB:
+        ZIndex: =2
+
+    Separator_Header_FM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 1)
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =1
+        Width: =Parent.Width - New_Component_GNB_EditMenu.Width
+        X: =New_Component_GNB_BiReport.Width
+        Y: =100
+        ZIndex: =3
+
+    Image_Header_FM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =50
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='MicrosoftTeams-image (11)'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: |-
+            =If(
+                FullScreenMode,
+                    false,
+                Parent.Printing,
+                    false,
+                true
+            )
+        Width: =50
+        X: =268
+        Y: =30
+        ZIndex: =4
+
+    Title_Header_FM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: |-
+            ="파일 관리
+            "
+        Visible: |-
+            =If(
+                FullScreenMode,
+                    false,
+                Parent.Printing,
+                    false,
+                true
+            )
+        Width: =691
+        X: =322
+        Y: =23
+        ZIndex: =5
+
+    "Gallery_FileList_FM As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =759
+        Items: =SortByColumns(FileUpload_table,"ID",SortOrder.Descending)
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =60
+        Width: =1593
+        X: =273
+        Y: =261
+        ZIndex: =6
+
+        Separator_FileList_FM As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight - 1
+            ZIndex: =5
+
+        Checkbox_FileList_FM As checkbox:
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =SelectAll
+            Height: =60
+            HoverColor: =RGBA(0, 18, 107, 1)
+            OnCheck: |-
+                =UpdateContext({SelectCheck: true})
+            OnSelect: =Select(Parent)
+            OnUncheck: |-
+                =UpdateContext({SelectCheck: false})
+            Size: =13
+            Text: =""
+            Width: =53
+            ZIndex: =6
+
+        Label_Gallery_FileName_FM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.File_Name
+            Width: =668
+            X: =69
+            Y: =10
+            ZIndex: =7
+
+        Separator_BetweenFileNameAndCategory_FM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            FocusedBorderThickness: =0
+            Height: =60
+            Width: =1
+            X: =749
+            Y: =TextInput_MainMenuName_EditMenu.Y -15
+            ZIndex: =8
+
+        Separator_BetweenCategoryAndDate_FM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            FocusedBorderThickness: =0
+            Height: =60
+            Width: =1
+            X: =982
+            Y: =TextInput_MainMenuName_EditMenu.Y -15
+            ZIndex: =9
+
+        Label_Gallery_Category_FM As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Category
+            Width: =203
+            X: =767
+            Y: =10
+            ZIndex: =10
+
+        Button_Gallery_FileList_IndexRequest_FM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(255, 255, 255, 0.2)
+            DisabledFill: =RGBA(199, 0, 57, 1)
+            Fill: |-
+                =Switch(
+                    ThisItem.Index_Status,
+                    "indexed", RGBA(0, 128, 0, 1),
+                    "in_progress", RGBA(230, 126, 34, 1),
+                    RGBA(199, 0, 57, 1)
+                )
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |
+                =Patch(FileUpload_table, LookUp(FileUpload_table, ID = ThisItem.ID), {Index_Status: "in_progress"});
+                '똑실이-파일인덱스생성'.Run(ThisItem.File_Name, ThisItem.Category, ThisItem.ID);
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: |-
+                =Switch(
+                    ThisItem.Index_Status,
+                    "indexed", "인덱스 재생성",
+                    "in_progress", "인덱스 생성중",
+                    "인덱스 생성"
+                )
+            X: =1240
+            Y: =10
+            ZIndex: =11
+
+        Separator_BetweenDateAndIndexed_FM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            FocusedBorderThickness: =0
+            Height: =60
+            Width: =1
+            X: =1210
+            Y: =TextInput_MainMenuName_EditMenu.Y -15
+            ZIndex: =12
+
+        Label_Date_Gallery_Category_FM As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.' Upload_Date'
+            Width: =203
+            X: =997
+            Y: =10
+            ZIndex: =13
+
+        Separator_BetweenIndexedAndDelete_FM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            FocusedBorderThickness: =0
+            Height: =60
+            Width: =1
+            X: =1422
+            Y: =TextInput_MainMenuName_EditMenu.Y -15
+            ZIndex: =14
+
+        Button_Delete_Gallery_FileList_FM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                ='똑실이-파일인덱스삭제'.Run(
+                    // Category
+                    ThisItem.Category,
+                    // FileName
+                    ThisItem.File_Name
+                );
+                Remove(
+                    FileUpload_table,
+                    LookUp(FileUpload_table, ID = ThisItem.ID)
+                );
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="삭제"
+            Width: =149
+            X: =1433
+            Y: =10
+            ZIndex: =15
+
+    Background_Modal_FileUpload_FM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.5)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =ModalVisible
+        Width: =1919
+        ZIndex: =13
+
+    AddButton_FM As icon.Add:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Add
+        OnSelect: |-
+            =UpdateContext({ModalVisible: true})
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        X: =1802
+        Y: =23
+        ZIndex: =19
+
+    ModalDialog_FileUpload_FM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =19
+
+        Background_ModalDialog_FM As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =336
+            HoverFill: =
+            PressedFill: =
+            Visible: =ModalVisible
+            Width: =642
+            X: =620
+            Y: =372
+            ZIndex: =14
+
+        CloseButton_Modal_FM As icon.Cancel:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =34
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext({ModalVisible: false})
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =ModalVisible
+            Width: =34
+            X: =1206
+            Y: =387
+            ZIndex: =15
+
+        Form_FileUpload_FM As form:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DataSource: =FileUpload_table
+            DefaultMode: =FormMode.New
+            Height: =200
+            NumberOfColumns: =2
+            SnapToColumns: =false
+            Visible: =ModalVisible
+            Width: =594
+            X: =645
+            Y: =436
+            ZIndex: =16
+
+            DataCard_Category_FileUpload_FM As typedDataCard.textualEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="Category"
+                Default: =ThisItem.Category
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"Category")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =181
+                MaxLength: =DataSourceInfo([@FileUpload_table], DataSourceInfo.MaxLength, "Category")
+                Required: =false
+                Update: =DataCardValue_Category_FileUpload_FM.Text
+                Width: =294
+                X: =0
+                Y: =0
+                ZIndex: =1
+
+                DataCardKey_Category_FileUpload_FM As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =34
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                DataCardValue_Category_FileUpload_FM As text:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    Default: =Parent.Default
+                    DelayOutput: =true
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(255, 255, 255, 1)
+                    MaxLength: =Parent.MaxLength
+                    PaddingLeft: =5
+                    PressedBorderColor: =RGBA(105, 121, 126, 1)
+                    PressedColor: =RGBA(51, 51, 51, 1)
+                    PressedFill: =RGBA(255, 255, 255, 1)
+                    RadiusBottomLeft: =0
+                    RadiusBottomRight: =0
+                    RadiusTopLeft: =0
+                    RadiusTopRight: =0
+                    Size: =13
+                    Tooltip: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardKey_Category_FileUpload_FM.Y + DataCardKey_Category_FileUpload_FM.Height + 5
+                    ZIndex: =2
+
+                ErrorMessage_Category_FileUpload_FM As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(168, 0, 0, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(168, 0, 0, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =10
+                    Live: =Live.Assertive
+                    PaddingBottom: =0
+                    PaddingLeft: =0
+                    PaddingRight: =0
+                    PaddingTop: =0
+                    Size: =13
+                    Text: =Parent.Error
+                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardValue_Category_FileUpload_FM.Y + DataCardValue_Category_FileUpload_FM.Height
+                    ZIndex: =3
+
+                StarVisible_Category_FileUpload_FM As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey_Category_FileUpload_FM.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey_Category_FileUpload_FM.Y
+                    ZIndex: =4
+
+            DataCard_Attachment_FileUpload_FM As typedDataCard.attachmentsEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="{Attachments}"
+                Default: =ThisItem.'첨부 파일'
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =176
+                Required: =false
+                Update: =DataCardValue_Attachment_FileUpload_FM.Attachments
+                Width: =294
+                X: =1
+                Y: =0
+                ZIndex: =1
+
+                DataCardKey_Attachment_FileUpload_FM As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =34
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                DataCardValue_Attachment_FileUpload_FM As attachments:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =131
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    IsInDataCard: =true
+                    ItemColor: =RGBA(0, 0, 0, 1)
+                    ItemFill: =RGBA(105, 121, 126, 1)
+                    ItemHoverColor: =RGBA(51, 51, 51, 1)
+                    ItemHoverFill: =RGBA(212, 212, 212, 1)
+                    Items: =Parent.Default
+                    ItemSpacing: =12
+                    MaxAttachments: =1
+                    MaxAttachmentSize: =100
+                    NoAttachmentsColor: =RGBA(166, 166, 166, 1)
+                    PaddingBottom: =5
+                    PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    Tooltip: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardKey_Attachment_FileUpload_FM.Y + DataCardKey_Attachment_FileUpload_FM.Height + 5
+                    ZIndex: =2
+
+                ErrorMessage_Attachment_FileUpload_FM As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(168, 0, 0, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(168, 0, 0, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =10
+                    Live: =Live.Assertive
+                    PaddingBottom: =0
+                    PaddingLeft: =0
+                    PaddingRight: =0
+                    PaddingTop: =0
+                    Size: =13
+                    Text: =Parent.Error
+                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardValue_Attachment_FileUpload_FM.Y + DataCardValue_Attachment_FileUpload_FM.Height
+                    ZIndex: =3
+
+                StarVisible_Attachment_FileUpload_FM As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey_Attachment_FileUpload_FM.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey_Attachment_FileUpload_FM.Y
+                    ZIndex: =4
+
+        "'Label_FileUploadForm_Title_FM' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Bold
+            Height: =64
+            Size: =24
+            Text: |-
+                ="파일 업로드
+                "
+            Visible: =ModalVisible
+            Width: =419
+            X: =645
+            Y: =387
+            ZIndex: =17
+
+        SubmitButton_FM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                ='똑실이-파일업로드'.Run(
+                    // Category
+                    DataCardValue_Category_FileUpload_FM.Text,
+                    // File
+                    {
+                        file: {
+                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                        }
+                    }
+                );
+                Patch(
+                    FileUpload_table,
+                    {
+                        제목: Concatenate(DataCardValue_Category_FileUpload_FM, "-", First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name),
+                        ' Upload_Date': Now(),
+                        Category: DataCardValue_Category_FileUpload_FM.Text,
+                        File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                        File_Type: Upper(Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")).Value),
+                        Indexed: false
+                    }
+                );
+                ResetForm(Form_FileUpload_FM);
+                UpdateContext({ModalVisible: false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="업로드"
+            Visible: =ModalVisible
+            X: =1080
+            Y: =648
+            ZIndex: =18
+
+    Refresh_FM As icon.Reload:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Reload
+        OnSelect: =Refresh(FileUpload_table)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        X: =1716
+        Y: =23
+        ZIndex: =20
+
+    Group_FileList_FM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =20
+
+        Rectangle_FileList_FM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderThickness: =2
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =818
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =1593
+            X: =273
+            Y: =215
+            ZIndex: =1
+
+        Label_FileName_FM As label:
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =63
+            Size: =18
+            Text: |-
+                ="파일명
+                "
+            Width: =696
+            X: =326
+            Y: =212
+            ZIndex: =7
+
+        Checkbox_AllCheck_FM As checkbox:
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            Height: =63
+            HoverColor: =RGBA(0, 18, 107, 1)
+            OnCheck: |-
+                =UpdateContext({SelectAll: true});
+            OnUncheck: |-
+                =UpdateContext({SelectAll: false})
+            Size: =18
+            Text: =""
+            Width: =53
+            X: =273
+            Y: =212
+            ZIndex: =8
+
+        Label_Date_FM As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =63
+            Size: =18
+            Text: ="업로드 일시"
+            Width: =229
+            X: =1255
+            Y: =212
+            ZIndex: =9
+
+        Label_Delete_FM As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =63
+            Size: =18
+            Text: ="삭제"
+            Width: =171
+            X: =1695
+            Y: =212
+            ZIndex: =10
+
+        Label_Category_FM As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =63
+            Size: =18
+            Text: ="카테고리"
+            Width: =233
+            X: =1022
+            Y: =212
+            ZIndex: =11
+
+        Label_Indexed_FM As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(238, 238, 238, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =63
+            Size: =18
+            Text: ="인덱스 여부"
+            Width: =211
+            X: =1484
+            Y: =212
+            ZIndex: =12
+
+    SubmitButton_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            ='똑실이-파일업로드'.Run(
+                // Category
+                Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                // File
+                {
+                    file: {
+                        name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                        contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
+                    }
+                }
+            );
+            ['[DEV]똑실이폴더,파일만들기'.Run(
+                Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                {
+                    file:
+                    {
+            Patch(
+                FileUpload_table,
+                {
+                    제목: Concatenate(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value, "-", First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name),
+                    ' Upload_Date': Now(),
+                    Category: Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                    File_Name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                    File_Type: Upper(Last(Split(First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name, ".")).Value),
+                    Indexed: false
+                }
+            );
+            ResetForm(Form_FileUpload_FM_1);
+            UpdateContext({ModalVisible: false});
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="업로드_성승철"
+        Visible: =false
+        X: =1000
+        Y: =212
+        ZIndex: =26
+
+    ModalDialog_FileUpload_FM_1 As group:
+        Height: =5
+        Width: =5
+        X: =20
+        Y: =20
+        ZIndex: =26
+
+        Background_ModalDialog_FM_1 As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =336
+            HoverFill: =
+            PressedFill: =
+            Visible: =false
+            Width: =642
+            X: =541
+            ZIndex: =21
+
+        CloseButton_Modal_FM_1 As icon.Cancel:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =34
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext({ModalVisible: false})
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =false
+            Width: =34
+            X: =1127
+            Y: =15
+            ZIndex: =22
+
+        Form_FileUpload_FM_1 As form:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DataSource: =FileUpload_table
+            DefaultMode: =FormMode.New
+            Height: =200
+            NumberOfColumns: =2
+            SnapToColumns: =false
+            Visible: =false
+            Width: =594
+            X: =566
+            Y: =64
+            ZIndex: =23
+
+            DataCard_Category_FileUpload_FM_1 As typedDataCard.textualEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="Category"
+                Default: =ThisItem.Category
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"Category")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =181
+                MaxLength: =DataSourceInfo([@FileUpload_table], DataSourceInfo.MaxLength, "Category")
+                Required: =false
+                Update: =Dropdown_LV2Category_FileUpload_FM_1.Selected.Value
+                Width: =294
+                X: =0
+                Y: =0
+                ZIndex: =1
+
+                DataCardKey_Category_FileUpload_FM_1 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =34
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                ErrorMessage_Category_FileUpload_FM_1 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(168, 0, 0, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(168, 0, 0, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =10
+                    Live: =Live.Assertive
+                    PaddingBottom: =0
+                    PaddingLeft: =0
+                    PaddingRight: =0
+                    PaddingTop: =0
+                    Size: =13
+                    Text: =Parent.Error
+                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =Dropdown_LV2Category_FileUpload_FM_1.Y + Dropdown_LV2Category_FileUpload_FM_1.Height
+                    ZIndex: =3
+
+                StarVisible_Category_FileUpload_FM_1 As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey_Category_FileUpload_FM_1.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey_Category_FileUpload_FM_1.Y
+                    ZIndex: =4
+
+                Dropdown_LV1Category_FileUpload_FM_1 As dropdown:
+                    BorderColor: =RGBA(166, 166, 166, 1)
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+                    ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+                    ChevronFill: =RGBA(33, 33, 33, 1)
+                    ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+                    ChevronHoverFill: =RGBA(33, 33, 33, 1)
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    Font: =Font.'Segoe UI'
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    Items: |-
+                        =Distinct(
+                            Filter(
+                                Category_table,
+                                Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                            ),
+                            LV1
+                        )
+                    PaddingBottom: =5
+                    PaddingLeft: =12
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    SelectionFill: =RGBA(105, 121, 126, 1)
+                    Size: =13
+                    Width: =214
+                    X: =30
+                    Y: =51
+                    ZIndex: =6
+
+                Dropdown_LV2Category_FileUpload_FM_1 As dropdown:
+                    BorderColor: =RGBA(166, 166, 166, 1)
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+                    ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+                    ChevronFill: =RGBA(33, 33, 33, 1)
+                    ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+                    ChevronHoverFill: =RGBA(33, 33, 33, 1)
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    Font: =Font.'Segoe UI'
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    Items: |-
+                        =Distinct(
+                            Filter(
+                                Category_table,
+                                LV1 = Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
+                                Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                            ),
+                            제목
+                        )
+                    PaddingBottom: =5
+                    PaddingLeft: =12
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    SelectionFill: =RGBA(105, 121, 126, 1)
+                    Size: =13
+                    Width: =214
+                    X: =30
+                    Y: =122
+                    ZIndex: =7
+
+            DataCard_Attachment_FileUpload_FM_1 As typedDataCard.attachmentsEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="{Attachments}"
+                Default: =ThisItem.'첨부 파일'
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =176
+                Required: =false
+                Update: =DataCardValue_Attachment_FileUpload_FM_1.Attachments
+                Width: =294
+                X: =1
+                Y: =0
+                ZIndex: =1
+
+                DataCardKey_Attachment_FileUpload_FM_1 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =34
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                DataCardValue_Attachment_FileUpload_FM_1 As attachments:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =131
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    IsInDataCard: =true
+                    ItemColor: =RGBA(0, 0, 0, 1)
+                    ItemFill: =RGBA(105, 121, 126, 1)
+                    ItemHoverColor: =RGBA(51, 51, 51, 1)
+                    ItemHoverFill: =RGBA(212, 212, 212, 1)
+                    Items: =Parent.Default
+                    ItemSpacing: =12
+                    MaxAttachments: =1
+                    MaxAttachmentSize: =100
+                    NoAttachmentsColor: =RGBA(166, 166, 166, 1)
+                    PaddingBottom: =5
+                    PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    Tooltip: =Parent.DisplayName
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardKey_Attachment_FileUpload_FM_1.Y + DataCardKey_Attachment_FileUpload_FM_1.Height + 5
+                    ZIndex: =2
+
+                ErrorMessage_Attachment_FileUpload_FM_1 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(168, 0, 0, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(168, 0, 0, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =10
+                    Live: =Live.Assertive
+                    PaddingBottom: =0
+                    PaddingLeft: =0
+                    PaddingRight: =0
+                    PaddingTop: =0
+                    Size: =13
+                    Text: =Parent.Error
+                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardValue_Attachment_FileUpload_FM_1.Y + DataCardValue_Attachment_FileUpload_FM_1.Height
+                    ZIndex: =3
+
+                StarVisible_Attachment_FileUpload_FM_1 As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey_Attachment_FileUpload_FM_1.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey_Attachment_FileUpload_FM_1.Y
+                    ZIndex: =4
+
+        "'Label_FileUploadForm_Title_FM_1' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Bold
+            Height: =64
+            Size: =24
+            Text: |-
+                ="파일 업로드
+                "
+            Visible: =false
+            Width: =419
+            X: =566
+            Y: =15
+            ZIndex: =24
+
+        SubmitButton_FM_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                ='똑실이-파일업로드'.Run(
+                    // Category
+                    Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                    // File
+                    {
+                        file: {
+                            name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
+                        }
+                    }
+                );
+                Patch(
+                    FileUpload_table,
+                    {
+                        제목: Concatenate(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value, "-", First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name),
+                        ' Upload_Date': Now(),
+                        Category: Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                        File_Name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                        File_Type: Upper(Last(Split(First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name, ".")).Value),
+                        Indexed: false
+                    }
+                );
+                ResetForm(Form_FileUpload_FM_1);
+                UpdateContext({ModalVisible: false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="업로드"
+            Visible: =false
+            X: =1001
+            Y: =276
+            ZIndex: =25
+

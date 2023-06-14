@@ -1,0 +1,2936 @@
+CategoryMenu As screen:
+    BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =UpdateContext({testHight:CountRows(
+            ForAll(Distinct(SortByColumns(Filter(Category_table, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+        ) * 80});
+        
+        Concurrent(
+        Set(ZoomLV1, "");,
+        Set(testVisible, "");,
+        Set(SelectedLV1, "");,
+        Set(SelectedLV2, "");,
+        ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));,
+        
+        //Clear(CategoryMenuCollect);
+        
+        ClearCollect(
+            Namelist,
+            Filter(
+                Office365사용자.SearchUser(
+                    {
+                        searchTerm: TextInput_AddUserSearch_CategoryMenu.Text,
+                        top: 999
+                    }
+                ),
+                AccountEnabled = true
+            )
+        );,
+        
+        ClearCollect(
+            Departmentlist,
+            Distinct(
+                ShowColumns(
+                    'Office365사용자'.SearchUser(
+                        {
+                            searchTerm2: TextInput_ShearchTeam_CategoryMenu.Text,
+                            top: 999
+                        }
+                    ),
+                    "Department"
+                ),
+                Department
+            )
+        );
+        );
+
+    New_Component_GNB_CategoryMenu As New_Component_GNB:
+        Visible: =true
+
+    Rectangle_CategoryMenuHeader_CategoryMenu As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =1
+        Width: =Parent.Width - New_Component_GNB_CategoryMenu.Width
+        X: =New_Component_GNB_BiReport.Width
+        Y: =100
+        ZIndex: =2
+
+    Rectangle_CategoryMenuBody_CategoryMenu As rectangle:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        BorderThickness: =2
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        DisplayMode: =DisplayMode.View
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =Parent.Height - Self.Y - 56
+        HoverFill: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =Parent.Width - New_Component_GNB_CategoryMenu.Width - 104
+        X: =New_Component_GNB_CategoryMenu.Width + 56
+        Y: =Rectangle_CategoryMenuHeader_CategoryMenu.Y + Rectangle_CategoryMenuHeader_CategoryMenu.Height + 56
+        ZIndex: =3
+
+    TextInput_AddMainMenu_CategoryMenu As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: ="Add New Category"
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PaddingLeft: =24
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =18
+        X: =Icon_AddMainMenu_CategoryMenu.X + Icon_AddMainMenu_CategoryMenu.Width + 20
+        Y: =Icon_AddMainMenu_CategoryMenu.Y
+        ZIndex: =4
+
+    Separator_GalleryHeader_CategoryMenu As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 1)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =1
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =1
+        Width: =Rectangle_CategoryMenuBody_CategoryMenu.Width
+        X: =Rectangle_CategoryMenuBody_CategoryMenu.X
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y + 80
+        ZIndex: =5
+
+    Label_GalleryHeaderMenu_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(238, 238, 238, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Semibold
+        Height: =Separator_GalleryHeader_CategoryMenu.Y - Rectangle_CategoryMenuBody_CategoryMenu.Y
+        PaddingLeft: =24
+        Size: =28
+        Text: ="Category"
+        Width: =Separator_GalleryHeadr1_CategoryMenu.X - Self.X
+        X: =Rectangle_CategoryMenuBody_CategoryMenu.X
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y
+        ZIndex: =6
+
+    Separator_GalleryHeadr1_CategoryMenu As rectangle:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        BorderThickness: =1
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =Label_GalleryHeaderMenu_CategoryMenu.Height
+        Width: =1
+        X: =680
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y
+        ZIndex: =7
+
+    Label_GalleryHeaderTeam_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(238, 238, 238, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Semibold
+        Height: =Separator_GalleryHeader_CategoryMenu.Y - Rectangle_CategoryMenuBody_CategoryMenu.Y
+        PaddingLeft: =24
+        Size: =28
+        Text: ="Team"
+        Width: =Separator_GalleryHeadr2_CategoryMenu.X - Self.X
+        X: =Separator_GalleryHeadr1_CategoryMenu.X
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y
+        ZIndex: =8
+
+    Separator_GalleryHeadr2_CategoryMenu As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        Fill: =RGBA(112, 112, 112, 1)
+        Height: =Label_GalleryHeaderMenu_CategoryMenu.Height
+        Width: =1
+        X: =1375
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y
+        ZIndex: =9
+
+    Label_GalleryHeaderUsers_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(238, 238, 238, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Semibold
+        Height: =Separator_GalleryHeader_CategoryMenu.Y - Rectangle_CategoryMenuBody_CategoryMenu.Y
+        PaddingLeft: =24
+        Size: =28
+        Text: ="Users"
+        Width: =Rectangle_MainBody_EditMenu.X + Rectangle_MainBody_EditMenu.Width - Self.X
+        X: =Separator_GalleryHeadr2_CategoryMenu.X
+        Y: =Rectangle_CategoryMenuBody_CategoryMenu.Y
+        ZIndex: =10
+
+    Gallery_Main_CategoryMenu As gallery.variableTemplateHeightGallery:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Height: |-
+            =If(
+                testHight >= 700,
+                650,
+                testHight
+            ) + Gallery_Sub_CategoryMenu.Height
+        Items: |-
+            =ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            //SortByColumns(GNB_MENU, "LV1Order", Ascending)
+        Layout: =Layout.Vertical
+        OnSelect: |-
+            =Set(SelectedLV2,"");
+            Set(SelectedLV1, ThisItem.Result);
+            
+            If(ThisItem.Result=SelectedLV1, //Checkbox1.Value,
+            Set(CheckedLV1, ThisItem.Result);
+            Set(CheckedLV1Order, LookUp(Category_table, LV1=ThisItem.Result, LV1Order));
+            Set(CheckedID, LookUp(Category_table, LV1=ThisItem.Result, ID));,
+            
+            Set(CheckedLV1, Blank());
+            Set(CheckedLV2, Blank());
+            Set(CheckedLV1Order, Blank());
+            Set(CheckedLV2Order, Blank());
+            Set(CheckedID, Blank());
+            );
+            
+            Set(FirstLV1Order, First(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            Set(PrevLV1Order, CheckedLV1Order-1);
+            Set(NextLV1Order, CheckedLV1Order+1);
+            Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            Set(BlankLV1Order, LastLV1Order +1);
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: |-
+            =If(
+                Gallery_Sub_CategoryMenu.Visible=true,
+                CountRows(
+                    Filter(
+                        Category_table, LV1=ZoomLV1
+                    )
+                ) * 75 + 72,
+                500
+            )
+        Width: =Rectangle_CategoryMenuBody_CategoryMenu.Width
+        X: =296
+        Y: =238
+        ZIndex: =11
+
+        Gallery_Sub_CategoryMenu As gallery.variableTemplateHeightGallery:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Height: |-
+                =If(
+                    testVisible=ThisItem.Result,
+                    CountRows(
+                        Filter(
+                            Category_table,
+                            LV1 = ThisItem.Result
+                        )
+                    ) * 80,
+                    0
+                )
+                
+                
+                /*CountRows(
+                    Filter(
+                        GNB_MENU,
+                        LV1 = ThisItem.Result
+                    )
+                ) * 75.835
+                */
+                
+                /*If(
+                    testVisible=ThisItem.Result,
+                    CountRows(
+                        Filter(
+                            GNB_MENU,
+                            LV1 = ThisItem.Result
+                        )
+                    ) * 75,
+                    0
+                )*/
+                
+                
+                
+                /*ForAll(
+                    Sequence(CountRows(Filter(CategoryMenuCollect, OData__x004c_V1=ThisItem.Result))),
+                    Sum(
+                );*/
+            Items: =SortByColumns(Filter(Category_table, LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
+            Layout: =Layout.Vertical
+            OnSelect: |
+                =Set(SelectedLV2,ThisItem.제목);
+                Set(SelectedLV1, "");
+                
+                If(ThisItem.제목=SelectedLV2, //Checkbox5.Value,
+                Set(CheckedLV1, ThisItem.LV1);
+                Set(CheckedLV2, ThisItem.제목);
+                Set(CheckedLV1Order, ThisItem.LV1Order);
+                Set(CheckedLV2Order, ThisItem.LV2Order);
+                Set(CheckedID, ThisItem.ID);,
+                
+                Set(CheckedLV1, Blank());
+                Set(CheckedLV2, Blank());
+                Set(CheckedLV1Order, Blank());
+                Set(CheckedLV2Order, Blank());
+                Set(CheckedID, Blank());
+                );
+                
+                Set(FirstLV2Order, First(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(PrevLV2Order, CheckedLV2Order-1);
+                Set(NextLV2Order, CheckedLV2Order+1);
+                Set(LastLV2Order, Last(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(BlankLV2Order, LastLV2Order +1);
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: |-
+                =77
+                /*
+                CountRows(
+                    Filter(
+                        GNB_MENU,
+                        LV1 = ThisItem.Result
+                    )
+                ) * 72
+                */
+            Visible: =If(testVisible=ThisItem.Result, true, false)
+            Width: =Parent.Width
+            Y: =72
+            ZIndex: =2
+
+            Separator_SubGallery_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                BorderThickness: =1
+                Fill: =RGBA(0, 0, 0, 1)
+                Height: =1
+                Width: =Parent.Width
+                Y: =TextInput_MenuName_CategoryMenu.Y + Label_ComplateUsersName_CategoryMenu.Height + 15
+                ZIndex: =1
+
+            Icon_SelectSubMenu_CategoryMenu As icon.Check:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: |-
+                    =If(
+                        ThisItem.ID = CheckedID,
+                        RGBA(184,0,0,1),
+                        RGBA(0, 0, 0, 1)
+                    )
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =45
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Pin
+                OnSelect: =Select(Parent);
+                PaddingBottom: =5
+                PaddingLeft: =5
+                PaddingRight: =5
+                PaddingTop: =5
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =45
+                X: =42
+                Y: =Label_ComplateUsersName_CategoryMenu.Y + (Label_ComplateUsersName_CategoryMenu.Height - Self.Height)/2
+                ZIndex: =2
+
+            TextInput_SubMenuName_CategoryMenu As text:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                Default: |-
+                    =If(
+                        ThisItem.제목=LookUp(Category_table, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
+                        Blank(),
+                        ThisItem.제목
+                    )
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                DisabledFill: =RGBA(244, 244, 244, 1)
+                FocusedBorderThickness: =4
+                Height: =Label_ComplateUsersName_CategoryMenu.Height
+                HintText: |-
+                    =If(
+                        IsNumeric(ThisItem.LV1),
+                        "새 메뉴",
+                        ThisItem.LV1
+                    )
+                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverColor: =RGBA(51, 51, 51, 1)
+                HoverFill: =RGBA(255, 255, 255, 1)
+                Mode: =TextMode.MultiLine
+                OnChange: |-
+                    =Patch(
+                        CategoryMenuCollect,
+                        LookUp(CategoryMenuCollect, ID=CheckedID), //ThisItem.ID = __CheckedID
+                        { 
+                            OData__x004c_V1:TextInput_MenuName_CategoryMenu.Text, 
+                            Title:TextInput_SubMenuName_CategoryMenu.Text,
+                            LV1Order: CheckedLV1Order, 
+                            LV2Order: CheckedLV2Order
+                        }
+                    )
+                OnSelect: |-
+                    =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
+                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV1, "");
+                    Select(Parent)
+                PaddingLeft: =24
+                PressedBorderColor: =RGBA(105, 121, 126, 1)
+                PressedColor: =RGBA(51, 51, 51, 1)
+                PressedFill: =RGBA(255, 255, 255, 1)
+                RadiusBottomLeft: =0
+                RadiusBottomRight: =0
+                RadiusTopLeft: =0
+                RadiusTopRight: =0
+                Size: =15
+                Width: =259
+                X: =Icon_SelectSubMenu_CategoryMenu.X + Icon_SelectSubMenu_CategoryMenu.Width + 13
+                Y: =Label_ComplateUsersName_CategoryMenu.Y
+                ZIndex: =3
+
+            Separator_LeftTeam_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                Fill: =RGBA(112, 112, 112, 1)
+                Height: =TextInput_SubMenuName_CategoryMenu.Height + 30
+                Width: =1
+                X: =Separator_RightMenuName_CategoryMenu.X
+                ZIndex: =4
+
+            Separator_LeftUsers_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                Fill: =RGBA(112, 112, 112, 1)
+                Height: =TextInput_SubMenuName_CategoryMenu.Height + 30
+                Width: =1
+                X: =Separator_RightTeamName_CategoryMenu.X
+                ZIndex: =5
+
+            Label_ComplateUsersName_CategoryMenu As label:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Height: |-
+                    =If(
+                        Self.AutoHeight,
+                        0,
+                        45
+                    )
+                OnSelect: =Select(Parent)
+                Overflow: =Overflow.Scroll
+                PaddingLeft: =24
+                Size: =18
+                Text: |-
+                    =//Concat(ThisItem.'Users (Users0)', DisplayName & " ( " & Email & " ) ", ",                                                  ")
+                    //Concat(MyPeople, DisplayName & " ( " & Mail & " ) ", ",                                                                    ")
+                    //Concat(LookUp(CategoryMenuCollect, Title=If(__CheckedLV2<>ThisItem.Title, ThisItem.Title, __CheckedLV2), Users0), DisplayName & " (" & Email & ")", ",                     ")
+                    If(
+                        CountRows(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Users
+                            )
+                        ) > 1,
+                        First(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Users
+                            )
+                        ).DisplayName & " 외" & Int(
+                            CountRows(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    Title = If(
+                                        CheckedLV2 <> ThisItem.제목,
+                                        ThisItem.제목,
+                                        CheckedLV2
+                                    ),
+                                    Users
+                                )
+                            )
+                        ) - 1 & "명",
+                        First(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Users
+                            )
+                        ).DisplayName
+                    )
+                Width: =Separator_LeftDeletIcon_CategoryMenu.X - Self.X - 114
+                Wrap: =false
+                X: =Separator_LeftUsers_CategoryMenu.X + Separator_LeftUsers_CategoryMenu.Width + 36
+                Y: =15
+                ZIndex: =6
+
+            Separator_LeftDeletIcon_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                Fill: =RGBA(112, 112, 112, 1)
+                Height: =TextInput_SubMenuName_CategoryMenu.Height + 30
+                Width: =1
+                X: =Separator_RightUsers_CategoryMenu.X
+                ZIndex: =7
+
+            Icon_DeleteSubMenu_CategoryMenu As icon.Share:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                DisplayMode: |-
+                    =If(
+                        ThisItem.ID = CheckedID,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                FocusedBorderThickness: =4
+                Height: =45
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Cancel
+                OnSelect: |-
+                    =
+                    Select(Parent);
+                    /*
+                    Remove(
+                        GNB_MENU,
+                        First(
+                            Filter(
+                                GNB_MENU,
+                                ID=CheckedID
+                            )
+                        )
+                    );
+                    UpdateContext({ ShowHeight:
+                        CountRows(
+                        ForAll(SortByColumns(Filter(GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), {Result: ThisRecord.LV1})
+                    ) * 80 + 
+                        CountRows(
+                            Filter(
+                                GNB_MENU, LV1=ZoomLV1
+                            )
+                        ) * 80 + 75}
+                    );
+                    */
+                    Set(DelPopUp,true)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Tooltip: ="선택한 메뉴 삭제"
+                Width: =45
+                X: =Separator_LeftDeletIcon_CategoryMenu.X + Separator_LeftDeletIcon_CategoryMenu.Width + 15
+                Y: =Icon_SelectSubMenu_CategoryMenu.Y
+                ZIndex: =8
+
+            Icon_ComplateUserList_CategoryMenu As icon.Post:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =42
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Person
+                OnSelect: |-
+                    =Select(Parent);
+                    ClearCollect(MyPeople,RenameColumns(LookUp(CategoryMenuCollect, Title=ThisItem.제목, Users), "Email", "UserPrincipalName"));
+                    Set(MAMode, "Search");
+                    Set(EditUserVisibleVal, true);
+                    //ClearCollect(MyPeople,RenameColumns( ThisItem.'Users (Users0)', "Email", "UserPrincipalName"));
+                    //ClearCollect(MyPeople, ThisItem.'Users (Users0)');
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =42
+                X: =Label_ComplateUsersName_CategoryMenu.X + Label_ComplateUsersName_CategoryMenu.Width + 10
+                Y: =Icon_SelectSubMenu_CategoryMenu.Y
+                ZIndex: =9
+
+            Icon_AddUserButton_CategoryMenu As icon.Post:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                DisplayMode: |-
+                    =If(
+                        ThisItem.ID = CheckedID,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                FocusedBorderThickness: =4
+                Height: =42
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.AddUser
+                OnSelect: |-
+                    =Select(Parent);
+                    Clear(MyPeople);
+                    //ClearCollect(MyPeople,RenameColumns( LookUp(CategoryMenuCollect, Title=ThisItem.Title, Users0), "Email", "UserPrincipalName"));
+                    Set(MAMode, "Add");
+                    Set(EditUserVisibleVal, true);
+                    //ClearCollect(MyPeople,RenameColumns( ThisItem.'Users (Users0)', "Email", "UserPrincipalName"));
+                    //ClearCollect(MyPeople, ThisItem.'Users (Users0)');
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =42
+                X: =Icon_ComplateUserList_CategoryMenu.X + Icon_ComplateUserList_CategoryMenu.Width + 10
+                Y: =Icon_SelectSubMenu_CategoryMenu.Y +2
+                ZIndex: =11
+
+            Label_ComplateTeamName_CategoryMenu As label:
+                BorderColor: =RGBA(179, 179, 179, 1)
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Height: =42
+                OnSelect: =Select(Parent)
+                Overflow: =Overflow.Scroll
+                PaddingLeft: =24
+                Size: =18
+                Text: |-
+                    =If(
+                        CountRows(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Distinct(
+                                    Department,
+                                    Department
+                                )
+                            )
+                        ) > 1,
+                        First(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Department
+                            )
+                        ).Department & " 외" & Int(
+                            CountRows(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    Title = If(
+                                        CheckedLV2 <> ThisItem.제목,
+                                        ThisItem.제목,
+                                        CheckedLV2
+                                    ),
+                                    Distinct(
+                                        Department,
+                                        Department
+                                    )
+                                )
+                            )
+                        ) - 1 & "개의 팀",
+                        If(
+                            CountRows(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    Title = If(
+                                        CheckedLV2 <> ThisItem.제목,
+                                        ThisItem.제목,
+                                        CheckedLV2
+                                    ),
+                                    Distinct(
+                                        Department,
+                                        Department
+                                    )
+                                )
+                            ) = 0,
+                            "할당된 팀이 없습니다.",
+                            First(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    Title = If(
+                                        CheckedLV2 <> ThisItem.제목,
+                                        ThisItem.제목,
+                                        CheckedLV2
+                                    ),
+                                    Department
+                                )
+                            ).Department
+                        )
+                    )
+                    /*
+                    If(
+                        CountRows(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Distinct(Teams,Department)
+                            )
+                        ) > 1,
+                        First(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Teams
+                            )
+                        ).Department & " 외" & Int(
+                            CountRows(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    Title = If(
+                                        CheckedLV2 <> ThisItem.제목,
+                                        ThisItem.제목,
+                                        CheckedLV2
+                                    ),
+                                    Distinct(Teams,Department)
+                                )
+                            )
+                        ) - 1 & "개의 팀",
+                        First(
+                            LookUp(
+                                CategoryMenuCollect,
+                                Title = If(
+                                    CheckedLV2 <> ThisItem.제목,
+                                    ThisItem.제목,
+                                    CheckedLV2
+                                ),
+                                Teams
+                            )
+                        ).Department
+                    )
+                    */
+                Width: =535
+                X: =Separator_LeftTeam_CategoryMenu.X + Separator_LeftTeam_CategoryMenu.Width + 36
+                Y: =Label_ComplateUsersName_CategoryMenu.Y
+                ZIndex: =12
+
+            Icon_ComplateTeamList_CategoryMenu As icon.Post:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =42
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Person
+                OnSelect: |-
+                    =Select(Parent);
+                    //ClearCollect(MyPeople2,RenameColumns( LookUp(CategoryMenuCollect, Title=ThisItem.제목, Teams), "Email", "UserPrincipalName"));
+                    ClearCollect(MyPeople2,RenameColumns( LookUp(CategoryMenuCollect, Title=ThisItem.제목, Department), "Email", "UserPrincipalName"));
+                    
+                    Set(MAMode, "Search");
+                    Set(AddTeamPopup, true);
+                    Set(Ok, true);
+                    //ClearCollect(MyPeople,RenameColumns( ThisItem.'Users (Users0)', "Email", "UserPrincipalName"));
+                    //ClearCollect(MyPeople, ThisItem.'Users (Users0)');
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =42
+                X: =969
+                Y: =13
+                ZIndex: =13
+
+            Icon_AddTeamButton_CategoryMenu As icon.Post:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                DisplayMode: |-
+                    =If(
+                        ThisItem.ID = CheckedID,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                FocusedBorderThickness: =4
+                Height: =42
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.AddUser
+                OnSelect: |
+                    =Select(Parent);
+                    Set(SelectedLV1, ThisItem.LV1);
+                    Set(SelectedLV2, "");
+                    Set(CheckedID, LookUp(Category_table, LV1=ThisItem.LV1, ID));
+                    Set(MAMode , "TeamAdd");
+                    Set(AddTeamPopup, true);
+                    Clear(MyPeople)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =42
+                X: =1021
+                Y: =15
+                ZIndex: =14
+
+        Separator_MainGallery_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            Height: =1
+            Width: =Rectangle_CategoryMenuBody_CategoryMenu.X + Rectangle_CategoryMenuBody_CategoryMenu.Width - Parent.X
+            Y: =71
+            ZIndex: =3
+
+        Icon_OpenSubGallery_CategoryMenu As icon.Check:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =TextInput_MenuName_CategoryMenu.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: |-
+                =If(
+                    Gallery_Sub_CategoryMenu.Visible = true,
+                    Icon.ZoomOut,
+                    Icon.ZoomIn
+                )
+            OnSelect: |-
+                =If(ZoomLV1<>ThisItem.Result, Set(ZoomLV1,ThisItem.Result), Set(ZoomLV1, ""));
+                If(testVisible<>ThisItem.Result ,Set(testVisible,ThisItem.Result), Set(testVisible,""));
+                If(ZoomLV1="",
+                If(ThisItem.IsSelected, UpdateContext({ testHight: 
+                CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80})),
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}));
+                //Select(TextInput4)
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                Select(Parent);
+            PaddingBottom: =5
+            PaddingLeft: =5
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =Self.Height
+            X: =20
+            Y: =15
+            ZIndex: =4
+
+        TextInput_MenuName_CategoryMenu As text:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderThickness: =2
+            Color: =RGBA(0, 0, 0, 1)
+            Default: |-
+                =If(
+                    ThisItem.Result=Text(LookUp(Category_table, LV1=Text(ThisItem.Result), LV1Order)),
+                    Blank(),
+                    ThisItem.Result
+                )
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =4
+            Height: =45
+            HintText: |-
+                =If(
+                    IsNumeric(ThisItem.Result),
+                    "새 메뉴",
+                    ThisItem.Result
+                )
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            OnChange: |-
+                =ForAll(
+                    Sequence(CountRows(Filter(CategoryMenuCollect, OData__x004c_V1=ThisItem.Result))),
+                    Patch(
+                        CategoryMenuCollect, LookUp(CategoryMenuCollect, OData__x004c_V1=ThisItem.Result), 
+                        { 
+                            OData__x004c_V1:TextInput_MenuName_CategoryMenu.Text 
+                            }
+                    )
+                );
+                /*
+                If(
+                    IsBlank(LookUp(NewPortalCollect, OData__x004c_V1=ThisItem.Result, LV1Order)),
+                    Notify("Admin 메뉴는 편집할 수 없습니다.")
+                )*/
+            OnSelect: |-
+                =//If(SelectedLV1<>ThisItem.Result, Set(SelectedLV1,ThisItem.Result), Set(SelectedLV1, ""));
+                Set(SelectedLV1, ThisItem.Result);
+                Set(SelectedLV2, "");
+                Select(Parent)
+            PaddingLeft: =24
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =18
+            Width: =Separator_GalleryHeadr1_CategoryMenu.X - Rectangle_CategoryMenuBody_CategoryMenu.X - Self.X - 20
+            X: =Icon_OpenSubGallery_CategoryMenu.X + Icon_OpenSubGallery_CategoryMenu.Width + 13
+            Y: =Icon_OpenSubGallery_CategoryMenu.Y
+            ZIndex: =5
+
+        Separator_RightMenuName_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            Height: =72
+            Width: =1
+            X: =Separator_GalleryHeadr1_CategoryMenu.X - Rectangle_CategoryMenuBody_CategoryMenu.X -1
+            ZIndex: =6
+
+        TextInput_TeamName_CategoryMenu As text:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderThickness: =2
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =//LookUp(GNB_MENU, LV1=Text(ThisItem.Result), Teams)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: |-
+                =DisplayMode.Disabled
+                //DisplayMode.edit
+            FocusedBorderThickness: =4
+            Height: =45
+            HintText: ="팀 할당"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            OnChange: =//LookUp(GNB_MENU, LV1=Text(ThisItem.Result), Teams)
+            OnSelect: =Select(Parent)
+            PaddingLeft: =24
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =18
+            Width: =Label_GalleryHeaderTeam_CategoryMenu.Width - 72
+            X: =Separator_RightMenuName_CategoryMenu.X + Separator_RightMenuName_CategoryMenu.Width + 36
+            Y: =Icon_OpenSubGallery_CategoryMenu.Y
+            ZIndex: =7
+
+        Separator_RightTeamName_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            Height: =Separator_RightMenuName_CategoryMenu.Height
+            Width: =1
+            X: =TextInput_TeamName_CategoryMenu.X + TextInput_TeamName_CategoryMenu.Width + 35
+            Y: =Separator_RightMenuName_CategoryMenu.Y
+            ZIndex: =8
+
+        TextInput_UsersName_CategoryMenu As text:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            BorderThickness: =2
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =//LookUp(GNB_MENU, LV1=ThisItem.Result, 'Users (Users0)')
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            Height: =45
+            HintText: ="사용자 입력"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            OnChange: |-
+                =/*ForAll(Sequence(CountRows(Filter(NewPortalCollect, OData__x004c_V1=TextInput4.HintText))),
+                Patch(NewPortalCollect, LookUp(NewPortalCollect,OData__x004c_V1=TextInput4.HintText), {OData__x004c_V1:TextInput4.Text, Remarks:TextInput4_4.Text}))*/
+            OnSelect: |-
+                =//If(SelectedLV1<>ThisItem.Result, Set(SelectedLV1,ThisItem.Result), Set(SelectedLV1, ""));
+                Set(SelectedLV1, ThisItem.Result);
+                Set(SelectedLV2, "");
+                Select(Parent)
+            PaddingLeft: =24
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =18
+            Width: =Label_GalleryHeaderUsers_CategoryMenu.Width - 72 - 75
+            X: =Separator_RightTeamName_CategoryMenu.X + Separator_RightTeamName_CategoryMenu.Width + 36
+            Y: =Icon_OpenSubGallery_CategoryMenu.Y
+            ZIndex: =9
+
+        Separator_RightUsers_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =RGBA(112, 112, 112, 1)
+            Height: =Separator_RightMenuName_CategoryMenu.Height
+            Width: =1
+            X: =TextInput_UsersName_CategoryMenu.X + TextInput_UsersName_CategoryMenu.Width + 36
+            Y: =Separator_RightMenuName_CategoryMenu.Y
+            ZIndex: =10
+
+        Icon_DeleteMainList_CategoryMenu As icon.Share:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: |-
+                =If(
+                    ThisItem.Result = CheckedLV1,
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
+            FocusedBorderThickness: =4
+            Height: =45
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =Select(Parent);
+                /*
+                ForAll(
+                    Sequence(CountRows(Filter(GNB_MENU, LV1=ThisItem.Result))),
+                    Remove(GNB_MENU, LookUp(GNB_MENU,LV1=ThisItem.Result))
+                );
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                    ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80 });
+                
+                Refresh(GNB_MENU);
+                Set(ZoomLV1, "");
+                Set(testVisible, "");
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                */
+                Set(DelpopUpMain,true)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: ="선택한 메뉴 삭제"
+            Width: =Self.Height
+            X: =Separator_RightUsers_CategoryMenu.X + Separator_RightUsers_CategoryMenu.Width + 15
+            Y: =15
+            ZIndex: =11
+
+        Button_MainUsersName_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =TextInput_TeamName_CategoryMenu.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =
+            OnSelect: |-
+                =Select(Parent);
+                
+                If(ZoomLV1<>ThisItem.Result, Set(ZoomLV1,ThisItem.Result), Set(ZoomLV1, ""));
+                If(testVisible<>ThisItem.Result ,Set(testVisible,ThisItem.Result), Set(testVisible,""));
+                If(testVisible="",
+                If(ThisItem.IsSelected, UpdateContext({ testHight: 
+                CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80})),
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}));
+                //Select(TextInput4)
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                Select(Parent);
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            PressedBorderColor: =
+            PressedColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Width: =TextInput_UsersName_CategoryMenu.X + TextInput_UsersName_CategoryMenu.Width - Self.X
+            X: =TextInput_UsersName_CategoryMenu.X
+            Y: =TextInput_TeamName_CategoryMenu.Y
+            ZIndex: =12
+
+        Button_MainMenuName_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =TextInput_MenuName_CategoryMenu.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            PressedBorderColor: =
+            PressedColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Visible: =false
+            Width: =TextInput_MenuName_CategoryMenu.Width
+            X: =TextInput_MenuName_CategoryMenu.X
+            Y: =TextInput_MenuName_CategoryMenu.Y
+            ZIndex: =13
+
+        Separator_MainHeader_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Fill: =RGBA(112, 112, 112, 1)
+            Height: =1
+            OnSelect: =true
+            Width: =Rectangle_MainBody_EditMenu.Width
+            ZIndex: =14
+
+        TextInput_SubAddMainMenu_CategoryMenu As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            Default: ="Add Sub Category"
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PaddingLeft: =24
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =18
+            Visible: =Gallery_Sub_CategoryMenu.Visible
+            X: =Icon_SubAddMainMenu_CategoryMenu.X + Icon_SubAddMainMenu_CategoryMenu.Width + 20
+            Y: =Icon_SubAddMainMenu_CategoryMenu.Y
+            ZIndex: =15
+
+        Icon_SubAddMainMenu_CategoryMenu As icon.Check:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =TextInput_SubAddMainMenu_CategoryMenu.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.AddLibrary
+            OnSelect: |-
+                =//Set(LastLV2Order, Last(SortByColumns(Category_table,"LV2Order", SortOrder.Ascending)).LV2Order);
+                Set(LastLV2Order, Last(Filter(Category_table,LV1=ThisItem.Result)).LV2Order);
+                
+                If(
+                    IsBlank(LastLV2Order),
+                    Set(LastLV2Order, 0)
+                );
+                Set(SelectedLV1, ThisItem.Result);
+                
+                Patch(
+                    Category_table, 
+                    Defaults(Category_table), 
+                    { 제목:LastLV2Order+1, LV1:ZoomLV1, LV1Order:LookUp(Category_table,LV1=ZoomLV1,LV1Order), LV2Order:LastLV2Order+1 }
+                );
+                
+                ClearCollect(
+                    CategoryMenuCollect,
+                    ShowColumns(
+                        SortByColumns(Category_table, "LV1Order", SortOrder.Ascending),
+                        "Title",
+                        "OData__x004c_V1",
+                        "LV1Order",
+                        "LV2Order",
+                        "Department",
+                        "ID"
+                    )
+                );
+                UpdateContext({ testHight:
+                    CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80 });
+                //Select(TextInput4)
+                
+                Concurrent(
+                Set(ZoomLV1, "");,
+                Set(testVisible, "");,
+                Set(SelectedLV1, "");,
+                Set(SelectedLV2, "");
+                );
+                Refresh(Category_table);
+                Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            PaddingBottom: =5
+            PaddingLeft: =5
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =Gallery_Sub_CategoryMenu.Visible
+            Width: =Self.Height
+            X: =110
+            Y: =Gallery_Sub_CategoryMenu.Y +Gallery_Sub_CategoryMenu.Height +10
+            ZIndex: =16
+
+        Separator_Blank_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =Icon_SubAddMainMenu_CategoryMenu.Height +25
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Visible: =Gallery_Sub_CategoryMenu.Visible
+            X: =539
+            Y: =Icon_SubAddMainMenu_CategoryMenu.Y
+            ZIndex: =17
+
+    Label_CategoryMenuTitle_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: ="카테고리 관리"
+        Width: =393
+        X: =Image_CategoryMenuTitel_CategoryMenu.X + Image_CategoryMenuTitel_CategoryMenu.Width +10
+        Y: =23
+        ZIndex: =12
+
+    Image_CategoryMenuTitel_CategoryMenu As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =50
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='MicrosoftTeams-image (11)'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =50
+        X: =283
+        Y: =30
+        ZIndex: =13
+
+    Button_CategoryMenuSAVEPatch_CategoryMenu As button:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FontWeight: =FontWeight.Semibold
+        Height: =45
+        HoverBorderColor: =RGBA(243, 115, 33, 1)
+        HoverColor: =RGBA(243, 115, 33, 1)
+        HoverFill: =
+        OnSelect: |-
+            =Patch(
+                Category_table,
+                CategoryMenuCollect
+            );
+            Notify(
+                    "저장완료.",
+                    NotificationType.Success,
+                    1000
+                );
+            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));
+            
+            UpdateContext({ testHight:
+                CountRows(
+                ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            ) * 80 });
+            //Select(TextInput4)
+            Set(ZoomLV1, "");
+            Set(testVisible, "");
+            Set(SelectedLV1, "");
+            Set(SelectedLV2, "");
+        PressedBorderColor: =RGBA(243, 115, 33, 1)
+        PressedColor: =RGBA(243, 115, 33, 1)
+        PressedFill: =
+        Size: =18
+        Text: ="Save"
+        Width: =140
+        X: =Rectangle_MainBody_EditMenu.X + Rectangle_MainBody_EditMenu.Width - Self.Width
+        Y: =(Separator_MainBodyheader_EditMenu.Y - Self.Height)/2
+        ZIndex: =14
+
+    Group_DeleteMemberSub_CategoryMenu As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =29
+
+        Rectangle_DeleteMemberSub_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =396
+            Visible: =DelPopUp=true
+            Width: =772
+            X: =680
+            Y: =329
+            ZIndex: =22
+
+        Button_OKDeleteMamberSub_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =Remove(
+                    Category_table,
+                    First(
+                        Filter(
+                            Category_table,
+                            ID=CheckedID
+                        )
+                    )
+                );
+                UpdateContext({ ShowHeight:
+                    CountRows(
+                    ForAll(SortByColumns(Filter(Category_table, LV1<>Blank()), "LV1Order", SortOrder.Ascending), {Result: ThisRecord.LV1})
+                ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}
+                );
+                
+                Set(DelPopUp,false)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="확인"
+            Visible: =DelPopUp=true
+            X: =864
+            Y: =662
+            ZIndex: =23
+
+        Button_CencleDeleteMamberSub_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: =Set(DelPopUp,false)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="취소"
+            Visible: =DelPopUp=true
+            X: =1107
+            Y: =Button_OKDeleteMamberSub_CategoryMenu.Y
+            ZIndex: =24
+
+        Label_DeleteMemberSub_CategoryMenu As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Height: =92
+            Size: =30
+            Text: ="삭제하시겠습니까?"
+            Visible: =DelPopUp=true
+            Width: =391
+            X: =876
+            Y: =447
+            ZIndex: =25
+
+    Label_MemberAddCompleteName_CategoryMenu As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =15
+        Text: =Last(Filter(MyPeople,DisplayName = DisplayName,DisplayName)).DisplayName
+        Visible: |-
+            =If(
+                TextInput_AddUserSearch_CategoryMenu.Visible = true,
+                true,
+                false
+            )
+        Width: =81
+        X: =965
+        Y: =685
+        ZIndex: =30
+
+    Label_MemberAddComplete_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =15
+        Text: ="님 추가 완료"
+        Visible: |-
+            =If(
+                Label_MemberAddCompleteName_CategoryMenu.Visible = true 
+            && !IsBlank(Last(Filter(MyPeople, DisplayName = DisplayName, DisplayName)).DisplayName),
+                true,
+                false
+            )
+        X: =Label_MemberAddCompleteName_CategoryMenu.X + 70
+        Y: =Label_MemberAddCompleteName_CategoryMenu.Y
+        ZIndex: =31
+
+    Label_CountMainMenu_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =18
+        Text: |+
+            =//"메인 메뉴" & " : " & CountRows(Filter(GNB_MENU,LV2Order=1)) & "개"
+            //"메인 메뉴 : " & CountRows(Filter(GNB_MENU, !IsBlank(LV1))) & "개"
+            " 메인 메뉴 : " & CountRows(Distinct(Filter(Category_table, !IsBlank(LV1)&& LV1 <> "Admin"), LV1)) & "개"
+            
+        Width: =218
+        X: =296
+        Y: =109
+        ZIndex: =32
+
+    Label_CountSubMenu_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =18
+        Text: |-
+            =/*"할당한 인원이 없는 메인메뉴 " & " : " & CountRows(Filter(GNB_MENU, LV2Order=1 && IsEmpty(Users))) & "개" &" -> " & Concat(
+                Filter(GNB_MENU, LV2Order=1 && IsEmpty(Users)),
+                LV1 & " "
+                
+            )*/
+            "서브 메뉴" & " : " & CountRows(Filter(Category_table,!IsBlank(LV2Order))) & "개"
+        Width: =222
+        X: =599
+        Y: =109
+        ZIndex: =33
+
+    Group_DeleteMemberMain_CategoryMenu As group:
+        Height: =5
+        Width: =5
+        X: =20
+        Y: =20
+        ZIndex: =33
+
+        Rectangle_DeleteMemberMain_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =396
+            Visible: =DelpopUpMain=true
+            Width: =772
+            X: =680
+            Y: =272
+            ZIndex: =26
+
+        Button_OKDeleteMamberMain_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =ForAll(
+                    Sequence(CountRows(Filter(Category_table, LV1=CheckedLV1))),
+                    Remove(Category_table, LookUp(Category_table,LV1=CheckedLV1))
+                );
+                //Remove(Category_table,Filter(Category_table,LV1=CheckedLV1));
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80 });
+                
+                //Refresh(Category_table);
+                Set(ZoomLV1, "");
+                Set(testVisible, "");
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                Set(DelpopUpMain,false)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="확인"
+            Visible: =DelpopUpMain=true
+            X: =864
+            Y: =605
+            ZIndex: =27
+
+        Button_CencleDeleteMamberMain_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: =Set(DelpopUpMain,false)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="취소"
+            Visible: =DelpopUpMain=true
+            X: =1107
+            Y: =605
+            ZIndex: =28
+
+        Label_DeleteMemberMain_CategoryMenu As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Height: =92
+            Size: =30
+            Text: ="삭제하시겠습니까?"
+            Visible: =DelpopUpMain=true
+            Width: =391
+            X: =876
+            Y: =390
+            ZIndex: =29
+
+    Group_AddUserPopUp_CategoryMenu As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =33
+
+        Rectangle_ComplateUserList_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =580
+            Visible: =EditUserVisibleVal
+            Width: =494
+            X: =821
+            Y: =222
+            ZIndex: =15
+
+        Button_OKComplateUser_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |+
+                =If(
+                    MAMode = "Search",
+                    Clear(
+                            LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Users
+                        )
+                    );
+                    Collect(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Users
+                        ),
+                        MyPeople
+                    );
+                    ,
+                    MAMode = "Add",
+                    Collect(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Users
+                        ),
+                        MyPeople
+                    )
+                );
+                
+                Set(
+                    SelectedLV1,
+                    ""
+                );
+                Set(
+                    SelectedLV2,
+                    ""
+                );
+                Set(
+                    CheckedLV2,
+                    ""
+                );
+                
+                Set(
+                    ZoomLV1,
+                    "FFF"
+                );
+                Set(EditUserVisibleVal, false);
+                Reset(TextInput_AddUserSearch_CategoryMenu);
+                Refresh(Category_table);
+                
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="확인"
+            Visible: |
+                =EditUserVisibleVal
+            X: =Rectangle_ComplateUserList_CategoryMenu.X + (Rectangle_ComplateUserList_CategoryMenu.Width/2 - Self.Width)/2
+            Y: =Rectangle_ComplateUserList_CategoryMenu.Y + Rectangle_ComplateUserList_CategoryMenu.Height - Self.Height - 20
+            ZIndex: =16
+
+        Button_CancleComplateUser_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =Set(EditUserVisibleVal, false);
+                Reset(TextInput_AddUserSearch_CategoryMenu);
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="취소"
+            Visible: =EditUserVisibleVal
+            X: =Rectangle_ComplateUserList_CategoryMenu.X + (Rectangle_ComplateUserList_CategoryMenu.Width + Self.Width/2)/2
+            Y: =Button_OKComplateUser_CategoryMenu.Y
+            ZIndex: =17
+
+        Gallery_ComplateUserList_CategoryMenu As gallery.SelectedUsersTabletGallery:
+            AccessibleLabel: ="사용자가 사람을 선택함"
+            BorderThickness: =1
+            Height: |-
+                =If(
+                    TextInput_AddUserSearch_CategoryMenu.Visible,
+                    Gallery_AddUserSearch_CategoryMenu.Height,
+                    TextInput_AddUserSearch_CategoryMenu.Height + Gallery_AddUserSearch_CategoryMenu.Height + 20
+                )
+            Items: =MyPeople
+            Layout: =Layout.Vertical
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =47
+            Visible: =EditUserVisibleVal
+            Width: =TextInput_AddUserSearch_CategoryMenu.Width
+            X: =Gallery_AddUserSearch_CategoryMenu.X
+            Y: |-
+                =If(
+                    TextInput_AddUserSearch_CategoryMenu.Visible,
+                    Gallery_AddUserSearch_CategoryMenu.Y,
+                    TextInput_AddUserSearch_CategoryMenu.Y
+                )
+            ZIndex: =18
+
+            Rectangle_UserList_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                DisabledFill: =RGBA(166, 166, 166, 1)
+                Fill: =RGBA(105, 121, 126, 1)
+                FocusedBorderThickness: =4
+                Height: =Parent.TemplateHeight
+                HoverFill: =RGBA(105, 121, 126, 1)
+                OnSelect: =Select(Parent)
+                PressedFill: =RGBA(105, 121, 126, 1)
+                Width: =Parent.TemplateWidth
+                ZIndex: =1
+
+            Title_UserList_CategoryMenu As label:
+                Color: =RGBA(255, 255, 255, 1)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                Height: =Gallery_ComplateUserList_CategoryMenu.TemplateHeight
+                OnSelect: =Set(selectedUser, ThisItem)
+                PaddingLeft: =10
+                Size: =13
+                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu.Visible, -1, 0)
+                Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
+                Width: =Gallery_ComplateUserList_CategoryMenu.TemplateWidth - Icon_UserListRemove_CategoryMenu.Width + 10
+                Wrap: =false
+                ZIndex: =2
+
+            Icon_UserListRemove_CategoryMenu As icon.Cancel:
+                AccessibleLabel: =Icon_UserListRemove_CategoryMenu.Tooltip
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =Title_UserList_CategoryMenu.Color
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                Height: =Gallery_ComplateUserList_CategoryMenu.TemplateHeight
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Cancel
+                OnSelect: =Remove(MyPeople, LookUp(MyPeople, UserPrincipalName = ThisItem.UserPrincipalName))
+                PaddingBottom: =9
+                PaddingLeft: =9
+                PaddingRight: =9
+                PaddingTop: =9
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu.Visible, -1, 0)
+                Tooltip: ="컬렉션에서 사용자를 제거하려면 선택"
+                Width: =Self.Height
+                X: =Gallery_ComplateUserList_CategoryMenu.TemplateWidth - Self.Width
+                ZIndex: =3
+
+        Gallery_AddUserSearch_CategoryMenu As gallery.PeoplePickerTabletGallery:
+            AccessibleLabel: ="사용자 찾기 검색 결과"
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =Parent.Fill
+            Height: =376
+            Items: |+
+                =/*
+                If(
+                    !IsBlank(Trim(txtUserSearch.Text)),
+                    Office365사용자.SearchUserV2(
+                        {
+                            searchTerm:txtUserSearch.Text,
+                            top: 999
+                        }
+                    ).value
+                )
+                */
+                
+                If(
+                    IsBlank(TextInput_AddUserSearch_CategoryMenu.Text),
+                    Blank(),
+                    If(
+                        IsBlank(
+                            Find(
+                                ",",
+                                TextInput_AddUserSearch_CategoryMenu.Text
+                            )
+                        ),
+                        Search(
+                            Namelist,
+                            TextInput_AddUserSearch_CategoryMenu.Text,
+                            "DisplayName"
+                        ),
+                        Filter(
+                            Namelist,
+                            DisplayName in Substitute(
+                                Split(
+                                    TextInput_AddUserSearch_CategoryMenu.Text,
+                                    ","
+                                ),
+                                " ",
+                                ""
+                            )
+                        )
+                    )
+                )
+                
+            Layout: =Layout.Vertical
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =87
+            Visible: |-
+                =If(
+                TextInput_AddUserSearch_CategoryMenu.Visible,
+                true,
+                false
+                )
+            Width: =Rectangle_ComplateUserList_CategoryMenu.X + Rectangle_ComplateUserList_CategoryMenu.Width - Self.X - 10
+            X: =TextInput_AddUserSearch_CategoryMenu.X
+            Y: =TextInput_AddUserSearch_CategoryMenu.Y + TextInput_AddUserSearch_CategoryMenu.Height + 20
+            ZIndex: =19
+
+            Rectangle_UserInformation_CategoryMenu As rectangle:
+                BorderColor: =Label_DisplayName_CategoryMenu.Color
+                BorderThickness: =If(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName, 2, 0)
+                DisabledFill: =RGBA(166, 166, 166, 1)
+                Fill: =RGBA(0,0,0,0)
+                Height: =Parent.TemplateHeight - 2*Self.Y
+                HoverFill: =RGBA(0,0,0,0)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                PressedFill: =RGBA(105, 121, 126, 1)
+                Width: =Parent.TemplateWidth - 2*Self.X
+                X: =1
+                Y: =1
+                ZIndex: =1
+
+            Icon_ProfileImage_CategoryMenu As icon.Person:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                Color: =RGBA(255, 255, 255, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                Fill: =RGBA(0,0,0,0)
+                Height: =Image_ProfileImage_CategoryMenu.Height
+                Icon: =Icon.Person
+                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                PaddingBottom: =12
+                PaddingLeft: =12
+                PaddingRight: =12
+                PaddingTop: =12
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =Image_ProfileImage_CategoryMenu.Width
+                X: =Image_ProfileImage_CategoryMenu.X
+                Y: =Image_ProfileImage_CategoryMenu.Y
+                ZIndex: =2
+
+            Image_ProfileImage_CategoryMenu As image:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                Height: =Self.Width
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Image: =If(!IsBlank(ThisItem.Id), 'Office365사용자'.UserPhotoV2(ThisItem.Id))
+                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =Gallery_AddUserSearch_CategoryMenu.TemplateHeight - 30
+                X: =37
+                Y: =(Gallery_AddUserSearch_CategoryMenu.TemplateHeight / 2) - (Self.Height/2)
+                ZIndex: =3
+
+            Label_DisplayName_CategoryMenu As label:
+                BorderColor: =Self.Color
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: |
+                    =/*Select user, clear search contents and if this user hasn't been added to MyPeople collection, add them*/
+                    /*
+                    Concurrent(
+                        Set(
+                            selectedUser,
+                            ThisItem
+                        ),
+                        Reset(TextSearchBox1_1),
+                        If(
+                            Not(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName) && Not(ThisItem.UserPrincipalName in LookUp(CategoryMenuCollect, ID=CheckedID, Users).Email),
+                            Collect(
+                                MyPeople,
+                                ThisItem
+                            );
+                            Update( MyPeople, First( Filter( MyPeople, UserPrincipalName=ThisItem.UserPrincipalName ) ), 
+                                { 
+                                    Claims:"i:0#.f|membership|"& ThisItem.UserPrincipalName,
+                                    Department:ThisItem.Department,
+                                    DisplayName:ThisItem.DisplayName,
+                                    UserPrincipalName:ThisItem.UserPrincipalName,
+                                    JobTitle:ThisItem.JobTitle 
+                                } 
+                            )
+                        )
+                    );
+                    */
+                    If(
+                        Not(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName) && Not(
+                            ThisItem.UserPrincipalName in LookUp(
+                                CategoryMenuCollect,
+                                ID = CheckedID,
+                                Users
+                            ).Email
+                        ),
+                        Collect(
+                            MyPeople,
+                            ThisItem
+                        );
+                        Update(
+                            MyPeople,
+                            First(
+                                Filter(
+                                    MyPeople,
+                                    UserPrincipalName = ThisItem.UserPrincipalName
+                                )
+                            ),
+                            {
+                                Claims: "i:0#.f|membership|" & ThisItem.UserPrincipalName,
+                                Department: ThisItem.Department,
+                                DisplayName: ThisItem.DisplayName,
+                                UserPrincipalName: ThisItem.UserPrincipalName,
+                                JobTitle: ThisItem.JobTitle
+                            }
+                        );
+                        Set(UserAddPopup,true);,
+                        Timer_AddUserComplete_CategoryMenu.Start = true,
+                        Notify(
+                            "사용자 추가 완료.",
+                            NotificationType.Success,
+                            800
+                        ),
+                       Set(UserAddPopup,false);,
+                        Notify(
+                            "중복된 이름입니다.",
+                            NotificationType.Error,
+                            800
+                        )
+                    );
+                    
+                    
+                    
+                    //Reset(TextSearchBox1_1);
+                    //등록완료시 초기화
+                Size: =12
+                TabIndex: =0
+                Text: =ThisItem.DisplayName
+                Width: =Gallery_AddUserSearch_CategoryMenu.TemplateWidth - 232
+                Wrap: =false
+                X: =Image_ProfileImage_CategoryMenu.X + Image_ProfileImage_CategoryMenu.Width + 16
+                Y: =16
+                ZIndex: =4
+
+            Label_UserPrincipalName_CategoryMenu As label:
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                Size: =12
+                Text: =ThisItem.UserPrincipalName
+                Width: =Label_DisplayName_CategoryMenu.Width
+                Wrap: =false
+                X: =Label_DisplayName_CategoryMenu.X
+                Y: =Gallery_AddUserSearch_CategoryMenu.TemplateHeight - Self.Height - 20
+                ZIndex: =5
+
+            Separator_AdduserGallery_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: =Parent.TemplateHeight - 1
+                ZIndex: =6
+
+            Icon_AddUser_CategoryMenu As icon.Add:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Add
+                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                X: =389
+                Y: =11
+                ZIndex: =7
+
+        TextInput_AddUserSearch_CategoryMenu As text:
+            Align: =TextPosition.Left
+            Default: =""
+            Height: |
+                =40
+            HintText: ="검색"
+            PaddingLeft: =70
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =If(MAMode="Add", EditUserVisibleVal, false)
+            Width: =Gallery_AddUserSearch_CategoryMenu.Width
+            X: =Rectangle_ComplateUserList_CategoryMenu.X + 10
+            Y: =Rectangle_ComplateUserList_CategoryMenu.Y + 10
+            ZIndex: =20
+
+        Icon_AddUserSherch_CategoryMenu As icon.Search:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =TextInput_AddUserSearch_CategoryMenu.Height-10
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Search
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =TextInput_AddUserSearch_CategoryMenu.Visible
+            Width: =Self.Height
+            X: =TextInput_AddUserSearch_CategoryMenu.X + 15
+            Y: =TextInput_AddUserSearch_CategoryMenu.Y + 5
+            ZIndex: =21
+
+    Label_NotMemberInSubMenu_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =18
+        Text: |-
+            ="할당한 인원이 없는 서브메뉴 " & " : " & CountRows(Filter(Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && LV1 <> "Admin")) & "개"
+            
+            /*"할당한 인원이 없는 서브메뉴 " & " : " & CountRows(Filter(GNB_MENU, LV2Order <> 1 && IsEmpty(Users))) & "개" &" -> " & Concat(
+                Filter(GNB_MENU, LV2Order <> 1 && IsEmpty(Users)),
+                제목 & " "
+                
+            ) */
+            
+            /*"할당한 인원이 없는 서브메뉴 " & " : " & CountRows(Filter(GNB_MENU, !IsBlank(LV2Order) && IsEmpty(Users) && LV1 <> "Admin")) & "개" &" -> " & Concat(
+                Filter(GNB_MENU, !IsBlank(LV2Order) && IsEmpty(Users) && LV1 <> "Admin"),
+                제목 & " "
+                
+            ) */
+        Width: =486
+        X: =856
+        Y: =Label_CountSubMenu_CategoryMenu.Y
+        ZIndex: =34
+
+    Icon_OpenIncompleteSubMenuPopup_CategoryMenu As icon.ZoomIn:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.ZoomIn
+        OnSelect: =Set(SubMenuPopup,true);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =36
+        X: =1267
+        Y: =112
+        ZIndex: =40
+
+    Group_AddUserComplete_CategoryMenu As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =44
+
+        Rectangle_AddUserComplete_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =396
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =772
+            X: =680
+            Y: =252
+            ZIndex: =35
+
+        Label_AddUserCompleteName_CategoryMenu As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =172
+            Size: =30
+            Text: =Last(Filter(MyPeople,DisplayName = DisplayName,DisplayName)).DisplayName
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =192
+            X: =856
+            Y: =350
+            ZIndex: =36
+
+        Label_AddUserComplete_CategoryMenu As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =172
+            Size: =30
+            Text: ="님 추가 완료"
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =359
+            X: =1016
+            Y: =350
+            ZIndex: =37
+
+        Timer_AddUserComplete_CategoryMenu As timer:
+            BorderColor: =RGBA(105, 121, 126, 1)
+            BorderStyle: =BorderStyle.None
+            DisabledBorderColor: =RGBA(244, 244, 244, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Duration: =1000
+            Fill: =RGBA(105, 121, 126, 1)
+            Font: =Font.'Segoe UI'
+            Height: =70
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnTimerEnd: |-
+                =Set(UserAddPopup, false); // Popup 컨트롤 숨기기
+                Reset(Timer_AddUserComplete_CategoryMenu);
+            OnTimerStart: =
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Start: =If(UserAddPopup = true,true,false)
+            Visible: =false
+            X: =640
+            Y: =10
+            ZIndex: =38
+
+    Button_ViewTeamMembers_CategoryMenu As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |
+            =Clear(
+                        LookUp(
+                        CategoryMenuCollect,
+                        ID = CheckedID,
+                        Department
+                    )
+                );
+            
+            Set(Ok, false);
+            Set(AddTeamPopup, false);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="확인"
+        Visible: =Ok
+        X: =854
+        Y: =723
+        ZIndex: =47
+
+    Icon_AddMainMenu_CategoryMenu As icon.Check:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =TextInput_AddMainMenu_CategoryMenu.Height
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.AddLibrary
+        OnSelect: |-
+            =Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order", SortOrder.Ascending)).LV1Order);
+            If(
+                IsBlank(LastLV1Order),
+                Set(LastLV1Order, 0)
+            );
+            
+            Patch(
+                Category_table, 
+                Defaults(Category_table), 
+                { 제목:LastLV1Order+1, LV1:LastLV1Order+1, LV1Order:LastLV1Order+1, LV2Order:1 }
+            );
+            
+            ClearCollect(
+                CategoryMenuCollect,
+                ShowColumns(
+                    SortByColumns(Category_table, "LV1Order", SortOrder.Ascending),
+                    "Title",
+                    "OData__x004c_V1",
+                    "LV1Order",
+                    "LV2Order",
+                    "Department",
+                    "ID"
+                )
+            );
+            UpdateContext({ testHight:
+                CountRows(
+                ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            ) * 80 });
+            //Select(TextInput4)
+            Concurrent(
+            Set(ZoomLV1, "");,
+            Set(testVisible, "");,
+            Set(SelectedLV1, "");,
+            Set(SelectedLV2, "");
+            );
+            //Refresh(Category_table);
+            Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+        PaddingBottom: =5
+        PaddingLeft: =5
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =Self.Height
+        X: =352
+        Y: |-
+            =Gallery_Main_CategoryMenu.Y +
+            Gallery_Main_CategoryMenu.Height + 10
+        ZIndex: =48
+
+    Group_AddTeam_CategoryMenu As group:
+        Height: =5
+        Width: =5
+        X: =-713
+        Y: =-180
+        ZIndex: =56
+
+        Rectangle_TeamPopUp_CategoryMenu As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =580
+            Visible: =AddTeamPopup
+            Width: =494
+            X: =811
+            Y: =203
+            ZIndex: =39
+
+        Button_OKTeamPopUP_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |+
+                =If(
+                    MAMode = "Search",
+                    Clear(
+                            LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Users
+                        )
+                    );
+                    Collect(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Department
+                        ),
+                        MyPeople
+                    );
+                    ,
+                    MAMode = "Add",
+                    Collect(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Department
+                        ),
+                        MyPeople
+                    );
+                    ,
+                    MAMode = "TeamAdd",
+                Collect(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID,
+                            Department
+                            //Users    
+                        ),
+                        MyPeople
+                    );
+                     
+                
+                    /*
+                    UpdateContext({
+                    MyColumnValue: MyPeople.UserPrincipalName // MyPeople 컬렉션의 특정한 열의 값을 변수에 저장
+                });
+                Collect(
+                    CategoryMenuCollect,
+                    {
+                        ID: CheckedID,
+                        Teams: MyColumnValue // 변수에 저장된 값을 CategoryMenuCollect 컬렉션의 Teams 열에 넣음
+                    }
+                )
+                */
+                );
+                
+                Set(
+                    SelectedLV1,
+                    ""
+                );
+                Set(
+                    SelectedLV2,
+                    ""
+                );
+                Set(
+                    CheckedLV2,
+                    ""
+                );
+                
+                Set(
+                    ZoomLV1,
+                    "FFF"
+                );
+                Set(EditUserVisibleVal, false);
+                Reset(TextInput_ShearchTeam_CategoryMenu);
+                Set(AddTeamPopup,false);
+                Refresh(Category_table);
+                
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="확인"
+            Visible: |-
+                =
+                If(
+                TextInput_ShearchTeam_CategoryMenu.Visible,
+                true,
+                false
+                )
+            X: =854
+            Y: =723
+            ZIndex: =41
+
+        Button_CancelTeamPopUP_CategoryMenu As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =Set(AddTeamPopup, false);
+                Set(Ok, false);
+                Reset(TextInput_ShearchTeam_CategoryMenu);
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="취소"
+            Visible: =AddTeamPopup
+            X: =1098
+            Y: =723
+            ZIndex: =42
+
+        Gallery_ShearchTeamMembers_CategoryMenu As gallery.SelectedUsersTabletGallery:
+            AccessibleLabel: ="사용자가 사람을 선택함"
+            BorderThickness: =1
+            Height: =402
+            Items: =MyPeople2
+            Layout: =Layout.Vertical
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =47
+            Visible: =AddTeamPopup
+            Width: =TextInput_ShearchTeam_CategoryMenu.Width
+            X: =821
+            Y: =237
+            ZIndex: =43
+
+            Rectangle_TeamMembers_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                DisabledFill: =RGBA(166, 166, 166, 1)
+                Fill: =RGBA(105, 121, 126, 1)
+                FocusedBorderThickness: =4
+                Height: =Parent.TemplateHeight
+                HoverFill: =RGBA(105, 121, 126, 1)
+                OnSelect: =Select(Parent)
+                PressedFill: =RGBA(105, 121, 126, 1)
+                Visible: |-
+                    =If(
+                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    false,
+                    true
+                    )
+                Width: =Parent.TemplateWidth
+                ZIndex: =1
+
+            Title_TeamMembers_CategoryMenu As label:
+                Color: =RGBA(255, 255, 255, 1)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                Height: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateHeight
+                OnSelect: =Set(selectedUser, ThisItem)
+                PaddingLeft: =10
+                Size: =13
+                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
+                Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
+                Visible: |-
+                    =If(
+                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    false,
+                    true
+                    )
+                Width: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateWidth - Icon_DeleteTeamMembers_CategoryMenu.Width + 10
+                Wrap: =false
+                ZIndex: =2
+
+            Icon_DeleteTeamMembers_CategoryMenu As icon.Cancel:
+                AccessibleLabel: =Icon_DeleteTeamMembers_CategoryMenu.Tooltip
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =Title_TeamMembers_CategoryMenu.Color
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                Height: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateHeight
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Cancel
+                OnSelect: =Remove(MyPeople2, LookUp(MyPeople2, UserPrincipalName = ThisItem.UserPrincipalName))
+                PaddingBottom: =9
+                PaddingLeft: =9
+                PaddingRight: =9
+                PaddingTop: =9
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
+                Tooltip: ="컬렉션에서 사용자를 제거하려면 선택"
+                Visible: |-
+                    =If(
+                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    false,
+                    true
+                    )
+                Width: =Self.Height
+                X: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateWidth - Self.Width
+                ZIndex: =3
+
+        Gallery_ShearchTeam_CategoryMenu As gallery.PeoplePickerTabletGallery:
+            AccessibleLabel: ="사용자 찾기 검색 결과"
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =Parent.Fill
+            Height: =366
+            Items: |+
+                =If(
+                    IsBlank(TextInput_ShearchTeam_CategoryMenu.Text),
+                    Blank(),
+                    If(
+                        IsBlank(
+                            Find(
+                                ",",
+                                TextInput_ShearchTeam_CategoryMenu.Text
+                            )
+                        ),
+                        Search(
+                            Departmentlist,
+                            TextInput_ShearchTeam_CategoryMenu.Text,
+                            "Value"
+                        ),
+                        Filter(
+                            Departmentlist,
+                            "Value" in Substitute(
+                                Split(
+                                    TextInput_ShearchTeam_CategoryMenu.Text,
+                                    ","
+                                ),
+                                " ",
+                                ""
+                            )
+                        )
+                    )
+                )
+                
+                
+                
+                
+                
+                /*
+                 If(
+                    IsBlank(txtUserSearch_1.Text),
+                    Blank(),
+                    If(
+                        IsBlank(
+                            Find(
+                                ",",
+                                txtUserSearch_1.Text
+                            )
+                        ),
+                        Search(
+                           Namelist,
+                            txtUserSearch_1.Text,
+                            "Department"
+                        ),
+                        Filter(
+                            Namelist,
+                            Department in Substitute(
+                                Split(
+                                    txtUserSearch_1.Text,
+                                    ","
+                                ),
+                                " ",
+                                ""
+                            )
+                        )
+                    )
+                )
+                */
+                
+                
+                
+                
+                /*
+                If(
+                    IsBlank(txtUserSearch_1.Text),
+                    Blank(),
+                    If(
+                        IsBlank(
+                            Find(
+                                ",",
+                                txtUserSearch_1.Text
+                            )
+                        ),
+                        Search(
+                           Namelist,
+                            txtUserSearch_1.Text,
+                            "Department"
+                        ),
+                        Filter(
+                            Namelist,
+                            Department in Substitute(
+                                Split(
+                                    txtUserSearch_1.Text,
+                                    ","
+                                ),
+                                " ",
+                                ""
+                            )
+                        )
+                    )
+                )
+                */
+                
+                
+                
+                
+                
+            Layout: =Layout.Vertical
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =87
+            Visible: |-
+                =If(
+                TextInput_ShearchTeam_CategoryMenu.Visible,
+                true,
+                false
+                )
+            Width: =444
+            X: =836
+            Y: =273
+            ZIndex: =44
+
+            Rectangle_AddTeam_CategoryMenu As rectangle:
+                BorderColor: =Title_AddTeamName_CategoryMenu.Color
+                BorderThickness: =//If(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName, 2, 0)
+                DisabledFill: =RGBA(166, 166, 166, 1)
+                Fill: =RGBA(0,0,0,0)
+                Height: =Parent.TemplateHeight - 2*Self.Y
+                HoverFill: =RGBA(0,0,0,0)
+                OnSelect: =Select(Title_AddTeamName_CategoryMenu)
+                PressedFill: =RGBA(105, 121, 126, 1)
+                Width: =444
+                Y: =1
+                ZIndex: =1
+
+            Title_AddTeamName_CategoryMenu As label:
+                BorderColor: =Self.Color
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: |+
+                    =If(
+                        Not(ThisItem.Value in MyPeople.Department) && Not(
+                            ThisItem.Value in LookUp(
+                                CategoryMenuCollect,
+                                ID = CheckedID,
+                                Users
+                            ).Email
+                        ),
+                        ClearCollect(
+                            MatchingPeople,
+                            Filter(
+                                Namelist,
+                                Department = ThisItem.Value
+                            )
+                        );
+                        ForAll(
+                            MatchingPeople,
+                            If(
+                                Not(UserPrincipalName in MyPeople.UserPrincipalName),
+                                Collect(
+                                    MyPeople,
+                                    {
+                              
+                                    Claims: "i:0#.f|membership|" & UserPrincipalName,
+                                    Department: Department,
+                                    DisplayName: DisplayName,
+                                    UserPrincipalName: UserPrincipalName,
+                                    JobTitle: JobTitle
+                                    }
+                                );
+                                //
+                            )
+                        );
+                        //Set(UserAddPopup,true);,
+                        //timerAddUser.Start = true,
+                        Notify(
+                            "사용자 추가 완료.",
+                            NotificationType.Success,
+                            800
+                        ),
+                       //Set(UserAddPopup,false);,
+                        Notify(
+                            "중복된 이름입니다.",
+                            NotificationType.Error,
+                            800
+                        )
+                    );
+                    
+                Size: =12
+                TabIndex: =0
+                Text: =ThisItem.Value
+                Width: =Gallery_ShearchTeam_CategoryMenu.TemplateWidth - 232
+                Wrap: =false
+                X: =
+                Y: =16
+                ZIndex: =4
+
+            Separator_AddTeam_CategoryMenu As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: =Parent.TemplateHeight - 1
+                ZIndex: =6
+
+            Icon_AddTeam_CategoryMenu As icon.Add:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(105, 121, 126, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Add
+                OnSelect: =Select(Title_AddTeamName_CategoryMenu)
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                X: =357
+                Y: =1
+                ZIndex: =7
+
+        TextInput_ShearchTeam_CategoryMenu As text:
+            Align: =TextPosition.Left
+            Default: =""
+            Height: =35
+            HintText: ="검색"
+            PaddingLeft: =70
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =If(MAMode="TeamAdd", AddTeamPopup, false)
+            Width: =466
+            X: =821
+            Y: =213
+            ZIndex: =45
+
+        Icon_ShearchTeam_CategoryMenu As icon.Search:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =TextInput_ShearchTeam_CategoryMenu.Height-10
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Search
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =TextInput_ShearchTeam_CategoryMenu.Visible
+            Width: =Self.Height
+            X: =836
+            Y: =218
+            ZIndex: =46
+
