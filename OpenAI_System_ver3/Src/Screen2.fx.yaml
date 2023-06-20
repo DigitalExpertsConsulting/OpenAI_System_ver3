@@ -179,7 +179,20 @@ Screen2 As screen:
             HoverColor: =Color.Black
             HoverFill: |-
                 =ColorValue("#EBF3FC")
-            OnSelect: =
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"false"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"true"
+                    })
             PaddingLeft: |
                 =
                 If(
@@ -193,6 +206,7 @@ Screen2 As screen:
                 =ColorValue("#0F6CBD")
             Size: =12
             Text: ="상세답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
             Width: =206
             X: =53
             Y: =360
@@ -239,7 +253,20 @@ Screen2 As screen:
             HoverColor: =Color.Black
             HoverFill: |-
                 =ColorValue("#EBF3FC")
-            OnSelect: =true
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"true"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"false"
+                    })
             PaddingLeft: |
                 =
                 If(
@@ -254,6 +281,7 @@ Screen2 As screen:
                 =ColorValue("#0F6CBD")
             Size: =12
             Text: ="간단답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
             Width: =206
             X: =271
             Y: =360
@@ -274,7 +302,7 @@ Screen2 As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: |-
-                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill =  ColorValue("#EBF3FC"), true,false)
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill  =  ColorValue("#EBF3FC"), true,false)
             Width: =20
             X: =100
             Y: =374
@@ -343,14 +371,14 @@ Screen2 As screen:
             Y: =374
             ZIndex: =10
 
-        Checkbox_SelectOptions_SO_1 As checkbox:
+        Checkbox_SelectOptions_SO As checkbox:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
             CheckboxBackgroundFill: |-
-                =If(Checkbox_SelectOptions_SO_1.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
             CheckboxBorderColor: |-
-                =If(Checkbox_SelectOptions_SO_1.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
             CheckmarkFill: |-
                 =ColorValue("#FFFFFF")
             Color: =RGBA(51, 51, 51, 1)
@@ -367,7 +395,7 @@ Screen2 As screen:
             OnCheck: |
                 =Patch(
                     SearchOptions_table,
-                    First(Filter(SearchOptions_table, 검색옵션=Label_OptionsName_SO.Text)),
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
                     {
                         선택여부:"true"
                     }
@@ -376,7 +404,7 @@ Screen2 As screen:
             OnUncheck: |
                 =Patch(
                     SearchOptions_table,
-                    First(Filter(SearchOptions_table, 검색옵션=Label_OptionsName_SO.Text)),
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
                     {
                         선택여부:"false"
                     }
