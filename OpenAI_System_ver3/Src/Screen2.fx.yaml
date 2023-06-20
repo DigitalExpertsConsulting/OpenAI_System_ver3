@@ -8,16 +8,20 @@ Screen2 As screen:
     Gallery2 As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
+        DisplayMode: =DisplayMode.View
         Height: =690
-        Items: =FirstN(SearchOptions_table,3)
+        Items: |-
+            =//FirstN(SearchOptions_table,3)
+            SearchOptions_table
         LoadingSpinner: =LoadingSpinner.Data
+        ShowScrollbar: =false
         TemplateSize: =504
         Width: =1559
         X: =333
         Y: =300
         ZIndex: =6
 
-        Container1_1 As groupContainer.manualLayoutContainer:
+        Container_SearchOptions_SO As groupContainer.manualLayoutContainer:
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
             DropShadow: =DropShadow.Bold
@@ -26,12 +30,15 @@ Screen2 As screen:
             RadiusBottomRight: =8
             RadiusTopLeft: =8   
             RadiusTopRight: =8
+            Visible: |
+                =If( ThisItem.ID = 4, false,If( ThisItem.ID = 5, false,true)
+                )
             Width: =452
             X: =40
             Y: =40
             ZIndex: =1
 
-            Label3_1 As label:
+            Label_SearchOptionsMAin_SO As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -54,7 +61,7 @@ Screen2 As screen:
                 Y: =50
                 ZIndex: =1
 
-            Label3 As label:
+            Label_SearchOptionsSub_SO As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -66,8 +73,8 @@ Screen2 As screen:
                 Font: =Font.'Segoe UI'
                 Size: =13
                 Text: |-
-                    =If(Label3_1.Text = "내부데이터","당사 데이터에 기반한 검색 옵션",
-                    If(Label3_1.Text = "Open AI","        Opne AI기반 응답",If(Label3_1.Text = "Bing Chat","        Bing Chat기반 응답")))
+                    =If(Label_SearchOptionsMAin_SO.Text = "내부데이터","당사 데이터에 기반한 검색 옵션",
+                    If(Label_SearchOptionsMAin_SO.Text = "Open AI","        Opne AI기반 응답",If(Label_SearchOptionsMAin_SO.Text = "Bing Chat","        Bing Chat기반 응답")))
                 Width: =258
                 X: =101
                 Y: =90
@@ -121,34 +128,7 @@ Screen2 As screen:
                 Y: =19
                 ZIndex: =3
 
-            Button3 As button:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =RGBA(105, 121, 126, 1)
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =48
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                RadiusBottomLeft: =0
-                RadiusBottomRight: =0
-                RadiusTopLeft: =0
-                RadiusTopRight: =0
-                Size: =15
-                Text: ="버튼"
-                Width: =206
-                X: =19
-                Y: =319
-                ZIndex: =4
-
-        Image5 As image:
+        Image_OpneAI_SO As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -162,13 +142,13 @@ Screen2 As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Label3_1.Text = "Open AI", true,false)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI", true,false)
             Width: =144
             X: =185
             Y: =186
             ZIndex: =2
 
-        Image7 As image:
+        Image_Bing_SO As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -182,13 +162,13 @@ Screen2 As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Label3_1.Text = "Bing Chat", true,false)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Bing Chat", true,false)
             Width: =144
             X: =187
             Y: =185
             ZIndex: =3
 
-        Image8 As image:
+        Image_InsideData_SO As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -202,9 +182,207 @@ Screen2 As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Label3_1.Text = "내부데이터", true,false)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "내부데이터", true,false)
             Width: =144
             X: =187
             Y: =185
             ZIndex: =4
+
+        Button_Detail_SO As button:
+            BorderColor: |
+                =//RGBA(210, 210, 210, 1)
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#0F6CBD"),
+                    RGBA(210, 210, 210, 1)
+                )
+            BorderThickness: =1
+            Color: =Color.Black
+            DisabledBorderColor: |-
+                =ColorValue("#E0E0E0")
+            DisabledColor: |-
+                =ColorValue("#BDBDBD")
+            DisabledFill: |-
+                =If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#E0E0E0"),
+                    ColorValue("#F0F0F0")
+                )
+            DisplayMode: |+
+                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                
+            Fill: |
+                =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                //If(Search(SearchOptions_table,"간단답변","OData__xac80__xc0c9__xc635__xc158_"
+                //If(LookUp( SearchOptions_table, 검색옵션 = "간단답변", 선택여부 ) = true, ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#EBF3FC"),
+                    ColorValue("#FFFFFF")
+                )
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            Height: =48
+            HoverBorderColor: =
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: =
+            PaddingLeft: |
+                =
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    30,
+                    5
+                )
+            PressedBorderColor: =
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Size: =12
+            Text: ="상세답변"
+            Width: =206
+            X: =53
+            Y: =360
+            ZIndex: =5
+
+        Button_Simple_SO As button:
+            BorderColor: |
+                =//RGBA(210, 210, 210, 1)
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#0F6CBD"),
+                    RGBA(210, 210, 210, 1)
+                )
+            BorderThickness: =1
+            Color: =Color.Black
+            DisabledBorderColor: |-
+                =ColorValue("#E0E0E0")
+            DisabledColor: |-
+                =ColorValue("#BDBDBD")
+            DisabledFill: |-
+                =If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#E0E0E0"),
+                    ColorValue("#F0F0F0")
+                )
+            DisplayMode: |+
+                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                
+            Fill: |
+                =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                //If(Search(SearchOptions_table,"간단답변","OData__xac80__xc0c9__xc635__xc158_"
+                //If(LookUp( SearchOptions_table, 검색옵션 = "간단답변", 선택여부 ) = true, ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#EBF3FC"),
+                    ColorValue("#FFFFFF")
+                )
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            Height: =48
+            HoverBorderColor: |-
+                =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: =true
+            PaddingLeft: |
+                =
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    30,
+                    5
+                )
+            PressedBorderColor: |-
+                =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Size: =12
+            Text: ="간단답변"
+            Width: =206
+            X: =271
+            Y: =360
+            ZIndex: =6
+
+        Image_DetailCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =iconCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill =  ColorValue("#EBF3FC"), true,false)
+            Width: =20
+            X: =100
+            Y: =374
+            ZIndex: =7
+
+        Image_SimpleCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =iconCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Simple_SO.Fill =  ColorValue("#EBF3FC"), true,false)
+            Width: =20
+            X: =321
+            Y: =374
+            ZIndex: =8
+
+        Image_DisSimpleCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =DisableCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Simple_SO.Fill = ColorValue("#E0E0E0"), true,false)
+            Width: =20
+            X: =321
+            Y: =374
+            ZIndex: =9
+
+        Image_DisDetail_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =DisableCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill = ColorValue("#E0E0E0"), true,false)
+            Width: =20
+            X: =100
+            Y: =374
+            ZIndex: =10
 
