@@ -8,7 +8,6 @@ Screen2 As screen:
     Gallery2 As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        DisplayMode: =DisplayMode.View
         Height: =690
         Items: |-
             =//FirstN(SearchOptions_table,3)
@@ -173,12 +172,27 @@ Screen2 As screen:
                     ColorValue("#FFFFFF")
                 )
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =1
             Font: =Font.'Segoe UI'
             Height: =48
             HoverBorderColor: =
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            OnSelect: =
+            HoverColor: =Color.Black
+            HoverFill: |-
+                =ColorValue("#EBF3FC")
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"false"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"true"
+                    })
             PaddingLeft: |
                 =
                 If(
@@ -188,9 +202,11 @@ Screen2 As screen:
                 )
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: |-
+                =ColorValue("#0F6CBD")
             Size: =12
             Text: ="상세답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
             Width: =206
             X: =53
             Y: =360
@@ -229,13 +245,28 @@ Screen2 As screen:
                     ColorValue("#FFFFFF")
                 )
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =1
             Font: =Font.'Segoe UI'
             Height: =48
             HoverBorderColor: |-
                 =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            OnSelect: =true
+            HoverColor: =Color.Black
+            HoverFill: |-
+                =ColorValue("#EBF3FC")
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"true"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"false"
+                    })
             PaddingLeft: |
                 =
                 If(
@@ -246,9 +277,11 @@ Screen2 As screen:
             PressedBorderColor: |-
                 =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
             PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: |-
+                =ColorValue("#0F6CBD")
             Size: =12
             Text: ="간단답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
             Width: =206
             X: =271
             Y: =360
@@ -269,7 +302,7 @@ Screen2 As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: |-
-                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill =  ColorValue("#EBF3FC"), true,false)
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill  =  ColorValue("#EBF3FC"), true,false)
             Width: =20
             X: =100
             Y: =374
@@ -337,4 +370,52 @@ Screen2 As screen:
             X: =100
             Y: =374
             ZIndex: =10
+
+        Checkbox_SelectOptions_SO As checkbox:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            CheckboxBackgroundFill: |-
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            CheckboxBorderColor: |-
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
+            CheckmarkFill: |-
+                =ColorValue("#FFFFFF")
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |
+                =ThisItem.선택여부
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =40
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnCheck: |
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
+                    {
+                        선택여부:"true"
+                    }
+                );
+            OnSelect: =
+            OnUncheck: |
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
+                    {
+                        선택여부:"false"
+                    }
+                );
+            PressedBorderColor: =RGBA(39, 113, 194, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Size: =0
+            Text: =""
+            Width: =40
+            X: =60
+            Y: =60
+            ZIndex: =11
 
