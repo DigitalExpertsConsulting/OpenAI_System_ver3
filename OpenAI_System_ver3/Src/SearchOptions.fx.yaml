@@ -1,20 +1,428 @@
 SearchOptions As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
-        =Refresh(SearchOptions_table);
-        Reset(Radio_AddOptions_SO)
 
     New_Component_GNB_SO As New_Component_GNB:
+        Width: =300
         ZIndex: =2
 
-    Separator_SOMain_SO As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 1)
-        Fill: =RGBA(112, 112, 112, 1)
-        Height: =1
-        Width: =Parent.Width - New_Component_GNB_EditMenu.Width
-        X: =New_Component_GNB_BiReport.Width
-        Y: =100
-        ZIndex: =3
+    Gallery_SearchOptions_SO As gallery.galleryHorizontal:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =690
+        Items: |-
+            =//FirstN(SearchOptions_table,3)
+            SearchOptions_table
+        LoadingSpinner: =LoadingSpinner.Data
+        ShowScrollbar: =false
+        TemplateSize: =492
+        Width: =1559
+        X: =348
+        Y: =295
+        ZIndex: =6
+
+        Container_SearchOptions_SO As groupContainer.manualLayoutContainer:
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            DropShadow: =DropShadow.Bold
+            Height: =390
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8   
+            RadiusTopRight: =8
+            Visible: |
+                =If( ThisItem.ID = 4, false,If( ThisItem.ID = 5, false,true)
+                )
+            Width: =452
+            X: =40
+            Y: =40
+            ZIndex: =1
+
+            Label_SearchOptionsMAin_SO As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                PaddingLeft: =20
+                Size: =16
+                Text: |-
+                    =If( ThisItem.검색옵션 = "내부 데이터 검색" , "내부데이터",
+                    If( ThisItem.검색옵션 = "OpenAI 검색","Open AI",
+                    If( ThisItem.검색옵션 = "BingChat 검색" , "Bing Chat")
+                    )
+                    )
+                Width: =137
+                X: =150
+                Y: =50
+                ZIndex: =1
+
+            Label_SearchOptionsSub_SO As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: |-
+                    =ColorValue("#707070")
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                Size: =13
+                Text: |-
+                    =If(Label_SearchOptionsMAin_SO.Text = "내부데이터","당사 데이터에 기반한 검색 옵션",
+                    If(Label_SearchOptionsMAin_SO.Text = "Open AI","        Opne AI기반 응답",If(Label_SearchOptionsMAin_SO.Text = "Bing Chat","        Bing Chat기반 응답")))
+                Width: =258
+                X: =101
+                Y: =90
+                ZIndex: =2
+
+        Image_OpneAI_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =144
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =OpenAI
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI", true,false)
+            Width: =144
+            X: =185
+            Y: =186
+            ZIndex: =2
+
+        Image_Bing_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =144
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =bingChat
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Bing Chat", true,false)
+            Width: =144
+            X: =187
+            Y: =185
+            ZIndex: =3
+
+        Image_InsideData_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =144
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: ='img_card (1)'
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "내부데이터", true,false)
+            Width: =144
+            X: =187
+            Y: =185
+            ZIndex: =4
+
+        Button_Detail_SO As button:
+            BorderColor: |
+                =//RGBA(210, 210, 210, 1)
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#0F6CBD"),
+                    RGBA(210, 210, 210, 1)
+                )
+            BorderThickness: =1
+            Color: =Color.Black
+            DisabledBorderColor: |-
+                =ColorValue("#E0E0E0")
+            DisabledColor: |-
+                =ColorValue("#BDBDBD")
+            DisabledFill: |-
+                =If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#E0E0E0"),
+                    ColorValue("#F0F0F0")
+                )
+            DisplayMode: |+
+                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                
+            Fill: |
+                =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                //If(Search(SearchOptions_table,"간단답변","OData__xac80__xc0c9__xc635__xc158_"
+                //If(LookUp( SearchOptions_table, 검색옵션 = "간단답변", 선택여부 ) = true, ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    ColorValue("#EBF3FC"),
+                    ColorValue("#FFFFFF")
+                )
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            Height: =48
+            HoverBorderColor: =
+            HoverColor: =Color.Black
+            HoverFill: |-
+                =ColorValue("#EBF3FC")
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"false"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"true"
+                    })
+            PaddingLeft: |
+                =
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부,
+                    30,
+                    5
+                )
+            PressedBorderColor: =
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0F6CBD")
+            Size: =12
+            Text: ="상세답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
+            Width: =206
+            X: =53
+            Y: =360
+            ZIndex: =5
+
+        Button_Simple_SO As button:
+            BorderColor: |
+                =//RGBA(210, 210, 210, 1)
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#0F6CBD"),
+                    RGBA(210, 210, 210, 1)
+                )
+            BorderThickness: =1
+            Color: =Color.Black
+            DisabledBorderColor: |-
+                =ColorValue("#E0E0E0")
+            DisabledColor: |-
+                =ColorValue("#BDBDBD")
+            DisabledFill: |-
+                =If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#E0E0E0"),
+                    ColorValue("#F0F0F0")
+                )
+            DisplayMode: |+
+                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                
+            Fill: |
+                =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                //If(Search(SearchOptions_table,"간단답변","OData__xac80__xc0c9__xc635__xc158_"
+                //If(LookUp( SearchOptions_table, 검색옵션 = "간단답변", 선택여부 ) = true, ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    ColorValue("#EBF3FC"),
+                    ColorValue("#FFFFFF")
+                )
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            Height: =48
+            HoverBorderColor: |-
+                =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            HoverColor: =Color.Black
+            HoverFill: |-
+                =ColorValue("#EBF3FC")
+            OnSelect: |-
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="간단답변")),
+                    {
+                        선택여부:"true"
+                    });
+                
+                    Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션="상세답변")),
+                    {
+                        선택여부:"false"
+                    })
+            PaddingLeft: |
+                =
+                If(
+                    LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부,
+                    30,
+                    5
+                )
+            PressedBorderColor: |-
+                =If(Button_Simple_SO.AutoDisableOnSelect= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0F6CBD")
+            Size: =12
+            Text: ="간단답변"
+            Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI",true,false)
+            Width: =206
+            X: =271
+            Y: =360
+            ZIndex: =6
+
+        Image_DetailCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =iconCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill  =  ColorValue("#EBF3FC"), true,false)
+            Width: =20
+            X: =100
+            Y: =374
+            ZIndex: =7
+
+        Image_SimpleCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =iconCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Simple_SO.Fill =  ColorValue("#EBF3FC"), true,false)
+            Width: =20
+            X: =321
+            Y: =374
+            ZIndex: =8
+
+        Image_DisSimpleCheck_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =DisableCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =//If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Simple_SO.DisplayMode = DisplayMode.Disabled , true,false)
+                If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.DisplayMode = DisplayMode.Disabled && LookUp(SearchOptions_table, 검색옵션 = "간단답변").선택여부 , true,false)
+            Width: =20
+            X: =321
+            Y: =374
+            ZIndex: =9
+
+        Image_DisDetail_SO As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =DisableCheck
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: |-
+                =//If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.Fill = ColorValue("#E0E0E0"), true,false)
+                If(Label_SearchOptionsMAin_SO.Text = "Open AI" && Button_Detail_SO.DisplayMode = DisplayMode.Disabled && LookUp(SearchOptions_table, 검색옵션 = "상세답변").선택여부 , true,false)
+            Width: =20
+            X: =100
+            Y: =374
+            ZIndex: =10
+
+        Checkbox_SelectOptions_SO As checkbox:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            CheckboxBackgroundFill: |-
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+            CheckboxBorderColor: |-
+                =If(Checkbox_SelectOptions_SO.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
+            CheckmarkFill: |-
+                =ColorValue("#FFFFFF")
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |
+                =ThisItem.선택여부
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =40
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnCheck: |
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
+                    {
+                        선택여부:"true"
+                    }
+                );
+            OnSelect: =
+            OnUncheck: |
+                =Patch(
+                    SearchOptions_table,
+                    First(Filter(SearchOptions_table, 검색옵션=ThisItem.검색옵션)),
+                    {
+                        선택여부:"false"
+                    }
+                );
+            PressedBorderColor: =RGBA(39, 113, 194, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Size: =0
+            Text: =""
+            Visible: |
+                =If( ThisItem.ID = 4, false,If( ThisItem.ID = 5, false,true)
+                )
+            Width: =40
+            X: =60
+            Y: =60
+            ZIndex: =11
 
     Label_SOMain_SO As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -26,7 +434,7 @@ SearchOptions As screen:
         FocusedBorderThickness: =4
         FontWeight: =FontWeight.Bold
         Height: =64
-        Size: =30
+        Size: =32
         Text: ="검색옵션설정"
         Visible: |-
             =If(
@@ -37,188 +445,24 @@ SearchOptions As screen:
                 true
             )
         Width: =691
-        X: ='Image_BiReport>_BiReport'.X + 'Image_BiReport>_BiReport'.Width +10
-        Y: =23
-        ZIndex: =4
+        X: =348
+        Y: =48
+        ZIndex: =7
 
-    Image_SOMain_SO As image:
+    Label_SOSub_SO As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =50
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='MicrosoftTeams-image (11)'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: |-
-            =If(
-                FullScreenMode,
-                    false,
-                Parent.Printing,
-                    false,
-                true
-            )
-        Width: =50
-        X: =283
-        Y: =30
-        ZIndex: =5
-
-    Gallery_SearchOptions_SO As gallery.galleryVertical:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =5
-        DelayItemLoading: =true
-        Height: =622
-        Items: =FirstN(SearchOptions_table,3)
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        TemplateSize: =200
-        Width: =773
-        X: =343
-        Y: =126
-        ZIndex: =6
-
-        Checkbox_SelectOptions_SO2 As checkbox:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            CheckboxBorderColor: =RGBA(102, 102, 102, 1)
-            CheckboxSize: =120
-            CheckmarkFill: =RGBA(105, 121, 126, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: |
-                =ThisItem.선택여부
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =122
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            OnCheck: |
-                =Patch(
-                    SearchOptions_table,
-                    First(Filter(SearchOptions_table, 검색옵션=Label_OptionsName_SO.Text)),
-                    {
-                        선택여부:"true"
-                    }
-                );
-            OnSelect: =
-            OnUncheck: |
-                =Patch(
-                    SearchOptions_table,
-                    First(Filter(SearchOptions_table, 검색옵션=Label_OptionsName_SO.Text)),
-                    {
-                        선택여부:"false"
-                    }
-                );
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =RGBA(51, 51, 51, 1)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Size: =0
-            Text: =""
-            Width: =130
-            X: =9
-            Y: =21
-            ZIndex: =1
-
-        Label_OptionsName_SO As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =113
-            OnSelect: =Select(Parent)
-            Size: =60
-            Text: =ThisItem.검색옵션
-            Width: =736
-            X: =136
-            Y: =30
-            ZIndex: =2
-
-    Radio_AddOptions_SO As radio:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =5
-        Color: =RGBA(51, 51, 51, 1)
-        Default: |-
-            =If(
-                LookUp(SearchOptions_table,검색옵션="간단답변").선택여부="true",
-                "간단답변",
-                "상세답변"
-                )
+        Color: |-
+            =ColorValue("#616161")
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
-        DisplayMode: |+
-            =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
-            
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Height: =187
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Items: |
-            =["간단답변","상세답변"]
-        OnSelect: |-
-            =If(Radio_AddOptions_SO.Selected.Value="간단답변",
-            
-               // 간단답변 : true / 상세답변 : false 
-                
-                Patch(
-                SearchOptions_table,
-                First(Filter(SearchOptions_table, 검색옵션="간단답변")),
-                {
-                    선택여부:"true"
-                });
-            
-                Patch(
-                SearchOptions_table,
-                First(Filter(SearchOptions_table, 검색옵션="상세답변")),
-                {
-                    선택여부:"false"
-                })
-                ,
-            
-            
-               // 간단답변 : false / 상세답변 : true 
-            
-                Patch(
-                SearchOptions_table,
-                First(Filter(SearchOptions_table, 검색옵션="간단답변")),
-                {
-                    선택여부:"false"
-                });
-            
-                Patch(
-                SearchOptions_table,
-                First(Filter(SearchOptions_table, 검색옵션="상세답변")),
-                {
-                    선택여부:"true"
-                })
-            )
-        PaddingBottom: =5
-        PaddingTop: =15
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        RadioBorderColor: =RGBA(51, 51, 51, 1)
-        RadioSelectionFill: =RGBA(105, 121, 126, 1)
-        RadioSize: =80
-        Reset: =""
-        Size: =40
-        Visible: |
-            =//If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",true,false)
-            true
-        Width: =340
-        X: =480
-        Y: =774
+        Size: =16
+        Text: ="아래에서 검색 옵션을 선택하세요. (복수 선택 가능)"
+        Width: =500
+        X: =348
+        Y: =122
         ZIndex: =8
 
