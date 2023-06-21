@@ -2014,6 +2014,97 @@ EditMenu As screen:
             Y: =505
             ZIndex: =29
 
+    Button_AddButton_FM_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =50
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |+
+            =Patch(
+                GNB_MENU,
+                NewPortalCollect
+            );
+            
+            If(
+                CountRows(
+                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
+                ) > 0,
+                Notify(
+                    "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
+                    NotificationType.Error,
+                    1000
+                ),
+                Notify(
+                    "저장완료.",
+                    NotificationType.Success,
+                    1000
+                )
+            );
+            
+            
+            
+            ForAll(
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
+                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
+            );
+            ForAll(
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
+                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
+            );
+            
+               Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
+            
+            
+            
+            UpdateContext({ testHight:
+                CountRows(
+                ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            ) * 80 });
+            
+            ClearCollect(
+                NewPortalCollect,
+                ShowColumns(
+                    SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
+                    "Title",
+                    "OData__x004c_V1",
+                    "LV1Order",
+                    "LV2Order",
+                    "ReportURI",
+                    "ID"
+                )
+            );
+            
+            Concurrent(
+            Set(ZoomLV1, "");,
+            Set(testVisible, "");,
+            Set(SelectedLV1, "");,
+            Set(SelectedLV2, "");
+            );
+            
+        PaddingLeft: =40
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        Size: =14
+        Text: ="Save"
+        Width: =113
+        X: =1759
+        Y: =26
+        ZIndex: =31
+
     Group_DeletSubMenuPopUp_EditMenu As group:
         Height: =5
         Width: =5
@@ -2148,97 +2239,6 @@ EditMenu As screen:
             X: =887
             Y: =534
             ZIndex: =30
-
-    Button_AddButton_FM_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =50
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |+
-            =Patch(
-                GNB_MENU,
-                NewPortalCollect
-            );
-            
-            If(
-                CountRows(
-                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
-                ) > 0,
-                Notify(
-                    "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
-                    NotificationType.Error,
-                    1000
-                ),
-                Notify(
-                    "저장완료.",
-                    NotificationType.Success,
-                    1000
-                )
-            );
-            
-            
-            
-            ForAll(
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
-                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
-            );
-            ForAll(
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
-            );
-            
-               Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
-            
-            
-            
-            UpdateContext({ testHight:
-                CountRows(
-                ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
-            ) * 80 });
-            
-            ClearCollect(
-                NewPortalCollect,
-                ShowColumns(
-                    SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
-                    "Title",
-                    "OData__x004c_V1",
-                    "LV1Order",
-                    "LV2Order",
-                    "ReportURI",
-                    "ID"
-                )
-            );
-            
-            Concurrent(
-            Set(ZoomLV1, "");,
-            Set(testVisible, "");,
-            Set(SelectedLV1, "");,
-            Set(SelectedLV2, "");
-            );
-            
-        PaddingLeft: =40
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        Size: =14
-        Text: ="Save"
-        Width: =113
-        X: =1759
-        Y: =26
-        ZIndex: =31
 
     Image2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
