@@ -12,12 +12,12 @@ EditMenu As screen:
             Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
         );
         ForAll(
-            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-            Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
+            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title)))),
+            Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title))))
         );
         
            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
+            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title))));
         
             
         Concurrent(
@@ -209,7 +209,7 @@ EditMenu As screen:
             Patch(
                 GNB_MENU, 
                 Defaults(GNB_MENU), 
-                { 제목:LastLV1Order+1, LV1:LastLV1Order+1, LV1Order:LastLV1Order+1, LV2Order:1 }
+                { Title:LastLV1Order+1, LV1:LastLV1Order+1, LV1Order:LastLV1Order+1, LV2Order:1 }
             );
             
             ClearCollect(
@@ -352,7 +352,7 @@ EditMenu As screen:
                 Patch(
                         GNB_MENU, 
                         Defaults(GNB_MENU), 
-                        { 제목:LastLV2Order+1, LV1:CheckedLV1, LV1Order:LookUp(GNB_MENU, LV1=CheckedLV1, LV1Order), LV2Order:LastLV2Order+1 }
+                        { Title:LastLV2Order+1, LV1:CheckedLV1, LV1Order:LookUp(GNB_MENU, LV1=CheckedLV1, LV1Order), LV2Order:LastLV2Order+1 }
                 );
                 
                 ClearCollect(
@@ -453,15 +453,15 @@ EditMenu As screen:
             OnSelect: |+
                 =
                 
-                Set(SelectedLV2,ThisItem.제목);
+                Set(SelectedLV2,ThisItem.Title);
                 Set(SelectedLV1, "");
                 
-                If(ThisItem.제목=SelectedLV2, //Checkbox5.Value,
+                If(ThisItem.Title=SelectedLV2, //Checkbox5.Value,
                 
                 Patch(GNB_MENU, SortByColumns(Filter(GNB_MENU, LV1=ThisItem.LV1), "LV2Order"), RenameColumns(Sequence(CountRows(Filter(GNB_MENU, LV1=ThisItem.LV1))), "Value", "LV2Order"));
                 
                 Set(CheckedLV1, ThisItem.LV1);
-                Set(CheckedLV2, ThisItem.제목);
+                Set(CheckedLV2, ThisItem.Title);
                 Set(CheckedLV1Order, ThisItem.LV1Order);
                 Set(CheckedLV2Order, ThisItem.LV2Order);
                 Set(CheckedReportURI, ThisItem.ReportURI);
@@ -548,9 +548,9 @@ EditMenu As screen:
                 Color: =RGBA(51, 51, 51, 1)
                 Default: |-
                     =If(
-                        ThisItem.제목=LookUp(GNB_MENU, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
+                        ThisItem.Title=LookUp(GNB_MENU, LV1=ThisItem.Title, LV1Order) || IsNumeric(ThisItem.Title),
                         Blank(),
-                        ThisItem.제목
+                        ThisItem.Title
                     )
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
@@ -584,7 +584,7 @@ EditMenu As screen:
                     )
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
-                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV2,ThisItem.Title);
                     Set(SelectedLV1, "");
                     Select(Parent)
                 PaddingLeft: =24
@@ -643,7 +643,7 @@ EditMenu As screen:
                     )
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
-                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV2,ThisItem.Title);
                     Set(SelectedLV1, "");
                     Select(Parent)
                 PaddingLeft: =24
@@ -701,7 +701,7 @@ EditMenu As screen:
                     )
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
-                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV2,ThisItem.Title);
                     Set(SelectedLV1, "");
                     Select(Parent)
                 PaddingLeft: =24
@@ -752,7 +752,7 @@ EditMenu As screen:
                         ThisItem.LV2Order = LastLV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                             
-                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=Last(SortByColumns(Filter(GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
+                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),Title=ThisItem.Title,LV2Order)=Last(SortByColumns(Filter(GNB_MENU, !IsNumeric(Title)),"LV2Order")).LV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                         Patch(
                             GNB_MENU,
@@ -827,7 +827,7 @@ EditMenu As screen:
                     If(
                         ThisItem.LV2Order = FirstLV2Order,
                             Notify( "가장 위에 있는 메뉴 입니다.", NotificationType.Error ),
-                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=First(SortByColumns(Filter(GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
+                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),Title=ThisItem.Title,LV2Order)=First(SortByColumns(Filter(GNB_MENU, !IsNumeric(Title)),"LV2Order")).LV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                         Patch(
                             GNB_MENU,
@@ -1047,7 +1047,7 @@ EditMenu As screen:
                     )
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
-                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV2,ThisItem.Title);
                     Set(SelectedLV1, "");
                     Select(Parent)
                 PaddingLeft: =24
@@ -1734,7 +1734,7 @@ EditMenu As screen:
             
             If(
                 CountRows(
-                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
+                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(Title) || IsBlank(Title))
                 ) > 0,
                 Notify(
                     "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
@@ -1755,12 +1755,12 @@ EditMenu As screen:
                 Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
             );
             ForAll(
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title)))),
+                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title))))
             );
             
                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(Title) || IsBlank(Title))));
             
             
             
