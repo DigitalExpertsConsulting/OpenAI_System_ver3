@@ -1713,112 +1713,6 @@ EditMenu As screen:
         Y: =30
         ZIndex: =15
 
-    Button_EditMenuSave_EditMenu As button:
-        BorderColor: =RGBA(112, 112, 112, 1)
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(255, 255, 255, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FontWeight: =FontWeight.Semibold
-        Height: =45
-        HoverBorderColor: =RGBA(243, 115, 33, 1)
-        HoverColor: =RGBA(243, 115, 33, 1)
-        HoverFill: =
-        OnSelect: |+
-            =Patch(
-                GNB_MENU,
-                NewPortalCollect
-            );
-            
-            If(
-                CountRows(
-                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
-                ) > 0,
-                Notify(
-                    "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
-                    NotificationType.Error,
-                    1000
-                ),
-                Notify(
-                    "저장완료.",
-                    NotificationType.Success,
-                    1000
-                )
-            );
-            
-            
-            
-            ForAll(
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
-                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
-            );
-            ForAll(
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
-            );
-            
-               Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
-            
-            
-            
-            UpdateContext({ testHight:
-                CountRows(
-                ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
-            ) * 80 });
-            
-            ClearCollect(
-                NewPortalCollect,
-                ShowColumns(
-                    SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
-                    "Title",
-                    "OData__x004c_V1",
-                    "LV1Order",
-                    "LV2Order",
-                    "ReportURI",
-                    "ID"
-                )
-            );
-            
-            Concurrent(
-            Set(ZoomLV1, "");,
-            Set(testVisible, "");,
-            Set(SelectedLV1, "");,
-            Set(SelectedLV2, "");
-            );
-            
-        PressedBorderColor: =RGBA(243, 115, 33, 1)
-        PressedColor: =RGBA(243, 115, 33, 1)
-        PressedFill: =
-        Size: =18
-        Text: ="Save"
-        Width: =140
-        X: =1376
-        Y: =26
-        ZIndex: =16
-
-    Icon_Reflash_EditMenu As icon.Reload:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(105, 121, 126, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(220, 220, 220, 1)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Icon: =Icon.Reload
-        OnSelect: |
-            =Refresh(GNB_MENU);
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        X: =1600
-        Y: =17
-        ZIndex: =17
-
     Label_CountMainMenu_EditMenu As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -2014,7 +1908,7 @@ EditMenu As screen:
             Y: =505
             ZIndex: =29
 
-    Button_AddButton_FM_1 As button:
+    Button_EditMenuSave_EditMenu As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2240,7 +2134,7 @@ EditMenu As screen:
             Y: =534
             ZIndex: =30
 
-    Image2 As image:
+    Image_Save_EditMenu As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -2257,4 +2151,63 @@ EditMenu As screen:
         X: =1774
         Y: =36
         ZIndex: =32
+
+    Button_Refresh_EditMenu As button:
+        BorderColor: =RGBA(164, 170, 174, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        Height: =50
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: =Refresh(GNB_MENU);
+        PaddingLeft: =50
+        PaddingRight: =20
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        Size: =14
+        Text: ="Refresh Table"
+        Visible: |-
+            =If(
+                FullScreenMode,
+                    false,
+                Parent.Printing,
+                    false,
+                true
+            )
+        Width: =206
+        X: =1502
+        Y: =26
+        ZIndex: =33
+
+    Image_Refresh_EditMenu As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =25
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =TokenMenuRefresh
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =25
+        X: =1523
+        Y: =38
+        ZIndex: =34
 
