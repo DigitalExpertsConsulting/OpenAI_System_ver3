@@ -1,3 +1,45 @@
 OrganizationalChart As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
 
+    New_Component_GNB_2 As New_Component_GNB:
+        Width: =300
+
+    Gallery_OrganizationalChart As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =911
+        Items: =First(Filter(Organizational_chart, Title="Dex Consulting"))  // 이 후 동적으로 변경
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplateSize: =890
+        Width: =1448
+        X: =396
+        Y: =123
+        ZIndex: =2
+
+        Gallery_Sub_OrganizationalChart As gallery.galleryHorizontal:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DelayItemLoading: =true
+            Items: =Filter(Organizational_chart, Title=ThisItem.Title)
+            LoadingSpinner: =LoadingSpinner.Data
+            TemplatePadding: =0
+            TemplateSize: |-
+                =If(
+                    CountRows(
+                        Filter(
+                            Organizational_chart,
+                            Title = ThisItem.Title
+                        )
+                    ) < 5,
+                    (Gallery_OrganizationalChart.Width - 10) / CountRows(
+                        Filter(
+                            Organizational_chart,
+                            Title = ThisItem.Title
+                        )
+                    ),
+                    (Gallery_OrganizationalChart.Width - 10) / 4
+                )
+            Width: =1438
+            Y: =93
+            ZIndex: =2
+
