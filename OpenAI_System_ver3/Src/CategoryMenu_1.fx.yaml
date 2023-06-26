@@ -1,4 +1,4 @@
-CategoryMenu As screen:
+CategoryMenu_1 As screen:
     BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
@@ -21,7 +21,7 @@ CategoryMenu As screen:
             Filter(
                 Office365사용자.SearchUser(
                     {
-                        searchTerm: TextInput_AddUserSearch_CategoryMenu.Text,
+                        searchTerm: TextInput_AddUserSearch_CategoryMenu_1.Text,
                         top: 999
                     }
                 ),
@@ -35,7 +35,7 @@ CategoryMenu As screen:
                 ShowColumns(
                     'Office365사용자'.SearchUser(
                         {
-                            searchTerm2: TextInput_ShearchTeam_CategoryMenu.Text,
+                            searchTerm2: TextInput_ShearchTeam_CategoryMenu_1.Text,
                             top: 999
                         }
                     ),
@@ -47,11 +47,11 @@ CategoryMenu As screen:
         );
         Refresh(Category_table);
 
-    New_Component_GNB_CategoryMenu As New_Component_GNB:
+    New_Component_GNB_CategoryMenu_1 As New_Component_GNB:
         Visible: =true
         Width: =300
 
-    Rectangle_CategoryMenuBody_CategoryMenu As rectangle:
+    Rectangle_CategoryMenuBody_CategoryMenu_1 As rectangle:
         BorderColor: =RGBA(112, 112, 112, 1)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -62,12 +62,12 @@ CategoryMenu As screen:
         Height: =674
         HoverFill: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =Parent.Width - New_Component_GNB_CategoryMenu.Width - 104
-        X: =New_Component_GNB_CategoryMenu.Width + 56
+        Width: =Parent.Width - New_Component_GNB_CategoryMenu_1.Width - 104
+        X: =New_Component_GNB_CategoryMenu_1.Width + 56
         Y: =350
         ZIndex: =2
 
-    Label_CategoryMenuTitle_CategoryMenu As label:
+    Label_CategoryMenuTitle_CategoryMenu_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -84,7 +84,7 @@ CategoryMenu As screen:
         Y: =17
         ZIndex: =3
 
-    Label_MemberAddCompleteName_CategoryMenu As label:
+    Label_MemberAddCompleteName_CategoryMenu_1 As label:
         Align: =Align.Center
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -99,7 +99,7 @@ CategoryMenu As screen:
         Text: =Last(Filter(MyPeople,DisplayName = DisplayName,DisplayName)).DisplayName
         Visible: |-
             =If(
-                TextInput_AddUserSearch_CategoryMenu.Visible = true,
+                TextInput_AddUserSearch_CategoryMenu_1.Visible = true,
                 true,
                 false
             )
@@ -108,7 +108,7 @@ CategoryMenu As screen:
         Y: =685
         ZIndex: =4
 
-    Label_MemberAddComplete_CategoryMenu As label:
+    Label_MemberAddComplete_CategoryMenu_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -122,16 +122,16 @@ CategoryMenu As screen:
         Text: ="님 추가 완료"
         Visible: |-
             =If(
-                Label_MemberAddCompleteName_CategoryMenu.Visible = true 
+                Label_MemberAddCompleteName_CategoryMenu_1.Visible = true 
             && !IsBlank(Last(Filter(MyPeople, DisplayName = DisplayName, DisplayName)).DisplayName),
                 true,
                 false
             )
-        X: =Label_MemberAddCompleteName_CategoryMenu.X + 70
-        Y: =Label_MemberAddCompleteName_CategoryMenu.Y
+        X: =Label_MemberAddCompleteName_CategoryMenu_1.X + 70
+        Y: =Label_MemberAddCompleteName_CategoryMenu_1.Y
         ZIndex: =5
 
-    Button_ViewTeamMembers_CategoryMenu As button:
+    Button_ViewTeamMembers_CategoryMenu_1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -168,7 +168,7 @@ CategoryMenu As screen:
         Y: =723
         ZIndex: =17
 
-    Button_CategoryMenuSAVEPatch_CategoryMenu As button:
+    Button_CategoryMenuSAVEPatch_CategoryMenu_1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -189,11 +189,35 @@ CategoryMenu As screen:
                 Category_table,
                 CategoryMenuCollect
             );
-            Notify(
+            
+            If(
+                CountRows(
+                    Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
+                ) > 0,
+                Notify(
+                    "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
+                    NotificationType.Error,
+                    1000
+                ),
+                Notify(
                     "저장완료.",
                     NotificationType.Success,
                     1000
-                );
+                )
+            );
+            
+            
+            ForAll(
+                Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1)))),
+                Remove(Category_table, First(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))))
+            );
+            ForAll(
+                Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목)))),
+                Remove(Category_table, First(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))))
+            );
+            
+               Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))));
+                Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))));
             
             
             ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));
@@ -238,7 +262,7 @@ CategoryMenu As screen:
         Y: =26
         ZIndex: =18
 
-    Image_CategoryMenuSAVEPatch_CategoryMenu As image:
+    Image_CategoryMenuSAVEPatch_CategoryMenu_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -256,7 +280,7 @@ CategoryMenu As screen:
         Y: =36
         ZIndex: =19
 
-    Gallery_Main_CategoryMenu As gallery.variableTemplateHeightGallery:
+    Gallery_Main_CategoryMenu_1 As gallery.variableTemplateHeightGallery:
         BorderColor: =RGBA(166, 166, 166, 1)
         Height: =635
         Items: |-
@@ -287,12 +311,12 @@ CategoryMenu As screen:
         ShowScrollbar: =false
         TemplatePadding: =15
         TemplateSize: =100
-        Width: =Rectangle_CategoryMenuBody_CategoryMenu.Width
+        Width: =Rectangle_CategoryMenuBody_CategoryMenu_1.Width
         X: =361
         Y: =382
         ZIndex: =20
 
-        Button_BackgroundGallery_CategoryMenu As button:
+        Button_BackgroundGallery_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =Color.White
@@ -317,13 +341,13 @@ CategoryMenu As screen:
             RadiusTopRight: =0
             Size: =15
             Text: ="버튼"
-            Visible: =Gallery_Sub_CategoryMenu.Visible
-            Width: =Gallery_Sub_CategoryMenu.Width -2
-            X: =Gallery_Sub_CategoryMenu.X +1
-            Y: =Gallery_Sub_CategoryMenu.Y +Gallery_Sub_CategoryMenu.Height
+            Visible: =Gallery_Sub_CategoryMenu_1.Visible
+            Width: =Gallery_Sub_CategoryMenu_1.Width -2
+            X: =Gallery_Sub_CategoryMenu_1.X +1
+            Y: =30
             ZIndex: =1
 
-        Button_SubAddMainMenu_CategoryMenu As button:
+        Button_SubAddMainMenu_CategoryMenu_1 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: =Color.Black
@@ -395,13 +419,13 @@ CategoryMenu As screen:
             RadiusTopRight: =010
             Size: =15
             Text: ="서브 카테고리 추가"
-            Visible: =Gallery_Sub_CategoryMenu.Visible
-            Width: =Button_SubGalleryBody_CategoryMenu.Width
+            Visible: =Gallery_Sub_CategoryMenu_1.Visible
+            Width: =Button_SubGalleryBody_CategoryMenu_1.Width
             X: =45
-            Y: =Gallery_Sub_CategoryMenu.Y +Gallery_Sub_CategoryMenu.Height +5
+            Y: =60
             ZIndex: =2
 
-        Gallery_Sub_CategoryMenu As gallery.variableTemplateHeightGallery:
+        Gallery_Sub_CategoryMenu_1 As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             Height: |-
@@ -474,7 +498,7 @@ CategoryMenu As screen:
             Y: =68
             ZIndex: =3
 
-            Button_SubGalleryBody_CategoryMenu As button:
+            Button_SubGalleryBody_CategoryMenu_1 As button:
                 BorderColor: =Color.Blue
                 DisabledBorderColor: |-
                     =ColorValue("#D1D1D1")
@@ -506,7 +530,7 @@ CategoryMenu As screen:
                 Y: =4
                 ZIndex: =1
 
-            TextInput_UserList_CategoryMenu As text:
+            TextInput_UserList_CategoryMenu_1 As text:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -518,7 +542,7 @@ CategoryMenu As screen:
                 DisplayMode: =DisplayMode.Disabled
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
-                Height: =Label_ComplateUsersName_CategoryMenu.Height
+                Height: =Label_ComplateUsersName_CategoryMenu_1.Height
                 HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverColor: =RGBA(51, 51, 51, 1)
                 HoverFill: =RGBA(255, 255, 255, 1)
@@ -531,12 +555,12 @@ CategoryMenu As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Size: =13
-                Width: =Label_ComplateUsersName_CategoryMenu.Width
-                X: =Label_ComplateUsersName_CategoryMenu.X
-                Y: =Label_ComplateUsersName_CategoryMenu.Y
+                Width: =Label_ComplateUsersName_CategoryMenu_1.Width
+                X: =Label_ComplateUsersName_CategoryMenu_1.X
+                Y: =Label_ComplateUsersName_CategoryMenu_1.Y
                 ZIndex: =2
 
-            TextInput_SubMenuName_CategoryMenu As text:
+            TextInput_SubMenuName_CategoryMenu_1 As text:
                 BorderColor: =Color.White
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -549,6 +573,12 @@ CategoryMenu As screen:
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 DisabledFill: =RGBA(244, 244, 244, 1)
+                DisplayMode: |-
+                    =If(
+                        IsNumeric(ThisItem.이름),
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
                 FocusedBorderThickness: =2
                 HintText: |-
                     =If(
@@ -566,8 +596,8 @@ CategoryMenu As screen:
                         CategoryMenuCollect,
                         LookUp(CategoryMenuCollect, ID=CheckedID), //ThisItem.ID = __CheckedID
                         { 
-                            OData__x004c_V1:TextInput_MenuName_CategoryMenu.Text, 
-                            Title:TextInput_SubMenuName_CategoryMenu.Text,
+                            OData__x004c_V1:TextInput_MenuName_CategoryMenu_1.Text, 
+                            Title:TextInput_SubMenuName_CategoryMenu_1.Text,
                             LV1Order: CheckedLV1Order, 
                             LV2Order: CheckedLV2Order
                         }
@@ -594,7 +624,7 @@ CategoryMenu As screen:
                 Y: =18
                 ZIndex: =3
 
-            Label_ComplateUsersName_CategoryMenu As label:
+            Label_ComplateUsersName_CategoryMenu_1 As label:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -664,7 +694,7 @@ CategoryMenu As screen:
                 Y: =20
                 ZIndex: =4
 
-            Icon_DeleteSubMenu_CategoryMenu As icon.Share:
+            Icon_DeleteSubMenu_CategoryMenu_1 As icon.Share:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(220, 220, 220, 1)
@@ -715,7 +745,7 @@ CategoryMenu As screen:
                 Y: =18
                 ZIndex: =5
 
-            TextInput_TeamList_CategoryMenu As text:
+            TextInput_TeamList_CategoryMenu_1 As text:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -727,7 +757,7 @@ CategoryMenu As screen:
                 DisplayMode: =DisplayMode.Disabled
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
-                Height: =Label_ComplateTeamName_CategoryMenu.Height
+                Height: =Label_ComplateTeamName_CategoryMenu_1.Height
                 HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverColor: =RGBA(51, 51, 51, 1)
                 HoverFill: =RGBA(255, 255, 255, 1)
@@ -740,12 +770,12 @@ CategoryMenu As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Size: =13
-                Width: =Label_ComplateTeamName_CategoryMenu.Width
-                X: =Label_ComplateTeamName_CategoryMenu.X
-                Y: =Label_ComplateTeamName_CategoryMenu.Y
+                Width: =Label_ComplateTeamName_CategoryMenu_1.Width
+                X: =Label_ComplateTeamName_CategoryMenu_1.X
+                Y: =Label_ComplateTeamName_CategoryMenu_1.Y
                 ZIndex: =8
 
-            Label_ComplateTeamName_CategoryMenu As label:
+            Label_ComplateTeamName_CategoryMenu_1 As label:
                 BorderColor: =RGBA(179, 179, 179, 1)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -883,7 +913,7 @@ CategoryMenu As screen:
                 Y: =20
                 ZIndex: =9
 
-            Image_TeamSerch_CategoryMenu As image:
+            Image_TeamSerch_CategoryMenu_1 As image:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
                 BorderThickness: =2
@@ -919,7 +949,7 @@ CategoryMenu As screen:
                 Y: =20
                 ZIndex: =10
 
-            Image_Addteam_CategoryMenu As image:
+            Image_Addteam_CategoryMenu_1 As image:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
                 BorderThickness: =2
@@ -965,7 +995,7 @@ CategoryMenu As screen:
                 Y: =20
                 ZIndex: =11
 
-            Icon_ComplateUserList_CategoryMenu As image:
+            Icon_ComplateUserList_CategoryMenu_1 As image:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
                 BorderThickness: =2
@@ -998,7 +1028,7 @@ CategoryMenu As screen:
                 Y: =18
                 ZIndex: =12
 
-            Icon_AddUserButton_CategoryMenu As image:
+            Icon_AddUserButton_CategoryMenu_1 As image:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
                 BorderThickness: =2
@@ -1044,7 +1074,7 @@ CategoryMenu As screen:
                 Y: =18
                 ZIndex: =13
 
-        Button_MainUsersName_CategoryMenu As button:
+        Button_MainUsersName_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderThickness: =0
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1094,15 +1124,15 @@ CategoryMenu As screen:
                 =ColorValue("#FFFFFF")
             PressedFill: |-
                 =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =If(Gallery_Sub_CategoryMenu.Visible= true, 0,10)
-            RadiusBottomRight: =If(Gallery_Sub_CategoryMenu.Visible= true, 0,10)
+            RadiusBottomLeft: =If(Gallery_Sub_CategoryMenu_1.Visible= true, 0,10)
+            RadiusBottomRight: =If(Gallery_Sub_CategoryMenu_1.Visible= true, 0,10)
             Size: =15
             Text: =""
             Width: =1485
-            Y: =5
+            Y: =6
             ZIndex: =5
 
-        TextInput_MenuName_CategoryMenu As text:
+        TextInput_MenuName_CategoryMenu_1 As text:
             BorderColor: =RGBA(0,0,0,0)
             BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
@@ -1115,6 +1145,12 @@ CategoryMenu As screen:
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: |-
+                =If(
+                    IsNumeric(ThisItem.Result),
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
             Fill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =2
             FontWeight: =FontWeight.Semibold
@@ -1135,7 +1171,7 @@ CategoryMenu As screen:
                     Patch(
                         CategoryMenuCollect, LookUp(CategoryMenuCollect, OData__x004c_V1=ThisItem.Result), 
                         { 
-                            OData__x004c_V1:TextInput_MenuName_CategoryMenu.Text 
+                            OData__x004c_V1:TextInput_MenuName_CategoryMenu_1.Text 
                             }
                     )
                 );
@@ -1163,7 +1199,7 @@ CategoryMenu As screen:
             Y: =17
             ZIndex: =6
 
-        Image_DeleteMainList_CategoryMenu As image:
+        Image_DeleteMainList_CategoryMenu_1 As image:
             BorderColor: |-
                 =
                 
@@ -1241,7 +1277,7 @@ CategoryMenu As screen:
             Y: =17
             ZIndex: =7
 
-        Image_SubAddMainMenu_CategoryMenu As image:
+        Image_SubAddMainMenu_CategoryMenu_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1255,13 +1291,13 @@ CategoryMenu As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =Gallery_Sub_CategoryMenu.Visible
+            Visible: =Gallery_Sub_CategoryMenu_1.Visible
             Width: =24
             X: =629
-            Y: =Button_SubAddMainMenu_CategoryMenu.Y+10
+            Y: =Button_SubAddMainMenu_CategoryMenu_1.Y+10
             ZIndex: =10
 
-        Image_CategoryGallery_CategoryMenu As image:
+        Image_CategoryGallery_CategoryMenu_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1273,7 +1309,7 @@ CategoryMenu As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =Icon_galleryOn
             ImageRotation: |-
-                =If(Gallery_Sub_CategoryMenu.Visible = true,ImageRotation.Rotate180,
+                =If(Gallery_Sub_CategoryMenu_1.Visible = true,ImageRotation.Rotate180,
                 
                 ImageRotation.None)
             OnSelect: =Select(Parent)
@@ -1284,7 +1320,7 @@ CategoryMenu As screen:
             Y: =28
             ZIndex: =11
 
-    Button_AddMainMenu_CategoryMenu As button:
+    Button_AddMainMenu_CategoryMenu_1 As button:
         BorderColor: |-
             =ColorValue("#D1D1D1")
         Color: =Color.Black
@@ -1352,12 +1388,12 @@ CategoryMenu As screen:
         RadiusTopRight: =010
         Size: =15
         Text: ="메인 카테고리 추가"
-        Width: =Button_MainUsersName_CategoryMenu.Width +10
+        Width: =Button_MainUsersName_CategoryMenu_1.Width +10
         X: =352
-        Y: =Gallery_Main_CategoryMenu.Y +Gallery_Main_CategoryMenu.Height + 10
+        Y: =Gallery_Main_CategoryMenu_1.Y +Gallery_Main_CategoryMenu_1.Height + 10
         ZIndex: =21
 
-    Container_CountMain_CategoryMenu As groupContainer.manualLayoutContainer:
+    Container_CountMain_CategoryMenu_1 As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
         Height: =138
@@ -1370,7 +1406,7 @@ CategoryMenu As screen:
         Y: =133
         ZIndex: =22
 
-        Label_CountMainMenu_CategoryMenu As label:
+        Label_CountMainMenu_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1392,7 +1428,7 @@ CategoryMenu As screen:
             Y: =55
             ZIndex: =1
 
-        Label_CountMainTitle_CategoryMenu As label:
+        Label_CountMainTitle_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1409,7 +1445,7 @@ CategoryMenu As screen:
             Y: =15
             ZIndex: =2
 
-        Label_CountMain_CategoryMenu As label:
+        Label_CountMain_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1426,7 +1462,7 @@ CategoryMenu As screen:
             Y: =67
             ZIndex: =3
 
-    Container_CountSub_CategoryMenu As groupContainer.manualLayoutContainer:
+    Container_CountSub_CategoryMenu_1 As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
         Height: =138
@@ -1439,7 +1475,7 @@ CategoryMenu As screen:
         Y: =133
         ZIndex: =23
 
-        Label_CountSub2_CategoryMenu As label:
+        Label_CountSub2_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1457,7 +1493,7 @@ CategoryMenu As screen:
             Y: =55
             ZIndex: =1
 
-        Label_CountSubMain_CategoryMenu As label:
+        Label_CountSubMain_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1474,7 +1510,7 @@ CategoryMenu As screen:
             Y: =15
             ZIndex: =2
 
-        Label_CountSub_CategoryMenu As label:
+        Label_CountSub_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1491,7 +1527,7 @@ CategoryMenu As screen:
             Y: =67
             ZIndex: =3
 
-    Container_NoUser_CategoryMenu As groupContainer.manualLayoutContainer:
+    Container_NoUser_CategoryMenu_1 As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
         Height: =138
@@ -1504,7 +1540,7 @@ CategoryMenu As screen:
         Y: =133
         ZIndex: =24
 
-        Label_NoUserCount_CategoryMenu As label:
+        Label_NoUserCount_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1522,7 +1558,7 @@ CategoryMenu As screen:
             Y: =55
             ZIndex: =1
 
-        Label_NoUserMain_CategoryMenu As label:
+        Label_NoUserMain_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1538,7 +1574,7 @@ CategoryMenu As screen:
             Y: =15
             ZIndex: =2
 
-        Label_NoUser_CategoryMenu As label:
+        Label_NoUser_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1555,7 +1591,7 @@ CategoryMenu As screen:
             Y: =67
             ZIndex: =3
 
-        Image_NoUser_CategoryMenu As image:
+        Image_NoUser_CategoryMenu_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1574,7 +1610,7 @@ CategoryMenu As screen:
             Y: =20
             ZIndex: =4
 
-    Image_EditMainMenu_CategoryMenu As image:
+    Image_EditMainMenu_CategoryMenu_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1589,10 +1625,10 @@ CategoryMenu As screen:
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =30
         X: =976
-        Y: =Button_AddMainMenu_CategoryMenu.Y+5
+        Y: =Button_AddMainMenu_CategoryMenu_1.Y+5
         ZIndex: =29
 
-    Label_CategoryList_CategoryMenu As label:
+    Label_CategoryList_CategoryMenu_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1609,14 +1645,14 @@ CategoryMenu As screen:
         Y: =315
         ZIndex: =30
 
-    Group_AddUserPopUp_CategoryMenu As group:
+    Group_AddUserPopUp_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =33
 
-        Rectangle_ComplateUserList_CategoryMenu As rectangle:
+        Rectangle_ComplateUserList_CategoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisplayMode: =DisplayMode.View
@@ -1629,7 +1665,7 @@ CategoryMenu As screen:
             Y: =222
             ZIndex: =41
 
-        Button_OKComplateUser_CategoryMenu As button:
+        Button_OKComplateUser_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -1689,7 +1725,7 @@ CategoryMenu As screen:
                     "FFF"
                 );
                 Set(EditUserVisibleVal, false);
-                Reset(TextInput_AddUserSearch_CategoryMenu);
+                Reset(TextInput_AddUserSearch_CategoryMenu_1);
                 Refresh(Category_table);
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -1703,11 +1739,11 @@ CategoryMenu As screen:
             Text: ="확인"
             Visible: |
                 =EditUserVisibleVal
-            X: =Rectangle_ComplateUserList_CategoryMenu.X + (Rectangle_ComplateUserList_CategoryMenu.Width/2 - Self.Width)/2
-            Y: =Rectangle_ComplateUserList_CategoryMenu.Y + Rectangle_ComplateUserList_CategoryMenu.Height - Self.Height - 20
+            X: =Rectangle_ComplateUserList_CategoryMenu_1.X + (Rectangle_ComplateUserList_CategoryMenu_1.Width/2 - Self.Width)/2
+            Y: =Rectangle_ComplateUserList_CategoryMenu_1.Y + Rectangle_ComplateUserList_CategoryMenu_1.Height - Self.Height - 20
             ZIndex: =42
 
-        Button_CancleComplateUser_CategoryMenu As button:
+        Button_CancleComplateUser_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -1721,7 +1757,7 @@ CategoryMenu As screen:
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
             OnSelect: |-
                 =Set(EditUserVisibleVal, false);
-                Reset(TextInput_AddUserSearch_CategoryMenu);
+                Reset(TextInput_AddUserSearch_CategoryMenu_1);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1732,18 +1768,18 @@ CategoryMenu As screen:
             Size: =15
             Text: ="취소"
             Visible: =EditUserVisibleVal
-            X: =Rectangle_ComplateUserList_CategoryMenu.X + (Rectangle_ComplateUserList_CategoryMenu.Width + Self.Width/2)/2
-            Y: =Button_OKComplateUser_CategoryMenu.Y
+            X: =Rectangle_ComplateUserList_CategoryMenu_1.X + (Rectangle_ComplateUserList_CategoryMenu_1.Width + Self.Width/2)/2
+            Y: =Button_OKComplateUser_CategoryMenu_1.Y
             ZIndex: =43
 
-        Gallery_ComplateUserList_CategoryMenu As gallery.SelectedUsersTabletGallery:
+        Gallery_ComplateUserList_CategoryMenu_1 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
             BorderThickness: =1
             Height: |-
                 =If(
-                    TextInput_AddUserSearch_CategoryMenu.Visible,
-                    Gallery_AddUserSearch_CategoryMenu.Height,
-                    TextInput_AddUserSearch_CategoryMenu.Height + Gallery_AddUserSearch_CategoryMenu.Height + 20
+                    TextInput_AddUserSearch_CategoryMenu_1.Visible,
+                    Gallery_AddUserSearch_CategoryMenu_1.Height,
+                    TextInput_AddUserSearch_CategoryMenu_1.Height + Gallery_AddUserSearch_CategoryMenu_1.Height + 20
                 )
             Items: =MyPeople
             Layout: =Layout.Vertical
@@ -1751,17 +1787,17 @@ CategoryMenu As screen:
             TemplatePadding: =0
             TemplateSize: =47
             Visible: =EditUserVisibleVal
-            Width: =TextInput_AddUserSearch_CategoryMenu.Width
-            X: =Gallery_AddUserSearch_CategoryMenu.X
+            Width: =TextInput_AddUserSearch_CategoryMenu_1.Width
+            X: =Gallery_AddUserSearch_CategoryMenu_1.X
             Y: |-
                 =If(
-                    TextInput_AddUserSearch_CategoryMenu.Visible,
-                    Gallery_AddUserSearch_CategoryMenu.Y,
-                    TextInput_AddUserSearch_CategoryMenu.Y
+                    TextInput_AddUserSearch_CategoryMenu_1.Visible,
+                    Gallery_AddUserSearch_CategoryMenu_1.Y,
+                    TextInput_AddUserSearch_CategoryMenu_1.Y
                 )
             ZIndex: =44
 
-            Rectangle_UserList_CategoryMenu As rectangle:
+            Rectangle_UserList_CategoryMenu_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -1775,29 +1811,29 @@ CategoryMenu As screen:
                 Width: =Parent.TemplateWidth
                 ZIndex: =1
 
-            Title_UserList_CategoryMenu As label:
+            Title_UserList_CategoryMenu_1 As label:
                 Color: =RGBA(255, 255, 255, 1)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =2
                 Font: =Font.'Segoe UI'
-                Height: =Gallery_ComplateUserList_CategoryMenu.TemplateHeight
+                Height: =Gallery_ComplateUserList_CategoryMenu_1.TemplateHeight
                 OnSelect: =Set(selectedUser, ThisItem)
                 PaddingLeft: =10
                 Size: =13
-                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu.Visible, -1, 0)
+                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu_1.Visible, -1, 0)
                 Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
-                Width: =Gallery_ComplateUserList_CategoryMenu.TemplateWidth - Icon_UserListRemove_CategoryMenu.Width + 10
+                Width: =Gallery_ComplateUserList_CategoryMenu_1.TemplateWidth - Icon_UserListRemove_CategoryMenu_1.Width + 10
                 Wrap: =false
                 ZIndex: =2
 
-            Icon_UserListRemove_CategoryMenu As icon.Cancel:
-                AccessibleLabel: =Icon_UserListRemove_CategoryMenu.Tooltip
+            Icon_UserListRemove_CategoryMenu_1 As icon.Cancel:
+                AccessibleLabel: =Icon_UserListRemove_CategoryMenu_1.Tooltip
                 BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =Title_UserList_CategoryMenu.Color
+                Color: =Title_UserList_CategoryMenu_1.Color
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(220, 220, 220, 1)
                 DisabledFill: =RGBA(0, 0, 0, 0)
-                Height: =Gallery_ComplateUserList_CategoryMenu.TemplateHeight
+                Height: =Gallery_ComplateUserList_CategoryMenu_1.TemplateHeight
                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
@@ -1810,13 +1846,13 @@ CategoryMenu As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
-                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu.Visible, -1, 0)
+                TabIndex: =If(Gallery_AddUserSearch_CategoryMenu_1.Visible, -1, 0)
                 Tooltip: ="컬렉션에서 사용자를 제거하려면 선택"
                 Width: =Self.Height
-                X: =Gallery_ComplateUserList_CategoryMenu.TemplateWidth - Self.Width
+                X: =Gallery_ComplateUserList_CategoryMenu_1.TemplateWidth - Self.Width
                 ZIndex: =3
 
-        Gallery_AddUserSearch_CategoryMenu As gallery.PeoplePickerTabletGallery:
+        Gallery_AddUserSearch_CategoryMenu_1 As gallery.PeoplePickerTabletGallery:
             AccessibleLabel: ="사용자 찾기 검색 결과"
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =Parent.Fill
@@ -1835,25 +1871,25 @@ CategoryMenu As screen:
                 */
                 
                 If(
-                    IsBlank(TextInput_AddUserSearch_CategoryMenu.Text),
+                    IsBlank(TextInput_AddUserSearch_CategoryMenu_1.Text),
                     Blank(),
                     If(
                         IsBlank(
                             Find(
                                 ",",
-                                TextInput_AddUserSearch_CategoryMenu.Text
+                                TextInput_AddUserSearch_CategoryMenu_1.Text
                             )
                         ),
                         Search(
                             Namelist,
-                            TextInput_AddUserSearch_CategoryMenu.Text,
+                            TextInput_AddUserSearch_CategoryMenu_1.Text,
                             "DisplayName"
                         ),
                         Filter(
                             Namelist,
                             DisplayName in Substitute(
                                 Split(
-                                    TextInput_AddUserSearch_CategoryMenu.Text,
+                                    TextInput_AddUserSearch_CategoryMenu_1.Text,
                                     ","
                                 ),
                                 " ",
@@ -1869,49 +1905,49 @@ CategoryMenu As screen:
             TemplateSize: =87
             Visible: |-
                 =If(
-                TextInput_AddUserSearch_CategoryMenu.Visible,
+                TextInput_AddUserSearch_CategoryMenu_1.Visible,
                 true,
                 false
                 )
-            Width: =Rectangle_ComplateUserList_CategoryMenu.X + Rectangle_ComplateUserList_CategoryMenu.Width - Self.X - 10
-            X: =TextInput_AddUserSearch_CategoryMenu.X
-            Y: =TextInput_AddUserSearch_CategoryMenu.Y + TextInput_AddUserSearch_CategoryMenu.Height + 20
+            Width: =Rectangle_ComplateUserList_CategoryMenu_1.X + Rectangle_ComplateUserList_CategoryMenu_1.Width - Self.X - 10
+            X: =TextInput_AddUserSearch_CategoryMenu_1.X
+            Y: =TextInput_AddUserSearch_CategoryMenu_1.Y + TextInput_AddUserSearch_CategoryMenu_1.Height + 20
             ZIndex: =45
 
-            Rectangle_UserInformation_CategoryMenu As rectangle:
-                BorderColor: =Label_DisplayName_CategoryMenu.Color
+            Rectangle_UserInformation_CategoryMenu_1 As rectangle:
+                BorderColor: =Label_DisplayName_CategoryMenu_1.Color
                 BorderThickness: =If(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName, 2, 0)
                 DisabledFill: =RGBA(166, 166, 166, 1)
                 Fill: =RGBA(0,0,0,0)
                 Height: =Parent.TemplateHeight - 2*Self.Y
                 HoverFill: =RGBA(0,0,0,0)
-                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu_1)
                 PressedFill: =RGBA(105, 121, 126, 1)
                 Width: =Parent.TemplateWidth - 2*Self.X
                 X: =1
                 Y: =1
                 ZIndex: =1
 
-            Icon_ProfileImage_CategoryMenu As icon.Person:
+            Icon_ProfileImage_CategoryMenu_1 As icon.Person:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 Color: =RGBA(255, 255, 255, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(220, 220, 220, 1)
                 Fill: =RGBA(0,0,0,0)
-                Height: =Image_ProfileImage_CategoryMenu.Height
+                Height: =Image_ProfileImage_CategoryMenu_1.Height
                 Icon: =Icon.Person
-                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu_1)
                 PaddingBottom: =12
                 PaddingLeft: =12
                 PaddingRight: =12
                 PaddingTop: =12
                 PressedFill: =RGBA(0, 0, 0, 0)
-                Width: =Image_ProfileImage_CategoryMenu.Width
-                X: =Image_ProfileImage_CategoryMenu.X
-                Y: =Image_ProfileImage_CategoryMenu.Y
+                Width: =Image_ProfileImage_CategoryMenu_1.Width
+                X: =Image_ProfileImage_CategoryMenu_1.X
+                Y: =Image_ProfileImage_CategoryMenu_1.Y
                 ZIndex: =2
 
-            Image_ProfileImage_CategoryMenu As image:
+            Image_ProfileImage_CategoryMenu_1 As image:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -1921,15 +1957,15 @@ CategoryMenu As screen:
                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Image: =If(!IsBlank(ThisItem.Id), 'Office365사용자'.UserPhotoV2(ThisItem.Id))
-                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu_1)
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedFill: =RGBA(0, 0, 0, 0)
-                Width: =Gallery_AddUserSearch_CategoryMenu.TemplateHeight - 30
+                Width: =Gallery_AddUserSearch_CategoryMenu_1.TemplateHeight - 30
                 X: =37
-                Y: =(Gallery_AddUserSearch_CategoryMenu.TemplateHeight / 2) - (Self.Height/2)
+                Y: =(Gallery_AddUserSearch_CategoryMenu_1.TemplateHeight / 2) - (Self.Height/2)
                 ZIndex: =3
 
-            Label_DisplayName_CategoryMenu As label:
+            Label_DisplayName_CategoryMenu_1 As label:
                 BorderColor: =Self.Color
                 Color: =RGBA(51, 51, 51, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1994,7 +2030,7 @@ CategoryMenu As screen:
                             }
                         );
                         Set(UserAddPopup,true);,
-                        Timer_AddUserComplete_CategoryMenu.Start = true,
+                        Timer_AddUserComplete_CategoryMenu_1.Start = true,
                         Notify(
                             "사용자 추가 완료.",
                             NotificationType.Success,
@@ -2015,28 +2051,28 @@ CategoryMenu As screen:
                 Size: =12
                 TabIndex: =0
                 Text: =ThisItem.DisplayName
-                Width: =Gallery_AddUserSearch_CategoryMenu.TemplateWidth - 232
+                Width: =Gallery_AddUserSearch_CategoryMenu_1.TemplateWidth - 232
                 Wrap: =false
-                X: =Image_ProfileImage_CategoryMenu.X + Image_ProfileImage_CategoryMenu.Width + 16
+                X: =Image_ProfileImage_CategoryMenu_1.X + Image_ProfileImage_CategoryMenu_1.Width + 16
                 Y: =16
                 ZIndex: =4
 
-            Label_UserPrincipalName_CategoryMenu As label:
+            Label_UserPrincipalName_CategoryMenu_1 As label:
                 Color: =RGBA(51, 51, 51, 1)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =2
                 Font: =Font.'Segoe UI'
                 Height: =Self.Size * 1.8
-                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu_1)
                 Size: =12
                 Text: =ThisItem.UserPrincipalName
-                Width: =Label_DisplayName_CategoryMenu.Width
+                Width: =Label_DisplayName_CategoryMenu_1.Width
                 Wrap: =false
-                X: =Label_DisplayName_CategoryMenu.X
-                Y: =Gallery_AddUserSearch_CategoryMenu.TemplateHeight - Self.Height - 20
+                X: =Label_DisplayName_CategoryMenu_1.X
+                Y: =Gallery_AddUserSearch_CategoryMenu_1.TemplateHeight - Self.Height - 20
                 ZIndex: =5
 
-            Separator_AdduserGallery_CategoryMenu As rectangle:
+            Separator_AdduserGallery_CategoryMenu_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 Height: =1
@@ -2045,7 +2081,7 @@ CategoryMenu As screen:
                 Y: =Parent.TemplateHeight - 1
                 ZIndex: =6
 
-            Icon_AddUser_CategoryMenu As icon.Add:
+            Icon_AddUser_CategoryMenu_1 As icon.Add:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 Color: =RGBA(105, 121, 126, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -2056,7 +2092,7 @@ CategoryMenu As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Add
-                OnSelect: =Select(Label_DisplayName_CategoryMenu)
+                OnSelect: =Select(Label_DisplayName_CategoryMenu_1)
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -2064,7 +2100,7 @@ CategoryMenu As screen:
                 Y: =11
                 ZIndex: =7
 
-        TextInput_AddUserSearch_CategoryMenu As text:
+        TextInput_AddUserSearch_CategoryMenu_1 As text:
             Align: =TextPosition.Left
             Default: =""
             Height: |
@@ -2076,19 +2112,19 @@ CategoryMenu As screen:
             RadiusTopLeft: =0
             RadiusTopRight: =0
             Visible: =If(MAMode="Add", EditUserVisibleVal, false)
-            Width: =Gallery_AddUserSearch_CategoryMenu.Width
-            X: =Rectangle_ComplateUserList_CategoryMenu.X + 10
-            Y: =Rectangle_ComplateUserList_CategoryMenu.Y + 10
+            Width: =Gallery_AddUserSearch_CategoryMenu_1.Width
+            X: =Rectangle_ComplateUserList_CategoryMenu_1.X + 10
+            Y: =Rectangle_ComplateUserList_CategoryMenu_1.Y + 10
             ZIndex: =46
 
-        Icon_AddUserSherch_CategoryMenu As icon.Search:
+        Icon_AddUserSherch_CategoryMenu_1 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(220, 220, 220, 1)
             DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
-            Height: =TextInput_AddUserSearch_CategoryMenu.Height-10
+            Height: =TextInput_AddUserSearch_CategoryMenu_1.Height-10
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverFill: =RGBA(0, 0, 0, 0)
@@ -2096,20 +2132,20 @@ CategoryMenu As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =TextInput_AddUserSearch_CategoryMenu.Visible
+            Visible: =TextInput_AddUserSearch_CategoryMenu_1.Visible
             Width: =Self.Height
-            X: =TextInput_AddUserSearch_CategoryMenu.X + 15
-            Y: =TextInput_AddUserSearch_CategoryMenu.Y + 5
+            X: =TextInput_AddUserSearch_CategoryMenu_1.X + 15
+            Y: =TextInput_AddUserSearch_CategoryMenu_1.Y + 5
             ZIndex: =47
 
-    Group_AddUserComplete_CategoryMenu As group:
+    Group_AddUserComplete_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =44
 
-        Rectangle_AddUserComplete_CategoryMenu As rectangle:
+        Rectangle_AddUserComplete_CategoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisplayMode: =DisplayMode.View
@@ -2122,7 +2158,7 @@ CategoryMenu As screen:
             Y: =252
             ZIndex: =6
 
-        Label_AddUserCompleteName_CategoryMenu As label:
+        Label_AddUserCompleteName_CategoryMenu_1 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -2142,7 +2178,7 @@ CategoryMenu As screen:
             Y: =350
             ZIndex: =7
 
-        Label_AddUserComplete_CategoryMenu As label:
+        Label_AddUserComplete_CategoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2161,7 +2197,7 @@ CategoryMenu As screen:
             Y: =350
             ZIndex: =8
 
-        Timer_AddUserComplete_CategoryMenu As timer:
+        Timer_AddUserComplete_CategoryMenu_1 As timer:
             BorderColor: =RGBA(105, 121, 126, 1)
             BorderStyle: =BorderStyle.None
             DisabledBorderColor: =RGBA(244, 244, 244, 1)
@@ -2176,7 +2212,7 @@ CategoryMenu As screen:
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
             OnTimerEnd: |-
                 =Set(UserAddPopup, false); // Popup 컨트롤 숨기기
-                Reset(Timer_AddUserComplete_CategoryMenu);
+                Reset(Timer_AddUserComplete_CategoryMenu_1);
             OnTimerStart: =
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -2187,14 +2223,14 @@ CategoryMenu As screen:
             Y: =10
             ZIndex: =9
 
-    Group_DeleteMemberMain_CategoryMenu As group:
+    Group_DeleteMemberMain_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =47
 
-        Rectangle_DeleteMemberMain_CategoryMenu As rectangle:
+        Rectangle_DeleteMemberMain_CategoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisplayMode: =DisplayMode.View
@@ -2207,7 +2243,7 @@ CategoryMenu As screen:
             Y: =272
             ZIndex: =31
 
-        Button_OKDeleteMamberMain_CategoryMenu As button:
+        Button_OKDeleteMamberMain_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2251,7 +2287,7 @@ CategoryMenu As screen:
             Y: =605
             ZIndex: =32
 
-        Button_CencleDeleteMamberMain_CategoryMenu As button:
+        Button_CencleDeleteMamberMain_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2278,7 +2314,7 @@ CategoryMenu As screen:
             Y: =605
             ZIndex: =33
 
-        Label_DeleteMemberMain_CategoryMenu As label:
+        Label_DeleteMemberMain_CategoryMenu_1 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -2297,7 +2333,7 @@ CategoryMenu As screen:
             Y: =390
             ZIndex: =34
 
-        Label_DeletMainMenuWarning_CategoryMenu As label:
+        Label_DeletMainMenuWarning_CategoryMenu_1 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -2317,14 +2353,14 @@ CategoryMenu As screen:
             Y: =525
             ZIndex: =35
 
-    Group_DeleteMemberSub_CategoryMenu As group:
+    Group_DeleteMemberSub_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =48
 
-        Rectangle_DeleteMemberSub_CategoryMenu As rectangle:
+        Rectangle_DeleteMemberSub_CategoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisplayMode: =DisplayMode.View
@@ -2337,7 +2373,7 @@ CategoryMenu As screen:
             Y: =329
             ZIndex: =36
 
-        Button_OKDeleteMamberSub_CategoryMenu As button:
+        Button_OKDeleteMamberSub_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2385,7 +2421,7 @@ CategoryMenu As screen:
             Y: =662
             ZIndex: =37
 
-        Button_CencleDeleteMamberSub_CategoryMenu As button:
+        Button_CencleDeleteMamberSub_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2409,10 +2445,10 @@ CategoryMenu As screen:
             Text: ="취소"
             Visible: =DelPopUp=true
             X: =1107
-            Y: =Button_OKDeleteMamberSub_CategoryMenu.Y
+            Y: =Button_OKDeleteMamberSub_CategoryMenu_1.Y
             ZIndex: =38
 
-        Label_DeleteMemberSub_CategoryMenu As label:
+        Label_DeleteMemberSub_CategoryMenu_1 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -2431,7 +2467,7 @@ CategoryMenu As screen:
             Y: =447
             ZIndex: =39
 
-        Label_DeletSubMenuWarning_CategoryMenu As label:
+        Label_DeletSubMenuWarning_CategoryMenu_1 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -2451,14 +2487,14 @@ CategoryMenu As screen:
             Y: =545
             ZIndex: =40
 
-    Group_AddTeam_CategoryMenu As group:
+    Group_AddTeam_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =-713
         Y: =-180
         ZIndex: =56
 
-        Rectangle_TeamPopUp_CategoryMenu As rectangle:
+        Rectangle_TeamPopUp_CategoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisplayMode: =DisplayMode.View
@@ -2471,7 +2507,7 @@ CategoryMenu As screen:
             Y: =203
             ZIndex: =10
 
-        Button_OKTeamPopUP_CategoryMenu As button:
+        Button_OKTeamPopUP_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2556,7 +2592,7 @@ CategoryMenu As screen:
                     "FFF"
                 );
                 Set(EditUserVisibleVal, false);
-                Reset(TextInput_ShearchTeam_CategoryMenu);
+                Reset(TextInput_ShearchTeam_CategoryMenu_1);
                 Set(AddTeamPopup,false);
                 Refresh(Category_table);
                 
@@ -2572,7 +2608,7 @@ CategoryMenu As screen:
             Visible: |-
                 =
                 If(
-                TextInput_ShearchTeam_CategoryMenu.Visible,
+                TextInput_ShearchTeam_CategoryMenu_1.Visible,
                 true,
                 false
                 )
@@ -2580,7 +2616,7 @@ CategoryMenu As screen:
             Y: =723
             ZIndex: =11
 
-        Button_CancelTeamPopUP_CategoryMenu As button:
+        Button_CancelTeamPopUP_CategoryMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2595,7 +2631,7 @@ CategoryMenu As screen:
             OnSelect: |-
                 =Set(AddTeamPopup, false);
                 Set(Ok, false);
-                Reset(TextInput_ShearchTeam_CategoryMenu);
+                Reset(TextInput_ShearchTeam_CategoryMenu_1);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -2610,7 +2646,7 @@ CategoryMenu As screen:
             Y: =723
             ZIndex: =12
 
-        Gallery_ShearchTeamMembers_CategoryMenu As gallery.SelectedUsersTabletGallery:
+        Gallery_ShearchTeamMembers_CategoryMenu_1 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
             BorderThickness: =1
             Height: =402
@@ -2620,12 +2656,12 @@ CategoryMenu As screen:
             TemplatePadding: =0
             TemplateSize: =47
             Visible: =AddTeamPopup
-            Width: =TextInput_ShearchTeam_CategoryMenu.Width
+            Width: =TextInput_ShearchTeam_CategoryMenu_1.Width
             X: =821
             Y: =237
             ZIndex: =13
 
-            Rectangle_TeamMembers_CategoryMenu As rectangle:
+            Rectangle_TeamMembers_CategoryMenu_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -2638,42 +2674,42 @@ CategoryMenu As screen:
                 PressedFill: =RGBA(105, 121, 126, 1)
                 Visible: |-
                     =If(
-                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    TextInput_ShearchTeam_CategoryMenu_1.Visible,
                     false,
                     true
                     )
                 Width: =Parent.TemplateWidth
                 ZIndex: =1
 
-            Title_TeamMembers_CategoryMenu As label:
+            Title_TeamMembers_CategoryMenu_1 As label:
                 Color: =RGBA(255, 255, 255, 1)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =2
                 Font: =Font.'Segoe UI'
-                Height: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateHeight
+                Height: =Gallery_ShearchTeamMembers_CategoryMenu_1.TemplateHeight
                 OnSelect: =Set(selectedUser, ThisItem)
                 PaddingLeft: =10
                 Size: =13
-                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
+                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu_1.Visible, -1, 0)
                 Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
                 Visible: |-
                     =If(
-                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    TextInput_ShearchTeam_CategoryMenu_1.Visible,
                     false,
                     true
                     )
-                Width: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateWidth - Icon_DeleteTeamMembers_CategoryMenu.Width + 10
+                Width: =Gallery_ShearchTeamMembers_CategoryMenu_1.TemplateWidth - Icon_DeleteTeamMembers_CategoryMenu_1.Width + 10
                 Wrap: =false
                 ZIndex: =2
 
-            Icon_DeleteTeamMembers_CategoryMenu As icon.Cancel:
-                AccessibleLabel: =Icon_DeleteTeamMembers_CategoryMenu.Tooltip
+            Icon_DeleteTeamMembers_CategoryMenu_1 As icon.Cancel:
+                AccessibleLabel: =Icon_DeleteTeamMembers_CategoryMenu_1.Tooltip
                 BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =Title_TeamMembers_CategoryMenu.Color
+                Color: =Title_TeamMembers_CategoryMenu_1.Color
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(220, 220, 220, 1)
                 DisabledFill: =RGBA(0, 0, 0, 0)
-                Height: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateHeight
+                Height: =Gallery_ShearchTeamMembers_CategoryMenu_1.TemplateHeight
                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
@@ -2686,44 +2722,44 @@ CategoryMenu As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
-                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
+                TabIndex: =If(Gallery_ShearchTeam_CategoryMenu_1.Visible, -1, 0)
                 Tooltip: ="컬렉션에서 사용자를 제거하려면 선택"
                 Visible: |-
                     =If(
-                    TextInput_ShearchTeam_CategoryMenu.Visible,
+                    TextInput_ShearchTeam_CategoryMenu_1.Visible,
                     false,
                     true
                     )
                 Width: =Self.Height
-                X: =Gallery_ShearchTeamMembers_CategoryMenu.TemplateWidth - Self.Width
+                X: =Gallery_ShearchTeamMembers_CategoryMenu_1.TemplateWidth - Self.Width
                 ZIndex: =3
 
-        Gallery_ShearchTeam_CategoryMenu As gallery.PeoplePickerTabletGallery:
+        Gallery_ShearchTeam_CategoryMenu_1 As gallery.PeoplePickerTabletGallery:
             AccessibleLabel: ="사용자 찾기 검색 결과"
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =Parent.Fill
             Height: =366
             Items: |+
                 =If(
-                    IsBlank(TextInput_ShearchTeam_CategoryMenu.Text),
+                    IsBlank(TextInput_ShearchTeam_CategoryMenu_1.Text),
                     Blank(),
                     If(
                         IsBlank(
                             Find(
                                 ",",
-                                TextInput_ShearchTeam_CategoryMenu.Text
+                                TextInput_ShearchTeam_CategoryMenu_1.Text
                             )
                         ),
                         Search(
                             Departmentlist,
-                            TextInput_ShearchTeam_CategoryMenu.Text,
+                            TextInput_ShearchTeam_CategoryMenu_1.Text,
                             "Value"
                         ),
                         Filter(
                             Departmentlist,
                             "Value" in Substitute(
                                 Split(
-                                    TextInput_ShearchTeam_CategoryMenu.Text,
+                                    TextInput_ShearchTeam_CategoryMenu_1.Text,
                                     ","
                                 ),
                                 " ",
@@ -2812,7 +2848,7 @@ CategoryMenu As screen:
             TemplateSize: =87
             Visible: |-
                 =If(
-                TextInput_ShearchTeam_CategoryMenu.Visible,
+                TextInput_ShearchTeam_CategoryMenu_1.Visible,
                 true,
                 false
                 )
@@ -2821,20 +2857,20 @@ CategoryMenu As screen:
             Y: =273
             ZIndex: =14
 
-            Rectangle_AddTeam_CategoryMenu As rectangle:
-                BorderColor: =Title_AddTeamName_CategoryMenu.Color
+            Rectangle_AddTeam_CategoryMenu_1 As rectangle:
+                BorderColor: =Title_AddTeamName_CategoryMenu_1.Color
                 BorderThickness: =//If(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName, 2, 0)
                 DisabledFill: =RGBA(166, 166, 166, 1)
                 Fill: =RGBA(0,0,0,0)
                 Height: =Parent.TemplateHeight - 2*Self.Y
                 HoverFill: =RGBA(0,0,0,0)
-                OnSelect: =Select(Title_AddTeamName_CategoryMenu)
+                OnSelect: =Select(Title_AddTeamName_CategoryMenu_1)
                 PressedFill: =RGBA(105, 121, 126, 1)
                 Width: =444
                 Y: =1
                 ZIndex: =1
 
-            Title_AddTeamName_CategoryMenu As label:
+            Title_AddTeamName_CategoryMenu_1 As label:
                 BorderColor: =Self.Color
                 Color: =RGBA(51, 51, 51, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -2895,13 +2931,13 @@ CategoryMenu As screen:
                 Size: =12
                 TabIndex: =0
                 Text: =ThisItem.Value
-                Width: =Gallery_ShearchTeam_CategoryMenu.TemplateWidth - 232
+                Width: =Gallery_ShearchTeam_CategoryMenu_1.TemplateWidth - 232
                 Wrap: =false
                 X: =
                 Y: =16
                 ZIndex: =4
 
-            Separator_AddTeam_CategoryMenu As rectangle:
+            Separator_AddTeam_CategoryMenu_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 Height: =1
@@ -2910,7 +2946,7 @@ CategoryMenu As screen:
                 Y: =Parent.TemplateHeight - 1
                 ZIndex: =6
 
-            Icon_AddTeam_CategoryMenu As icon.Add:
+            Icon_AddTeam_CategoryMenu_1 As icon.Add:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 Color: =RGBA(105, 121, 126, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -2921,7 +2957,7 @@ CategoryMenu As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Add
-                OnSelect: =Select(Title_AddTeamName_CategoryMenu)
+                OnSelect: =Select(Title_AddTeamName_CategoryMenu_1)
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -2929,7 +2965,7 @@ CategoryMenu As screen:
                 Y: =1
                 ZIndex: =7
 
-        TextInput_ShearchTeam_CategoryMenu As text:
+        TextInput_ShearchTeam_CategoryMenu_1 As text:
             Align: =TextPosition.Left
             Default: =""
             Height: =35
@@ -2945,14 +2981,14 @@ CategoryMenu As screen:
             Y: =213
             ZIndex: =15
 
-        Icon_ShearchTeam_CategoryMenu As icon.Search:
+        Icon_ShearchTeam_CategoryMenu_1 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(220, 220, 220, 1)
             DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
-            Height: =TextInput_ShearchTeam_CategoryMenu.Height-10
+            Height: =TextInput_ShearchTeam_CategoryMenu_1.Height-10
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverFill: =RGBA(0, 0, 0, 0)
@@ -2960,20 +2996,20 @@ CategoryMenu As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =TextInput_ShearchTeam_CategoryMenu.Visible
+            Visible: =TextInput_ShearchTeam_CategoryMenu_1.Visible
             Width: =Self.Height
             X: =836
             Y: =218
             ZIndex: =16
 
-    Group_IncompleteSubMenuPopup_CategoryMenu As group:
+    Group_IncompleteSubMenuPopup_CategoryMenu_1 As group:
         Height: =5
         Width: =5
         X: =-1227
         Y: =-130
         ZIndex: =61
 
-        Rectangle_IncompleteSubMenuPopupMain_CateoryMenu As rectangle:
+        Rectangle_IncompleteSubMenuPopupMain_CateoryMenu_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 1)
             BorderThickness: =2
             DisabledFill: =RGBA(255, 255, 255, 1)
@@ -2988,7 +3024,7 @@ CategoryMenu As screen:
             Y: =225
             ZIndex: =25
 
-        "Gallery_IncompleteSubMenuPopup_CateoryMenu As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        "Gallery_IncompleteSubMenuPopup_CateoryMenu_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
             BorderThickness: =1
             DelayItemLoading: =true
             Height: =442
@@ -3003,7 +3039,7 @@ CategoryMenu As screen:
             Y: =301
             ZIndex: =26
 
-            Separator_IncompleteSubMenuPopup_CateoryMenu As rectangle:
+            Separator_IncompleteSubMenuPopup_CateoryMenu_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 Height: =1
@@ -3012,7 +3048,7 @@ CategoryMenu As screen:
                 Y: =Parent.TemplateHeight - 1
                 ZIndex: =5
 
-            Label_IncompleteSubMenuName_CateoryMenu As label:
+            Label_IncompleteSubMenuName_CateoryMenu_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -3033,7 +3069,7 @@ CategoryMenu As screen:
                 Y: =34
                 ZIndex: =6
 
-        Button_IncompleteSubMenuPopupCancel_CateoryMenu As icon.Cancel:
+        Button_IncompleteSubMenuPopupCancel_CateoryMenu_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(220, 220, 220, 1)
@@ -3055,7 +3091,7 @@ CategoryMenu As screen:
             Y: =244
             ZIndex: =27
 
-        Label_IncompleteSubMenuPopup_CateoryMenu As label:
+        Label_IncompleteSubMenuPopup_CateoryMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
