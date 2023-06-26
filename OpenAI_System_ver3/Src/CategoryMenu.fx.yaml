@@ -184,7 +184,7 @@ CategoryMenu As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |+
+        OnSelect: |
             =Patch(
                 Category_table,
                 CategoryMenuCollect
@@ -225,9 +225,7 @@ CategoryMenu As screen:
             
             '똑실이-폴더별액세스권한부여'.Run("[" & Concat(test11, "{'ID':'" & ID & "','User':" & JSON(User, JSONFormat.IncludeBinaryData) & ",'LV2':'" & LV2 &"'}" , ",") & "]");
             
-            '똑실이-카테고리추가시폴더생성'.Run(TextInput_MenuName_CategoryMenu, TextInput_SubMenuName_CategoryMenu);
-            
-            
+            '똑실이-카테고리추가시폴더생성'.Run(LV01_Category, LV02_Category);
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
@@ -573,7 +571,9 @@ CategoryMenu As screen:
                             LV1Order: CheckedLV1Order, 
                             LV2Order: CheckedLV2Order
                         }
-                    )
+                    );
+                    
+                    UpdateContext({LV02_Category:Self.Text});
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
                     Set(SelectedLV2,ThisItem.제목);
@@ -1149,6 +1149,8 @@ CategoryMenu As screen:
                     IsBlank(LookUp(NewPortalCollect, OData__x004c_V1=ThisItem.Result, LV1Order)),
                     Notify("Admin 메뉴는 편집할 수 없습니다.")
                 )*/
+                
+                UpdateContext({LV01_Category:Self.Text});
             OnSelect: |-
                 =//If(SelectedLV1<>ThisItem.Result, Set(SelectedLV1,ThisItem.Result), Set(SelectedLV1, ""));
                 Set(SelectedLV1, ThisItem.Result);
