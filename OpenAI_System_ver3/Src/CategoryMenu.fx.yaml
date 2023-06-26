@@ -3,7 +3,21 @@ CategoryMenu As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
-        =UpdateContext({testHight:CountRows(
+        =
+        ForAll(
+            Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1)))),
+            Remove(Category_table, First(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))))
+        );
+        ForAll(
+            Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목)))),
+            Remove(Category_table, First(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))))
+        );
+        
+           Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))));
+            Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))));
+        
+        Refresh(Category_table);
+        UpdateContext({testHight:CountRows(
             ForAll(Distinct(SortByColumns(Filter(Category_table, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
         ) * 80});
         
@@ -38,18 +52,15 @@ CategoryMenu As screen:
                             searchTerm2: TextInput_ShearchTeam_CategoryMenu.Text,
                             top: 999
                         }
-                    ),
+                    )
+                    ,
                     "Department"
                 ),
                 Department
             )
         );
         );
-        Refresh(Category_table);
-
-    New_Component_GNB_CategoryMenu As New_Component_GNB:
-        Visible: =true
-        Width: =300
+        //Refresh(Category_table);
 
     Rectangle_CategoryMenuBody_CategoryMenu As rectangle:
         BorderColor: =RGBA(112, 112, 112, 1)
@@ -258,7 +269,12 @@ CategoryMenu As screen:
 
     Gallery_Main_CategoryMenu As gallery.variableTemplateHeightGallery:
         BorderColor: =RGBA(166, 166, 166, 1)
-        Height: =635
+        Height: |-
+            =If(
+                testHight >= 690,
+                650,
+                testHight
+            )//635
         Items: |-
             =ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             //SortByColumns(GNB_MENU, "LV1Order", Ascending)
@@ -289,7 +305,7 @@ CategoryMenu As screen:
         TemplateSize: =1000
         Width: =Rectangle_CategoryMenuBody_CategoryMenu.Width
         X: =361
-        Y: =382
+        Y: =372
         ZIndex: =9
 
         Button_BackgroundGallery_CategoryMenu As button:
@@ -370,18 +386,35 @@ CategoryMenu As screen:
                         "Users" // 06-23 추가(상의 필요)
                     )
                 );
-                UpdateContext({ testHight:
+                
+                /*UpdateContext({ testHight:
                     CountRows(
                     ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
-                ) * 80 });
+                ) * 80 });*/
+                If(testVisible="",
+                If(ThisItem.IsSelected, UpdateContext({ testHight: 
+                CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80})),
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}));
                 //Select(TextInput4)
                 
-                Concurrent(
+                
+                /*Concurrent(
                 Set(ZoomLV1, "");,
                 Set(testVisible, "");,
                 Set(SelectedLV1, "");,
                 Set(SelectedLV2, "");
-                );
+                );*/
                 Refresh(Category_table);
                 Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
             PressedBorderColor: |-
@@ -412,7 +445,7 @@ CategoryMenu As screen:
                             Category_table,
                             LV1 = ThisItem.Result
                         )
-                    ) * 90,
+                    ) * 80,
                     0
                 )
                 
@@ -547,8 +580,14 @@ CategoryMenu As screen:
                         ThisItem.제목
                     )
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
+                DisabledColor: =RGBA(0, 0,0, 1)
+                DisabledFill: =RGBA(255, 255, 255, 1)
+                DisplayMode: |-
+                    =If(
+                        IsNumeric(ThisItem.이름),
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
                 FocusedBorderThickness: =2
                 HintText: |-
                     =If(
@@ -1070,6 +1109,7 @@ CategoryMenu As screen:
                 
                 If(ZoomLV1<>ThisItem.Result, Set(ZoomLV1,ThisItem.Result), Set(ZoomLV1, ""));
                 If(testVisible<>ThisItem.Result ,Set(testVisible,ThisItem.Result), Set(testVisible,""));
+                
                 If(testVisible="",
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
@@ -1104,7 +1144,7 @@ CategoryMenu As screen:
             Size: =15
             Text: =""
             Width: =1485
-            Y: =5
+            Y: =1
             ZIndex: =5
 
         TextInput_MenuName_CategoryMenu As text:
@@ -1118,8 +1158,14 @@ CategoryMenu As screen:
                     ThisItem.Result
                 )
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisabledColor: =RGBA(0, 0, 0, 1)
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: |-
+                =If(
+                    IsNumeric(ThisItem.Result),
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
             Fill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =2
             FontWeight: =FontWeight.Semibold
@@ -1359,9 +1405,9 @@ CategoryMenu As screen:
         RadiusTopRight: =010
         Size: =15
         Text: ="메인 카테고리 추가"
-        Width: =Button_MainUsersName_CategoryMenu.Width +10
-        X: =352
-        Y: =Gallery_Main_CategoryMenu.Y +Gallery_Main_CategoryMenu.Height + 10
+        Width: =Button_MainUsersName_CategoryMenu.Width
+        X: =377
+        Y: =Gallery_Main_CategoryMenu.Y +Gallery_Main_CategoryMenu.Height + 15
         ZIndex: =10
 
     Container_CountMain_CategoryMenu As groupContainer.manualLayoutContainer:
@@ -2324,6 +2370,9 @@ CategoryMenu As screen:
             X: =871
             Y: =525
             ZIndex: =24
+
+    New_Component_GNB_CategoryMenu As New_Component_GNB:
+        ZIndex: =48
 
     Group_DeleteMemberSub_CategoryMenu As group:
         Height: =5

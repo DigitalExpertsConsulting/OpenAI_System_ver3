@@ -111,10 +111,6 @@ FileManage As screen:
         Y: =47
         ZIndex: =4
 
-    New_Component_GNB_FM As New_Component_GNB:
-        Width: =300
-        ZIndex: =6
-
     Title_Header_FM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -248,7 +244,19 @@ FileManage As screen:
                 )
             OnSelect: |
                 =Patch(FileUpload_table, LookUp(FileUpload_table, ID = ThisItem.ID), {Index_Status: "in_progress"});
-                '[TEST]똑실이-파일인덱스생성_테이블트리거'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
+                //'[TEST]똑실이-파일인덱스생성_테이블트리거'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
+                
+                Patch(
+                    Index_Generate,
+                    {
+                        제목 : " ",
+                        LV1_Category: ThisItem.Lv1, 
+                        LV2_Category: ThisItem.Category,
+                        file_id: ThisItem.ID, 
+                        filename:ThisItem.File_Name
+                    }
+                )
+                
                 //'똑실이-파일인덱스생성'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
             PaddingLeft: =30
             PressedBorderColor: |-
@@ -578,6 +586,9 @@ FileManage As screen:
             X: =1643
             Y: =154
             ZIndex: =12
+
+    New_Component_GNB_FM As New_Component_GNB:
+        ZIndex: =21
 
     ModalDialog_FileUpload_FM As group:
         Height: =5
