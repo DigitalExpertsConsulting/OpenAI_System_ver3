@@ -195,40 +195,16 @@ CategoryMenu As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |+
+        OnSelect: |
             =Patch(
                 Category_table,
                 CategoryMenuCollect
             );
-            
-            If(
-                CountRows(
-                    Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
-                ) > 0,
-                Notify(
-                    "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
-                    NotificationType.Error,
-                    1000
-                ),
-                Notify(
+            Notify(
                     "저장완료.",
                     NotificationType.Success,
                     1000
-                )
-            );
-            
-            
-            ForAll(
-                Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1)))),
-                Remove(Category_table, First(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))))
-            );
-            ForAll(
-                Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목)))),
-                Remove(Category_table, First(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))))
-            );
-            
-               Sequence(CountRows(Filter(Category_table, IsNumeric(LV1) || IsBlank(LV1))));
-                Sequence(CountRows(Filter(Category_table, IsNumeric(제목) || IsBlank(제목))));
+                );
             
             
             ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));
@@ -244,7 +220,7 @@ CategoryMenu As screen:
             Set(SelectedLV2, "");
             
             
-            ClearCollect(testPA3, AddColumns(Filter(문서, 이름 in Category_table.제목), "Test",LookUp(Category_table, 제목=이름, LookUp(Category_table, 제목= 이름).Users)));
+            ClearCollect(testPA3, AddColumns(Filter(문서, Name in Category_table.제목), "Test",LookUp(Category_table, 제목=Name, LookUp(Category_table, 제목= Name).Users)));
             ClearCollect(test11, {ID:Blank(), User:Blank(), LV2:Blank() });
             Clear(test11);
             
@@ -252,15 +228,15 @@ CategoryMenu As screen:
               testPA3,
               {
                 ID: ID,
-                User: LookUp(Category_table, 제목 = testPA3[@이름], Users).Email,
-                LV2: 이름
+                User: LookUp(Category_table, 제목 = testPA3[@Name], Users).Email,
+                LV2: Name
               }
             ));
             
             
             '똑실이-폴더별액세스권한부여'.Run("[" & Concat(test11, "{'ID':'" & ID & "','User':" & JSON(User, JSONFormat.IncludeBinaryData) & ",'LV2':'" & LV2 &"'}" , ",") & "]");
             
-            
+            '똑실이-카테고리추가시폴더생성'.Run(LV01_Category, LV02_Category);
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
