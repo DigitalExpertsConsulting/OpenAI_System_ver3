@@ -207,7 +207,7 @@ CategoryMenu As screen:
                 );
             
             
-            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));
+            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department","Team_ID"));
             
             UpdateContext({ testHight:
                 CountRows(
@@ -800,7 +800,70 @@ CategoryMenu As screen:
                 PaddingLeft: =24
                 Size: =13
                 Text: |-
-                    =AzureAD.GetGroup(First(Split(LookUp(CategoryMenuCollect, ID=ThisItem.ID).Team_ID,",")).Value).description
+                    =If(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = ThisItem.ID
+                        ).Team_ID <> "",
+                        If(
+                            CountRows(
+                                Split(
+                                    LookUp(
+                                        CategoryMenuCollect,
+                                        ID = ThisItem.ID
+                                    ).Team_ID,
+                                    ","
+                                )
+                            ) > 1,
+                            AzureAD.GetGroup(
+                                First(
+                                    Split(
+                                        LookUp(
+                                            CategoryMenuCollect,
+                                            ID = ThisItem.ID
+                                        ).Team_ID,
+                                        ","
+                                    )
+                                ).Value
+                            ).description & " 외" & CountRows(
+                                Split(
+                                    LookUp(
+                                        CategoryMenuCollect,
+                                        ID = ThisItem.ID
+                                    ).Team_ID,
+                                    ","
+                                )
+                            ) - 1 & "팀",
+                            IfError(
+                                AzureAD.GetGroup(
+                                    First(
+                                        Split(
+                                            LookUp(
+                                                CategoryMenuCollect,
+                                                ID = ThisItem.ID,
+                                                Team_ID
+                                            ),
+                                            ","
+                                        )
+                                    ).Value
+                                ).description,
+                                ""
+                            ),
+                            AzureAD.GetGroup(
+                                First(
+                                    Split(
+                                        LookUp(
+                                            CategoryMenuCollect,
+                                            ID = ThisItem.ID,
+                                            Team_ID
+                                        ),
+                                        ","
+                                    )
+                                ).Value
+                            ).description,
+                            ""
+                        )
+                    )
                     /*If(
                         CountRows(
                             LookUp(
