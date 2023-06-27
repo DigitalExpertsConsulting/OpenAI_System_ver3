@@ -26,7 +26,7 @@ CategoryMenu As screen:
         Set(testVisible, "");,
         Set(SelectedLV1, "");,
         Set(SelectedLV2, "");,
-        ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));,
+        ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department","Team_ID"));,
         
         //Clear(CategoryMenuCollect);
         
@@ -584,7 +584,7 @@ CategoryMenu As screen:
                 DisabledFill: =RGBA(255, 255, 255, 1)
                 DisplayMode: |-
                     =If(
-                        IsNumeric(ThisItem.이름),
+                        IsNumeric(ThisItem.Name),
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
@@ -800,7 +800,8 @@ CategoryMenu As screen:
                 PaddingLeft: =24
                 Size: =13
                 Text: |-
-                    =If(
+                    =AzureAD.GetGroup(First(Split(LookUp(CategoryMenuCollect, ID=ThisItem.ID).Team_ID,",")).Value).description
+                    /*If(
                         CountRows(
                             LookUp(
                                 CategoryMenuCollect,
@@ -869,7 +870,7 @@ CategoryMenu As screen:
                                 )
                             ).Department
                         )
-                    )
+                    )*/
                     /*
                     If(
                         CountRows(
@@ -2761,7 +2762,24 @@ CategoryMenu As screen:
             Fill: =Parent.Fill
             Height: =366
             Items: |+
-                =If(
+                =col_ADGroup
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                /*If(
                     IsBlank(TextInput_ShearchTeam_CategoryMenu.Text),
                     Blank(),
                     If(
@@ -2788,7 +2806,7 @@ CategoryMenu As screen:
                             )
                         )
                     )
-                )
+                )*/
                 
                 
                 
@@ -2900,10 +2918,52 @@ CategoryMenu As screen:
                 Font: =Font.'Segoe UI'
                 FontWeight: =FontWeight.Semibold
                 Height: =Self.Size * 1.8
-                OnSelect: |+
+                OnSelect: |
                     =If(
-                        Not(ThisItem.Value in MyPeople.Department) && Not(
-                            ThisItem.Value in LookUp(
+                        ThisItem.id in LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID
+                        ).Team_ID,
+                        Notify(
+                            "중복된 이름입니다.",
+                            NotificationType.Error,
+                            800
+                        ),
+                        Patch(
+                            CategoryMenuCollect,
+                            LookUp(
+                                CategoryMenuCollect,
+                                ID = CheckedID
+                            ),
+                            If(
+                                IsBlank(
+                                    LookUp(
+                                        CategoryMenuCollect,
+                                        ID = CheckedID
+                                    ).Team_ID
+                                ),
+                                {Team_ID: ThisItem.id},
+                                {
+                                    Team_ID: Concat(
+                                        Filter(
+                                            CategoryMenuCollect,
+                                            ID = CheckedID
+                                        ),
+                                        Team_ID & "," & ThisItem.id,
+                                        ","
+                                    )
+                                }
+                            )
+                        );
+                        Notify(
+                            "사용자 추가 완료.",
+                            NotificationType.Success,
+                            800
+                        )
+                    )
+                    /*If(
+                        Not(ThisItem.description in MyPeople.Department) && Not(
+                            ThisItem.description in LookUp(
                                 CategoryMenuCollect,
                                 ID = CheckedID,
                                 Users
@@ -2913,7 +2973,7 @@ CategoryMenu As screen:
                             MatchingPeople,
                             Filter(
                                 Namelist,
-                                Department = ThisItem.Value
+                                Department = ThisItem.description
                             )
                         );
                         ForAll(
@@ -2923,12 +2983,11 @@ CategoryMenu As screen:
                                 Collect(
                                     MyPeople,
                                     {
-                              
-                                    Claims: "i:0#.f|membership|" & UserPrincipalName,
-                                    Department: Department,
-                                    DisplayName: DisplayName,
-                                    UserPrincipalName: UserPrincipalName,
-                                    JobTitle: JobTitle
+                                        Claims: "i:0#.f|membership|" & UserPrincipalName,
+                                        Department: Department,
+                                        DisplayName: DisplayName,
+                                        UserPrincipalName: UserPrincipalName,
+                                        JobTitle: JobTitle
                                     }
                                 );
                                 //
@@ -2936,7 +2995,7 @@ CategoryMenu As screen:
                         );
                         //Set(UserAddPopup,true);,
                         //timerAddUser.Start = true,
-                        Notify(
+                    Notify(
                             "사용자 추가 완료.",
                             NotificationType.Success,
                             800
@@ -2947,11 +3006,10 @@ CategoryMenu As screen:
                             NotificationType.Error,
                             800
                         )
-                    );
-                    
+                    );*/
                 Size: =12
                 TabIndex: =0
-                Text: =ThisItem.Value
+                Text: =ThisItem.description
                 Width: =Gallery_ShearchTeam_CategoryMenu.TemplateWidth - 232
                 Wrap: =false
                 X: =
