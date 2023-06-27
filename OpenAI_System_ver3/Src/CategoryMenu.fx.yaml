@@ -804,7 +804,7 @@ CategoryMenu As screen:
                         LookUp(
                             CategoryMenuCollect,
                             ID = ThisItem.ID
-                        ).Team_ID <> "",
+                        ).Team_ID <> Blank(),
                         If(
                             CountRows(
                                 Split(
@@ -834,21 +834,22 @@ CategoryMenu As screen:
                                     ","
                                 )
                             ) - 1 & "팀",
-                            IfError(
-                                AzureAD.GetGroup(
-                                    First(
-                                        Split(
-                                            LookUp(
-                                                CategoryMenuCollect,
-                                                ID = ThisItem.ID,
-                                                Team_ID
-                                            ),
-                                            ","
-                                        )
-                                    ).Value
-                                ).description,
-                                ""
-                            ),
+                            AzureAD.GetGroup(
+                                First(
+                                    Split(
+                                        LookUp(
+                                            CategoryMenuCollect,
+                                            ID = ThisItem.ID,
+                                            Team_ID
+                                        ),
+                                        ","
+                                    )
+                                ).Value
+                            ).description
+                        ),
+                        ""
+                    )
+                    /*IfError(
                             AzureAD.GetGroup(
                                 First(
                                     Split(
@@ -862,8 +863,7 @@ CategoryMenu As screen:
                                 ).Value
                             ).description,
                             ""
-                        )
-                    )
+                        ),*/
                     /*If(
                         CountRows(
                             LookUp(
@@ -1004,7 +1004,13 @@ CategoryMenu As screen:
                 OnSelect: |-
                     =Select(Parent);
                     //ClearCollect(MyPeople2,RenameColumns( LookUp(CategoryMenuCollect, Title=ThisItem.제목, Teams), "Email", "UserPrincipalName"));
-                    ClearCollect(MyPeople2,RenameColumns( LookUp(CategoryMenuCollect, Title=ThisItem.제목, Department), "Email", "UserPrincipalName"));
+                    ClearCollect(MyPeople2,Split(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID
+                        ).Team_ID,
+                        ","
+                    ));
                     
                     Set(MAMode, "Search");
                     Set(AddTeamPopup, true);
@@ -2599,6 +2605,28 @@ CategoryMenu As screen:
             Y: =545
             ZIndex: =29
 
+    Label9 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =101
+        Size: =13
+        Text: |-
+            =Concat(
+                        MyPeople2,
+                        Value,
+                        ","
+                    )
+        Width: =1171
+        X: =461
+        Y: =936
+        ZIndex: =49
+
     Group_AddTeam_CategoryMenu As group:
         Height: =5
         Width: =5
@@ -2803,7 +2831,9 @@ CategoryMenu As screen:
                 PaddingLeft: =10
                 Size: =13
                 TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
-                Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
+                Text: |-
+                    =//ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
+                    If(ThisItem.Value<>Blank(),AzureAD.GetGroup(ThisItem.Value).description,"")
                 Visible: |-
                     =If(
                     TextInput_ShearchTeam_CategoryMenu.Visible,
@@ -2826,7 +2856,21 @@ CategoryMenu As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
-                OnSelect: =Remove(MyPeople2, LookUp(MyPeople2, UserPrincipalName = ThisItem.UserPrincipalName))
+                OnSelect: |-
+                    =Remove(
+                        MyPeople2,
+                        ThisItem
+                    );
+                    Patch(
+                        CategoryMenuCollect,
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = CheckedID
+                        ),
+                        {
+                            Team_ID: Concat(MyPeople2, Value,",")
+                        }
+                    )
                 PaddingBottom: =9
                 PaddingLeft: =9
                 PaddingRight: =9
@@ -3133,23 +3177,6 @@ CategoryMenu As screen:
                 X: =357
                 Y: =1
                 ZIndex: =7
-
-            Label8 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =46
-                OnSelect: =Select(Parent)
-                Size: =13
-                Text: =ThisItem.id
-                Width: =295
-                Y: =41
-                ZIndex: =8
 
         TextInput_ShearchTeam_CategoryMenu As text:
             Align: =TextPosition.Left
