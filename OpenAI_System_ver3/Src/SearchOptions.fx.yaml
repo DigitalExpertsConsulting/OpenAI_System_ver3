@@ -8,7 +8,7 @@ SearchOptions As screen:
         Height: =690
         Items: |-
             =//FirstN(SearchOptions_table,3)
-            SearchOptions_table
+            SortByColumns(SearchOptions_table,"Title")
         LoadingSpinner: =LoadingSpinner.Data
         ShowScrollbar: =false
         TemplateSize: =492
@@ -46,15 +46,26 @@ SearchOptions As screen:
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 FontWeight: =FontWeight.Semibold
-                PaddingLeft: =20
+                PaddingLeft: |-
+                    =If(ThisItem.검색옵션 = "Bing",50,
+                    If(ThisItem.검색옵션 = "Open AI", 40,20))
                 Size: =16
                 Text: |-
-                    =If( ThisItem.검색옵션 = "내부 데이터 검색" , "내부데이터",
+                    =ThisItem.검색옵션
+                    /*
+                    If( ThisItem.제목 = "1" , "내부데이터",
+                    If( ThisItem.제목 = "3" , "OpenAI 검색","Open AI",
+                    If( ThisItem.제목 = "2", "BingChat 검색" , "    Bing")
+                    )
+                    )
+                    /*
+                    If( ThisItem.검색옵션 = "내부 데이터 검색" , "내부데이터",
                     If( ThisItem.검색옵션 = "OpenAI 검색","Open AI",
                     If( ThisItem.검색옵션 = "BingChat 검색" , "    Bing")
                     )
                     )
-                Width: =137
+                    */
+                Width: =209
                 X: =150
                 Y: =50
                 ZIndex: =1
@@ -72,7 +83,7 @@ SearchOptions As screen:
                 Size: =13
                 Text: |-
                     =If(Label_SearchOptionsMAin_SO.Text = "내부데이터","당사 데이터에 기반한 검색 옵션",
-                    If(Label_SearchOptionsMAin_SO.Text = "Open AI","        Opne AI기반 응답",If(Label_SearchOptionsMAin_SO.Text =  "    Bing","           Bing 기반 응답")))
+                    If(Label_SearchOptionsMAin_SO.Text = "Open AI","           Opne AI기반 응답",If(Label_SearchOptionsMAin_SO.Text =  "Bing","             Bing 기반 응답")))
                 Width: =258
                 X: =101
                 Y: =90
@@ -94,7 +105,7 @@ SearchOptions As screen:
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =If(Label_SearchOptionsMAin_SO.Text = "Open AI", true,false)
             Width: =144
-            X: =185
+            X: =195
             Y: =186
             ZIndex: =2
 
@@ -112,9 +123,9 @@ SearchOptions As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Label_SearchOptionsMAin_SO.Text =  "    Bing", true,false)
+            Visible: =If(Label_SearchOptionsMAin_SO.Text =  "Bing", true,false)
             Width: =144
-            X: =187
+            X: =197
             Y: =185
             ZIndex: =3
 
@@ -159,7 +170,7 @@ SearchOptions As screen:
                     ColorValue("#F0F0F0")
                 )
             DisplayMode: |+
-                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                =If(First(Filter(SearchOptions_table,검색옵션="Open AI")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
                 
             Fill: |
                 =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
@@ -232,7 +243,7 @@ SearchOptions As screen:
                     ColorValue("#F0F0F0")
                 )
             DisplayMode: |+
-                =If(First(Filter(SearchOptions_table,검색옵션="OpenAI 검색")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
+                =If(First(Filter(SearchOptions_table,검색옵션="Open AI")).선택여부="true",DisplayMode.Edit,DisplayMode.Disabled)
                 
             Fill: |
                 =//If(  SearchOptions_table.ID && ThisItem.선택여부 = true,ColorValue("#EBF3FC"),ColorValue("#FFFFFF"))
@@ -467,30 +478,4 @@ SearchOptions As screen:
 
     New_Component_GNB_SO As New_Component_GNB:
         ZIndex: =9
-
-    Button4 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: =Refresh(SearchOptions_table)
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =1170
-        Y: =47
-        ZIndex: =10
 
