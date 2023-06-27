@@ -800,13 +800,19 @@ CategoryMenu As screen:
                 PaddingLeft: =24
                 Size: =13
                 Text: |-
-                    =If(
-                        LookUp(
-                            CategoryMenuCollect,
-                            ID = ThisItem.ID
-                        ).Team_ID <> Blank(),
-                        If(
-                            CountRows(
+                    =//IfError(AzureAD.GetGroup(ThisItem.Value).description,""
+                    If(
+                        CountRows(
+                            Split(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    ID = ThisItem.ID
+                                ).Team_ID,
+                                ","
+                            )
+                        ) > 1,
+                        AzureAD.GetGroup(
+                            First(
                                 Split(
                                     LookUp(
                                         CategoryMenuCollect,
@@ -814,40 +820,29 @@ CategoryMenu As screen:
                                     ).Team_ID,
                                     ","
                                 )
-                            ) > 1,
-                            AzureAD.GetGroup(
-                                First(
-                                    Split(
-                                        LookUp(
-                                            CategoryMenuCollect,
-                                            ID = ThisItem.ID
-                                        ).Team_ID,
-                                        ","
-                                    )
-                                ).Value
-                            ).description & " 외" & CountRows(
+                            ).Value
+                        ).description & " 외" & CountRows(
+                            Split(
+                                LookUp(
+                                    CategoryMenuCollect,
+                                    ID = ThisItem.ID
+                                ).Team_ID,
+                                ","
+                            )
+                        ) - 1 & "팀",
+                        IfError(
+                        AzureAD.GetGroup(
+                            First(
                                 Split(
                                     LookUp(
                                         CategoryMenuCollect,
-                                        ID = ThisItem.ID
-                                    ).Team_ID,
+                                        ID = ThisItem.ID,
+                                        Team_ID
+                                    ),
                                     ","
                                 )
-                            ) - 1 & "팀",
-                            AzureAD.GetGroup(
-                                First(
-                                    Split(
-                                        LookUp(
-                                            CategoryMenuCollect,
-                                            ID = ThisItem.ID,
-                                            Team_ID
-                                        ),
-                                        ","
-                                    )
-                                ).Value
-                            ).description
-                        ),
-                        ""
+                            ).Value
+                        ).description,"")
                     )
                     /*IfError(
                             AzureAD.GetGroup(
@@ -2605,28 +2600,6 @@ CategoryMenu As screen:
             Y: =545
             ZIndex: =29
 
-    Label9 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Height: =101
-        Size: =13
-        Text: |-
-            =Concat(
-                        MyPeople2,
-                        Value,
-                        ","
-                    )
-        Width: =1171
-        X: =461
-        Y: =936
-        ZIndex: =49
-
     Group_AddTeam_CategoryMenu As group:
         Height: =5
         Width: =5
@@ -2833,7 +2806,7 @@ CategoryMenu As screen:
                 TabIndex: =If(Gallery_ShearchTeam_CategoryMenu.Visible, -1, 0)
                 Text: |-
                     =//ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
-                    If(ThisItem.Value<>Blank(),AzureAD.GetGroup(ThisItem.Value).description,"")
+                    IfError(AzureAD.GetGroup(ThisItem.Value).description,"")
                 Visible: |-
                     =If(
                     TextInput_ShearchTeam_CategoryMenu.Visible,
