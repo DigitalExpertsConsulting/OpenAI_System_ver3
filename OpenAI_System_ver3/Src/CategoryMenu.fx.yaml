@@ -207,7 +207,7 @@ CategoryMenu As screen:
                 );
             
             
-            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department"));
+            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department","Team_ID"));
             
             UpdateContext({ testHight:
                 CountRows(
@@ -800,7 +800,70 @@ CategoryMenu As screen:
                 PaddingLeft: =24
                 Size: =13
                 Text: |-
-                    =AzureAD.GetGroup(First(Split(LookUp(CategoryMenuCollect, ID=ThisItem.ID).Team_ID,",")).Value).description
+                    =If(
+                        LookUp(
+                            CategoryMenuCollect,
+                            ID = ThisItem.ID
+                        ).Team_ID <> "",
+                        If(
+                            CountRows(
+                                Split(
+                                    LookUp(
+                                        CategoryMenuCollect,
+                                        ID = ThisItem.ID
+                                    ).Team_ID,
+                                    ","
+                                )
+                            ) > 1,
+                            AzureAD.GetGroup(
+                                First(
+                                    Split(
+                                        LookUp(
+                                            CategoryMenuCollect,
+                                            ID = ThisItem.ID
+                                        ).Team_ID,
+                                        ","
+                                    )
+                                ).Value
+                            ).description & " 외" & CountRows(
+                                Split(
+                                    LookUp(
+                                        CategoryMenuCollect,
+                                        ID = ThisItem.ID
+                                    ).Team_ID,
+                                    ","
+                                )
+                            ) - 1 & "팀",
+                            IfError(
+                                AzureAD.GetGroup(
+                                    First(
+                                        Split(
+                                            LookUp(
+                                                CategoryMenuCollect,
+                                                ID = ThisItem.ID,
+                                                Team_ID
+                                            ),
+                                            ","
+                                        )
+                                    ).Value
+                                ).description,
+                                ""
+                            ),
+                            AzureAD.GetGroup(
+                                First(
+                                    Split(
+                                        LookUp(
+                                            CategoryMenuCollect,
+                                            ID = ThisItem.ID,
+                                            Team_ID
+                                        ),
+                                        ","
+                                    )
+                                ).Value
+                            ).description,
+                            ""
+                        )
+                    )
                     /*If(
                         CountRows(
                             LookUp(
@@ -1330,7 +1393,34 @@ CategoryMenu As screen:
                 =If(Gallery_Sub_CategoryMenu.Visible = true,ImageRotation.Rotate180,
                 
                 ImageRotation.None)
-            OnSelect: =Select(Parent)
+            OnSelect: |-
+                =
+                Select(Parent);
+                
+                
+                
+                If(ZoomLV1<>ThisItem.Result, Set(ZoomLV1,ThisItem.Result), Set(ZoomLV1, ""));
+                If(testVisible<>ThisItem.Result ,Set(testVisible,ThisItem.Result), Set(testVisible,""));
+                
+                If(testVisible="",
+                If(ThisItem.IsSelected, UpdateContext({ testHight: 
+                CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80})),
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}));
+                //Select(TextInput4)
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                Select(Parent);
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Width: =20
