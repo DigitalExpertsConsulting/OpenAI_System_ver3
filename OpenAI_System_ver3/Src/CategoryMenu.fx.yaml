@@ -1330,7 +1330,34 @@ CategoryMenu As screen:
                 =If(Gallery_Sub_CategoryMenu.Visible = true,ImageRotation.Rotate180,
                 
                 ImageRotation.None)
-            OnSelect: =Select(Parent)
+            OnSelect: |-
+                =
+                Select(Parent);
+                
+                
+                
+                If(ZoomLV1<>ThisItem.Result, Set(ZoomLV1,ThisItem.Result), Set(ZoomLV1, ""));
+                If(testVisible<>ThisItem.Result ,Set(testVisible,ThisItem.Result), Set(testVisible,""));
+                
+                If(testVisible="",
+                If(ThisItem.IsSelected, UpdateContext({ testHight: 
+                CountRows(
+                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ) * 80})),
+                
+                UpdateContext({ testHight:
+                    CountRows(
+                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ) * 80 + 
+                    CountRows(
+                        Filter(
+                            Category_table, LV1=ZoomLV1
+                        )
+                    ) * 80 + 75}));
+                //Select(TextInput4)
+                Set(SelectedLV1, "");
+                Set(SelectedLV2, "");
+                Select(Parent);
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Width: =20
