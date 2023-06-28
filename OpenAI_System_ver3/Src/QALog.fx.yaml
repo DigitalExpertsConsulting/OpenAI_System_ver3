@@ -67,7 +67,7 @@ QALog As screen:
                 ),
                 Or(
                     IsBlank(TextInput_SearchUser_QALog.Text),
-                    TextInput_SearchUser_QALog.Text in field_4
+                    TextInput_SearchUser_QALog.Text in Name
                 ) && Or(
                     IsBlank(TextInput_SearchQuestion_QALog.Text),
                     TextInput_SearchQuestion_QALog.Text in Question
@@ -265,7 +265,7 @@ QALog As screen:
             OnSelect: =Select(Parent)
             Size: =12
             Text: |
-                =ThisItem.field_4
+                =ThisItem.Name
             Width: =Label_Name_QALog.Width
             X: =1158
             Y: =12
@@ -660,87 +660,403 @@ QALog As screen:
             Y: =24
             ZIndex: =21
 
-        Button_QAGalleryCopy_QALog_1 As button:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: =RGBA(0, 0, 0, 0)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =23
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =Color.Black
-            OnSelect: |-
-                =Copy(Label_QAGalleryQusetion_QALog.Text);
-                Patch(QA_table, LookUp(QA_table, Question=ThisItem.Question), {CopyCount:ThisItem.CopyCount+1});
-                //Patch(QA_table, {CopyCount: ThisItem.CopyCount + 1});
-                Notify("질문이 클립보드에 복사되었습니다.", NotificationType.Success);
-                Set(Copytest,ThisItem.ID);
-            PressedBorderColor: =Color.White
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =15
-            Text: =""
-            Width: =32
-            X: =1453
-            Y: =23
-            ZIndex: =22
-
-        Image4 As image:
+        Image_QAGalleryLikeFig_QALog As image:
             BorderColor: |-
                 =ColorValue("#9FD89F")
             BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
-            Height: =20
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            Height: =25
+            HoverBorderColor: |-
+                =ColorValue("#107C10")
             HoverFill: |-
                 =ColorValue("#F1FAF1")
             Image: |
                 =Icon_Like
-            OnSelect: =Select(Parent)
+            OnSelect: |
+                =
+                ClearCollect(
+                    LikeTable,
+                    {
+                        ID: ThisItem.ID,
+                        'LikeT/F': If(Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,false,!ThisItem.'LikeT/F'),
+                        LikeCount: If(
+                            ThisItem.'LikeT/F' && Office365사용자.MyProfile().Mail in ThisItem.LikePeople1 ,
+                            ThisItem.LikeCount - 1,
+                            ThisItem.LikeCount + 1
+                        ),
+                        LikePeople1: If(
+                            ThisItem.'LikeT/F'&& Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,
+                            Substitute(ThisItem.LikePeople1, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.LikePeople1, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                ForAll(
+                    LikeTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = LikeTable[@ID]),
+                        {
+                            'LikeT/F': If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = false, true,
+                                                If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = true, true
+                                                    )
+                                            ),
+                            LikeCount: LikeTable[@LikeCount],
+                            LikePeople1:LikeTable[@LikePeople1]
+                        }
+                    )
+                );
+                
+                Refresh(QA_table);
             PaddingBottom: =2
             PaddingLeft: =2
             PaddingRight: =2
             PaddingTop: =2
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            RadiusBottomLeft: =3
-            RadiusBottomRight: =3
-            RadiusTopLeft: =3
-            RadiusTopRight: =3
-            Width: =20
-            X: =1434
+            PressedBorderColor: |-
+                =ColorValue("#107C10")
+            PressedFill: |-
+                =ColorValue("#F1FAF1")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: |
+                =If(
+                    ThisItem.'LikeT/F',
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
+                        false,
+                        true
+                    ),
+                    true
+                )
+            Width: =25
+            X: =1461
             Y: =22
             ZIndex: =23
 
-        Image5 As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
+        Image_QAGalleryLikeOKFig_QALog As image:
+            BorderColor: |-
+                =ColorValue("#107C10")
+            BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: =RGBA(105, 121, 126, 1)
+            Fill: |-
+                =ColorValue("#107C10")
             FocusedBorderThickness: =4
-            Height: =46
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
+            Height: =25
+            HoverBorderColor: |-
+                =ColorValue("#107C10")
+            HoverFill: |-
+                =ColorValue("#129912") 
             Image: =Icon_Like2
-            OnSelect: =Select(Parent)
+            OnSelect: |+
+                =/*
+                Select(Parent);
+                Set(IsLiked, !IsLiked);
+                */
+                
+                /*
+                Patch(QA_table, ThisItem, {'LikeT/F': !ThisItem.'LikeT/F',
+                                           LikeCount: If(ThisItem.'LikeT/F' = true, ThisItem.LikeCount -1 ,ThisItem.LikeCount +1) ,
+                                           LikePeople1 : Office365사용자.MyProfile().Mail })
+                */
+                
+                
+                
+                ClearCollect(
+                    LikeTable,
+                    {
+                        ID: ThisItem.ID,
+                        'LikeT/F': If(Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,false,!ThisItem.'LikeT/F'),
+                        LikeCount: If(
+                            ThisItem.'LikeT/F' && Office365사용자.MyProfile().Mail in ThisItem.LikePeople1 ,
+                            ThisItem.LikeCount - 1,
+                            ThisItem.LikeCount + 1
+                        ),
+                        LikePeople1: If(
+                            ThisItem.'LikeT/F'&& Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,
+                            Substitute(ThisItem.LikePeople1, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.LikePeople1, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                ForAll(
+                    LikeTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = LikeTable[@ID]),
+                        {
+                            'LikeT/F': If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = false, true,
+                                                If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = true, true
+                                                    )
+                                            ),
+                            LikeCount: LikeTable[@LikeCount],
+                            LikePeople1:LikeTable[@LikePeople1]
+                        }
+                    )
+                );
+                
+                Refresh(QA_table);
+                
+                
+                
+            PaddingBottom: =2
+            PaddingLeft: =2
+            PaddingRight: =2
+            PaddingTop: =2
+            PressedBorderColor: |-
+                =ColorValue("#107C10")
+            PressedFill: |-
+                =ColorValue("#107C10")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: |
+                =If(
+                    ThisItem.'LikeT/F',
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
+                        true,
+                        false
+                    ),
+                    false
+                )
+            Width: =25
+            X: =1461
+            Y: =22
+            ZIndex: =24
+
+        Image_QAGalleryHateFig_QALog As image:
+            BorderColor: |-
+                =ColorValue("#F1BBBC")
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =25
+            HoverBorderColor: |-
+                =ColorValue("#D13438")
+            HoverFill: |-
+                =ColorValue("#FDF6F6")
+            Image: =Icon_Hate
+            OnSelect: |-
+                =ClearCollect(
+                    HateTable,
+                    {
+                        ID: ThisItem.ID,
+                        'HateT/F': If(Office365사용자.MyProfile().Mail in ThisItem.HatePeople,false,!ThisItem.'HateT/F'),
+                        HateCount: If(
+                            ThisItem.'HateT/F' && Office365사용자.MyProfile().Mail in ThisItem.HatePeople ,
+                            ThisItem.HateCount - 1,
+                            ThisItem.HateCount + 1
+                        ),
+                        HatePeople: If(
+                            ThisItem.'HateT/F'&& Office365사용자.MyProfile().Mail in ThisItem.HatePeople,
+                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                
+                ForAll(
+                    HateTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = HateTable[@ID]),
+                        {
+                            'HateT/F': If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = false,true,If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = true,true)),
+                            HateCount: HateTable[@HateCount],
+                            HatePeople:HateTable[@HatePeople]
+                        }
+                    )
+                );
+                
+                Refresh(QA_table);
+                
+                
+                
+                
+                
+                
+                /*
+                ClearCollect(
+                    HateTable,
+                    {
+                        ID: ThisItem.ID,
+                        'HateT/F': !ThisItem.'HateT/F',
+                        HateCount: If(
+                            ThisItem.'HateT/F',
+                            ThisItem.HateCount - 1,
+                            ThisItem.HateCount + 1
+                        ),
+                        HatePeople1: If(
+                            ThisItem.'HateT/F',
+                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                ForAll(
+                    HateTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = HateTable[@ID]),
+                        {
+                            'HateT/F': HateTable[@'HateT/F'],
+                            HateCount: HateTable[@HateCount],
+                            HatePeople:HateTable[@HatePeople1]
+                        }
+                    )
+                )
+                */
+            PaddingBottom: =2
+            PaddingLeft: =2
+            PaddingRight: =2
+            PaddingTop: =2
+            PressedBorderColor: |-
+                =ColorValue("#D13438")
+            PressedFill: |-
+                =ColorValue("#FDF6F6")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: |
+                =If(
+                    ThisItem.'HateT/F',
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
+                        false,
+                        true
+                    ),
+                    true
+                )
+            Width: =25
+            X: =1495
+            Y: =22
+            ZIndex: =25
+
+        Image_QAGalleryHateOKFig_QALog As image:
+            BorderColor: |-
+                =ColorValue("#D13438")
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: |-
+                =ColorValue("#D13438")
+            FocusedBorderThickness: =4
+            Height: =25
+            HoverBorderColor: |-
+                =ColorValue("#D13438")
+            HoverFill: |-
+                =ColorValue("#e64549")
+            Image: =Icon_Hate2
+            OnSelect: |-
+                =ClearCollect(
+                    HateTable,
+                    {
+                        ID: ThisItem.ID,
+                        'HateT/F': If(Office365사용자.MyProfile().Mail in ThisItem.HatePeople,false,!ThisItem.'HateT/F'),
+                        HateCount: If(
+                            ThisItem.'HateT/F' && Office365사용자.MyProfile().Mail in ThisItem.HatePeople ,
+                            ThisItem.HateCount - 1,
+                            ThisItem.HateCount + 1
+                        ),
+                        HatePeople: If(
+                            ThisItem.'HateT/F'&& Office365사용자.MyProfile().Mail in ThisItem.HatePeople,
+                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                
+                ForAll(
+                    HateTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = HateTable[@ID]),
+                        {
+                            'HateT/F': If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = false,true,If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = true,true)),
+                            HateCount: HateTable[@HateCount],
+                            HatePeople:HateTable[@HatePeople]
+                        }
+                    )
+                );
+                
+                Refresh(QA_table);
+                
+                
+                
+                
+                
+                
+                /*
+                ClearCollect(
+                    HateTable,
+                    {
+                        ID: ThisItem.ID,
+                        'HateT/F': !ThisItem.'HateT/F',
+                        HateCount: If(
+                            ThisItem.'HateT/F',
+                            ThisItem.HateCount - 1,
+                            ThisItem.HateCount + 1
+                        ),
+                        HatePeople1: If(
+                            ThisItem.'HateT/F',
+                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
+                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
+                        )
+                    }
+                );
+                
+                
+                ForAll(
+                    HateTable,
+                    Patch(
+                        QA_table,
+                        LookUp(QA_table, ID = HateTable[@ID]),
+                        {
+                            'HateT/F': HateTable[@'HateT/F'],
+                            HateCount: HateTable[@HateCount],
+                            HatePeople:HateTable[@HatePeople1]
+                        }
+                    )
+                )
+                */
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Width: =49
-            X: =1459
-            Y: =11
-            ZIndex: =24
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: |
+                =If(
+                    ThisItem.'HateT/F',
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
+                        true,
+                        false
+                    ),
+                    false
+                )
+            Width: =25
+            X: =1495
+            Y: =22
+            ZIndex: =26
 
     Separator_QALogGalleryMain_QALog As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
@@ -752,7 +1068,9 @@ QALog As screen:
         ZIndex: =23
 
     Button_Refresh_QALog As button:
-        BorderColor: =RGBA(164, 170, 174, 1)
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
         Color: =RGBA(0, 0, 0, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -793,8 +1111,8 @@ QALog As screen:
                 true
             )
         Width: =121
-        X: =1670
-        Y: =32
+        X: =1759
+        Y: =41
         ZIndex: =24
 
     Image_Refresh_QALog As image:
@@ -811,8 +1129,8 @@ QALog As screen:
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =24
-        X: =1679
-        Y: =40
+        X: =1776
+        Y: =49
         ZIndex: =25
 
     New_Component_GNB_QALog As New_Component_GNB:
@@ -1312,7 +1630,7 @@ QALog As screen:
             FontWeight: =FontWeight.Bold
             Height: =32
             PaddingLeft: =15
-            Text: ="응답"
+            Text: ="답변"
             Width: =85
             X: =902
             Y: =Label_Question_QALog.Y
