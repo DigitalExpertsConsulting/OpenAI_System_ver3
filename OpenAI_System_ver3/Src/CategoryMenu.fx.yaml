@@ -199,7 +199,7 @@ CategoryMenu As screen:
             =ColorValue("#115EA3")
         OnSelect: |-
             =Patch(
-                Category_table,
+                똑실이_Category_table,
                 CategoryMenuCollect
             );
             Notify(
@@ -209,11 +209,11 @@ CategoryMenu As screen:
                 );
             
             
-            ClearCollect(CategoryMenuCollect, ShowColumns(Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department","Team_ID"));
+            ClearCollect(CategoryMenuCollect, ShowColumns(똑실이_Category_table,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Department","Team_ID"));
             
             UpdateContext({ testHight:
                 CountRows(
-                ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             ) * 80 });
             //Select(TextInput4)
             Set(ZoomLV1, "");
@@ -222,7 +222,7 @@ CategoryMenu As screen:
             Set(SelectedLV2, "");
             
             
-            ClearCollect(testPA3, AddColumns(Filter(문서, 이름 in Category_table.제목), "Test",LookUp(Category_table, 제목=이름, LookUp(Category_table, 제목= 이름).Users)));
+            ClearCollect(testPA3, AddColumns(Filter(문서, 이름 in 똑실이_Category_table.제목), "Test",LookUp(똑실이_Category_table, 제목=이름, LookUp(똑실이_Category_table, 제목= 이름).Users)));
             ClearCollect(test11, {ID:Blank(), User:Blank(), LV2:Blank() });
             Clear(test11);
             
@@ -230,7 +230,7 @@ CategoryMenu As screen:
               testPA3,
               {
                 ID: ID,
-                User: LookUp(Category_table, 제목 = testPA3[@이름], Users).Email,
+                User: LookUp(똑실이_Category_table, 제목 = testPA3[@이름], Users).Email,
                 LV2: 이름
               }
             ));
@@ -285,7 +285,7 @@ CategoryMenu As screen:
                 testHight
             )//635
         Items: |-
-            =ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            =ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             //SortByColumns(GNB_MENU, "LV1Order", Ascending)
         Layout: =Layout.Vertical
         OnSelect: |-
@@ -294,8 +294,8 @@ CategoryMenu As screen:
             
             If(ThisItem.Result=SelectedLV1, //Checkbox1.Value,
             Set(CheckedLV1, ThisItem.Result);
-            Set(CheckedLV1Order, LookUp(Category_table, LV1=ThisItem.Result, LV1Order));
-            Set(CheckedID, LookUp(Category_table, LV1=ThisItem.Result, ID));,
+            Set(CheckedLV1Order, LookUp(똑실이_Category_table, LV1=ThisItem.Result, LV1Order));
+            Set(CheckedID, LookUp(똑실이_Category_table, LV1=ThisItem.Result, ID));,
             
             Set(CheckedLV1, Blank());
             Set(CheckedLV2, Blank());
@@ -304,10 +304,10 @@ CategoryMenu As screen:
             Set(CheckedID, Blank());
             );
             
-            Set(FirstLV1Order, First(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            Set(FirstLV1Order, First(SortByColumns(똑실이_Category_table,"LV1Order")).LV1Order);
             Set(PrevLV1Order, CheckedLV1Order-1);
             Set(NextLV1Order, CheckedLV1Order+1);
-            Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            Set(LastLV1Order, Last(SortByColumns(똑실이_Category_table,"LV1Order")).LV1Order);
             Set(BlankLV1Order, LastLV1Order +1);
         ShowScrollbar: =false
         TemplatePadding: =15
@@ -368,7 +368,7 @@ CategoryMenu As screen:
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =//Set(LastLV2Order, Last(SortByColumns(Category_table,"LV2Order", SortOrder.Ascending)).LV2Order);
-                Set(LastLV2Order, Last(Filter(Category_table,LV1=ThisItem.Result)).LV2Order);
+                Set(LastLV2Order, Last(Filter(똑실이_Category_table,LV1=ThisItem.Result)).LV2Order);
                 
                 If(
                     IsBlank(LastLV2Order),
@@ -377,15 +377,15 @@ CategoryMenu As screen:
                 Set(SelectedLV1, ThisItem.Result);
                 
                 Patch(
-                    Category_table, 
-                    Defaults(Category_table), 
-                    { 제목:LastLV2Order+1, LV1:ZoomLV1, LV1Order:LookUp(Category_table,LV1=ZoomLV1,LV1Order), LV2Order:LastLV2Order+1 }
+                    똑실이_Category_table, 
+                    Defaults(똑실이_Category_table), 
+                    { 제목:LastLV2Order+1, LV1:ZoomLV1, LV1Order:LookUp(똑실이_Category_table,LV1=ZoomLV1,LV1Order), LV2Order:LastLV2Order+1 }
                 );
                 
                 ClearCollect(
                     CategoryMenuCollect,
                     ShowColumns(
-                        SortByColumns(Category_table, "LV1Order", SortOrder.Ascending),
+                        SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending),
                         "Title",
                         "OData__x004c_V1",
                         "LV1Order",
@@ -403,16 +403,16 @@ CategoryMenu As screen:
                 If(testVisible="",
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
-                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80})),
                 
                 UpdateContext({ testHight:
                     CountRows(
-                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                        ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                     ) * 80 + 
                     CountRows(
                         Filter(
-                            Category_table, LV1=ZoomLV1
+                            똑실이_Category_table, LV1=ZoomLV1
                         )
                     ) * 80 + 75}));
                 //Select(TextInput4)
@@ -424,8 +424,8 @@ CategoryMenu As screen:
                 Set(SelectedLV1, "");,
                 Set(SelectedLV2, "");
                 );*/
-                Refresh(Category_table);
-                Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+                Refresh(똑실이_Category_table);
+                Set(LastLV1Order, Last(SortByColumns(똑실이_Category_table,"LV1Order")).LV1Order);
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
             PressedColor: =Color.Black
@@ -451,7 +451,7 @@ CategoryMenu As screen:
                     testVisible=ThisItem.Result,
                     CountRows(
                         Filter(
-                            Category_table,
+                            똑실이_Category_table,
                             LV1 = ThisItem.Result
                         )
                     ) * 80,
@@ -484,7 +484,7 @@ CategoryMenu As screen:
                     Sequence(CountRows(Filter(CategoryMenuCollect, OData__x004c_V1=ThisItem.Result))),
                     Sum(
                 );*/
-            Items: =SortByColumns(Filter(Category_table, LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
+            Items: =SortByColumns(Filter(똑실이_Category_table, LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: |
                 =Set(SelectedLV2,ThisItem.제목);
@@ -504,10 +504,10 @@ CategoryMenu As screen:
                 Set(CheckedID, Blank());
                 );
                 
-                Set(FirstLV2Order, First(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(FirstLV2Order, First(SortByColumns(Filter(똑실이_Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
                 Set(PrevLV2Order, CheckedLV2Order-1);
                 Set(NextLV2Order, CheckedLV2Order+1);
-                Set(LastLV2Order, Last(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(LastLV2Order, Last(SortByColumns(Filter(똑실이_Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
                 Set(BlankLV2Order, LastLV2Order +1);
             ShowScrollbar: =false
             TemplateSize: =87
@@ -585,7 +585,7 @@ CategoryMenu As screen:
                 Color: =RGBA(51, 51, 51, 1)
                 Default: |-
                     =If(
-                        ThisItem.제목=LookUp(Category_table, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
+                        ThisItem.제목=LookUp(똑실이_Category_table, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
                         Blank(),
                         ThisItem.제목
                     )
@@ -1058,7 +1058,7 @@ CategoryMenu As screen:
                     =Select(Parent);
                     Set(SelectedLV1, ThisItem.LV1);
                     Set(SelectedLV2, "");
-                    Set(CheckedID, LookUp(Category_table, LV1=ThisItem.LV1, ID));
+                    Set(CheckedID, LookUp(똑실이_Category_table, LV1=ThisItem.LV1, ID));
                     Set(MAMode , "TeamAdd");
                     Set(AddTeamPopup, true);
                     Clear(MyPeople)
@@ -1234,16 +1234,16 @@ CategoryMenu As screen:
                 If(testVisible="",
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
-                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80})),
                 
                 UpdateContext({ testHight:
                     CountRows(
-                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                        ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                     ) * 80 + 
                     CountRows(
                         Filter(
-                            Category_table, LV1=ZoomLV1
+                            똑실이_Category_table, LV1=ZoomLV1
                         )
                     ) * 80 + 75}));
                 //Select(TextInput4)
@@ -1274,7 +1274,7 @@ CategoryMenu As screen:
             Color: =RGBA(0, 0, 0, 1)
             Default: |-
                 =If(
-                    ThisItem.Result=Text(LookUp(Category_table, LV1=Text(ThisItem.Result), LV1Order)),
+                    ThisItem.Result=Text(LookUp(똑실이_Category_table, LV1=Text(ThisItem.Result), LV1Order)),
                     Blank(),
                     ThisItem.Result
                 )
@@ -1462,16 +1462,16 @@ CategoryMenu As screen:
                 If(testVisible="",
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
-                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80})),
                 
                 UpdateContext({ testHight:
                     CountRows(
-                        ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                        ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                     ) * 80 + 
                     CountRows(
                         Filter(
-                            Category_table, LV1=ZoomLV1
+                            똑실이_Category_table, LV1=ZoomLV1
                         )
                     ) * 80 + 75}));
                 //Select(TextInput4)
@@ -1504,22 +1504,22 @@ CategoryMenu As screen:
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order", SortOrder.Ascending)).LV1Order);
+            =Set(LastLV1Order, Last(SortByColumns(똑실이_Category_table,"LV1Order", SortOrder.Ascending)).LV1Order);
             If(
                 IsBlank(LastLV1Order),
                 Set(LastLV1Order, 0)
             );
             
             Patch(
-                Category_table, 
-                Defaults(Category_table), 
+                똑실이_Category_table, 
+                Defaults(똑실이_Category_table), 
                 { 제목:LastLV1Order+1, LV1:LastLV1Order+1, LV1Order:LastLV1Order+1, LV2Order:1 }
             );
             
             ClearCollect(
                 CategoryMenuCollect,
                 ShowColumns(
-                    SortByColumns(Category_table, "LV1Order", SortOrder.Ascending),
+                    SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending),
                     "Title",
                     "OData__x004c_V1",
                     "LV1Order",
@@ -1531,7 +1531,7 @@ CategoryMenu As screen:
             );
             UpdateContext({ testHight:
                 CountRows(
-                ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             ) * 80 });
             //Select(TextInput4)
             Concurrent(
@@ -1541,7 +1541,7 @@ CategoryMenu As screen:
             Set(SelectedLV2, "");
             );
             //Refresh(Category_table);
-            Set(LastLV1Order, Last(SortByColumns(Category_table,"LV1Order")).LV1Order);
+            Set(LastLV1Order, Last(SortByColumns(똑실이_Category_table,"LV1Order")).LV1Order);
         PressedBorderColor: |-
             =ColorValue("#D1D1D1")
         PressedColor: =Color.Black
@@ -1586,7 +1586,7 @@ CategoryMenu As screen:
             Text: |+
                 =//"메인 메뉴" & " : " & CountRows(Filter(GNB_MENU,LV2Order=1)) & "개"
                 //"메인 메뉴 : " & CountRows(Filter(GNB_MENU, !IsBlank(LV1))) & "개"
-                CountRows(Distinct(Filter(Category_table, !IsBlank(LV1)), LV1))
+                CountRows(Distinct(Filter(똑실이_Category_table, !IsBlank(LV1)), LV1))
                 
                 
             Width: =61
@@ -1653,7 +1653,7 @@ CategoryMenu As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Filter(Category_table,!IsBlank(LV2Order)))
+            Text: =CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order)))
             Width: =61
             X: =34
             Y: =55
@@ -1718,7 +1718,7 @@ CategoryMenu As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Filter(Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams)))
+            Text: =CountRows(Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams)))
             Width: =61
             X: =34
             Y: =55
@@ -1751,7 +1751,7 @@ CategoryMenu As screen:
             Font: =Font.'Segoe UI'
             Height: =26
             Size: =15
-            Text: ="/" & CountRows(Filter(Category_table,!IsBlank(LV2Order))) & "개"
+            Text: ="/" & CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order))) & "개"
             Width: =73
             X: =79
             Y: =67
@@ -1892,7 +1892,7 @@ CategoryMenu As screen:
                 );
                 Set(EditUserVisibleVal, false);
                 Reset(TextInput_AddUserSearch_CategoryMenu);
-                Refresh(Category_table);
+                Refresh(똑실이_Category_table);
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -2016,7 +2016,7 @@ CategoryMenu As screen:
                         RemoveUserCollection,
                         {
                             LV01_Category: Gallery_Main_CategoryMenu.Selected.Result,
-                            LV02_Category: LookUp(Category_table,LV1=Gallery_Main_CategoryMenu.Selected.Result).제목, //Gallery_Sub_CategoryMenu.Selected.제목,
+                            LV02_Category: LookUp(똑실이_Category_table,LV1=Gallery_Main_CategoryMenu.Selected.Result).제목, //Gallery_Sub_CategoryMenu.Selected.제목,
                             Email: ThisItem.UserPrincipalName,
                             Name: ThisItem.DisplayName
                         }
@@ -2439,14 +2439,14 @@ CategoryMenu As screen:
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
             OnSelect: |-
                 =ForAll(
-                    Sequence(CountRows(Filter(Category_table, LV1=CheckedLV1))),
-                    Remove(Category_table, LookUp(Category_table,LV1=CheckedLV1))
+                    Sequence(CountRows(Filter(똑실이_Category_table, LV1=CheckedLV1))),
+                    Remove(똑실이_Category_table, LookUp(똑실이_Category_table,LV1=CheckedLV1))
                 );
                 //Remove(Category_table,Filter(Category_table,LV1=CheckedLV1));
                 
                 UpdateContext({ testHight:
                     CountRows(
-                    ForAll(Distinct(SortByColumns(Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80 });
                 
                 //Refresh(Category_table);
@@ -2572,21 +2572,21 @@ CategoryMenu As screen:
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
             OnSelect: |-
                 =Remove(
-                    Category_table,
+                    똑실이_Category_table,
                     First(
                         Filter(
-                            Category_table,
+                            똑실이_Category_table,
                             ID=CheckedID
                         )
                     )
                 );
                 UpdateContext({ ShowHeight:
                     CountRows(
-                    ForAll(SortByColumns(Filter(Category_table, LV1<>Blank()), "LV1Order", SortOrder.Ascending), {Result: ThisRecord.LV1})
+                    ForAll(SortByColumns(Filter(똑실이_Category_table, LV1<>Blank()), "LV1Order", SortOrder.Ascending), {Result: ThisRecord.LV1})
                 ) * 80 + 
                     CountRows(
                         Filter(
-                            Category_table, LV1=ZoomLV1
+                            똑실이_Category_table, LV1=ZoomLV1
                         )
                     ) * 80 + 75}
                 );
@@ -2831,7 +2831,7 @@ CategoryMenu As screen:
                 Set(EditUserVisibleVal, false);
                 Reset(TextInput_ShearchTeam_CategoryMenu);
                 Set(AddTeamPopup,false);
-                Refresh(Category_table);
+                Refresh(똑실이_Category_table);
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -3338,7 +3338,7 @@ CategoryMenu As screen:
             BorderThickness: =1
             DelayItemLoading: =true
             Height: =442
-            Items: =Filter(Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))
+            Items: =Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplatePadding: =0
