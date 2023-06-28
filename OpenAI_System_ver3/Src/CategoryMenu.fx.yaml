@@ -222,7 +222,7 @@ CategoryMenu As screen:
             Set(SelectedLV2, "");
             
             
-            ClearCollect(testPA3, AddColumns(Filter(문서, 이름 in Category_table.제목), "Test",LookUp(Category_table, 제목=이름, LookUp(Category_table, 제목= 이름).Users)));
+            ClearCollect(testPA3, AddColumns(Filter(문서, Name in Category_table.제목), "Test",LookUp(Category_table, 제목=Name, LookUp(Category_table, 제목= Name).Users)));
             ClearCollect(test11, {ID:Blank(), User:Blank(), LV2:Blank() });
             Clear(test11);
             
@@ -230,8 +230,8 @@ CategoryMenu As screen:
               testPA3,
               {
                 ID: ID,
-                User: LookUp(Category_table, 제목 = testPA3[@이름], Users).Email,
-                LV2: 이름
+                User: LookUp(Category_table, 제목 = testPA3[@Name], Users).Email,
+                LV2: Name
               }
             ));
             
@@ -589,7 +589,7 @@ CategoryMenu As screen:
                 DisabledFill: =RGBA(255, 255, 255, 1)
                 DisplayMode: |-
                     =If(
-                        IsNumeric(ThisItem.Title),
+                        IsNumeric(ThisItem.제목),
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
@@ -805,8 +805,7 @@ CategoryMenu As screen:
                 PaddingLeft: =24
                 Size: =13
                 Text: |-
-                    =//IfError(AzureAD.GetGroup(ThisItem.Value).description,""
-                    If(
+                    =If(
                         CountRows(
                             Split(
                                 LookUp(
@@ -2846,7 +2845,7 @@ CategoryMenu As screen:
                             ID = CheckedID
                         ),
                         {
-                            Team_ID: Concat(MyPeople2, Value,",")
+                            Team_ID: Concat(MyPeople2, Value, ",")
                         }
                     )
                 PaddingBottom: =9
@@ -2874,9 +2873,7 @@ CategoryMenu As screen:
             Fill: =Parent.Fill
             Height: =366
             Items: |+
-                =col_ADGroup
-                
-                
+                =Search(col_ADGroup,TextInput_ShearchTeam_CategoryMenu.Text,"description")
                 
                 
                 

@@ -12,7 +12,7 @@ MAMenu As screen:
         Set(testVisible, "");,
         Set(SelectedLV1, "");,
         Set(SelectedLV2, "");,
-        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Teams"));,
+        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Team_ID"));,
         Clear(NewPortalCollect);
         );
         
@@ -979,7 +979,50 @@ MAMenu As screen:
             BorderColor: =RGBA(112, 112, 112, 1)
             BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
-            Default: =//LookUp(GNB_MENU, LV1=Text(ThisItem.Result), Teams)
+            Default: |-
+                =If(
+                    CountRows(
+                        Split(
+                            LookUp(
+                                NewMACollect,
+                                OData__x004c_V1 = ThisItem.Result
+                            ).Team_ID,
+                            ","
+                        )
+                    ) > 1,
+                    AzureAD.GetGroup(
+                        First(
+                            Split(
+                                LookUp(
+                                    NewMACollect,
+                                    OData__x004c_V1 = ThisItem.Result
+                                ).Team_ID,
+                                ","
+                            )
+                        ).Value
+                    ).description & " 외" & CountRows(
+                        Split(
+                            LookUp(
+                                NewMACollect,
+                                OData__x004c_V1 = ThisItem.Result
+                            ).Team_ID,
+                            ","
+                        )
+                    ) - 1 & "팀",
+                    IfError(
+                    AzureAD.GetGroup(
+                        First(
+                            Split(
+                                LookUp(
+                                    NewMACollect,
+                                    OData__x004c_V1 = ThisItem.Result,
+                                    Team_ID
+                                ),
+                                ","
+                            )
+                        ).Value
+                    ).description,"")
+                )
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -2692,7 +2735,11 @@ MAMenu As screen:
             Fill: =Parent.Fill
             Height: =366
             Items: |+
-                =If(
+                =Search(col_ADGroup,TextInput_ShearchTeam_MAMenu.Text,"description")
+                
+                
+                
+                /*If(
                     IsBlank(TextInput_ShearchTeam_MAMenu.Text),
                     Blank(),
                     If(
@@ -2719,7 +2766,7 @@ MAMenu As screen:
                             )
                         )
                     )
-                )
+                )*/
                 
                 
                 
@@ -2831,8 +2878,52 @@ MAMenu As screen:
                 Font: =Font.'Segoe UI'
                 FontWeight: =FontWeight.Semibold
                 Height: =Self.Size * 1.8
-                OnSelect: |+
+                OnSelect: |
                     =If(
+                        ThisItem.id in LookUp(
+                            NewMACollect,
+                            ID = CheckedID
+                        ).Team_ID,
+                        Notify(
+                            "중복된 이름입니다.",
+                            NotificationType.Error,
+                            800
+                        ),
+                        Patch(
+                            NewMACollect,
+                            LookUp(
+                                NewMACollect,
+                                ID = CheckedID
+                            ),
+                            If(
+                                IsBlank(
+                                    LookUp(
+                                        NewMACollect,
+                                        ID = CheckedID
+                                    ).Team_ID
+                                ),
+                                {Team_ID: ThisItem.id},
+                                {
+                                    Team_ID: Concat(
+                                        Filter(
+                                            NewMACollect,
+                                            ID = CheckedID
+                                        ),
+                                        Team_ID & "," & ThisItem.id,
+                                        ","
+                                    )
+                                }
+                            )
+                        );
+                        Notify(
+                            "사용자 추가 완료.",
+                            NotificationType.Success,
+                            800
+                        )
+                    )
+                    
+                    
+                    /*If(
                         Not(ThisItem.Value in MyPeople.Department) && Not(
                             ThisItem.Value in LookUp(
                                 NewMACollect,
@@ -2879,10 +2970,10 @@ MAMenu As screen:
                             800
                         )
                     );
-                    
+                    */
                 Size: =12
                 TabIndex: =0
-                Text: =ThisItem.Value
+                Text: =ThisItem.description
                 Width: =Gallery_ShearchTeam_MAMenu.TemplateWidth - 232
                 Wrap: =false
                 X: =
