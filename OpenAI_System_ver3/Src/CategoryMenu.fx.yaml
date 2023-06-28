@@ -242,6 +242,9 @@ CategoryMenu As screen:
             
             UpdateContext({LV01_Category:""});
             UpdateContext({LV02_Category:""});
+            
+            
+            Clear(RemoveUserCollection);
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
@@ -509,6 +512,7 @@ CategoryMenu As screen:
             TemplateSize: =87
             Visible: =If(testVisible=ThisItem.Result, true, false)
             Width: =1485
+            X: =1
             Y: =68
             ZIndex: =3
 
@@ -636,7 +640,7 @@ CategoryMenu As screen:
                 RadiusTopRight: =10
                 Size: =13
                 Width: =259
-                X: =63
+                X: =51
                 Y: =18
                 ZIndex: =3
 
@@ -1953,7 +1957,23 @@ CategoryMenu As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
-                OnSelect: =Remove(MyPeople, LookUp(MyPeople, UserPrincipalName = ThisItem.UserPrincipalName))
+                OnSelect: |
+                    =Remove(
+                        MyPeople,
+                        LookUp(
+                            MyPeople,
+                            UserPrincipalName = ThisItem.UserPrincipalName
+                        )
+                    );
+                    Collect(
+                        RemoveUserCollection,
+                        {
+                            LV01_Category: Gallery_Main_CategoryMenu.Selected.Result,
+                            LV02_Category: LookUp(Category_table,LV1=Gallery_Main_CategoryMenu.Selected.Result).제목, //Gallery_Sub_CategoryMenu.Selected.제목,
+                            Email: ThisItem.UserPrincipalName,
+                            Name: ThisItem.DisplayName
+                        }
+                    );
                 PaddingBottom: =9
                 PaddingLeft: =9
                 PaddingRight: =9
