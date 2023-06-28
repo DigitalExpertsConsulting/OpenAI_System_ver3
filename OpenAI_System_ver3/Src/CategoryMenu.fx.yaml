@@ -242,6 +242,8 @@ CategoryMenu As screen:
             
             UpdateContext({LV01_Category:""});
             UpdateContext({LV02_Category:""});
+            
+            Clear(RemoveCollection);
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
@@ -509,6 +511,7 @@ CategoryMenu As screen:
             TemplateSize: =87
             Visible: =If(testVisible=ThisItem.Result, true, false)
             Width: =1485
+            X: =1
             Y: =68
             ZIndex: =3
 
@@ -1953,7 +1956,11 @@ CategoryMenu As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
-                OnSelect: =Remove(MyPeople, LookUp(MyPeople, UserPrincipalName = ThisItem.UserPrincipalName))
+                OnSelect: |-
+                    =Remove(MyPeople, LookUp(MyPeople, UserPrincipalName = ThisItem.UserPrincipalName));
+                    
+                    Collect(RemoveCollection, {LV01_Category:Gallery_Main_CategoryMenu.Selected.Result, LV02_Category: Gallery_Sub_CategoryMenu.Selected.TextInput_SubMenuName_CategoryMenu,
+                    Email : Office365사용자.MyProfile().Mail, Name : Office365사용자.MyProfile().DisplayName});
                 PaddingBottom: =9
                 PaddingLeft: =9
                 PaddingRight: =9
