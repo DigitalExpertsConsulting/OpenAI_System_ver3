@@ -585,13 +585,14 @@ CategoryMenu_modify As screen:
                                 ","
                             )
                         ) > 1,
-                        ThisItem.TeamName & " 외" & CountRows(
+                        First(Split(ThisItem.TeamName, ",")).Value & " 외" & CountRows(
                             Split(
                                 ThisItem.Team_ID,
                                 ","
                             )
                         ) - 1 & " 팀",
                         ThisItem.TeamName
+                        
                     )
                 Width: =430
                 X: =322
@@ -639,16 +640,30 @@ CategoryMenu_modify As screen:
                 HoverFill: |-
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeam
-                OnSelect: |
-                    =UpdateContext({ AddTeamPopUpVi:true });
-                    UpdateContext({ PopUpMenu: "Team"});
-                    UpdateContext({ AddPopUpID: ThisItem.ID });
-                    If(ThisItem.Team_ID=Blank(),Patch(CategoryTable, LookUp(CategoryTable, ID=AddPopUpID), {Team_ID:""}));
-                    //ClearCollect(AddTeamCollect, Split(ThisItem.Team_ID, ","));
-                    ClearCollect(AddTeamCollect,Filter(Split(
+                OnSelect: |-
+                    =UpdateContext({AddTeamPopUpVi: true});
+                    UpdateContext({PopUpMenu: "Team"});
+                    UpdateContext({AddPopUpID: ThisItem.ID});
+                    ClearCollect(
+                        AddTeamCollect,
+                        Filter(
+                            Split(
                                 ThisItem.Team_ID,
                                 ","
-                            ),Not(IsBlank(Value))))
+                            ),
+                            Not(IsBlank(Value))
+                        )
+                    );
+                    ClearCollect(
+                        AddTeamName,
+                        Filter(
+                            Split(
+                                ThisItem.TeamName,
+                                ","
+                            ),
+                            Not(IsBlank(Value))
+                        )
+                    )
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -923,12 +938,40 @@ CategoryMenu_modify As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =RGBA(15, 108, 189, 1)
             OnSelect: |
-                =Patch(CategoryTable, LookUp(CategoryTable, ID=AddPopUpID),{Team_ID:Concat(AddTeamCollect,Value,","), TeamName:First(AddTeamCollect).Name});
-                UpdateContext({ AddPopUpID:Blank() });
+                =Patch(
+                    CategoryTable,
+                    LookUp(
+                        CategoryTable,
+                        ID = AddPopUpID
+                    ),
+                    {
+                        Team_ID: Concat(
+                            AddTeamCollect,
+                            Value,
+                            ","
+                        )
+                    }
+                );
+                Patch(
+                    CategoryTable,
+                    LookUp(
+                        CategoryTable,
+                        ID = AddPopUpID
+                    ),
+                    {
+                        TeamName: Concat(
+                            AddTeamName,
+                            Value,
+                            ","
+                        )
+                    }
+                );
+                UpdateContext({AddPopUpID: Blank()});
                 Clear(AddTeamCollect);
-                UpdateContext({AddTeamPopUpVi:false});
-                UpdateContext({ resetSearch:true });
-                UpdateContext({ resetSearch:false });
+                Clear(AddTeamName);
+                UpdateContext({AddTeamPopUpVi: false});
+                UpdateContext({resetSearch: true});
+                UpdateContext({resetSearch: false});
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =
@@ -961,6 +1004,7 @@ CategoryMenu_modify As screen:
             OnSelect: |-
                 =UpdateContext({ AddPopUpID:Blank() });
                 Clear(AddTeamCollect);
+                Clear(AddTeamName);
                 UpdateContext({ AddTeamPopUpVi:false });
                 UpdateContext({ resetSearch:true });
                 UpdateContext({ resetSearch:false });
@@ -1067,28 +1111,49 @@ CategoryMenu_modify As screen:
                         Icon.Cancel,
                         Icon.Add
                     )
-                OnSelect: |-
-                    =If(ThisItem.id in AddTeamCollect.Value,
-                    Remove(AddTeamCollect, LookUp(AddTeamCollect, Value=ThisItem.id));
+                OnSelect: |
+                    =If(
+                        ThisItem.displayName in AddTeamName.Value,
+                        Remove(
+                            AddTeamName,
+                            LookUp(
+                                AddTeamName,
+                                Value = ThisItem.displayName
+                            );
+                        ),
+                        Collect(
+                            AddTeamName,
+                            {
+                                Value: ThisItem.displayName
+                            }
+                        );
+                    );
+                    If(
+                        ThisItem.id in AddTeamCollect.Value,
+                        Remove(
+                            AddTeamCollect,
+                            LookUp(
+                                AddTeamCollect,
+                                Value = ThisItem.id
+                            );
+                        );
                         Notify(
-                            "사용자 제거 완료.",
+                            "팀 제거 완료.",
                             NotificationType.Success,
                             800
-                        )
-                        ,
+                        ),
                         Collect(
                             AddTeamCollect,
                             {
-                                Value:ThisItem.id,
-                                Name:ThisItem.displayName
+                                Value: ThisItem.id
                             }
                         );
                         Notify(
-                            "사용자 추가 완료.",
+                            "팀 추가 완료.",
                             NotificationType.Success,
                             800
                         )
-                    )
+                    );
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
