@@ -2,7 +2,7 @@ AIGraph As screen:
     Fill: =RGBA(250, 250, 250, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |+
-        =ClearCollect(IDCount, 똑실이_QA_table.ID);
+        =ClearCollect(IDCount, QA_table.ID);
         
         
         ClearCollect(DateCollection,
@@ -10,7 +10,7 @@ AIGraph As screen:
            ForAll(IDCount,
               {
                  ID: IDCount[@ID],
-                 Dates: LookUp(똑실이_QA_table, ID = IDCount[@ID]).Date
+                 Dates: LookUp(QA_table, ID = IDCount[@ID]).Date
                  //Total: CountRows(QA_table.Date)
               }
            )
@@ -23,21 +23,21 @@ AIGraph As screen:
         //ClearCollect(AIGraphTest,Distinct(Violations_table,Vio_BadWords));
         
         ClearCollect(hh,
-            ForAll(Distinct(똑실이_Violations_table,Vio_BadWords),
+            ForAll(Distinct(Violations_table,Vio_BadWords),
             {
                 검색어:Value,
-                개수:CountRows(Search(똑실이_Violations_table,Value,"field_2"))
+                개수:CountRows(Search(Violations_table,Value,"field_2"))
             }
             )
             );
         
-        ClearCollect(zz,Sum(똑실이_QA_table,LikeCount),Sum(똑실이_QA_table,HateCount),Sum(똑실이_QA_table,CopyCount)
+        ClearCollect(zz,Sum(QA_table,LikeCount),Sum(QA_table,HateCount),Sum(QA_table,CopyCount)
         );
         
         ClearCollect(
             LikeChu,
             AddColumns(
-                GroupBy(똑실이_QA_table, "field_5", "Group"),
+                GroupBy(QA_table, "field_5", "Group"),
                 "LikeCount",
                 Sum(Group, LikeCount),
                 "HateCount",
