@@ -386,29 +386,7 @@ CategoryMenu_modify As screen:
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 70 + 10,0)
             Items: =SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
-            OnSelect: |
-                =Set(SelectedLV2,ThisItem.제목);
-                Set(SelectedLV1, "");
-                
-                If(ThisItem.제목=SelectedLV2, //Checkbox5.Value,
-                Set(CheckedLV1, ThisItem.LV1);
-                Set(CheckedLV2, ThisItem.제목);
-                Set(CheckedLV1Order, ThisItem.LV1Order);
-                Set(CheckedLV2Order, ThisItem.LV2Order);
-                Set(CheckedID, ThisItem.ID);,
-                
-                Set(CheckedLV1, Blank());
-                Set(CheckedLV2, Blank());
-                Set(CheckedLV1Order, Blank());
-                Set(CheckedLV2Order, Blank());
-                Set(CheckedID, Blank());
-                );
-                
-                Set(FirstLV2Order, First(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
-                Set(PrevLV2Order, CheckedLV2Order-1);
-                Set(NextLV2Order, CheckedLV2Order+1);
-                Set(LastLV2Order, Last(SortByColumns(Filter(Category_table, LV1=CheckedLV1),"LV2Order")).LV2Order);
-                Set(BlankLV2Order, LastLV2Order +1);
+            OnSelect: =
             ShowScrollbar: =false
             TemplateSize: =80
             Visible: =Or(ThisItem.IsSelected,false)
@@ -638,7 +616,9 @@ CategoryMenu_modify As screen:
                 HoverFill: |-
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeam
-                OnSelect: =
+                OnSelect: |-
+                    =UpdateContext({ AddPopUp:true });
+                    UpdateContext({ PopUpMenu: "Team"});
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -694,7 +674,9 @@ CategoryMenu_modify As screen:
                 HoverFill: |-
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeam
-                OnSelect: =
+                OnSelect: |-
+                    =UpdateContext({ AddPopUp:true });
+                    UpdateContext({ PopUpMenu: "User"});
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -862,6 +844,7 @@ CategoryMenu_modify As screen:
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
             Height: =580
+            Visible: =AddPopUp
             Width: =490
             X: =810
             Y: =203
@@ -889,6 +872,7 @@ CategoryMenu_modify As screen:
             RadiusTopRight: =0
             Size: =15
             Text: ="확인"
+            Visible: =AddPopUp
             X: =821
             Y: =723
             ZIndex: =50
@@ -905,7 +889,8 @@ CategoryMenu_modify As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            OnSelect: =
+            OnSelect: |-
+                =UpdateContext({ AddPopUp:false });
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -915,6 +900,7 @@ CategoryMenu_modify As screen:
             RadiusTopRight: =0
             Size: =15
             Text: ="취소"
+            Visible: =AddPopUp
             X: =1129
             Y: =723
             ZIndex: =51
@@ -927,6 +913,7 @@ CategoryMenu_modify As screen:
             ShowScrollbar: =false
             TemplatePadding: =0
             TemplateSize: =47
+            Visible: =AddPopUp
             Width: =470
             X: =820
             Y: =248
@@ -974,6 +961,7 @@ CategoryMenu_modify As screen:
             RadiusBottomRight: =0
             RadiusTopLeft: =0
             RadiusTopRight: =0
+            Visible: =AddPopUp
             Width: =470
             X: =820
             Y: =213
@@ -994,6 +982,7 @@ CategoryMenu_modify As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =AddPopUp
             Width: =Self.Height
             X: =836
             Y: =218
