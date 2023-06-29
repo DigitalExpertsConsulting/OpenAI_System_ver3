@@ -3,21 +3,21 @@ EditMenu As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
         =UpdateContext({testHight:CountRows(
-            ForAll(Distinct(SortByColumns(Filter(똑실이_GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            ForAll(Distinct(SortByColumns(Filter(GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
         ) * 80});
         
         
         ForAll(
-            Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
-            Remove(똑실이_GNB_MENU, First(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
+            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
+            Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
         );
         ForAll(
-            Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-            Remove(똑실이_GNB_MENU, First(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
+            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
+            Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
         );
         
-           Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-            Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
+           Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
+            Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
         
             
         Concurrent(
@@ -28,7 +28,7 @@ EditMenu As screen:
         ClearCollect(
             NewPortalCollect,
             ShowColumns(
-                SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending),
+                SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
                 "Title",
                 "OData__x004c_V1",
                 "LV1Order",
@@ -197,22 +197,22 @@ EditMenu As screen:
         HoverFill: =RGBA(0, 0, 0, 0)
         Icon: =Icon.AddLibrary
         OnSelect: |-
-            =Set(LastLV1Order, Last(SortByColumns(똑실이_GNB_MENU,"LV1Order", SortOrder.Ascending)).LV1Order);
+            =Set(LastLV1Order, Last(SortByColumns(GNB_MENU,"LV1Order", SortOrder.Ascending)).LV1Order);
             If(
                 IsBlank(LastLV1Order),
                 Set(LastLV1Order, 0)
             );
             
             Patch(
-                똑실이_GNB_MENU, 
-                Defaults(똑실이_GNB_MENU), 
+                GNB_MENU, 
+                Defaults(GNB_MENU), 
                 { 제목:LastLV1Order+1, LV1:LastLV1Order+1, LV1Order:LastLV1Order+1, LV2Order:1 }
             );
             
             ClearCollect(
                 NewPortalCollect,
                 ShowColumns(
-                    SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending),
+                    SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
                     "Title",
                     "OData__x004c_V1",
                     "LV1Order",
@@ -225,7 +225,7 @@ EditMenu As screen:
             );
             UpdateContext({ testHight:
                 CountRows(
-                ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             ) * 80 });
             //Select(TextInput4)
             Concurrent(
@@ -234,8 +234,8 @@ EditMenu As screen:
             Set(SelectedLV1, "");,
             Set(SelectedLV2, "");
             );
-            Refresh(똑실이_GNB_MENU);
-            Set(LastLV1Order, Last(SortByColumns(똑실이_GNB_MENU,"LV1Order")).LV1Order);
+            Refresh(GNB_MENU);
+            Set(LastLV1Order, Last(SortByColumns(GNB_MENU,"LV1Order")).LV1Order);
         PaddingBottom: =5
         PaddingLeft: =5
         PaddingRight: =5
@@ -258,7 +258,7 @@ EditMenu As screen:
                 testHight
             )
         Items: |-
-            =ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+            =ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             //SortByColumns(GNB_MENU, "LV1Order", Ascending)
         Layout: =Layout.Vertical
         OnSelect: |-
@@ -266,16 +266,16 @@ EditMenu As screen:
             Set(SelectedLV1, ThisItem.Result);
             
             
-            ClearCollect(test5, ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value}), {Value:""});
+            ClearCollect(test5, ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value}), {Value:""});
             Patch(test5, test5, Sequence(CountRows(test5)));
             Remove(test5, Last(test5));
             
-            UpdateIf( 똑실이_GNB_MENU, LV1 = ThisItem.Result, { LV1Order: Int(LookUp(test5,Result=ThisItem.Result,Value)) } );
+            UpdateIf( GNB_MENU, LV1 = ThisItem.Result, { LV1Order: Int(LookUp(test5,Result=ThisItem.Result,Value)) } );
             
             If(ThisItem.Result=SelectedLV1,
                 Set(CheckedLV1, ThisItem.Result);
-                Set(CheckedLV1Order, LookUp(똑실이_GNB_MENU, LV1=ThisItem.Result, LV1Order));
-                Set(CheckedID, LookUp(똑실이_GNB_MENU, LV1=ThisItem.Result, ID));,
+                Set(CheckedLV1Order, LookUp(GNB_MENU, LV1=ThisItem.Result, LV1Order));
+                Set(CheckedID, LookUp(GNB_MENU, LV1=ThisItem.Result, ID));,
             
                 Set(CheckedLV1, Blank());
                 Set(CheckedLV2, Blank());
@@ -285,10 +285,10 @@ EditMenu As screen:
                 Set(CheckedID, Blank());
             );
             
-            Set(FirstLV1Order, First(SortByColumns(똑실이_GNB_MENU,"LV1Order")).LV1Order);
+            Set(FirstLV1Order, First(SortByColumns(GNB_MENU,"LV1Order")).LV1Order);
             Set(PrevLV1Order, CheckedLV1Order-1);
             Set(NextLV1Order, CheckedLV1Order+1);
-            Set(LastLV1Order, Last(SortByColumns(똑실이_GNB_MENU,"LV1Order")).LV1Order);
+            Set(LastLV1Order, Last(SortByColumns(GNB_MENU,"LV1Order")).LV1Order);
             Set(BlankLV1Order, LastLV1Order +1);
         TemplatePadding: =0
         TemplateSize: |-
@@ -296,7 +296,7 @@ EditMenu As screen:
                 Gallery_Sub_MAMenu.Visible=true,
                 CountRows(
                     Filter(
-                        똑실이_GNB_MENU, LV1=ZoomLV1
+                        GNB_MENU, LV1=ZoomLV1
                     )
                 ) * 80 + 75,
                 500
@@ -345,17 +345,17 @@ EditMenu As screen:
             OnSelect: |-
                 =If(CheckedLV1 = "Admin",false,
                 
-                Set(LastLV2Order, Last(Filter(똑실이_GNB_MENU, LV1=ThisItem.Result)).LV2Order);
+                Set(LastLV2Order, Last(Filter(GNB_MENU, LV1=ThisItem.Result)).LV2Order);
                 Patch(
-                        똑실이_GNB_MENU, 
-                        Defaults(똑실이_GNB_MENU), 
-                        { 제목:LastLV2Order+1, LV1:CheckedLV1, LV1Order:LookUp(똑실이_GNB_MENU, LV1=CheckedLV1, LV1Order), LV2Order:LastLV2Order+1 }
+                        GNB_MENU, 
+                        Defaults(GNB_MENU), 
+                        { 제목:LastLV2Order+1, LV1:CheckedLV1, LV1Order:LookUp(GNB_MENU, LV1=CheckedLV1, LV1Order), LV2Order:LastLV2Order+1 }
                 );
                 
                 ClearCollect(
                     NewPortalCollect,
                     ShowColumns(
-                        SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending),
+                        SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
                         "Title",
                         "OData__x004c_V1",
                         "LV1Order",
@@ -369,16 +369,16 @@ EditMenu As screen:
                 If(testVisible="",
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
-                    ForAll(Distinct(SortByColumns(Filter(똑실이_GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(Filter(GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80})),
                 
                 UpdateContext({ testHight:
                     CountRows(
-                    ForAll(Distinct(SortByColumns(Filter(똑실이_GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(Filter(GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80 + 
                 CountRows(
                         Filter(
-                            똑실이_GNB_MENU, LV1=ZoomLV1
+                            GNB_MENU, LV1=ZoomLV1
                         )
                     ) * 80 + 75}));
                 
@@ -439,13 +439,13 @@ EditMenu As screen:
                     testVisible=ThisItem.Result,
                     CountRows(
                         Filter(
-                            똑실이_GNB_MENU,
+                            GNB_MENU,
                             LV1 = ThisItem.Result
                         )
                     ) * 80,
                     0
                 )
-            Items: =SortByColumns(Filter(똑실이_GNB_MENU, LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
+            Items: =SortByColumns(Filter(GNB_MENU, LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: |+
                 =
@@ -455,7 +455,7 @@ EditMenu As screen:
                 
                 If(ThisItem.제목=SelectedLV2, //Checkbox5.Value,
                 
-                Patch(똑실이_GNB_MENU, SortByColumns(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), "LV2Order"), RenameColumns(Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1))), "Value", "LV2Order"));
+                Patch(GNB_MENU, SortByColumns(Filter(GNB_MENU, LV1=ThisItem.LV1), "LV2Order"), RenameColumns(Sequence(CountRows(Filter(GNB_MENU, LV1=ThisItem.LV1))), "Value", "LV2Order"));
                 
                 Set(CheckedLV1, ThisItem.LV1);
                 Set(CheckedLV2, ThisItem.제목);
@@ -474,10 +474,10 @@ EditMenu As screen:
                 Set(CheckedID, Blank());
                 );
                 
-                Set(FirstLV2Order, First(SortByColumns(Filter(똑실이_GNB_MENU, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(FirstLV2Order, First(SortByColumns(Filter(GNB_MENU, LV1=CheckedLV1),"LV2Order")).LV2Order);
                 Set(PrevLV2Order, CheckedLV2Order-1);
                 Set(NextLV2Order, CheckedLV2Order+1);
-                Set(LastLV2Order, Last(SortByColumns(Filter(똑실이_GNB_MENU, LV1=CheckedLV1),"LV2Order")).LV2Order);
+                Set(LastLV2Order, Last(SortByColumns(Filter(GNB_MENU, LV1=CheckedLV1),"LV2Order")).LV2Order);
                 Set(BlankLV2Order, LastLV2Order +1);
                 
                 
@@ -545,7 +545,7 @@ EditMenu As screen:
                 Color: =RGBA(51, 51, 51, 1)
                 Default: |-
                     =If(
-                        ThisItem.제목=LookUp(똑실이_GNB_MENU, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
+                        ThisItem.제목=LookUp(GNB_MENU, LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
                         Blank(),
                         ThisItem.제목
                     )
@@ -749,23 +749,23 @@ EditMenu As screen:
                         ThisItem.LV2Order = LastLV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                             
-                        LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=Last(SortByColumns(Filter(똑실이_GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
+                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=Last(SortByColumns(Filter(GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=CheckedLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=CheckedLV2Order),
                             {LV2Order: BlankLV2Order}
                         );
                     
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=NextLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=NextLV2Order),
                             {LV2Order: CheckedLV2Order}
                         );
                     
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=BlankLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=BlankLV2Order),
                             {LV2Order: NextLV2Order}
                         );
                     
@@ -824,23 +824,23 @@ EditMenu As screen:
                     If(
                         ThisItem.LV2Order = FirstLV2Order,
                             Notify( "가장 위에 있는 메뉴 입니다.", NotificationType.Error ),
-                        LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=First(SortByColumns(Filter(똑실이_GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
+                        LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1),제목=ThisItem.제목,LV2Order)=First(SortByColumns(Filter(GNB_MENU, !IsNumeric(제목)),"LV2Order")).LV2Order,
                             Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error ),
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=CheckedLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=CheckedLV2Order),
                             {LV2Order: BlankLV2Order}
                         );
                     
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=PrevLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=PrevLV2Order),
                             {LV2Order: CheckedLV2Order}
                         );
                     
                         Patch(
-                            똑실이_GNB_MENU,
-                            LookUp(Filter(똑실이_GNB_MENU, LV1=ThisItem.LV1), LV2Order=BlankLV2Order),
+                            GNB_MENU,
+                            LookUp(Filter(GNB_MENU, LV1=ThisItem.LV1), LV2Order=BlankLV2Order),
                             {LV2Order: PrevLV2Order}
                         );
                     
@@ -1096,16 +1096,16 @@ EditMenu As screen:
                 If(testVisible=Blank(),
                 If(ThisItem.IsSelected, UpdateContext({ testHight: 
                 CountRows(
-                    ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80})),
                 
                 UpdateContext({ testHight:
                     CountRows(
-                        ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                        ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                     ) * 80 + 
                     CountRows(
                         Filter(
-                            똑실이_GNB_MENU, LV1=ZoomLV1
+                            GNB_MENU, LV1=ZoomLV1
                         )
                     ) * 80 + 75}));
                 Set(SelectedLV1, "");
@@ -1129,7 +1129,7 @@ EditMenu As screen:
             Color: =RGBA(51, 51, 51, 1)
             Default: |-
                 =If(
-                    ThisItem.Result=Text(LookUp(똑실이_GNB_MENU, LV1=ThisItem.Result, LV1Order)) || IsNumeric(ThisItem.Result),
+                    ThisItem.Result=Text(LookUp(GNB_MENU, LV1=ThisItem.Result, LV1Order)) || IsNumeric(ThisItem.Result),
                     Blank(),
                     ThisItem.Result
                 )
@@ -1244,7 +1244,7 @@ EditMenu As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
-            Default: =LookUp(똑실이_GNB_MENU, LV1=ThisItem.Result, Remarks)
+            Default: =LookUp(GNB_MENU, LV1=ThisItem.Result, Remarks)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1300,10 +1300,10 @@ EditMenu As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             OnSelect: |
                 =Select(Parent);
-                If( LookUp(똑실이_GNB_MENU,ThisItem.Result="Admin",LV1Order)=FirstLV1Order,
+                If( LookUp(GNB_MENU,ThisItem.Result="Admin",LV1Order)=FirstLV1Order,
                         Notify( "Admin 메뉴는 변경할 수 없습니다.", NotificationType.Error ),
                         
-                    LookUp(똑실이_GNB_MENU,LV1=ThisItem.Result,LV1Order)=Last(Filter(똑실이_GNB_MENU, IsNumeric(LV1))).LV1Order,
+                    LookUp(GNB_MENU,LV1=ThisItem.Result,LV1Order)=Last(Filter(GNB_MENU, IsNumeric(LV1))).LV1Order,
                     Notify( "가장 밑에 있는 메뉴 입니다.", NotificationType.Error )
                 ,
                 
@@ -1311,35 +1311,35 @@ EditMenu As screen:
                         Notify( "새로운 메뉴의 이름을 선언 해 주세요.", Error ),*/
                 
                 
-                    Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=CheckedLV1Order, LV1));
+                    Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=CheckedLV1Order, LV1));
                     
                     ForAll(
                 
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=CheckedLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=CheckedLV1Order), 
                             { LV1Order:BlankLV1Order }
                         )
-                    ); Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=NextLV1Order, LV1));
+                    ); Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=NextLV1Order, LV1));
                 
                     ForAll(
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=NextLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=NextLV1Order), 
                             { LV1Order:CheckedLV1Order }
                         )
-                    ); Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=BlankLV1Order, LV1));
+                    ); Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=BlankLV1Order, LV1));
                     
                     ForAll(
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=BlankLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=BlankLV1Order), 
                             { LV1Order:NextLV1Order }
                         )
                     );
                 );
                 
-                UpdateContext({sortedList:SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending)});
+                UpdateContext({sortedList:SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending)});
                 ClearCollect(NewPortalCollect, ShowColumns(sortedList, "Title", "OData__x004c_V1", "LV1Order", "LV2Order", "ReportURI", "ID"))
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1372,43 +1372,43 @@ EditMenu As screen:
             Icon: =Icon.ArrowUp
             OnSelect: |
                 =Select(Parent);
-                If( LookUp(똑실이_GNB_MENU,ThisItem.Result="Admin",LV1Order)=FirstLV1Order,
+                If( LookUp(GNB_MENU,ThisItem.Result="Admin",LV1Order)=FirstLV1Order,
                         Notify( "Admin 메뉴는 변경할 수 없습니다.", NotificationType.Error ),
-                    LookUp(똑실이_GNB_MENU,LV1=ThisItem.Result,LV1Order)=FirstLV1Order+1,
+                    LookUp(GNB_MENU,LV1=ThisItem.Result,LV1Order)=FirstLV1Order+1,
                         Notify( "Admin 메뉴와 변경할 수 없습니다.", NotificationType.Error ),
                 
                 /*    LookUp(GNB_MENU,LV1=ThisItem.Result,LV1Order)=LastLV1Order && IsNumeric(ThisItem.Result),
                         Notify( "새로운 메뉴의 이름을 선언 해 주세요.", Error ),*/
                 
                 
-                    Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=CheckedLV1Order, LV1));
+                    Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=CheckedLV1Order, LV1));
                     ForAll(
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=CheckedLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=CheckedLV1Order), 
                             { LV1Order:BlankLV1Order }
                         )
-                    ); Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=PrevLV1Order, LV1));
+                    ); Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=PrevLV1Order, LV1));
                     ForAll(
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=PrevLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=PrevLV1Order), 
                             { LV1Order:CheckedLV1Order }
                         )
-                    ); Set(FocusedLV1Menu, LookUp(똑실이_GNB_MENU, LV1Order=BlankLV1Order, LV1));
+                    ); Set(FocusedLV1Menu, LookUp(GNB_MENU, LV1Order=BlankLV1Order, LV1));
                     ForAll(
-                        Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=FocusedLV1Menu))),
+                        Sequence(CountRows(Filter(GNB_MENU, LV1=FocusedLV1Menu))),
                         Patch(
-                            똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1Order=BlankLV1Order), 
+                            GNB_MENU, LookUp(GNB_MENU,LV1Order=BlankLV1Order), 
                             { LV1Order:PrevLV1Order }
                         )
                     );
                 );
-                UpdateContext({sortedList:SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending)});
+                UpdateContext({sortedList:SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending)});
                 ClearCollect(
                     NewPortalCollect,
                     ShowColumns(
-                        SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending),
+                        SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
                         "Title",
                         "OData__x004c_V1",
                         "LV1Order",
@@ -1722,7 +1722,7 @@ EditMenu As screen:
         FontWeight: =FontWeight.Semibold
         Size: =18
         Text: |-
-            =" 메인 메뉴 : " & CountRows(Distinct(Filter(똑실이_GNB_MENU, !IsBlank(LV1) && LV1 <> "Admin"), LV1)) & "개"
+            =" 메인 메뉴 : " & CountRows(Distinct(Filter(GNB_MENU, !IsBlank(LV1) && LV1 <> "Admin"), LV1)) & "개"
         Width: =220
         X: =305
         Y: =109
@@ -1741,7 +1741,7 @@ EditMenu As screen:
         Size: =18
         Text: |+
             =//"서브 메뉴" & " : " & CountRows(Filter(GNB_MENU,LV2Order)) & "개"
-            "서브 메뉴" & " : " & CountRows(Filter(똑실이_GNB_MENU,!IsBlank(LV2Order) && LV1 <> "Admin")) & "개"
+            "서브 메뉴" & " : " & CountRows(Filter(GNB_MENU,!IsBlank(LV2Order) && LV1 <> "Admin")) & "개"
             
             
         Width: =226
@@ -1807,13 +1807,13 @@ EditMenu As screen:
                 
                 
                 ForAll(
-                    Sequence(CountRows(Filter(똑실이_GNB_MENU, LV1=CheckedLV1))),
-                    Remove(똑실이_GNB_MENU, LookUp(똑실이_GNB_MENU,LV1=CheckedLV1))
+                    Sequence(CountRows(Filter(GNB_MENU, LV1=CheckedLV1))),
+                    Remove(GNB_MENU, LookUp(GNB_MENU,LV1=CheckedLV1))
                 );
                 
                 UpdateContext({ testHight:
                     CountRows(
-                    ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                    ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                 ) * 80 });
                 
                 //Refresh(GNB_MENU);
@@ -1923,13 +1923,13 @@ EditMenu As screen:
             =ColorValue("#115EA3")
         OnSelect: |+
             =Patch(
-                똑실이_GNB_MENU,
+                GNB_MENU,
                 NewPortalCollect
             );
             
             If(
                 CountRows(
-                    Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
+                    Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1) || IsNumeric(제목) || IsBlank(제목))
                 ) > 0,
                 Notify(
                     "제목은 숫자로 시작하거나, 빈 값이 입력될 수 없습니다.",
@@ -1946,28 +1946,28 @@ EditMenu As screen:
             
             
             ForAll(
-                Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
-                Remove(똑실이_GNB_MENU, First(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1)))),
+                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))))
             );
             ForAll(
-                Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
-                Remove(똑실이_GNB_MENU, First(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목)))),
+                Remove(GNB_MENU, First(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))))
             );
             
-               Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
-                Sequence(CountRows(Filter(똑실이_GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
+               Sequence(CountRows(Filter(GNB_MENU, IsNumeric(LV1) || IsBlank(LV1))));
+                Sequence(CountRows(Filter(GNB_MENU, IsNumeric(제목) || IsBlank(제목))));
             
             
             
             UpdateContext({ testHight:
                 CountRows(
-                ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
             ) * 80 });
             
             ClearCollect(
                 NewPortalCollect,
                 ShowColumns(
-                    SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending),
+                    SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending),
                     "Title",
                     "OData__x004c_V1",
                     "LV1Order",
@@ -2030,21 +2030,21 @@ EditMenu As screen:
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
             OnSelect: |+
                 =Remove(
-                    똑실이_GNB_MENU,
+                    GNB_MENU,
                     First(
                         Filter(
-                            똑실이_GNB_MENU,
+                            GNB_MENU,
                             ID=CheckedID
                         )
                     )
                 );
                 UpdateContext({ testHight:
                     CountRows(
-                        ForAll(Distinct(SortByColumns(똑실이_GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
+                        ForAll(Distinct(SortByColumns(GNB_MENU, "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
                     ) * 80 + 
                     CountRows(
                         Filter(
-                            똑실이_GNB_MENU, LV1=ZoomLV1
+                            GNB_MENU, LV1=ZoomLV1
                         )
                     ) * 80 + 75}
                 );
@@ -2167,7 +2167,7 @@ EditMenu As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(똑실이_GNB_MENU);
+        OnSelect: =Refresh(GNB_MENU);
         PaddingLeft: =50
         PaddingRight: =20
         PressedBorderColor: |-
