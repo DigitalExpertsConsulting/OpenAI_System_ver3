@@ -308,7 +308,7 @@ CategoryMenu_modify As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
-        Height: =676
+        Height: =622
         Items: =Distinct(CategoryTable,OData__x004c_V1)
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
@@ -908,22 +908,50 @@ CategoryMenu_modify As screen:
             Y: =Gallery_Sub_CategoryMenu_mod_5.Y + Gallery_Sub_CategoryMenu_mod_5.Height + 23
             ZIndex: =6
 
-        Label_Main_LV1_mod_5 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
+        TextInput_Main_LV1_mod_5 As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
+            Default: |-
+                =If(
+                    ThisItem.Value = "" || ThisItem.Value = Blank(),
+                    "새 메뉴",
+                    ThisItem.Value
+                )
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: |-
+                =//If(ThisItem.Value="" || ThisItem.Value=Blank(), DisplayMode.Edit,DisplayMode.View)
+                If(
+                    IsBlank(
+                        Filter(
+                            Category_table,
+                            Title = ThisItem.Value
+                        )
+                    ),
+                    DisplayMode.Edit,
+                    DisplayMode.View
+                )
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Bold
-            OnSelect: =
-            Text: =ThisItem.Value
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
             Width: =400
             X: =35
             Y: =20
-            ZIndex: =7
+            ZIndex: =8
 
     Group_Add_CategoryMenu_mod_1 As group:
         Height: =5
@@ -1458,6 +1486,40 @@ CategoryMenu_modify As screen:
             Y: =258
             ZIndex: =35
 
+    Button_newCategory_mod_6 As button:
+        BorderColor: =RGBA(224, 224, 224, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =46
+        HoverBorderColor: =RGBA(15, 108, 189, 1)
+        HoverColor: =RGBA(0, 0, 0, 1)
+        HoverFill: =
+        OnSelect: |
+            =Collect(
+                CategoryTable,
+                {
+                    OData__x004c_V1: Blank(),
+                    ID: Last(CategoryTable).ID + 1,
+                    LV1Order: Last(CategoryTable).LV1Order + 1,
+                    LV2Order: 1
+                }
+            );
+        PressedBorderColor: =RGBA(15, 108, 189, 1)
+        PressedColor: =RGBA(0, 0, 0, 1)
+        PressedFill: =
+        Size: =15
+        Text: ="메인 카테고리 추가"
+        Width: =1500
+        X: =372
+        Y: =999
+        ZIndex: =42
+
     Group_Add_CategoryMenu_mod_3 As group:
         Height: =5
         Width: =5
@@ -1668,6 +1730,26 @@ CategoryMenu_modify As screen:
             X: =896
             Y: =278
             ZIndex: =41
+
+    Image_SubAddMainMenu_CategoryMenu_mod_6 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =24
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =PlusBlack
+        OnSelect: =Select(Button_newCategory_mod_6)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =Gallery_Sub_CategoryMenu_mod_5.Visible
+        Width: =24
+        X: =1005
+        Y: =1012
+        ZIndex: =43
 
     Group_Add_CategoryMenu_mod As group:
         Height: =5
