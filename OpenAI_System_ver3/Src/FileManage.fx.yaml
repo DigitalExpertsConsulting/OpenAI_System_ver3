@@ -147,7 +147,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#9FD89F"),
                     "in_progress", ColorValue("#F9C4A6"),
-                    "error", ColorValue("#F1BBBC"),
                     ColorValue("#F1BBBC")
                 )
             Color: |-
@@ -155,12 +154,12 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#107C10"),
                     "in_progress", ColorValue("#E9835E"),
-                    "error", ColorValue("#D13438"),
                     ColorValue("#D13438")
                 )
             DisabledBorderColor: =Self.BorderColor
             DisabledColor: =Self.Color
             DisabledFill: =Self.Fill
+            DisplayMode: =If(ThisItem.Index_Status <> "deleting", DisplayMode.Edit, DisplayMode.Disabled)
             Fill: |-
                 =ColorValue("#FFFFFF")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -172,7 +171,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#9FD89F"),
                     "in_progress", ColorValue("#F9C4A6"),
-                    "error", ColorValue("#F1BBBC"),
                     ColorValue("#F1BBBC")
                 )
             HoverColor: |-
@@ -180,7 +178,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#107C10"),
                     "in_progress", ColorValue("#E9835E"),
-                    "error", ColorValue("#D13438"),
                     ColorValue("#D13438")
                 )
             HoverFill: |-
@@ -188,7 +185,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#F1FAF1"),
                     "in_progress", ColorValue("#FFF8F3"),
-                    "error", ColorValue("#FDF6F6"),
                     ColorValue("#FDF6F6")
                 )
             OnSelect: |
@@ -220,7 +216,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#107C10"),
                     "in_progress", ColorValue("#E9835E"),
-                    "error", ColorValue("#D13438"),
                     ColorValue("#D13438")
                 )
             PressedColor: |-
@@ -228,7 +223,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#107C10"),
                     "in_progress", ColorValue("#E9835E"),
-                    "error", ColorValue("#D13438"),
                     ColorValue("#D13438")
                 )
             PressedFill: |-
@@ -236,7 +230,6 @@ FileManage As screen:
                     ThisItem.Index_Status,
                     "indexed", ColorValue("#9FD89F"),
                     "in_progress", ColorValue("#FFD6BE"),
-                    "error", ColorValue("#F1BBBC"),
                     ColorValue("#F1BBBC")
                 )
             RadiusBottomLeft: =05
@@ -249,6 +242,7 @@ FileManage As screen:
                     "indexed", "생성완료",
                     "in_progress", "생성중",
                     "error", "오류",
+                    "deleting", "삭제중",
                     "생성"
                 )
             Width: =120
@@ -400,13 +394,16 @@ FileManage As screen:
                         제목 : " ",
                         LV1_Category: ThisItem.Lv1, 
                         LV2_Category: ThisItem.Category,
-                        filename:ThisItem.File_Name
+                        filename: ThisItem.File_Name
                     }
                 );
                 
-                Remove(
+                Patch(
                     FileUpload_table,
-                    LookUp(FileUpload_table, ID = ThisItem.ID)
+                    LookUp(FileUpload_table, ID = ThisItem.ID),
+                    {
+                        Index_Status: "deleting"
+                    }
                 );
             PaddingBottom: =05
             PaddingLeft: =05
@@ -556,6 +553,32 @@ FileManage As screen:
         Y: =53
         ZIndex: =19
 
+    RefreshTimer_FM As timer:
+        AutoPause: =false
+        AutoStart: =true
+        BorderColor: =RGBA(105, 121, 126, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(244, 244, 244, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.View
+        Duration: =10000
+        Fill: =RGBA(105, 121, 126, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnTimerEnd: =Refresh(FileUpload_table);
+        OnTimerStart: =
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Repeat: =true
+        Visible: =false
+        X: =1258
+        Y: =35
+        ZIndex: =20
+
     Group_FileList_FM As group:
         Height: =5
         Width: =5
@@ -653,32 +676,6 @@ FileManage As screen:
             X: =1601
             Y: =154
             ZIndex: =9
-
-    RefreshTimer_FM As timer:
-        AutoPause: =false
-        AutoStart: =true
-        BorderColor: =RGBA(105, 121, 126, 1)
-        BorderStyle: =BorderStyle.None
-        DisabledBorderColor: =RGBA(244, 244, 244, 1)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =DisplayMode.View
-        Duration: =10000
-        Fill: =RGBA(105, 121, 126, 1)
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: =Refresh(FileUpload_table);
-        OnTimerStart: =
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Repeat: =true
-        Visible: =false
-        X: =1258
-        Y: =35
-        ZIndex: =20
 
     ModalDialog_FileUpload_FM As group:
         Height: =5
