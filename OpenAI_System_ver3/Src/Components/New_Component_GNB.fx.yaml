@@ -33,7 +33,7 @@ New_Component_GNB As CanvasComponent:
         Layout: =Layout.Vertical
         ShowScrollbar: =false
         TemplatePadding: =0
-        TemplateSize: =280
+        TemplateSize: =If(Gallery_GNBSub_GNB.Visible = true, Gallery_GNBSub_GNB.Height,280) + 64
         Width: =Parent.Width
         X: =0.00
         Y: =Separator_GNBMain_GNB.Y + Separator_GNBMain_GNB.Height
@@ -71,8 +71,14 @@ New_Component_GNB As CanvasComponent:
         Gallery_GNBSub_GNB As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(0, 18, 107, 1)
             Fill: =ColorValue(LV2BGColor1)
-            Height: |
-                =CountRows(
+            Height: |-
+                =CountRows(Gallery_GNBSub_GNB.AllItems) *64
+                
+                
+                
+                
+                /*
+                CountRows(
                     SortByColumns(
                     
                         Filter(
@@ -89,6 +95,7 @@ New_Component_GNB As CanvasComponent:
                         SortOrder.Ascending
                     )
                 ) * 64
+                */
             Items: |+
                 =SortByColumns(
                     Filter(
@@ -105,19 +112,21 @@ New_Component_GNB As CanvasComponent:
                 
             Layout: =Layout.Vertical
             ShowScrollbar: =false
-            TemplatePadding: =0
+            TemplatePadding: =
             TemplateSize: |+
-                =If(
+                =64
+                
+                /*
+                If(
                     Gallery_GNBSub_GNB.Visible=true,
                     CountRows(
                         Filter(
-                            GNB_MENU, LV1=CheckedLV1,
-                            !IsEmpty(Users) Or
-                            !IsEmpty(Teams)
+                            GNB_MENU, LV1=LV1Title,
+                            !IsEmpty(Users) || !IsEmpty(Teams)
                         )
                     ) *64
                 )
-                
+                */
                 
             Visible: |
                 =If(ThisItem.Result=LV1Title, true, false)
@@ -171,22 +180,38 @@ New_Component_GNB As CanvasComponent:
                     
                     If(Button_GNBSubMenuName_GNB.Visible = true && ThisItem.제목=Label_LV2_GNB.Text, FontWeight.Semibold,FontWeight.Normal)
                 Height: =64
-                OnSelect: |-
-                    =Set(SelectedMenu,ThisItem.제목);
+                OnSelect: |
+                    =Set(
+                        SelectedMenu,
+                        ThisItem.제목
+                    );
                     If(
-                        ThisItem.제목="메뉴관리", Navigate(EditMenu),
-                        ThisItem.제목="권한관리", Navigate(MAMenu),
-                        ThisItem.제목="질의/응답 로그",Navigate(QALog),
-                        ThisItem.제목="금칙어관리", Navigate(BadWordManage),
-                        ThisItem.제목="QA관리", Navigate(QALogEdit),
-                        ThisItem.제목="토큰관리", Navigate(TokenMenu),
-                        ThisItem.제목="파일관리", Navigate(FileManage),
-                        ThisItem.제목="검색옵션설정", Navigate(SearchOptions),
-                        ThisItem.제목="카테고리관리",Navigate(CategoryMenu),
-                        ThisItem.제목="제공 Contents",Navigate(DeliveredContent),
-                        ThisItem.제목="서비스 신청",Navigate(ServiceRequest),
-                        ThisItem.제목="서비스 관리",Navigate(ServiceManagement),
-                        ThisItem.제목="검색어 분석",Navigate(AIGraph),
+                        ThisItem.제목 = "메뉴관리",
+                        Navigate(EditMenu),
+                        ThisItem.제목 = "권한관리",
+                        Navigate(MAMenu),
+                        ThisItem.제목 = "질의/응답 로그",
+                        Navigate(QALog),
+                        ThisItem.제목 = "금칙어관리",
+                        Navigate(BadWordManage),
+                        ThisItem.제목 = "QA관리",
+                        Navigate(QALogEdit),
+                        ThisItem.제목 = "토큰관리",
+                        Navigate(TokenMenu),
+                        ThisItem.제목 = "파일관리",
+                        Navigate(FileManage),
+                        ThisItem.제목 = "검색옵션설정",
+                        Navigate(SearchOptions),
+                        ThisItem.제목 = "카테고리관리",
+                        Navigate(CategoryMenu),
+                        ThisItem.제목 = "제공 Contents",
+                        Navigate(DeliveredContent),
+                        ThisItem.제목 = "서비스 신청",
+                        Navigate(ServiceRequest),
+                        ThisItem.제목 = "서비스 관리",
+                        Navigate(ServiceManagement),
+                        ThisItem.제목 = "검색어 분석",
+                        Navigate(AIGraph),
                         Navigate(BiReport)
                     );
                 PaddingBottom: =10
