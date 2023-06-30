@@ -366,8 +366,19 @@ FileManage As screen:
                 )
                 */
             Image: =Delete
-            OnSelect: |-
-                =/*'똑실이-파일삭제'.Run(
+            OnSelect: |+
+                =
+                Concurrent(
+                Set(delPopUp_File,true);,
+                Set(LV1_Category,ThisItem.Lv1);,
+                Set(LV2_Category,ThisItem.Category);,
+                Set(filename,ThisItem.File_Name);,
+                Set(File_ID,ThisItem.ID);,
+                UpdateContext({DelModalVisible: true});
+                );
+                
+                
+                /*'똑실이-파일삭제'.Run(
                     // LV1Category
                     ThisItem.Lv1,
                     // LV2Category
@@ -388,24 +399,6 @@ FileManage As screen:
                 );
                 */
                 
-                Patch(
-                    Index_Remove,
-                    {
-                        Title : " ",
-                        LV1_Category: ThisItem.Lv1, 
-                        LV2_Category: ThisItem.Category,
-                        filename: ThisItem.File_Name,
-                        File_ID: ThisItem.ID
-                    }
-                );
-                
-                Patch(
-                    FileUpload_table,
-                    LookUp(FileUpload_table, ID = ThisItem.ID),
-                    {
-                        Index_Status: "deleting"
-                    }
-                );
             PaddingBottom: =05
             PaddingLeft: =05
             PaddingRight: =05
@@ -519,7 +512,7 @@ FileManage As screen:
         Height: =1080
         HoverFill: =
         PressedFill: =
-        Visible: =Or(ModalVisible, LogModalVisible)
+        Visible: =Or(ModalVisible, LogModalVisible, DelModalVisible)
         Width: =1919
         ZIndex: =11
 
@@ -677,6 +670,123 @@ FileManage As screen:
             X: =1601
             Y: =154
             ZIndex: =9
+
+    Group_DeleteQA_QALogEdit_1 As group:
+        Height: =5
+        Width: =5
+        X: =20
+        Y: =20
+        ZIndex: =25
+
+        Rectangle_DeleteQA_QALogEdit_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =396
+            Visible: =delPopUp_File
+            Width: =772
+            X: =656
+            Y: =272
+            ZIndex: =26
+
+        Button_OKDeleteQA_QALogEdit_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =Patch(
+                    Index_Remove,
+                    {
+                        Title : " ",
+                        LV1_Category: LV1_Category, 
+                        LV2_Category: LV2_Category,
+                        filename: filename,
+                        File_ID: File_ID
+                    }
+                );
+                
+                Patch(
+                    FileUpload_table,
+                    LookUp(FileUpload_table, ID = File_ID),
+                    {
+                        Index_Status: "deleting"
+                    }
+                );
+                
+                Set(delPopUp_File,false);
+                UpdateContext({DelModalVisible : false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="확인"
+            Visible: =delPopUp_File
+            X: =840
+            Y: =605
+            ZIndex: =27
+
+        Button_CancleDeleteQA_QALogEdit_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnSelect: |-
+                =Set(delPopUp_File,false);
+                UpdateContext({QALogEditVisible: false});
+                UpdateContext({DelModalVisible : false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: ="취소"
+            Visible: =delPopUp_File
+            X: =1083
+            Y: =605
+            ZIndex: =28
+
+        Label_DeleteQA_QALogEdit_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Height: =92
+            Size: =30
+            Text: ="삭제하시겠습니까?"
+            Visible: =delPopUp_File
+            Width: =391
+            X: =852
+            Y: =390
+            ZIndex: =29
 
     ModalDialog_FileUpload_FM As group:
         Height: =5
@@ -902,7 +1012,7 @@ FileManage As screen:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.Solid
                 DataField: ="{Attachments}"
-                Default: =ThisItem.Attachments
+                Default: =ThisItem.'첨부 파일'
                 DisplayMode: =Parent.DisplayMode
                 DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
                 Fill: =RGBA(0, 0, 0, 0)
