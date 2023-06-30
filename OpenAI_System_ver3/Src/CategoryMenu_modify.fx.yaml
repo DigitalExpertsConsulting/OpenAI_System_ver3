@@ -385,7 +385,7 @@ CategoryMenu_modify As screen:
         Gallery_Sub_CategoryMenu_mod_5 As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 70 + 10,0)
+            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
             Items: =SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
@@ -457,7 +457,7 @@ CategoryMenu_modify As screen:
                 BorderColor: =RGBA(179, 179, 179, 1)
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
-                Default: =ThisItem.Title
+                Default: =If(ThisItem.Title="" || ThisItem.Title=Blank(), "새 메뉴", ThisItem.Title)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 DisabledFill: =RGBA(244, 244, 244, 1)
@@ -468,7 +468,8 @@ CategoryMenu_modify As screen:
                 HoverColor: =RGBA(51, 51, 51, 1)
                 HoverFill: =RGBA(255, 255, 255, 1)
                 Mode: =TextMode.MultiLine
-                OnChange: =
+                OnChange: |-
+                    =Patch(CategoryTable, LookUp(CategoryTable, ID=ThisItem.ID), {Title:Self.Text});
                 OnSelect: =
                 PaddingLeft: =10
                 PaddingRight: =10
@@ -853,8 +854,24 @@ CategoryMenu_modify As screen:
             HoverBorderColor: =RGBA(15, 108, 189, 1)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =
-            OnSelect: |-
-                =Collect(CategoryTable, { OData__x004c_V1:ThisItem.Value});
+            OnSelect: |
+                =Collect(
+                    CategoryTable,
+                    {
+                        OData__x004c_V1: ThisItem.Value,
+                        ID: Last(CategoryTable).ID + 1,
+                        LV1Order: LookUp(
+                            CategoryTable,
+                            OData__x004c_V1 = ThisItem.Value
+                        ).LV1Order,
+                        LV2Order: Last(
+                            Filter(
+                                CategoryTable,
+                                OData__x004c_V1 = ThisItem.Value
+                            )
+                        ).LV2Order + 1
+                    }
+                );
             PressedBorderColor: =RGBA(15, 108, 189, 1)
             PressedColor: =RGBA(0, 0, 0, 1)
             PressedFill: =
