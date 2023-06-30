@@ -238,7 +238,12 @@ CategoryMenu_modify As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: ="0"  & " / " & CountRows(CategoryTable) 
+            Text: |-
+                =CountIf(CategoryTable,(IsEmpty(Users) || IsBlank(Users))&& (TeamName="" || TeamName=Blank()))
+                
+                
+                  & " / " & CountRows(CategoryTable) 
+                // && (TeamName="" || TeamName=Blank())
             Width: =132
             X: =34
             Y: =55
@@ -365,7 +370,7 @@ CategoryMenu_modify As screen:
             HoverBorderColor: =RGBA(224, 224, 224, 1)
             HoverFill: =
             Image: =Delete
-            OnSelect: =
+            OnSelect: =ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
             PaddingBottom: =05
             PaddingLeft: =05
             PaddingRight: =05
@@ -894,7 +899,7 @@ CategoryMenu_modify As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =PlusBlack
-            OnSelect: =
+            OnSelect: =Select(Button_newCategory_mod_5)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =Gallery_Sub_CategoryMenu_mod_5.Visible
