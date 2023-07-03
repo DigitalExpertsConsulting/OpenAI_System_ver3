@@ -13,7 +13,6 @@ CategoryMenu_modify As screen:
                 "LV2Order",
                 "Users",
                 "ID",
-                "Team_ID",
                 "History",
                 "TeamName"
             )
@@ -53,7 +52,23 @@ CategoryMenu_modify As screen:
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =If(
+            =ClearCollect(NewCollection,
+                ForAll(CategoryTable,
+                    {
+                        ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
+                        History: ThisRecord.History,
+                        LV1Order:ThisRecord.LV1Order,
+                        LV2Order:ThisRecord.LV2Order,
+                        OData__x004c_V1:ThisRecord.OData__x004c_V1,
+                        TeamName:ThisRecord.TeamName,
+                        Title:ThisRecord.Title,
+                        Users:ThisRecord.Users
+                    }
+                )
+            );
+            
+            //Filter(CategoryTable,Not(ID in Category_table.ID), Patch(CategoryTable, Defaults(CategoryTable), {ID:Blank()}));
+            If(
                 CountRows(
                     Filter(
                         CategoryTable,
@@ -72,7 +87,7 @@ CategoryMenu_modify As screen:
                 );
                 Patch(
                     Category_table,
-                    CategoryTable
+                    NewCollection
                 )
             )
             //Patch(Category_table,CategoryTable)
@@ -683,16 +698,6 @@ CategoryMenu_modify As screen:
                     =UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddPopUpID: ThisItem.ID});
                     ClearCollect(
-                        AddTeamCollect,
-                        Filter(
-                            Split(
-                                ThisItem.Team_ID,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    );
-                    ClearCollect(
                         AddTeamName,
                         Filter(
                             Split(
@@ -1074,7 +1079,6 @@ CategoryMenu_modify As screen:
             HoverFill: =RGBA(15, 108, 189, 1)
             OnSelect: |-
                 =UpdateContext({ AddPopUpID:Blank() });
-                Clear(AddTeamCollect);
                 Clear(AddTeamName);
                 UpdateContext({ AddTeamPopUpVi:false });
                 UpdateContext({ resetSearch:true });
