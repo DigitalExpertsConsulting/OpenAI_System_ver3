@@ -15,7 +15,7 @@ MAMenu_1 As screen:
         Set(AddTeamPopup, false);,
         
         Set(EditUserVisibleVal, false);,
-        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Team_ID"));,
+        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Team_ID","TeamName"));,
         Clear(NewPortalCollect);
         );
         
@@ -322,7 +322,7 @@ MAMenu_1 As screen:
                 FocusedBorderThickness: =4
                 Height: =32
                 OnSelect: =Select(Parent)
-                PaddingLeft: =24
+                PaddingLeft: =10
                 Size: =13
                 Text: |-
                     =//Concat(ThisItem.'Users (Users0)', DisplayName & " ( " & Email & " ) ", ",                                                  ")
@@ -420,128 +420,43 @@ MAMenu_1 As screen:
                 Height: =32
                 OnSelect: =Select(Parent)
                 Overflow: =Overflow.Scroll
-                PaddingLeft: =24
-                Size: =18
+                PaddingLeft: =10
+                Size: =13
                 Text: |-
                     =If(
+                        LookUp(NewMACollect,ID=ThisItem.ID).TeamName = "" || LookUp(NewMACollect,ID=ThisItem.ID).TeamName = Blank(),
+                        "팀을 할당해 주세요",
                         CountRows(
-                            LookUp(
-                                NewMACollect,
-                                Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
-                                    CheckedLV2
-                                ),
-                                Distinct(
-                                    Teams,
-                                    Department
-                                )
+                            Split(
+                                LookUp(
+                                    NewMACollect,
+                                    ID = ThisItem.ID
+                                ).TeamName,
+                                ","
                             )
                         ) > 1,
                         First(
-                            LookUp(
-                                NewMACollect,
-                                Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
-                                    CheckedLV2
-                                ),
-                                Teams
+                            Split(
+                                LookUp(
+                                    NewMACollect,
+                                    ID = ThisItem.ID
+                                ).TeamName,
+                                ","
                             )
-                        ).Department & " 외" & Int(
-                            CountRows(
+                        ).Value & " 외" & CountRows(
+                            Split(
                                 LookUp(
                                     NewMACollect,
-                                    Title = If(
-                                        CheckedLV2 <> ThisItem.제목,
-                                        ThisItem.제목,
-                                        CheckedLV2
-                                    ),
-                                    Distinct(
-                                        Teams,
-                                        Department
-                                    )
-                                )
+                                    ID = ThisItem.ID
+                                ).TeamName,
+                                ","
                             )
-                        ) - 1 & "개의 팀",
-                        If(
-                            CountRows(
-                                LookUp(
-                                    NewMACollect,
-                                    Title = If(
-                                        CheckedLV2 <> ThisItem.제목,
-                                        ThisItem.제목,
-                                        CheckedLV2
-                                    ),
-                                    Distinct(
-                                        Teams,
-                                        Department
-                                    )
-                                )
-                            ) = 0,
-                            "할당된 팀이 없습니다.",
-                            First(
-                                LookUp(
-                                    NewMACollect,
-                                    Title = If(
-                                        CheckedLV2 <> ThisItem.제목,
-                                        ThisItem.제목,
-                                        CheckedLV2
-                                    ),
-                                    Teams
-                                )
-                            ).Department
-                        )
+                        ) - 1 & " 팀",
+                        LookUp(
+                            NewMACollect,
+                            ID = ThisItem.ID
+                        ).TeamName
                     )
-                    /*
-                    If(
-                        CountRows(
-                            LookUp(
-                                NewMACollect,
-                                Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
-                                    CheckedLV2
-                                ),
-                                Distinct(Teams,Department)
-                            )
-                        ) > 1,
-                        First(
-                            LookUp(
-                                NewMACollect,
-                                Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
-                                    CheckedLV2
-                                ),
-                                Teams
-                            )
-                        ).Department & " 외" & Int(
-                            CountRows(
-                                LookUp(
-                                    NewMACollect,
-                                    Title = If(
-                                        CheckedLV2 <> ThisItem.제목,
-                                        ThisItem.제목,
-                                        CheckedLV2
-                                    ),
-                                    Distinct(Teams,Department)
-                                )
-                            )
-                        ) - 1 & "개의 팀",
-                        First(
-                            LookUp(
-                                NewMACollect,
-                                Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
-                                    CheckedLV2
-                                ),
-                                Teams
-                            )
-                        ).Department
-                    )
-                    */
                 Width: =430
                 X: =322
                 Y: =20
@@ -607,7 +522,22 @@ MAMenu_1 As screen:
                 HoverFill: |-
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeam
-                OnSelect: =
+                OnSelect: |-
+                    =UpdateContext({meunPopupVi:true});
+                    UpdateContext({menuSelected:ThisItem.ID});
+                    ClearCollect(
+                        AddTeamName_Menu,
+                        Filter(
+                            Split(
+                                LookUp(
+                                    NewMACollect,
+                                    ID = ThisItem.ID
+                                ).TeamName,
+                                ","
+                            ),
+                            Not(IsBlank(Value))
+                        )
+                    )
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -1555,7 +1485,7 @@ MAMenu_1 As screen:
             Visible: =false
             X: =640
             Y: =10
-            ZIndex: =45
+            ZIndex: =51
 
     Group_IncompleteSubMenuPopup_MAMenu_1 As group:
         Height: =5
@@ -1679,10 +1609,11 @@ MAMenu_1 As screen:
             FocusedBorderThickness: =4
             Height: =580
             OnSelect: =
+            Visible: =meunPopupVi
             Width: =490
             X: =850
             Y: =243
-            ZIndex: =46
+            ZIndex: =45
 
         Button_AddPopUP_CategoryMenu_mod_5 As button:
             AutoDisableOnSelect: =false
@@ -1699,40 +1630,24 @@ MAMenu_1 As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =RGBA(15, 108, 189, 1)
             OnSelect: |
-                =/*Patch(
-                    CategoryTable,
+                =Patch(
+                    NewMACollect,
                     LookUp(
-                        CategoryTable,
-                        ID = AddPopUpID
-                    ),
-                    {
-                        Team_ID: Concat(
-                            AddTeamCollect,
-                            Value,
-                            ","
-                        )
-                    }
-                );*/
-                Patch(
-                    CategoryTable,
-                    LookUp(
-                        CategoryTable,
-                        ID = AddPopUpID
+                        NewMACollect,
+                        ID = menuSelected
                     ),
                     {
                         TeamName: Concat(
-                            AddTeamName,
+                            AddTeamName_Menu,
                             Value,
                             ","
                         )
                     }
                 );
-                UpdateContext({AddPopUpID: Blank()});
-                //Clear(AddTeamCollect);
-                Clear(AddTeamName);
-                UpdateContext({AddTeamPopUpVi: false});
                 UpdateContext({resetSearch: true});
                 UpdateContext({resetSearch: false});
+                UpdateContext({meunPopupVi:false});
+                Clear(AddTeamName_Menu);
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =
@@ -1742,10 +1657,11 @@ MAMenu_1 As screen:
             RadiusTopRight: =0
             Size: =15
             Text: ="확인"
+            Visible: =meunPopupVi
             Width: =96
             X: =1114
             Y: =763
-            ZIndex: =47
+            ZIndex: =46
 
         Button_AddCancelPopUP_CategoryMenu_mod_5 As button:
             AutoDisableOnSelect: =false
@@ -1762,11 +1678,8 @@ MAMenu_1 As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =RGBA(15, 108, 189, 1)
             OnSelect: |-
-                =UpdateContext({ AddPopUpID:Blank() });
-                Clear(AddTeamName);
-                UpdateContext({ AddTeamPopUpVi:false });
-                UpdateContext({ resetSearch:true });
-                UpdateContext({ resetSearch:false });
+                =UpdateContext({meunPopupVi:false});
+                Clear(AddTeamName_Menu);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1776,10 +1689,11 @@ MAMenu_1 As screen:
             RadiusTopRight: =0
             Size: =15
             Text: ="취소"
+            Visible: =meunPopupVi
             Width: =96
             X: =1233
             Y: =763
-            ZIndex: =48
+            ZIndex: =47
 
         Gallery_Add_CategoryMenu_mod_5 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
@@ -1804,10 +1718,11 @@ MAMenu_1 As screen:
             ShowScrollbar: =false
             TemplatePadding: =0
             TemplateSize: =57
+            Visible: =meunPopupVi
             Width: =470
             X: =860
             Y: =288
-            ZIndex: =49
+            ZIndex: =48
 
             Button_AddDate_mod_5 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
@@ -1864,17 +1779,17 @@ MAMenu_1 As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: |-
                     =If(
-                        ThisItem.displayName in AddTeamName.Value,
+                        ThisItem.displayName in AddTeamName_Menu.Value,
                         Icon.Cancel,
                         Icon.Add
                     )
                 OnSelect: |-
                     =If(
-                        ThisItem.displayName in AddTeamName.Value,
+                        ThisItem.displayName in AddTeamName_Menu.Value,
                         Remove(
-                            AddTeamName,
+                            AddTeamName_Menu,
                             LookUp(
-                                AddTeamName,
+                                AddTeamName_Menu,
                                 Value = ThisItem.displayName
                             );
                         );
@@ -1884,7 +1799,7 @@ MAMenu_1 As screen:
                             800
                         ),
                         Collect(
-                            AddTeamName,
+                            AddTeamName_Menu,
                             {
                                 Value: ThisItem.displayName
                             }
@@ -1895,24 +1810,6 @@ MAMenu_1 As screen:
                             800
                         )
                     );
-                    /*
-                    If(
-                        ThisItem.id in AddTeamCollect.Value,
-                        Remove(
-                            AddTeamCollect,
-                            LookUp(
-                                AddTeamCollect,
-                                Value = ThisItem.id
-                            );
-                        ),
-                        Collect(
-                            AddTeamCollect,
-                            {
-                                Value: ThisItem.id
-                            }
-                        );
-                    );
-                    */
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -1933,10 +1830,11 @@ MAMenu_1 As screen:
             RadiusTopLeft: =0
             RadiusTopRight: =0
             Reset: =resetSearch
+            Visible: =meunPopupVi
             Width: =470
             X: =860
             Y: =253
-            ZIndex: =50
+            ZIndex: =49
 
         Icon_AddSearch_CategoryMenu_mod_5 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1954,10 +1852,26 @@ MAMenu_1 As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =meunPopupVi
             Width: =Self.Height
             X: =876
             Y: =258
-            ZIndex: =51
+            ZIndex: =50
+
+    Label9 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =menuSelected
+        X: =1429
+        Y: =176
+        ZIndex: =52
 
     Group_AddTeam_MAMenu_1 As group:
         Height: =5
@@ -2336,19 +2250,19 @@ MAMenu_1 As screen:
             ZIndex: =15
 
             Rectangle_AddTeam_MAMenu_1 As rectangle:
-                BorderColor: =Title_AddTeamName_MAMenu_1.Color
+                BorderColor: =Title_AddTeamName_Menu_MAMenu_1.Color
                 BorderThickness: =//If(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName, 2, 0)
                 DisabledFill: =RGBA(166, 166, 166, 1)
                 Fill: =RGBA(0,0,0,0)
                 Height: =Parent.TemplateHeight - 2*Self.Y
                 HoverFill: =RGBA(0,0,0,0)
-                OnSelect: =Select(Title_AddTeamName_MAMenu_1)
+                OnSelect: =Select(Title_AddTeamName_Menu_MAMenu_1)
                 PressedFill: =RGBA(105, 121, 126, 1)
                 Width: =444
                 Y: =1
                 ZIndex: =1
 
-            Title_AddTeamName_MAMenu_1 As label:
+            Title_AddTeamName_Menu_MAMenu_1 As label:
                 BorderColor: =Self.Color
                 Color: =RGBA(51, 51, 51, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -2479,7 +2393,7 @@ MAMenu_1 As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Add
-                OnSelect: =Select(Title_AddTeamName_MAMenu_1)
+                OnSelect: =Select(Title_AddTeamName_Menu_MAMenu_1)
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
