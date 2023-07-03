@@ -13,7 +13,6 @@ CategoryMenu_modify As screen:
                 "LV2Order",
                 "Users",
                 "ID",
-                "Team_ID",
                 "History",
                 "TeamName"
             )
@@ -53,9 +52,44 @@ CategoryMenu_modify As screen:
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =If(CountRows(Filter(CategoryTable, Title="" || Title=Blank())) > 0,
-            Notify("이름을 지정하지 않은 하위 메뉴가 있습니다.",NotificationType.Error,800),
-            Notify("저장하였습니다.",NotificationType.Success,800))
+            =ClearCollect(NewCollection,
+                ForAll(CategoryTable,
+                    {
+                        ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
+                        History: ThisRecord.History,
+                        LV1Order:ThisRecord.LV1Order,
+                        LV2Order:ThisRecord.LV2Order,
+                        OData__x004c_V1:ThisRecord.OData__x004c_V1,
+                        TeamName:ThisRecord.TeamName,
+                        Title:ThisRecord.Title,
+                        Users:ThisRecord.Users
+                    }
+                )
+            );
+            
+            //Filter(CategoryTable,Not(ID in Category_table.ID), Patch(CategoryTable, Defaults(CategoryTable), {ID:Blank()}));
+            If(
+                CountRows(
+                    Filter(
+                        CategoryTable,
+                        Title = "" || Title = Blank()
+                    )
+                ) > 0,
+                Notify(
+                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
+                    NotificationType.Error,
+                    800
+                ),
+                Notify(
+                    "저장하였습니다.",
+                    NotificationType.Success,
+                    800
+                );
+                Patch(
+                    Category_table,
+                    NewCollection
+                )
+            )
             //Patch(Category_table,CategoryTable)
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -593,7 +627,7 @@ CategoryMenu_modify As screen:
                                 ","
                             )
                         ) > 1,
-                        LookUp(groupList,First(Split(ThisItem.TeamName,",")).Value in Name).Name
+                        First(Split(ThisItem.TeamName,",")).Value
                          & " 외" & CountRows(
                             Split(
                                 ThisItem.TeamName,
@@ -663,16 +697,6 @@ CategoryMenu_modify As screen:
                 OnSelect: |-
                     =UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddPopUpID: ThisItem.ID});
-                    ClearCollect(
-                        AddTeamCollect,
-                        Filter(
-                            Split(
-                                ThisItem.Team_ID,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    );
                     ClearCollect(
                         AddTeamName,
                         Filter(
@@ -1055,7 +1079,6 @@ CategoryMenu_modify As screen:
             HoverFill: =RGBA(15, 108, 189, 1)
             OnSelect: |-
                 =UpdateContext({ AddPopUpID:Blank() });
-                Clear(AddTeamCollect);
                 Clear(AddTeamName);
                 UpdateContext({ AddTeamPopUpVi:false });
                 UpdateContext({ resetSearch:true });
@@ -1141,7 +1164,7 @@ CategoryMenu_modify As screen:
                 OnSelect: =
                 PaddingLeft: =10
                 Size: =13
-                Text: =ThisItem.displayName
+                Text: =ThisItem.displayName & " (" & ThisItem.mail & ")"
                 Width: =413
                 Y: =5
                 ZIndex: =3
@@ -1173,13 +1196,6 @@ CategoryMenu_modify As screen:
                                 Value = ThisItem.displayName
                             );
                         );
-                        Remove(
-                            groupList,
-                            LookUp(
-                                groupList,
-                                ID = ThisItem.id
-                            );
-                        );
                         Notify(
                             "팀 제거 완료.",
                             NotificationType.Success,
@@ -1191,7 +1207,6 @@ CategoryMenu_modify As screen:
                                 Value: ThisItem.displayName
                             }
                         );
-                        Collect(groupList, { ID:ThisItem.id, Name:ThisItem.displayName, cateRow:AddPopUpID});
                         Notify(
                             "팀 추가 완료.",
                             NotificationType.Success,
