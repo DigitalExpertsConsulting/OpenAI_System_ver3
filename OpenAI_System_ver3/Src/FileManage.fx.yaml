@@ -366,28 +366,49 @@ FileManage As screen:
                 )
                 */
             Image: =Delete
-            OnSelect: |+
-                =
-                Concurrent(
-                Set(delPopUp_File,true);,
-                Set(LV1_Category,ThisItem.Lv1);,
-                Set(LV2_Category,ThisItem.Category);,
-                Set(filename,ThisItem.File_Name);,
-                Set(File_ID,ThisItem.ID);,
-                UpdateContext({DelModalVisible: true});
+            OnSelect: |
+                =Concurrent(
+                    Set(
+                        delPopUp_File,
+                        true
+                    );
+                    ,
+                    Set(
+                        LV1_Category,
+                        ThisItem.Lv1
+                    );
+                    ,
+                    Set(
+                        LV2_Category,
+                        ThisItem.Category
+                    );
+                    ,
+                    Set(
+                        filename,
+                        ThisItem.File_Name
+                    );
+                    ,
+                    Set(
+                        File_ID,
+                        ThisItem.ID
+                    );
+                    ,
+                    UpdateContext({DelModalVisible: true});
+                    
                 );
-                
-                
-                /*'똑실이-파일삭제'.Run(
+                /*
+                If(LookUp(
+                            Category_table,
+                            LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value && Title = Dropdown_LV2Category_FileUpload_FM.Selected.Value
+                        ).FileCount > 0,
+                '똑실이-파일삭제'.Run(
                     // LV1Category
                     ThisItem.Lv1,
                     // LV2Category
                     ThisItem.Category,
                     // FileName
                     ThisItem.File_Name
-                );*/
-                
-                
+                ));*/
                 /*
                 '[TEST]똑실이-파일삭제'.Run(
                     // LV1Category
@@ -398,7 +419,6 @@ FileManage As screen:
                     ThisItem.File_Name
                 );
                 */
-                
             PaddingBottom: =05
             PaddingLeft: =05
             PaddingRight: =05
@@ -1042,7 +1062,7 @@ FileManage As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            OnSelect: |-
+            OnSelect: |
                 ='똑실이-파일업로드'.Run(
                     // LV1_Category
                     Dropdown_LV1Category_FileUpload_FM.Selected.Value,
@@ -1059,16 +1079,39 @@ FileManage As screen:
                 Patch(
                     FileUpload_table,
                     {
-                        제목: Concatenate(Dropdown_LV2Category_FileUpload_FM.Selected.Value, "-", First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name),
+                        제목: Concatenate(
+                            Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                            "-",
+                            First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
+                        ),
                         ' Upload_Date': Now(),
-                        Lv1:Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                        Lv1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                         Category: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
                         File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                        File_Type: Upper(Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")).Value),
+                        File_Type: Upper(
+                            Last(
+                                Split(
+                                    First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                    "."
+                                )
+                            ).Value
+                        ),
                         Index_Status: "not_indexed"
                     }
                 );
-                
+                Patch(
+                    Category_table,
+                    LookUp(
+                        Category_table,
+                        LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value
+                    ),
+                    {
+                        FileCount: LookUp(
+                            Category_table,
+                            LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value && Title = Dropdown_LV2Category_FileUpload_FM.Selected.Value
+                        ).FileCount + 1
+                    }
+                );
                 ResetForm(Form_FileUpload_FM);
                 UpdateContext({ModalVisible: false});
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
