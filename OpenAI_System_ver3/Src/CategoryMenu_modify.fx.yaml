@@ -52,7 +52,7 @@ CategoryMenu_modify As screen:
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =ClearCollect(NewCollection,
+            =ClearCollect(CategoryTable_Update,
                 ForAll(CategoryTable,
                     {
                         ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
@@ -87,9 +87,24 @@ CategoryMenu_modify As screen:
                 );
                 Patch(
                     Category_table,
-                    NewCollection
+                    CategoryTable_Update
                 )
-            )
+            );
+            
+            ClearCollect(
+                CategoryTable,
+                ShowColumns(
+                    Category_table,
+                    "Title",
+                    "OData__x004c_V1",
+                    "LV1Order",
+                    "LV2Order",
+                    "Users",
+                    "ID",
+                    "History",
+                    "TeamName"
+                )
+            );
             //Patch(Category_table,CategoryTable)
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
