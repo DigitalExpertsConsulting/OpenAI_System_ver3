@@ -80,15 +80,15 @@ CategoryMenu_modify As screen:
                     NotificationType.Error,
                     800
                 ),
+                Patch(
+                    Category_table,
+                    CategoryTable_Update
+                );
                 Notify(
                     "저장하였습니다.",
                     NotificationType.Success,
                     800
                 );
-                Patch(
-                    Category_table,
-                    CategoryTable_Update
-                )
             );
             
             ClearCollect(
@@ -366,6 +366,9 @@ CategoryMenu_modify As screen:
         Items: =Distinct(CategoryTable,OData__x004c_V1)
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
+        OnSelect: |-
+            =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+            //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
         ShowScrollbar: =false
         TemplatePadding: =0
         TemplateSize: =280
@@ -400,10 +403,7 @@ CategoryMenu_modify As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =Icon_galleryOn
-            ImageRotation: |-
-                =If(ThisItem.IsSelected,ImageRotation.None,
-                
-                ImageRotation.Rotate180)
+            ImageRotation: =If(ThisItem.Value=testV,ImageRotation.None,ImageRotation.Rotate180)
             OnSelect: =
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -454,7 +454,7 @@ CategoryMenu_modify As screen:
             OnSelect: =
             ShowScrollbar: =false
             TemplateSize: =80
-            Visible: =Or(ThisItem.IsSelected,false)
+            Visible: =If(ThisItem.Value=testV,true,false)
             Width: =1490
             Y: =If(ThisItem.IsSelected, 63,0)
             ZIndex: =4
@@ -936,7 +936,9 @@ CategoryMenu_modify As screen:
             PressedFill: =
             Size: =15
             Text: ="새 카테고리 추가"
-            Visible: =Or(ThisItem.IsSelected,false)
+            Visible: |-
+                =//Or(ThisItem.IsSelected,false)
+                If(ThisItem.Value=testV,true,false)
             Width: =1420
             X: =45
             Y: =If(ThisItem.IsSelected,Gallery_Sub_CategoryMenu_mod_5.Y + Gallery_Sub_CategoryMenu_mod_5.Height + 10, 0)
@@ -991,7 +993,7 @@ CategoryMenu_modify As screen:
             HoverFill: =RGBA(255, 255, 255, 1)
             OnChange: |-
                 =ForAll(Sequence(CountRows(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, OData__x004c_V1=ThisItem.Value), {OData__x004c_V1:Self.Text}));
-            OnSelect: =Select(Parent)
+            OnSelect: =
             PressedBorderColor: =RGBA(105, 121, 126, 1)
             PressedColor: =RGBA(51, 51, 51, 1)
             PressedFill: =RGBA(255, 255, 255, 1)
@@ -2168,6 +2170,33 @@ CategoryMenu_modify As screen:
             X: =1447
             Y: =523
             ZIndex: =49
+
+    TextInput2 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: ="텍스트 입력"
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        OnSelect: |-
+            =UpdateContext({testV:Self.Text})
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        X: =1222
+        Y: =84
+        ZIndex: =52
 
     Group_Add_CategoryMenu_mod As group:
         Height: =5
