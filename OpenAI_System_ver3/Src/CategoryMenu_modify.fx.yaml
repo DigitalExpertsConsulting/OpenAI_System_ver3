@@ -53,9 +53,28 @@ CategoryMenu_modify As screen:
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =If(CountRows(Filter(CategoryTable, Title="" || Title=Blank())) > 0,
-            Notify("이름을 지정하지 않은 하위 메뉴가 있습니다.",NotificationType.Error,800),
-            Notify("저장하였습니다.",NotificationType.Success,800))
+            =If(
+                CountRows(
+                    Filter(
+                        CategoryTable,
+                        Title = "" || Title = Blank()
+                    )
+                ) > 0,
+                Notify(
+                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
+                    NotificationType.Error,
+                    800
+                ),
+                Notify(
+                    "저장하였습니다.",
+                    NotificationType.Success,
+                    800
+                );
+                Patch(
+                    Category_table,
+                    CategoryTable
+                )
+            )
             //Patch(Category_table,CategoryTable)
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -1141,7 +1160,7 @@ CategoryMenu_modify As screen:
                 OnSelect: =
                 PaddingLeft: =10
                 Size: =13
-                Text: =ThisItem.displayName
+                Text: =ThisItem.displayName & " (" & ThisItem.mail & ")"
                 Width: =413
                 Y: =5
                 ZIndex: =3
