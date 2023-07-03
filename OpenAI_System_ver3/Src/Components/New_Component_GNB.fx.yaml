@@ -39,6 +39,37 @@ New_Component_GNB As CanvasComponent:
         Y: =Separator_GNBMain_GNB.Y + Separator_GNBMain_GNB.Height
         ZIndex: =1
 
+        Button_GNBMain_GNB_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =ColorValue(LV1Selected1)
+            DisplayMode: =DisplayMode.Disabled
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =44
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =010
+            RadiusBottomRight: =010
+            RadiusTopLeft: =010
+            RadiusTopRight: =010
+            Size: =15
+            Text: =""
+            Visible: |-
+                =If(ThisItem.Result = QATest, true, If( ThisItem.Result = ServiceTest, true,
+                If( ThisItem.Result = ContentsTest,true,false)))
+            Width: =283
+            X: =12
+            Y: =10
+            ZIndex: =1
+
         Button_GNBMain_GNB As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -66,7 +97,7 @@ New_Component_GNB As CanvasComponent:
             Width: =283
             X: =12
             Y: =10
-            ZIndex: =1
+            ZIndex: =2
 
         Gallery_GNBSub_GNB As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -109,7 +140,7 @@ New_Component_GNB As CanvasComponent:
                 =If(ThisItem.Result=LV1Title, true, false)
             Width: =300
             Y: =Label_MainMenuName_GNB.Height
-            ZIndex: =2
+            ZIndex: =3
 
             Button_GNBSubMenuName_GNB As button:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -243,7 +274,7 @@ New_Component_GNB As CanvasComponent:
                 =//Separator_SignatureColor_GNB.Visible
                 false
             Width: =300
-            ZIndex: =3
+            ZIndex: =4
 
         Image_MainMenuUp_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -275,20 +306,45 @@ New_Component_GNB As CanvasComponent:
             Width: =20
             X: =260
             Y: =20
-            ZIndex: =4
+            ZIndex: =5
 
         Label_MainMenuName_GNB As label:
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: |-
-                =//ColorValue(FontColor1)
+                =If(Button_GNBMain_GNB.Visible = true, ColorValue("#0F6CBD"),
+                If(Button_GNBMain_GNB_1.Visible = true,ColorValue("#0F6CBD"), ColorValue(FontColor1))
+                )
+                //ColorValue(FontColor1)
                 
-                If(Button_GNBMain_GNB.Visible = true, ColorValue("#0F6CBD"),ColorValue(FontColor1))
+                //If(Button_GNBMain_GNB.Visible = true, ColorValue("#0F6CBD"),ColorValue(FontColor1))
             DisabledColor: =RGBA(166, 166, 166, 1)
             Font: =gnbFont1
             FontWeight: =FontWeight.Bold
             Height: =64
             OnSelect: |-
-                =If(
+                =
+                If(ThisItem.Result = "Contents", Set(ContentsTest,ThisItem.Result) && Set(ServiceTest,"")&& Set(QATest,"") && Navigate(DeliveredContent) && Set(SelectedMenu,"")
+                && Set(LV1Title , ""),
+                If(ThisItem.Result = "서비스 신청", Set(ServiceTest,ThisItem.Result) && Set(ContentsTest,"") && Set(QATest,"")&& Navigate(ServiceRequest) && Set(SelectedMenu,"")
+                && Set(LV1Title , ""),
+                If(ThisItem.Result = "질의/응답", Set(QATest,ThisItem.Result) && Set(ContentsTest,"") && Set(ServiceTest, "") && Navigate(QALog) && Set(SelectedMenu,"")
+                && Set(LV1Title , ""),
+                If(
+                    LV1Title <> ThisItem.Result,
+                    Set(
+                        LV1Title,
+                        ThisItem.Result
+                    )&& Set(ServiceTest,"") && Set(ContentsTest,"") && Set(QATest,""),
+                    Set(
+                        LV1Title,
+                        ""
+                    ) && Set(ServiceTest,"") && Set(ContentsTest,"") && Set(QATest,"")
+                );
+                
+                )
+                ))
+                /*
+                If(
                     LV1Title <> ThisItem.Result,
                     Set(
                         LV1Title,
@@ -299,7 +355,7 @@ New_Component_GNB As CanvasComponent:
                         ""
                     )
                 );
-                
+                */
                 /*
                 If(ThisItem.Result = "Contents",Navigate(DeliveredContent),
                 If(
@@ -365,7 +421,7 @@ New_Component_GNB As CanvasComponent:
                 )
             Width: =206
             X: =54
-            ZIndex: =5
+            ZIndex: =6
 
         Icon_GNBMain_GNB As icon.Airplane:
             BorderStyle: =BorderStyle.None
@@ -386,7 +442,7 @@ New_Component_GNB As CanvasComponent:
             Width: =Self.Height
             Y: |
                 =0
-            ZIndex: =6
+            ZIndex: =7
 
         Separator_SignatureColor_GNB As rectangle:
             BorderColor: =RGBA(255, 255, 255, 1)
@@ -394,7 +450,7 @@ New_Component_GNB As CanvasComponent:
             Height: =Label_MainMenuName_GNB.Height
             Visible: =If(ThisItem.Result=Label_LV1_GNB.Text && Label_MainMenuName_GNB.Visible, true, false)
             Width: =8
-            ZIndex: =7
+            ZIndex: =8
 
         Circle_GNBMain_GNB As circle:
             BorderColor: |-
@@ -413,7 +469,7 @@ New_Component_GNB As CanvasComponent:
             Width: =Icon_GNBMain_GNB.Width-52
             X: =Icon_GNBMain_GNB.X + (Icon_GNBMain_GNB.Width - Self.Width)/2
             Y: =Icon_GNBMain_GNB.Y + (Icon_GNBMain_GNB.Height - Self.Height)/2
-            ZIndex: =8
+            ZIndex: =9
 
         Image_GNBMain_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -435,7 +491,7 @@ New_Component_GNB As CanvasComponent:
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =9
+            ZIndex: =10
 
         Image_QAMenu_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -451,11 +507,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "질의/응답" && Button_GNBMain_GNB.Visible= false
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "질의/응답" && Button_GNBMain_GNB.Visible= false
+                !Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "질의/응답"
             Width: =35
             X: =Image_GNBMain_GNB.X
             Y: =Image_GNBMain_GNB.Y
-            ZIndex: =10
+            ZIndex: =11
 
         Image_BIReport_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -475,7 +533,7 @@ New_Component_GNB As CanvasComponent:
             Width: =35
             X: =Image_GNBMain_GNB.X
             Y: =Image_GNBMain_GNB.Y
-            ZIndex: =11
+            ZIndex: =12
 
         Image_ServiceRequest_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -491,11 +549,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "서비스 신청" && Button_GNBMain_GNB.Visible= false
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "서비스 신청" && Button_GNBMain_GNB.Visible= false
+                !Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "서비스 신청"
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =12
+            ZIndex: =13
 
         Image_Contents_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -511,11 +571,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "Contents" && Button_GNBMain_GNB.Visible= false
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "Contents" && Button_GNBMain_GNB.Visible= false
+                !Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "Contents"
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =13
+            ZIndex: =14
 
         Image_SelectedAdmin_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -537,7 +599,7 @@ New_Component_GNB As CanvasComponent:
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =14
+            ZIndex: =15
 
         Image_SelectedBIReport_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -557,7 +619,7 @@ New_Component_GNB As CanvasComponent:
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =15
+            ZIndex: =16
 
         Image_SelectedQAMenu_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -573,11 +635,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "질의/응답" && Button_GNBMain_GNB.Visible= true
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "질의/응답" && Button_GNBMain_GNB.Visible= true
+                Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "질의/응답"
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =16
+            ZIndex: =17
 
         Image_SelectedServiceRequest_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -593,11 +657,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "서비스 신청" && Button_GNBMain_GNB.Visible= true
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "서비스 신청" && Button_GNBMain_GNB.Visible= true
+                Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "서비스 신청"
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =17
+            ZIndex: =18
 
         Image_SelectedContents_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -613,11 +679,13 @@ New_Component_GNB As CanvasComponent:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "Contents" && Button_GNBMain_GNB.Visible= true
+            Visible: |-
+                =//!Image_GNBMain_GNB.Visible && Label_MainMenuName_GNB.Visible && Label_MainMenuName_GNB.Text = "Contents" && Button_GNBMain_GNB.Visible= true
+                Button_GNBMain_GNB_1.Visible && Label_MainMenuName_GNB.Text= "Contents"
             Width: =35
             X: =12
             Y: =12
-            ZIndex: =18
+            ZIndex: =19
 
         Image_MainMenuDown_GNB As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -644,11 +712,14 @@ New_Component_GNB As CanvasComponent:
                 );
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =!Button_GNBMain_GNB.Visible
+            Visible: |-
+                =If(Label_MainMenuName_GNB.Text= "Contents",false,If(Label_MainMenuName_GNB.Text = "질의/응답",false,If(Label_MainMenuName_GNB.Text="서비스 신청",
+                false,true)))
+                //!Button_GNBMain_GNB.Visible
             Width: =20
             X: =260
             Y: =20
-            ZIndex: =19
+            ZIndex: =20
 
     Label_LV2_GNB As label:
         BorderColor: =RGBA(255, 255, 255, 1)
