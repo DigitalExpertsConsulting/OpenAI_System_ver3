@@ -2,7 +2,7 @@ CategoryMenu_modify As screen:
     BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |+
+    OnVisible: |
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -22,10 +22,11 @@ CategoryMenu_modify As screen:
                 "Users",
                 "ID",
                 "History",
-                "TeamName"
+                "TeamName",
+                "Department"
             )
         );
-        
+        Clear(delCate);
 
     Label_CategoryMenuTitle_CategoryMenu_mod As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -70,7 +71,8 @@ CategoryMenu_modify As screen:
                         OData__x004c_V1:ThisRecord.OData__x004c_V1,
                         TeamName:ThisRecord.TeamName,
                         Title:ThisRecord.Title,
-                        Users:ThisRecord.Users
+                        Users:ThisRecord.Users,
+                        Department:ThisRecord.Department
                     }
                 )
             );
@@ -111,7 +113,8 @@ CategoryMenu_modify As screen:
                     "Users",
                     "ID",
                     "History",
-                    "TeamName"
+                    "TeamName",
+                    "Department"
                 )
             );
             //Patch(Category_table,CategoryTable)
@@ -631,7 +634,12 @@ CategoryMenu_modify As screen:
                 PaddingLeft: =10
                 Size: =13
                 Text: |-
-                    =If(
+                    =If(CountRows(ThisItem.Department) = 0 || IsBlank(ThisItem.Department),
+                    "인원을 할당해 주세요", CountRows(ThisItem.Department) > 1,
+                    First(ThisItem.Department).DisplayName & " 외" & CountRows(ThisItem.Department)-1 & " 명",
+                    First(ThisItem.Department).DisplayName)
+                    
+                    /*If(
                         ThisItem.TeamName = "" || ThisItem.TeamName = Blank(),
                         "팀을 할당해 주세요",
                         CountRows(
@@ -648,7 +656,7 @@ CategoryMenu_modify As screen:
                             )
                         ) - 1 & " 팀",
                         ThisItem.TeamName
-                    )
+                    )*/
                 Width: =430
                 X: =322
                 Y: =20
@@ -670,16 +678,7 @@ CategoryMenu_modify As screen:
                 OnSelect: |-
                     =UpdateContext({AddPopUpID: ThisItem.ID});
                     Set(AddPopUpBackground,true);
-                    ClearCollect(
-                        AddTeamName,
-                        Filter(
-                            Split(
-                                ThisItem.TeamName,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    );
+                    ClearCollect(viewTeamName, ThisItem.Department);
                     UpdateContext({ lookTeamVi:true })
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
@@ -712,16 +711,7 @@ CategoryMenu_modify As screen:
                     =Set(AddPopUpBackground,true);
                     UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddPopUpID: ThisItem.ID});
-                    ClearCollect(
-                        AddTeamName,
-                        Filter(
-                            Split(
-                                ThisItem.TeamName,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    )
+                    ClearCollect(AddTeamName,LookUp(CategoryTable, ID= ThisItem.ID).Department);
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -1354,32 +1344,14 @@ CategoryMenu_modify As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =/*Patch(
+                =Patch(
                     CategoryTable,
                     LookUp(
                         CategoryTable,
                         ID = AddPopUpID
                     ),
                     {
-                        Team_ID: Concat(
-                            AddTeamCollect,
-                            Value,
-                            ","
-                        )
-                    }
-                );*/
-                Patch(
-                    CategoryTable,
-                    LookUp(
-                        CategoryTable,
-                        ID = AddPopUpID
-                    ),
-                    {
-                        TeamName: Concat(
-                            AddTeamName,
-                            Value,
-                            ","
-                        )
+                        Department:AddTeamName
                     }
                 );
                 UpdateContext({AddPopUpID: Blank()});
@@ -1529,18 +1501,18 @@ CategoryMenu_modify As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: |-
                     =If(
-                        ThisItem.displayName in AddTeamName.Value,
+                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in AddTeamName.Claims,
                         Icon.Cancel,
                         Icon.Add
                     )
                 OnSelect: |-
                     =If(
-                        ThisItem.displayName in AddTeamName.Value,
+                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in AddTeamName.Claims,
                         Remove(
                             AddTeamName,
                             LookUp(
                                 AddTeamName,
-                                Value = ThisItem.displayName
+                                Claims = "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id
                             );
                         );
                         Notify(
@@ -1551,7 +1523,12 @@ CategoryMenu_modify As screen:
                         Collect(
                             AddTeamName,
                             {
-                                Value: ThisItem.displayName
+                                Claims: "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id,
+                                Department:"",
+                                DisplayName: ThisItem.displayName,
+                                Email:ThisItem.mail,
+                                JobTitle:"",
+                                Picture:Blank()
                             }
                         );
                         Notify(
@@ -1560,24 +1537,6 @@ CategoryMenu_modify As screen:
                             800
                         )
                     );
-                    /*
-                    If(
-                        ThisItem.id in AddTeamCollect.Value,
-                        Remove(
-                            AddTeamCollect,
-                            LookUp(
-                                AddTeamCollect,
-                                Value = ThisItem.id
-                            );
-                        ),
-                        Collect(
-                            AddTeamCollect,
-                            {
-                                Value: ThisItem.id
-                            }
-                        );
-                    );
-                    */
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -1674,11 +1633,7 @@ CategoryMenu_modify As screen:
                         ID = AddPopUpID
                     ),
                     {
-                        TeamName: Concat(
-                            AddTeamName,
-                            Value,
-                            ","
-                        )
+                        Department:viewTeamName
                     }
                 );
                 UpdateContext({lookTeamVi:false});
@@ -1748,7 +1703,7 @@ CategoryMenu_modify As screen:
             BorderThickness: =1
             Fill: =RGBA(224, 224, 224, 1)
             Height: =462
-            Items: =Search(AddTeamName,TextInput_Add_CategoryMenu_mod_2.Text,"Value")
+            Items: =Search(viewTeamName,TextInput_Add_CategoryMenu_mod_2.Text,"DisplayName")
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -1797,7 +1752,7 @@ CategoryMenu_modify As screen:
                 OnSelect: =
                 PaddingLeft: =10
                 Size: =13
-                Text: =ThisItem.Value
+                Text: =ThisItem.DisplayName
                 Width: =413
                 Y: =5
                 ZIndex: =3
@@ -1814,7 +1769,7 @@ CategoryMenu_modify As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
-                OnSelect: =Remove(AddTeamName,ThisItem);
+                OnSelect: =Remove(viewTeamName,ThisItem);
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
