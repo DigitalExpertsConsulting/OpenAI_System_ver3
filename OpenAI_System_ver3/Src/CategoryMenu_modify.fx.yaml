@@ -92,13 +92,14 @@ CategoryMenu_modify As screen:
                     Category_table,
                     CategoryTable_Update
                 );
+                RemoveIf(Category_table, ID in delCate.ID);
                 Notify(
                     "저장하였습니다.",
                     NotificationType.Success,
                     800
                 );
             );
-            
+            Clear(delCate);
             ClearCollect(
                 CategoryTable,
                 ShowColumns(
@@ -2265,6 +2266,7 @@ CategoryMenu_modify As screen:
             OnSelect: |
                 =If(
                     delType = "Main",
+                    Collect(delCate, Filter(CategoryTable, OData__x004c_V1=delMainCate));
                     ForAll(
                         Sequence(
                             CountRows(
@@ -2282,6 +2284,7 @@ CategoryMenu_modify As screen:
                             )
                         )
                     ),
+                    Collect(delCate, LookUp(CategoryTable, ID=AddPopUpID));
                     RemoveIf(
                         CategoryTable,
                         ID = AddPopUpID
