@@ -4,7 +4,14 @@ MAMenu_1 As screen:
     Height: =
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
-        =UpdateContext({testHight:CountRows(
+        =Concurrent(
+        Set(SubMenuPopup,false);,
+        UpdateContext({menuPopupVi:false});,
+        UpdateContext({menuTeamPopupVi:false});
+        );
+        
+        
+        UpdateContext({testHight:CountRows(
             ForAll(Distinct(SortByColumns(Filter(GNB_MENU, LV1<>Blank()), "LV1Order", SortOrder.Ascending), LV1), {Result: ThisRecord.Value})
         ) * 80});
         
@@ -218,6 +225,7 @@ MAMenu_1 As screen:
 
             Button_SubGalleryBody_CategoryMenu_mod_6 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(224, 224, 224, 1))
+                BorderThickness: =1
                 DisabledBorderColor: |-
                     =ColorValue("#D1D1D1")
                 DisabledColor: |-
@@ -225,7 +233,8 @@ MAMenu_1 As screen:
                 DisabledFill: |-
                     =ColorValue("#FFFFFF")
                 Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+                FocusedBorderColor: =RGBA(15, 108, 189, 1)
+                FocusedBorderThickness: =2
                 Font: =Font.'Segoe UI'
                 FontWeight: =FontWeight.Semibold
                 Height: =64
@@ -1114,6 +1123,73 @@ MAMenu_1 As screen:
         Y: =308
         ZIndex: =19
 
+    Button_Refresh_MAMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: =Refresh(GNB_MENU);
+        PaddingBottom: =8
+        PaddingLeft: =46
+        PaddingRight: =16
+        PaddingTop: =8
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="새로고침"
+        Visible: |-
+            =If(
+                FullScreenMode,
+                    false,
+                Parent.Printing,
+                    false,
+                true
+            )
+        Width: =121
+        X: =1600
+        Y: =35
+        ZIndex: =28
+
+    Image_Refresh_MAMenu_1 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =24
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =TokenMenuRefresh
+        OnSelect: =Refresh(GNB_MENU);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =24
+        X: =1617
+        Y: =43
+        ZIndex: =29
+
     Group_DeleteMemberSub_MAMenu_1 As group:
         Height: =5
         Width: =5
@@ -1228,6 +1304,36 @@ MAMenu_1 As screen:
             Y: =447
             ZIndex: =23
 
+    Background_Modal_MAMenu_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =Container_SubMenuPopup_MAMenu_1.Visible
+        Width: =1620
+        X: =300
+        ZIndex: =30
+
+    Background_Modal_MAMenu_2 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =menuPopupVi Or menuTeamPopupVi Or EditUserVisibleVal 
+        Width: =1620
+        X: =300
+        ZIndex: =31
+
     Group_DeleteMemberMain_MAMenu_1 As group:
         Height: =5
         Width: =5
@@ -1337,173 +1443,6 @@ MAMenu_1 As screen:
             Y: =390
             ZIndex: =27
 
-    Button_Refresh_MAMenu_1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: |-
-            =ColorValue("#C7C7C7")
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(GNB_MENU);
-        PaddingBottom: =8
-        PaddingLeft: =46
-        PaddingRight: =16
-        PaddingTop: =8
-        PressedBorderColor: |-
-            =ColorValue("#B3B3B3")
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="새로고침"
-        Visible: |-
-            =If(
-                FullScreenMode,
-                    false,
-                Parent.Printing,
-                    false,
-                true
-            )
-        Width: =121
-        X: =1600
-        Y: =35
-        ZIndex: =38
-
-    Group_AddUserComplete_MAMenu_1 As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =44
-
-        Rectangle_AddUserComplete_MAMenu_1 As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 1)
-            BorderThickness: =2
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =396
-            Visible: =If(UserAddPopup = true,true,false)
-            Width: =772
-            X: =680
-            Y: =252
-            ZIndex: =48
-
-        Label_AddUserCompleteName_MAMenu_1 As label:
-            Align: =Align.Center
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =172
-            Size: =30
-            Text: =Last(Filter(MyPeople,DisplayName = DisplayName,DisplayName)).DisplayName
-            Visible: =If(UserAddPopup = true,true,false)
-            Width: =192
-            X: =856
-            Y: =350
-            ZIndex: =49
-
-        Label_AddUserComplete_MAMenu_1 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =172
-            Size: =30
-            Text: ="님 추가 완료"
-            Visible: =If(UserAddPopup = true,true,false)
-            Width: =359
-            X: =1016
-            Y: =350
-            ZIndex: =50
-
-        Timer_AddUserComplete_MAMenu_1 As timer:
-            BorderColor: =RGBA(105, 121, 126, 1)
-            BorderStyle: =BorderStyle.None
-            DisabledBorderColor: =RGBA(244, 244, 244, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Duration: =1000
-            Fill: =RGBA(105, 121, 126, 1)
-            Font: =Font.'Segoe UI'
-            Height: =70
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            OnTimerEnd: |-
-                =Set(UserAddPopup, false); // Popup 컨트롤 숨기기
-                Reset(Timer_AddUserComplete_MAMenu_1);
-            OnTimerStart: =
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            Start: =If(UserAddPopup = true,true,false)
-            Visible: =false
-            X: =640
-            Y: =10
-            ZIndex: =51
-
-    Image_Refresh_MAMenu_1 As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =24
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: =TokenMenuRefresh
-        OnSelect: =Refresh(GNB_MENU);
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =24
-        X: =1617
-        Y: =43
-        ZIndex: =46
-
-    Background_Modal_MAMenu_1 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =Container_SubMenuPopup_MAMenu_1.Visible
-        Width: =1620
-        X: =300
-        ZIndex: =47
-
     Container_SubMenuPopup_MAMenu_1 As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
@@ -1514,9 +1453,9 @@ MAMenu_1 As screen:
         RadiusTopRight: =4
         Visible: =SubMenuPopup
         Width: =600
-        X: =795
-        Y: =164
-        ZIndex: =48
+        X: =815
+        Y: =184
+        ZIndex: =42
 
         Icon_IncompleteSubMenuPopupCancel_MAMenu_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1609,6 +1548,91 @@ MAMenu_1 As screen:
             Y: =28
             ZIndex: =5
 
+    Group_AddUserComplete_MAMenu_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =44
+
+        Rectangle_AddUserComplete_MAMenu_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderThickness: =2
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =396
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =772
+            X: =680
+            Y: =252
+            ZIndex: =38
+
+        Label_AddUserCompleteName_MAMenu_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =172
+            Size: =30
+            Text: =Last(Filter(MyPeople,DisplayName = DisplayName,DisplayName)).DisplayName
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =192
+            X: =856
+            Y: =350
+            ZIndex: =39
+
+        Label_AddUserComplete_MAMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =172
+            Size: =30
+            Text: ="님 추가 완료"
+            Visible: =If(UserAddPopup = true,true,false)
+            Width: =359
+            X: =1016
+            Y: =350
+            ZIndex: =40
+
+        Timer_AddUserComplete_MAMenu_1 As timer:
+            BorderColor: =RGBA(105, 121, 126, 1)
+            BorderStyle: =BorderStyle.None
+            DisabledBorderColor: =RGBA(244, 244, 244, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Duration: =1000
+            Fill: =RGBA(105, 121, 126, 1)
+            Font: =Font.'Segoe UI'
+            Height: =70
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            OnTimerEnd: |-
+                =Set(UserAddPopup, false); // Popup 컨트롤 숨기기
+                Reset(Timer_AddUserComplete_MAMenu_1);
+            OnTimerStart: =
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Start: =If(UserAddPopup = true,true,false)
+            Visible: =false
+            X: =640
+            Y: =10
+            ZIndex: =41
+
     Group_Add_CategoryMenu_mod_4 As group:
         Height: =5
         Width: =5
@@ -1628,22 +1652,27 @@ MAMenu_1 As screen:
             Width: =490
             X: =850
             Y: =243
-            ZIndex: =28
+            ZIndex: =50
 
         Button_AddPopUP_CategoryMenu_mod_5 As button:
             AutoDisableOnSelect: =false
             BorderColor: =RGBA(224, 224, 224, 1)
-            Color: =RGBA(0, 0, 0, 1)
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#FFFFFF")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(15, 108, 189, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
             OnSelect: |
                 =Patch(
                     NewMACollect,
@@ -1665,50 +1694,59 @@ MAMenu_1 As screen:
                 Clear(AddTeamName_Menu);
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="확인"
             Visible: =menuPopupVi
             Width: =96
-            X: =1114
+            X: =1123
             Y: =763
-            ZIndex: =29
+            ZIndex: =51
 
         Button_AddCancelPopUP_CategoryMenu_mod_5 As button:
             AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
             Color: =RGBA(0, 0, 0, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(15, 108, 189, 1)
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
             OnSelect: |-
                 =UpdateContext({menuPopupVi:false});
                 Clear(AddTeamName_Menu);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: =RGBA(0, 0, 0, 1)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="취소"
             Visible: =menuPopupVi
             Width: =96
             X: =1233
             Y: =763
-            ZIndex: =30
+            ZIndex: =52
 
         Gallery_Add_CategoryMenu_mod_5 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
@@ -1737,7 +1775,7 @@ MAMenu_1 As screen:
             Width: =470
             X: =860
             Y: =288
-            ZIndex: =31
+            ZIndex: =53
 
             Button_AddDate_mod_5 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
@@ -1849,7 +1887,7 @@ MAMenu_1 As screen:
             Width: =470
             X: =860
             Y: =253
-            ZIndex: =32
+            ZIndex: =54
 
         Icon_AddSearch_CategoryMenu_mod_5 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1871,7 +1909,7 @@ MAMenu_1 As screen:
             Width: =Self.Height
             X: =876
             Y: =258
-            ZIndex: =33
+            ZIndex: =55
 
     Group_AddTeam_MAMenu_1 As group:
         Height: =5
@@ -2457,22 +2495,28 @@ MAMenu_1 As screen:
             Width: =490
             X: =870
             Y: =263
-            ZIndex: =52
+            ZIndex: =32
 
         Button_AddPopUP_CategoryMenu_mod_6 As button:
             AutoDisableOnSelect: =false
             BorderColor: =RGBA(224, 224, 224, 1)
-            Color: =RGBA(0, 0, 0, 1)
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#FFFFFF")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(15, 108, 189, 1)
+            HoverColor: |-
+                =ColorValue("#FFFFFF")
+            HoverFill: |-
+                =ColorValue("#115EA3")
             OnSelect: |
                 =Patch(
                     NewMACollect,
@@ -2493,51 +2537,61 @@ MAMenu_1 As screen:
                 UpdateContext({menuTeamPopupVi:false});
                 Clear(AddTeamName_Menu);
             PressedBorderColor: =
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            PressedColor: |-
+                =ColorValue("#FFFFFF")
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="확인"
             Visible: =menuTeamPopupVi
             Width: =96
-            X: =1134
+            X: =1143
             Y: =783
-            ZIndex: =53
+            ZIndex: =33
 
         Button_AddCancelPopUP_CategoryMenu_mod_6 As button:
             AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
             Color: =RGBA(0, 0, 0, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(15, 108, 189, 1)
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
             OnSelect: |-
                 =UpdateContext({menuTeamPopupVi:false});
                 Clear(AddTeamName_Menu);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: =RGBA(0, 0, 0, 1)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="취소"
             Visible: =menuTeamPopupVi
             Width: =96
             X: =1253
             Y: =783
-            ZIndex: =54
+            ZIndex: =34
 
         Gallery_Add_CategoryMenu_mod_6 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
@@ -2556,7 +2610,7 @@ MAMenu_1 As screen:
             Width: =470
             X: =880
             Y: =308
-            ZIndex: =55
+            ZIndex: =35
 
             Button_AddDate_mod_8 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
@@ -2643,7 +2697,7 @@ MAMenu_1 As screen:
             Width: =470
             X: =880
             Y: =273
-            ZIndex: =56
+            ZIndex: =36
 
         Icon_AddSearch_CategoryMenu_mod_6 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -2665,7 +2719,7 @@ MAMenu_1 As screen:
             Width: =Self.Height
             X: =896
             Y: =278
-            ZIndex: =57
+            ZIndex: =37
 
     Group_AddUserPopUp_MAMenu_1 As group:
         Height: =5
@@ -2685,16 +2739,18 @@ MAMenu_1 As screen:
             Width: =494
             X: =841
             Y: =242
-            ZIndex: =41
+            ZIndex: =43
 
         Button_OKComplateUser_MAMenu_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             Fill: |-
                 =ColorValue("#0F6CBD")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             HoverBorderColor: =RGBA(0, 0, 0, 0)
@@ -2756,10 +2812,10 @@ MAMenu_1 As screen:
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
                 =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="확인"
             Visible: |
@@ -2767,40 +2823,45 @@ MAMenu_1 As screen:
             Width: =96
             X: =1110
             Y: =763
-            ZIndex: =42
+            ZIndex: =44
 
         Button_CancleComplateUser_MAMenu_1 As button:
             BorderColor: =RGBA(224, 224, 224, 1)
+            BorderThickness: =1
             Color: =RGBA(0, 0, 0, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =Set(EditUserVisibleVal, false);
                 Reset(TextInput_AddUserSearch_MAMenu_1);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: =RGBA(0, 0, 0, 1)
             PressedFill: |-
                 =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
             Text: ="취소"
             Visible: =EditUserVisibleVal
             Width: =96
             X: =1224
             Y: =763
-            ZIndex: =43
+            ZIndex: =45
 
         Gallery_ComplateUserList_MAMenu_1 As gallery.SelectedUsersTabletGallery:
             AccessibleLabel: ="사용자가 사람을 선택함"
@@ -2822,7 +2883,7 @@ MAMenu_1 As screen:
                     Gallery_AddUserSearch_MAMenu_1.Y,
                     TextInput_AddUserSearch_MAMenu_1.Y
                 )
-            ZIndex: =44
+            ZIndex: =46
 
             Button_AddDate_mod_7 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
@@ -2955,7 +3016,7 @@ MAMenu_1 As screen:
             Width: =Rectangle_ComplateUserList_MAMenu_1.X + Rectangle_ComplateUserList_MAMenu_1.Width - Self.X - 10
             X: =TextInput_AddUserSearch_MAMenu_1.X
             Y: =292
-            ZIndex: =45
+            ZIndex: =47
 
             Button_AddDate_mod_6 As button:
                 BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
@@ -3128,7 +3189,7 @@ MAMenu_1 As screen:
             Width: =Gallery_AddUserSearch_MAMenu_1.Width
             X: =Rectangle_ComplateUserList_MAMenu_1.X + 10
             Y: =Rectangle_ComplateUserList_MAMenu_1.Y + 10
-            ZIndex: =46
+            ZIndex: =48
 
         Icon_AddUserSherch_MAMenu_1 As icon.Search:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -3149,5 +3210,5 @@ MAMenu_1 As screen:
             Width: =Self.Height
             X: =TextInput_AddUserSearch_MAMenu_1.X + 15
             Y: =TextInput_AddUserSearch_MAMenu_1.Y + 5
-            ZIndex: =47
+            ZIndex: =49
 
