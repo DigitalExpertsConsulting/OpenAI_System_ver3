@@ -8,6 +8,39 @@ FileManage As screen:
                 Category_table,
                 Collect(Teams_GET,FirstN(ThisRecord.Teams,CountRows(ThisRecord.Teams)).Claims
                 )
+        );
+        Clear(testDist);
+        Clear(offGroe);
+        ForAll(
+            Category_table,
+            Collect(
+                testDist,
+                ThisRecord.Teams
+            )
+        );
+        ForAll(
+            testDist,
+            If(
+                CountRows(
+                    Filter(
+                        Office365그룹.ListGroupMembers(
+                            Mid(
+                                ThisRecord.Claims,
+                                40
+                            )
+                        ).value,
+                        User().Email in mail
+                    )
+                ) > 0,
+                Collect(
+                    offGroe,
+                    {Name: ThisRecord.DisplayName}
+                )
+            )
+        );
+        Distinct(
+            offGroe,
+            ThisRecord
         )
 
     Button_AddButton_FM As button:
@@ -819,6 +852,38 @@ FileManage As screen:
             Y: =284
             ZIndex: =19
 
+    Dropdown1 As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =//Filter(Category_table, LookUp(offGroe, Name<>"").Name in LookUp(Teams, DisplayName<>Blank()).DisplayName)
+            Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name)
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        X: =391
+        Y: =765
+        ZIndex: =32
+
     ModalDialog_FileUpload_FM As group:
         Height: =5
         Width: =5
@@ -971,6 +1036,7 @@ FileManage As screen:
                     ChevronHoverBackground: =RGBA(212, 212, 212, 1)
                     ChevronHoverFill: =RGBA(33, 33, 33, 1)
                     Color: =RGBA(51, 51, 51, 1)
+                    Default: =""
                     DisabledBorderColor: =RGBA(0, 0, 0, 0)
                     DisabledColor: =RGBA(166, 166, 166, 1)
                     DisabledFill: =RGBA(244, 244, 244, 1)
@@ -979,21 +1045,22 @@ FileManage As screen:
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
-                        =Distinct(
+                        =/*Distinct(
                             Filter(
                                 Category_table,
                                 Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
                             ),
                             LV1
-                        )
-                        /*
+                        )*/
+                        
                         Distinct(
                             Filter(
                                 Category_table,
-                                Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
+                                Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name
                             ),
                             LV1
-                        )*/
+                        )
+                        //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).LV1
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -1029,10 +1096,11 @@ FileManage As screen:
                             Filter(
                                 Category_table,
                                 LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
+                                Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name
                             ),
                             제목
                         )
+                        //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).Name
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
