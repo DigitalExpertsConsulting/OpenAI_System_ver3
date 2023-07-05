@@ -23,7 +23,7 @@ MAMenu_1 As screen:
         Set(AddTeamPopup, false);,
         
         Set(EditUserVisibleVal, false);,
-        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Team_ID","TeamName"));,
+        ClearCollect(NewMACollect, ShowColumns(GNB_MENU,"Title","OData__x004c_V1","LV1Order","LV2Order","Users","ID","Team_ID","TeamName","Teams"));,
         Clear(NewPortalCollect);
         );
         
@@ -435,6 +435,15 @@ MAMenu_1 As screen:
                 Size: =13
                 Text: |-
                     =If(
+                        CountRows(LookUp(NewMACollect,ID=ThisItem.ID).Teams) = 0 || IsBlank(LookUp(NewMACollect,ID=ThisItem.ID).Teams),
+                        "인원을 할당해 주세요",
+                        CountRows(LookUp(NewMACollect,ID=ThisItem.ID).Teams) > 1,
+                        First(LookUp(NewMACollect,ID=ThisItem.ID).Teams).DisplayName & " 외" & CountRows(LookUp(NewMACollect,ID=ThisItem.ID).Teams) - 1 & " 명",
+                        First(LookUp(NewMACollect,ID=ThisItem.ID).Teams).DisplayName
+                    )
+                    
+                    /*
+                    If(
                         LookUp(NewMACollect,ID=ThisItem.ID).TeamName = "" || LookUp(NewMACollect,ID=ThisItem.ID).TeamName = Blank(),
                         "팀을 할당해 주세요",
                         CountRows(
@@ -468,6 +477,7 @@ MAMenu_1 As screen:
                             ID = ThisItem.ID
                         ).TeamName
                     )
+                    */
                 Width: =430
                 X: =322
                 Y: =20
@@ -508,16 +518,8 @@ MAMenu_1 As screen:
                 OnSelect: |-
                     =UpdateContext({menuTeamPopupVi:true});
                     UpdateContext({menuSelected:ThisItem.ID});
-                    ClearCollect(
-                        AddTeamName_Menu,
-                        Filter(
-                            Split(
-                                LookUp(NewMACollect,ID=ThisItem.ID).TeamName,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    );
+                    
+                    ClearCollect(viewTeamName_Menu, LookUp(NewMACollect,ID=ThisItem.ID).Teams);
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -548,19 +550,7 @@ MAMenu_1 As screen:
                 OnSelect: |-
                     =UpdateContext({menuPopupVi:true});
                     UpdateContext({menuSelected:ThisItem.ID});
-                    ClearCollect(
-                        AddTeamName_Menu,
-                        Filter(
-                            Split(
-                                LookUp(
-                                    NewMACollect,
-                                    ID = ThisItem.ID
-                                ).TeamName,
-                                ","
-                            ),
-                            Not(IsBlank(Value))
-                        )
-                    )
+                    ClearCollect(viewTeamName_Menu, LookUp(NewMACollect,ID=ThisItem.ID).Teams);
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -1664,17 +1654,13 @@ MAMenu_1 As screen:
                         ID = menuSelected
                     ),
                     {
-                        TeamName: Concat(
-                            AddTeamName_Menu,
-                            Value,
-                            ","
-                        )
+                        Teams:viewTeamName_Menu
                     }
                 );
                 UpdateContext({resetSearch: true});
                 UpdateContext({resetSearch: false});
                 UpdateContext({menuPopupVi:false});
-                Clear(AddTeamName_Menu);
+                Clear(viewTeamName_Menu);
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1713,7 +1699,7 @@ MAMenu_1 As screen:
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =UpdateContext({menuPopupVi:false});
-                Clear(AddTeamName_Menu);
+                Clear(viewTeamName_Menu);
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: =RGBA(0, 0, 0, 1)
@@ -1815,18 +1801,18 @@ MAMenu_1 As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: |-
                     =If(
-                        ThisItem.displayName in AddTeamName_Menu.Value,
+                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in viewTeamName_Menu.Claims,
                         Icon.Cancel,
                         Icon.Add
                     )
                 OnSelect: |-
                     =If(
-                        ThisItem.displayName in AddTeamName_Menu.Value,
+                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in viewTeamName_Menu.Claims,
                         Remove(
-                            AddTeamName_Menu,
+                            viewTeamName_Menu,
                             LookUp(
-                                AddTeamName_Menu,
-                                Value = ThisItem.displayName
+                                viewTeamName_Menu,
+                                Claims = "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id
                             );
                         );
                         Notify(
@@ -1835,9 +1821,14 @@ MAMenu_1 As screen:
                             800
                         ),
                         Collect(
-                            AddTeamName_Menu,
+                            viewTeamName_Menu,
                             {
-                                Value: ThisItem.displayName
+                                Claims: "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id,
+                                Department:"",
+                                DisplayName: ThisItem.displayName,
+                                Email:ThisItem.mail,
+                                JobTitle:"",
+                                Picture:Blank()
                             }
                         );
                         Notify(
@@ -2508,17 +2499,13 @@ MAMenu_1 As screen:
                         ID = menuSelected
                     ),
                     {
-                        TeamName: Concat(
-                            AddTeamName_Menu,
-                            Value,
-                            ","
-                        )
+                        Teams: viewTeamName_Menu
                     }
                 );
                 UpdateContext({resetSearch: true});
                 UpdateContext({resetSearch: false});
                 UpdateContext({menuTeamPopupVi:false});
-                Clear(AddTeamName_Menu);
+                Clear(viewTeamName_Menu);
             PressedBorderColor: =
             PressedColor: |-
                 =ColorValue("#FFFFFF")
@@ -2558,7 +2545,7 @@ MAMenu_1 As screen:
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =UpdateContext({menuTeamPopupVi:false});
-                Clear(AddTeamName_Menu);
+                Clear(viewTeamName_Menu);
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: =RGBA(0, 0, 0, 1)
@@ -2583,7 +2570,7 @@ MAMenu_1 As screen:
             BorderThickness: =1
             Fill: =RGBA(224, 224, 224, 1)
             Height: =462
-            Items: =Search(AddTeamName_Menu,TextInput_Add_CategoryMenu_mod_6.Text,"Value")
+            Items: =Search(viewTeamName_Menu,TextInput_Add_CategoryMenu_mod_6.Text,"DisplayName")
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -2632,7 +2619,7 @@ MAMenu_1 As screen:
                 OnSelect: =
                 PaddingLeft: =10
                 Size: =13
-                Text: =ThisItem.Value
+                Text: =ThisItem.DisplayName
                 Width: =413
                 Y: =5
                 ZIndex: =3
@@ -2650,7 +2637,7 @@ MAMenu_1 As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
                 OnSelect: |-
-                    =Remove(AddTeamName_Menu,ThisItem);
+                    =Remove(viewTeamName_Menu,ThisItem);
                         Notify(
                             "팀 제거 완료.",
                             NotificationType.Success,
