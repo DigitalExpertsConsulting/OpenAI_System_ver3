@@ -24,7 +24,8 @@ CategoryMenu_modify As screen:
                 "ID",
                 "History",
                 "TeamName",
-                "Department"
+                "Department",
+                "FileCount"
             )
         );
         Clear(delCate);
@@ -501,9 +502,23 @@ CategoryMenu_modify As screen:
             Image: =Delete
             OnSelect: |-
                 =//ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
-                UpdateContext({delPopVi:true});
-                UpdateContext({delType:"Main"});
-                UpdateContext({ delMainCate: ThisItem.Value });
+                If(
+                    CountRows(
+                        Filter(
+                            CategoryTable,
+                            OData__x004c_V1 = ThisItem.Value && FileCount > 0
+                        )
+                    ) > 0,
+                    Notify(
+                        "폴더에 파일이 존재합니다.",
+                        NotificationType.Error,
+                        800
+                    ),
+                    UpdateContext({delPopVi: true});
+                    UpdateContext({delType: "Main"});
+                    UpdateContext({delMainCate: ThisItem.Value});
+                    
+                )
             PaddingBottom: =05
             PaddingLeft: =05
             PaddingRight: =05
@@ -928,9 +943,18 @@ CategoryMenu_modify As screen:
                 Image: =Delete
                 OnSelect: |-
                     =//Remove(CategoryTable, ThisItem)
-                    UpdateContext({ AddPopUpID: ThisItem.ID });
-                    UpdateContext({delType:"Sub"});
-                    UpdateContext({ delPopVi:true });
+                    If(
+                        ThisItem.FileCount > 0,
+                        Notify(
+                            "폴더에 파일이 존재합니다.",
+                            NotificationType.Error,
+                            800
+                        ),
+                        UpdateContext({AddPopUpID: ThisItem.ID});
+                        UpdateContext({delType: "Sub"});
+                        UpdateContext({delPopVi: true});
+                        
+                    )
                 PaddingBottom: =05
                 PaddingLeft: =05
                 PaddingRight: =05
