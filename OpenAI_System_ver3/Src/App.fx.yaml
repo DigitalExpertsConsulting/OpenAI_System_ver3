@@ -74,6 +74,41 @@ App As appinfo:
         Clear(Category_Auth);
         Set(LodingPopup,false);
         
+        Clear(gnbdist);
+        Clear(gnbgru);
+        ForAll(
+            GNB_MENU,
+            Collect(
+                gnbdist,
+                ThisRecord.Teams
+            )
+        );
+        ForAll(
+            gnbdist,
+            If(
+                CountRows(
+                    Filter(
+                        Office365그룹.ListGroupMembers(
+                            Mid(
+                                ThisRecord.Claims,
+                                40
+                            )
+                        ).value,
+                        User().Email in mail
+                    )
+                ) > 0,
+                Collect(
+                    gnbgru,
+                    {Name: ThisRecord.DisplayName}
+                )
+            )
+        );
+        Distinct(
+            gnbgru,
+            ThisRecord
+        )
+        
+        
     StartScreen: =QALog
 
     Host As hostControl.DefaultHostControlVariant:
