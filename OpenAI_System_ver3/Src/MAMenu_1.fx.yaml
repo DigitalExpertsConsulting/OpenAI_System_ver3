@@ -799,7 +799,7 @@ MAMenu_1 As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |-
+        OnSelect: |+
             =Patch(
                 GNB_MENU,
                 NewMACollect
@@ -820,6 +820,41 @@ MAMenu_1 As screen:
             Set(testVisible, "");
             Set(SelectedLV1, "");
             Set(SelectedLV2, "");
+            
+            Clear(gnbdist);
+            Clear(gnbgru);
+            ForAll(
+                GNB_MENU,
+                Collect(
+                    gnbdist,
+                    ThisRecord.Teams
+                )
+            );
+            ForAll(
+                gnbdist,
+                If(
+                    CountRows(
+                        Filter(
+                            Office365그룹.ListGroupMembers(
+                                Mid(
+                                    ThisRecord.Claims,
+                                    40
+                                )
+                            ).value,
+                            User().Email in mail
+                        )
+                    ) > 0,
+                    Collect(
+                        gnbgru,
+                        {Email: ThisRecord.Email}
+                    )
+                )
+            );
+            Distinct(
+                gnbgru,
+                ThisRecord
+            )
+            
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
