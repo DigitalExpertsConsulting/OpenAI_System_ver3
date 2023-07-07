@@ -596,8 +596,8 @@ CategoryMenu_modify As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Size: =13
-                Width: =200
-                X: =846
+                Width: =280
+                X: =697
                 Y: =20
                 ZIndex: =2
 
@@ -653,9 +653,9 @@ CategoryMenu_modify As screen:
                     "인원을 할당해 주세요", CountRows(ThisItem.Users) > 1,
                     First(ThisItem.Users).DisplayName & " 외" & CountRows(ThisItem.Users)-1 & " 명",
                     First(ThisItem.Users).DisplayName)
-                Width: =200
+                Width: =280
                 Wrap: =false
-                X: =846
+                X: =694
                 Y: =20
                 ZIndex: =4
 
@@ -684,7 +684,7 @@ CategoryMenu_modify As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Size: =13
-                Width: =430
+                Width: =280
                 X: =322
                 Y: =20
                 ZIndex: =6
@@ -711,7 +711,7 @@ CategoryMenu_modify As screen:
                         First(ThisItem.Teams).DisplayName & " 외" & CountRows(ThisItem.Teams) - 1 & " 명",
                         First(ThisItem.Teams).DisplayName
                     )
-                Width: =430
+                Width: =280
                 X: =322
                 Y: =20
                 ZIndex: =7
@@ -743,7 +743,7 @@ CategoryMenu_modify As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Width: =32
-                X: =762
+                X: =612
                 Y: =20
                 ZIndex: =8
 
@@ -776,7 +776,7 @@ CategoryMenu_modify As screen:
                 RadiusTopRight: =10
                 Transparency: =
                 Width: =32
-                X: =804
+                X: =654
                 Y: =20
                 ZIndex: =9
 
@@ -807,7 +807,7 @@ CategoryMenu_modify As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Width: =32
-                X: =1056
+                X: =988
                 Y: =20
                 ZIndex: =10
 
@@ -841,7 +841,7 @@ CategoryMenu_modify As screen:
                 RadiusTopRight: =10
                 Transparency: =
                 Width: =32
-                X: =1098
+                X: =1030
                 Y: =20
                 ZIndex: =11
 
@@ -870,8 +870,8 @@ CategoryMenu_modify As screen:
                 RadiusTopLeft: =010
                 RadiusTopRight: =010
                 Size: =13
-                Width: =200
-                X: =1149
+                Width: =280
+                X: =1072
                 Y: =20
                 ZIndex: =12
 
@@ -895,15 +895,14 @@ CategoryMenu_modify As screen:
                         ThisItem.History
                     )
                 Tooltip: =Self.Text
-                Width: =200
+                Width: =280
                 Wrap: =false
-                X: =1149
+                X: =1066
                 Y: =20
                 ZIndex: =13
 
-            Icon2 As icon.Edit:
+            Icon_CategroyRemarks_CategoryMenu As icon.Edit:
                 BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(105, 121, 126, 1)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(220, 220, 220, 1)
                 DisabledFill: =RGBA(0, 0, 0, 0)
@@ -916,6 +915,7 @@ CategoryMenu_modify As screen:
                 OnSelect: |-
                     =UpdateContext({HisVi:true});
                     UpdateContext({ AddPopUpID: ThisItem.ID });
+                    UpdateContext({RemarksPopVi: true});
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
@@ -1180,7 +1180,7 @@ CategoryMenu_modify As screen:
         Height: =1080
         HoverFill: =
         PressedFill: =
-        Visible: =delPopVi
+        Visible: =delPopVi Or RemarksPopVi
         Width: =1620
         X: =300
         ZIndex: =13
@@ -1296,7 +1296,7 @@ CategoryMenu_modify As screen:
             Height: =27
             PaddingLeft: =10
             Size: =13
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Title
+            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV2
             Width: =151
             X: =155
             Y: =95
@@ -1314,7 +1314,10 @@ CategoryMenu_modify As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Cancel
             OnSelect: |-
-                =UpdateContext({HisVi:false})
+                =Concurrent(
+                UpdateContext({HisVi:false});,
+                UpdateContext({RemarksPopVi: false});
+                )
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -1324,27 +1327,29 @@ CategoryMenu_modify As screen:
             ZIndex: =17
 
         TextInput_history_mod As text:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderThickness: =2
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
             Color: =RGBA(51, 51, 51, 1)
             Default: =LookUp(CategoryTable,ID=AddPopUpID).History
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =4
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             Height: =242
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
             Mode: =TextMode.MultiLine
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
             PressedColor: =RGBA(51, 51, 51, 1)
             PressedFill: =RGBA(255, 255, 255, 1)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =13
             Width: =375
             X: =155
@@ -1352,30 +1357,90 @@ CategoryMenu_modify As screen:
             ZIndex: =18
 
         Button_history_mod As button:
-            BorderColor: =RGBA(0, 0, 0, 1)
-            Color: =RGBA(0, 0, 0, 1)
+            BorderColor: =Self.Fill
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#FFFFFF")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =Self.Fill
+            FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            Height: =32
+            HoverBorderColor: =Self.HoverFill
+            HoverColor: |-
+                =ColorValue("#FFFFFF")
+            HoverFill: |-
+                =ColorValue("#115EA3")
             OnSelect: |-
                 =Patch(CategoryTable, LookUp(CategoryTable,ID=AddPopUpID), {History:TextInput_history_mod.Text});
-                UpdateContext({HisVi:false})
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                Concurrent(
+                UpdateContext({HisVi:false});,
+                UpdateContext({RemarksPopVi: false});
+                )
+            PressedBorderColor: =Self.PressedFill
+            PressedColor: |-
+                =ColorValue("#FFFFFF")
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
             Size: =15
-            Text: ="버튼"
-            Width: =111
-            X: =460
+            Text: ="등록"
+            Width: =70
+            X: =412
             Y: =444
             ZIndex: =19
+
+        Button_HistoryCancle_mod As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =Concurrent(
+                UpdateContext({HisVi:false});,
+                UpdateContext({RemarksPopVi: false});
+                )
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =15
+            Text: ="취소"
+            Width: =70
+            X: =500
+            Y: =444
+            ZIndex: =20
 
     Container_CategoryPopup_CategoryMenu As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
