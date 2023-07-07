@@ -49,7 +49,25 @@ CategoryMenu_modify As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(Category_table);
+        OnSelect: |-
+            =Refresh(Category_table);
+            
+            ClearCollect(
+                CategoryTable,
+                ShowColumns(
+                    Category_table,
+                    "Title",
+                    "Category_LV1",
+                    "Category_LV2",
+                    "LV1Order",
+                    "LV2Order",
+                    "Users",
+                    "ID",
+                    "History",
+                    "Teams",
+                    "FileCount"
+                )
+            );
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -102,7 +120,7 @@ CategoryMenu_modify As screen:
         OnSelect: |-
             =ClearCollect(CategoryTable_Update,
                 ForAll(CategoryTable,
-                    {   Title:"",
+                    {   Title:"  ",
                         ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
                         History: ThisRecord.History,
                         LV1Order:ThisRecord.LV1Order,
@@ -1130,7 +1148,8 @@ CategoryMenu_modify As screen:
         HoverColor: =RGBA(0, 0, 0, 1)
         HoverFill: =
         OnSelect: |-
-            =Collect(
+            =
+            Collect(
                 CategoryTable,
                 {
                     Category_LV1: "새 메뉴" & Last(CategoryTable).ID + 1,
@@ -1139,7 +1158,7 @@ CategoryMenu_modify As screen:
                     LV2Order: 1
                 }
             );
-            //UpdateContext({testV:""});
+            //
         PressedBorderColor: =RGBA(15, 108, 189, 1)
         PressedColor: =RGBA(0, 0, 0, 1)
         PressedFill: =
