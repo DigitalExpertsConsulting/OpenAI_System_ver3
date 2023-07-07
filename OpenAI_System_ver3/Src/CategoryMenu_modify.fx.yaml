@@ -17,14 +17,14 @@ CategoryMenu_modify As screen:
             ShowColumns(
                 Category_table,
                 "Title",
-                "OData__x004c_V1",
+                "Category_LV1",
+                "Category_LV2",
                 "LV1Order",
                 "LV2Order",
                 "Users",
                 "ID",
                 "History",
-                "TeamName",
-                "Department",
+                "Teams",
                 "FileCount"
             )
         );
@@ -102,16 +102,15 @@ CategoryMenu_modify As screen:
         OnSelect: |-
             =ClearCollect(CategoryTable_Update,
                 ForAll(CategoryTable,
-                    {
+                    {   Title:"",
                         ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
                         History: ThisRecord.History,
                         LV1Order:ThisRecord.LV1Order,
                         LV2Order:ThisRecord.LV2Order,
-                        OData__x004c_V1:ThisRecord.OData__x004c_V1,
-                        TeamName:ThisRecord.TeamName,
-                        Title:ThisRecord.Title,
+                        Category_LV1:ThisRecord.Category_LV1,
+                        Category_LV2:ThisRecord.Category_LV1,
                         Users:ThisRecord.Users,
-                        Department:ThisRecord.Department
+                        Teams:ThisRecord.Teams
                     }
                 )
             );
@@ -121,7 +120,7 @@ CategoryMenu_modify As screen:
                 CountRows(
                     Filter(
                         CategoryTable,
-                        Title = "" || Title = Blank()
+                        Category_LV2 = "" || Category_LV2 = Blank()
                     )
                 ) > 0,
                 Notify(
@@ -146,14 +145,14 @@ CategoryMenu_modify As screen:
                 ShowColumns(
                     Category_table,
                     "Title",
-                    "OData__x004c_V1",
+                    "Category_LV2",
+                    "Category_LV1",
                     "LV1Order",
                     "LV2Order",
                     "Users",
                     "ID",
                     "History",
-                    "TeamName",
-                    "Department"
+                    "Teams"
                 )
             );
             //Patch(Category_table,CategoryTable)
@@ -429,7 +428,7 @@ CategoryMenu_modify As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =622
-        Items: =Distinct(CategoryTable,OData__x004c_V1)
+        Items: =Distinct(CategoryTable,Category_LV1)
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         OnSelect: |-
@@ -498,7 +497,7 @@ CategoryMenu_modify As screen:
                     CountRows(
                         Filter(
                             CategoryTable,
-                            OData__x004c_V1 = ThisItem.Value && FileCount > 0
+                            Category_LV1 = ThisItem.Value && FileCount > 0
                         )
                     ) > 0,
                     Notify(
@@ -606,7 +605,7 @@ CategoryMenu_modify As screen:
                 BorderColor: =RGBA(179, 179, 179, 1)
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
-                Default: =If(ThisItem.Title="" || ThisItem.Title=Blank(), "새 메뉴", ThisItem.Title)
+                Default: =If(ThisItem.Category_LV2="" || ThisItem.Category_LV2=Blank(), "새 메뉴", ThisItem.Category_LV2)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 DisabledFill: =RGBA(244, 244, 244, 1)
@@ -703,11 +702,11 @@ CategoryMenu_modify As screen:
                 Size: =13
                 Text: |-
                     =If(
-                        CountRows(ThisItem.Department) = 0 || IsBlank(ThisItem.Department),
+                        CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
                         "팀을 할당해 주세요",
-                        CountRows(ThisItem.Department) > 1,
-                        First(ThisItem.Department).DisplayName & " 외" & CountRows(ThisItem.Department) - 1 & " 명",
-                        First(ThisItem.Department).DisplayName
+                        CountRows(ThisItem.Teams) > 1,
+                        First(ThisItem.Teams).DisplayName & " 외" & CountRows(ThisItem.Teams) - 1 & " 명",
+                        First(ThisItem.Teams).DisplayName
                     )
                 Width: =430
                 X: =322
@@ -730,7 +729,7 @@ CategoryMenu_modify As screen:
                 OnSelect: |-
                     =UpdateContext({AddPopUpID: ThisItem.ID});
                     Set(AddPopUpBackground,true);
-                    ClearCollect(viewTeamName, ThisItem.Department);
+                    ClearCollect(viewTeamName, ThisItem.Teams);
                     UpdateContext({ lookTeamVi:true })
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
@@ -763,7 +762,7 @@ CategoryMenu_modify As screen:
                     =Set(AddPopUpBackground,true);
                     UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddPopUpID: ThisItem.ID});
-                    ClearCollect(AddTeamName,LookUp(CategoryTable, ID= ThisItem.ID).Department);
+                    ClearCollect(AddTeamName,LookUp(CategoryTable, ID= ThisItem.ID).Teams);
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -981,16 +980,16 @@ CategoryMenu_modify As screen:
                 =Collect(
                     CategoryTable,
                     {
-                        OData__x004c_V1: ThisItem.Value,
+                        Category_LV1: ThisItem.Value,
                         ID: Last(CategoryTable).ID + 1,
                         LV1Order: LookUp(
                             CategoryTable,
-                            OData__x004c_V1 = ThisItem.Value
+                            Category_LV1 = ThisItem.Value
                         ).LV1Order,
                         LV2Order: Last(
                             Filter(
                                 CategoryTable,
-                                OData__x004c_V1 = ThisItem.Value
+                                Category_LV1 = ThisItem.Value
                             )
                         ).LV2Order + 1
                     }
@@ -1554,7 +1553,7 @@ CategoryMenu_modify As screen:
                         ID = AddPopUpID
                     ),
                     {
-                        Department:viewTeamName
+                        Teams:viewTeamName
                     }
                 );
                 UpdateContext({lookTeamVi:false});
@@ -2025,7 +2024,7 @@ CategoryMenu_modify As screen:
                         ID = AddPopUpID
                     ),
                     {
-                        Department:AddTeamName
+                        Teams:AddTeamName
                     }
                 );
                 UpdateContext({AddPopUpID: Blank()});

@@ -327,7 +327,7 @@ FileManage As screen:
             Font: =Font.'Segoe UI'
             OnSelect: =Select(Parent)
             Size: =13
-            Text: =ThisItem.'Upload_Date'
+            Text: =ThisItem.Upload_Date
             Width: =201
             X: =977
             Y: =10
@@ -1016,7 +1016,7 @@ FileManage As screen:
                                 Category_table,
                                 Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
                             ),
-                            LV1
+                            Category_LV1
                         )
                         //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).LV1
                     PaddingBottom: =5
@@ -1053,10 +1053,10 @@ FileManage As screen:
                         =Distinct(
                             Filter(
                                 Category_table,
-                                LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                                Category_LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                                 Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
                             ),
-                            제목
+                            Title
                         )
                         //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).Name
                     PaddingBottom: =5
@@ -1204,7 +1204,7 @@ FileManage As screen:
             Height: =64
             Size: =24
             Text: |-
-                ="파일 업로드
+                =" 파일 업로드
                 "
             Visible: =ModalVisible
             Width: =419
@@ -1232,7 +1232,7 @@ FileManage As screen:
                 =ColorValue("#115EA3")
             OnSelect: |
                 =
-                If(IsBlank(LookUp(FileUpload_table,Lv1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name)),
+                If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name)),
                 
                 
                 '똑실이-[Apps]파일업로드'.Run(
@@ -1251,14 +1251,14 @@ FileManage As screen:
                 Patch(
                     FileUpload_table,
                     {
-                        제목: Concatenate(
+                        Title: Concatenate(
                             Dropdown_LV2Category_FileUpload_FM.Selected.Value,
                             "-",
                             First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
                         ),
-                        ' Upload_Date': Now(),
-                        Lv1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                        Category: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                        'Upload_Date': Now(),
+                        Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                        Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
                         File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
                         File_Type: Upper(
                             Last(
@@ -1387,12 +1387,13 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(
+                =
+                Patch(
                     Index_Remove,
                     {
-                        Title : " ",
-                        Category_LV1: LV1_Category, 
-                        Category_LV2: LV2_Category,
+                        제목: LV2_Category&"-"&filename,
+                        LV1_Category: LV1_Category, 
+                        LV2_Category: LV2_Category,
                         filename: filename,
                         File_ID: File_ID
                     }
