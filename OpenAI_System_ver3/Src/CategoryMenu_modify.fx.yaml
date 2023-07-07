@@ -108,7 +108,7 @@ CategoryMenu_modify As screen:
                         LV1Order:ThisRecord.LV1Order,
                         LV2Order:ThisRecord.LV2Order,
                         Category_LV1:ThisRecord.Category_LV1,
-                        Category_LV2:ThisRecord.Category_LV1,
+                        Category_LV2:ThisRecord.Category_LV2,
                         Users:ThisRecord.Users,
                         Teams:ThisRecord.Teams
                     }
@@ -212,7 +212,7 @@ CategoryMenu_modify As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Distinct(CategoryTable,OData__x004c_V1))
+            Text: =CountRows(Distinct(CategoryTable,Category_LV1))
             Width: =61
             X: =34
             Y: =55
@@ -529,8 +529,8 @@ CategoryMenu_modify As screen:
         Gallery_Sub_CategoryMenu_mod_5 As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
-            Items: =SortByColumns(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
+            Items: =SortByColumns(Filter(CategoryTable, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -602,7 +602,8 @@ CategoryMenu_modify As screen:
                 ZIndex: =2
 
             TextInput_SubMenuName_CategoryMenu_mod_5 As text:
-                BorderColor: =RGBA(179, 179, 179, 1)
+                BorderColor: |-
+                    =ColorValue("#D1D1D1")
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
                 Default: =If(ThisItem.Category_LV2="" || ThisItem.Category_LV2=Blank(), "새 메뉴", ThisItem.Category_LV2)
@@ -617,7 +618,7 @@ CategoryMenu_modify As screen:
                 HoverFill: =RGBA(255, 255, 255, 1)
                 Mode: =TextMode.MultiLine
                 OnChange: |-
-                    =Patch(CategoryTable, LookUp(CategoryTable, ID=ThisItem.ID), {Title:Self.Text});
+                    =Patch(CategoryTable, LookUp(CategoryTable, ID=ThisItem.ID), {Category_LV2:Self.Text});
                 OnSelect: =
                 PaddingLeft: =10
                 PaddingRight: =10
@@ -635,7 +636,8 @@ CategoryMenu_modify As screen:
                 ZIndex: =3
 
             Label_ComplateUsersName_CategoryMenu_mod_5 As label:
-                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderColor: |-
+                    =ColorValue("#D1D1D1")
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -688,7 +690,8 @@ CategoryMenu_modify As screen:
                 ZIndex: =6
 
             Label_ComplateTeamName_CategoryMenu_mod_5 As label:
-                BorderColor: =RGBA(179, 179, 179, 1)
+                BorderColor: |-
+                    =ColorValue("#D1D1D1")
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -873,7 +876,8 @@ CategoryMenu_modify As screen:
                 ZIndex: =12
 
             Label_History_CategoryMenu_mod As label:
-                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderColor: |-
+                    =ColorValue("#D1D1D1")
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
@@ -1027,48 +1031,6 @@ CategoryMenu_modify As screen:
             Y: =Gallery_Sub_CategoryMenu_mod_5.Y + Gallery_Sub_CategoryMenu_mod_5.Height + 23
             ZIndex: =6
 
-        TextInput_Main_LV1_mod_5 As text:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            Default: |-
-                =If(
-                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value).ID,
-                    "새 메뉴",
-                    ThisItem.Value
-                )
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            DisplayMode: |-
-                =//If(ThisItem.Value="" || ThisItem.Value=Blank(), DisplayMode.Edit,DisplayMode.View)
-                If(
-                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value).ID,
-                    DisplayMode.Edit,
-                    DisplayMode.View
-                )
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Bold
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            OnChange: |-
-                =ForAll(Sequence(CountRows(Filter(CategoryTable, OData__x004c_V1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, OData__x004c_V1=ThisItem.Value), {OData__x004c_V1:Self.Text}));
-            OnSelect: =
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =RGBA(51, 51, 51, 1)
-            PressedFill: =RGBA(255, 255, 255, 1)
-            RadiusBottomLeft: =10
-            RadiusBottomRight: =10
-            RadiusTopLeft: =10
-            RadiusTopRight: =10
-            Width: =400
-            X: =35
-            Y: =20
-            ZIndex: =8
-
         Button_select_mod As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1094,13 +1056,64 @@ CategoryMenu_modify As screen:
             Text: =""
             Visible: |-
                 =If(
-                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value).ID,
+                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,Category_LV1=ThisItem.Value).ID,
                     false,
                     true
                 )
             Width: =400
-            X: =35
-            ZIndex: =9
+            X: =53
+            ZIndex: =7
+
+        TextInput_Main_LV1_mod_5 As text:
+            BorderColor: |-
+                =If( TextInput_Main_LV1_mod_5.Text ="새 메뉴",
+                ColorValue("#D1D1D1"),RGBA(0,0,0,0))
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |-
+                =If(
+                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,Category_LV1=ThisItem.Value).ID,
+                    "새 메뉴",
+                    ThisItem.Value
+                )
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: |-
+                =//If(ThisItem.Value="" || ThisItem.Value=Blank(), DisplayMode.Edit,DisplayMode.View)
+                If(
+                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,Category_LV1=ThisItem.Value).ID,
+                    DisplayMode.Edit,
+                    DisplayMode.View
+                )
+            FocusedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            HintText: |-
+                =If(
+                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,Category_LV1=ThisItem.Value).ID,
+                    "새 메뉴",
+                    ThisItem.Value
+                )
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnChange: |-
+                =ForAll(Sequence(CountRows(Filter(CategoryTable, Category_LV1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
+            OnSelect: =
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Width: =400
+            X: =53
+            Y: =20
+            ZIndex: =8
 
     Button_newCategory_mod_6 As button:
         BorderColor: =RGBA(224, 224, 224, 1)
@@ -1116,16 +1129,17 @@ CategoryMenu_modify As screen:
         HoverBorderColor: =RGBA(15, 108, 189, 1)
         HoverColor: =RGBA(0, 0, 0, 1)
         HoverFill: =
-        OnSelect: |
+        OnSelect: |-
             =Collect(
                 CategoryTable,
                 {
-                    OData__x004c_V1: "새 메뉴" & Last(CategoryTable).ID + 1,
+                    Category_LV1: "새 메뉴" & Last(CategoryTable).ID + 1,
                     ID: Last(CategoryTable).ID + 1,
                     LV1Order: Last(CategoryTable).LV1Order + 1,
                     LV2Order: 1
                 }
             );
+            //UpdateContext({testV:""});
         PressedBorderColor: =RGBA(15, 108, 189, 1)
         PressedColor: =RGBA(0, 0, 0, 1)
         PressedFill: =
@@ -1227,7 +1241,7 @@ CategoryMenu_modify As screen:
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).OData__x004c_V1
+            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
             Width: =300
             X: =9
             Y: =25
@@ -1834,13 +1848,13 @@ CategoryMenu_modify As screen:
             OnSelect: |
                 =If(
                     delType = "Main",
-                    Collect(delCate, Filter(CategoryTable, OData__x004c_V1=delMainCate));
+                    Collect(delCate, Filter(CategoryTable, Category_LV1=delMainCate));
                     ForAll(
                         Sequence(
                             CountRows(
                                 Filter(
                                     CategoryTable,
-                                    OData__x004c_V1 = delMainCate
+                                    Category_LV1 = delMainCate
                                 )
                             )
                         ),
@@ -1848,7 +1862,7 @@ CategoryMenu_modify As screen:
                             CategoryTable,
                             LookUp(
                                 CategoryTable,
-                                OData__x004c_V1 = delMainCate
+                                Category_LV1 = delMainCate
                             )
                         )
                     ),
