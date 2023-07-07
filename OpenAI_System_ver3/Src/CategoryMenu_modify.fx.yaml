@@ -9,6 +9,7 @@ CategoryMenu_modify As screen:
         UpdateContext({lookUserVi:false});,
         UpdateContext({AddTeamPopUpVi: false});,
         UpdateContext({lookTeamVi:false});,
+        UpdateContext({testV:""}),
         Set(CategoryPopup, false);
         );
         
@@ -120,7 +121,7 @@ CategoryMenu_modify As screen:
         OnSelect: |-
             =ClearCollect(CategoryTable_Update,
                 ForAll(CategoryTable,
-                    {   Title:"  ",
+                    {   Title:".",
                         ID: If(ID in Category_table.ID, ThisRecord.ID, Blank()),
                         History: ThisRecord.History,
                         LV1Order:ThisRecord.LV1Order,
@@ -628,7 +629,12 @@ CategoryMenu_modify As screen:
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 DisabledFill: =RGBA(244, 244, 244, 1)
-                DisplayMode: =
+                DisplayMode: |-
+                    =If(
+                        TextInput_SubMenuName_CategoryMenu_mod_5.Text = "새 메뉴",
+                        DisplayMode.Edit,
+                        DisplayMode.View
+                    )
                 FocusedBorderThickness: =2
                 Height: =32
                 HoverBorderColor: =
@@ -1119,7 +1125,8 @@ CategoryMenu_modify As screen:
             HoverFill: =RGBA(255, 255, 255, 1)
             OnChange: |-
                 =ForAll(Sequence(CountRows(Filter(CategoryTable, Category_LV1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
-            OnSelect: =
+            OnSelect: |-
+                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
             PressedColor: =RGBA(51, 51, 51, 1)
@@ -1135,12 +1142,14 @@ CategoryMenu_modify As screen:
 
     Button_newCategory_mod_6 As button:
         BorderColor: =RGBA(224, 224, 224, 1)
+        BorderThickness: =1
         Color: =RGBA(0, 0, 0, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
         Fill: =RGBA(255, 255, 255, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderColor: =RGBA(15, 108, 189, 1)
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =46
@@ -1158,6 +1167,7 @@ CategoryMenu_modify As screen:
                     LV2Order: 1
                 }
             );
+            UpdateContext({testV:""});
             //
         PressedBorderColor: =RGBA(15, 108, 189, 1)
         PressedColor: =RGBA(0, 0, 0, 1)
