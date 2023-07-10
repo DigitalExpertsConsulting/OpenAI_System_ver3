@@ -1193,6 +1193,7 @@ FileManage As screen:
                     ItemSpacing: =12
                     MaxAttachments: =1
                     MaxAttachmentSize: =100
+                    MaxAttachmentsText: =""
                     NoAttachmentsColor: =RGBA(166, 166, 166, 1)
                     PaddingBottom: =5
                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
@@ -1292,7 +1293,12 @@ FileManage As screen:
                 =ColorValue("#115EA3")
             OnSelect: |
                 =
-                If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name)),
+                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments), Notify(
+                        "첨부 파일 등록은 필수입니다.",
+                        NotificationType.Error,
+                        800
+                    ),
+                If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
                 
                 
                 '똑실이-[Apps]파일업로드'.Run(
@@ -1330,7 +1336,11 @@ FileManage As screen:
                         ),
                         Index_Status: "not_indexed"
                     }
-                ););
+                );,Notify(
+                        "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
+                        NotificationType.Error,
+                        800
+                    );););
                 ResetForm(Form_FileUpload_FM);
                 UpdateContext({ModalVisible: false});
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
