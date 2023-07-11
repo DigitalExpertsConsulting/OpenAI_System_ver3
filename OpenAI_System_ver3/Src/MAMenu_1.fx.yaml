@@ -182,12 +182,12 @@ MAMenu_1 As screen:
             Items: =SortByColumns(Filter(GNB_MENU, Menu_LV1=ThisItem.Result), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: |
-                =Set(SelectedLV2,ThisItem.제목);
+                =Set(SelectedLV2,ThisItem.Title);
                 Set(SelectedLV1, "");
                 
-                If(ThisItem.제목=SelectedLV2, //Checkbox5.Value,
+                If(ThisItem.Title=SelectedLV2, //Checkbox5.Value,
                 Set(CheckedLV1, ThisItem.Menu_LV1);
-                Set(CheckedLV2, ThisItem.제목);
+                Set(CheckedLV2, ThisItem.Title);
                 Set(CheckedLV1Order, ThisItem.LV1Order);
                 Set(CheckedLV2Order, ThisItem.LV2Order);
                 Set(CheckedReportURI, ThisItem.ReportURI);
@@ -288,9 +288,9 @@ MAMenu_1 As screen:
                 Color: =RGBA(51, 51, 51, 1)
                 Default: |-
                     =If(
-                        ThisItem.제목=LookUp(GNB_MENU, Menu_LV1=ThisItem.제목, LV1Order) || IsNumeric(ThisItem.제목),
+                        ThisItem.Title=LookUp(GNB_MENU, Menu_LV1=ThisItem.Title, LV1Order) || IsNumeric(ThisItem.Title),
                         Blank(),
-                        ThisItem.제목
+                        ThisItem.Title
                     )
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
@@ -310,7 +310,7 @@ MAMenu_1 As screen:
                 OnChange: =
                 OnSelect: |-
                     =//If(SelectedLV2<>ThisItem.Title, Set(SelectedLV2,ThisItem.Title), Set(SelectedLV2, ""));
-                    Set(SelectedLV2,ThisItem.제목);
+                    Set(SelectedLV2,ThisItem.Title);
                     Set(SelectedLV1, "");
                     Select(Parent)
                 PaddingLeft: =15
@@ -346,8 +346,8 @@ MAMenu_1 As screen:
                             LookUp(
                                 NewMACollect,
                                 Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
+                                    CheckedLV2 <> ThisItem.Title,
+                                    ThisItem.Title,
                                     CheckedLV2
                                 ),
                                 Users
@@ -357,8 +357,8 @@ MAMenu_1 As screen:
                             LookUp(
                                 NewMACollect,
                                 Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
+                                    CheckedLV2 <> ThisItem.Title,
+                                    ThisItem.Title,
                                     CheckedLV2
                                 ),
                                 Users
@@ -368,8 +368,8 @@ MAMenu_1 As screen:
                                 LookUp(
                                     NewMACollect,
                                     Title = If(
-                                        CheckedLV2 <> ThisItem.제목,
-                                        ThisItem.제목,
+                                        CheckedLV2 <> ThisItem.Title,
+                                        ThisItem.Title,
                                         CheckedLV2
                                     ),
                                     Users
@@ -380,8 +380,8 @@ MAMenu_1 As screen:
                             LookUp(
                                 NewMACollect,
                                 Title = If(
-                                    CheckedLV2 <> ThisItem.제목,
-                                    ThisItem.제목,
+                                    CheckedLV2 <> ThisItem.Title,
+                                    ThisItem.Title,
                                     CheckedLV2
                                 ),
                                 Users
@@ -582,7 +582,7 @@ MAMenu_1 As screen:
                 Image: =Icon_AddTeamCheck
                 OnSelect: |-
                     =Select(Parent);
-                    ClearCollect(MyPeople,RenameColumns( LookUp(NewMACollect, Title=ThisItem.제목, Users), "Email", "UserPrincipalName"));
+                    Collect(adminUser, LookUp(NewMACollect, ID= ThisItem.ID).Users);
                     Set(MAMode, "Search");
                     Set(EditUserVisibleVal, true);
                     //ClearCollect(MyPeople,RenameColumns( ThisItem.'Users (Users0)', "Email", "UserPrincipalName"));
@@ -616,12 +616,11 @@ MAMenu_1 As screen:
                 Image: =Icon_AddTeam
                 OnSelect: |-
                     =Select(Parent);
-                    Clear(MyPeople);
+                    Clear(adminUser);
                     //ClearCollect(MyPeople,RenameColumns( LookUp(NewMACollect, Title=ThisItem.Title, Users0), "Email", "UserPrincipalName"));
                     Set(MAMode, "Add");
                     Set(EditUserVisibleVal, true);
-                    //ClearCollect(MyPeople,RenameColumns( ThisItem.'Users (Users0)', "Email", "UserPrincipalName"));
-                    //ClearCollect(MyPeople, ThisItem.'Users (Users0)');
+                    Collect(adminUser, LookUp(NewMACollect, ID= ThisItem.ID).Users);
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -1301,7 +1300,7 @@ MAMenu_1 As screen:
                 RadiusTopLeft: =8
                 RadiusTopRight: =8
                 Size: =14
-                Text: =ThisItem.제목
+                Text: =ThisItem.Title
                 Width: =504
                 X: =24
                 Y: =14
@@ -2184,52 +2183,9 @@ MAMenu_1 As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |+
-                =If(
-                    MAMode = "Search",
-                    Clear(
-                            LookUp(
-                            NewMACollect,
-                            ID = CheckedID,
-                            Users
-                        )
-                    );
-                    Collect(
-                        LookUp(
-                            NewMACollect,
-                            ID = CheckedID,
-                            Users
-                        ),
-                        MyPeople
-                    );
-                    ,
-                    MAMode = "Add",
-                    Collect(
-                        LookUp(
-                            NewMACollect,
-                            ID = CheckedID,
-                            Users
-                        ),
-                        MyPeople
-                    )
-                );
+                =Patch(NewMACollect, LookUp(NewMACollect,ID=CheckedID), {Users:adminUser});
+                Clear(adminUser);
                 
-                Set(
-                    SelectedLV1,
-                    ""
-                );
-                Set(
-                    SelectedLV2,
-                    ""
-                );
-                Set(
-                    CheckedLV2,
-                    ""
-                );
-                
-                Set(
-                    ZoomLV1,
-                    "FFF"
-                );
                 Set(EditUserVisibleVal, false);
                 Reset(TextInput_AddUserSearch_MAMenu_1);
                 Refresh(GNB_MENU);
@@ -2271,6 +2227,7 @@ MAMenu_1 As screen:
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =Set(EditUserVisibleVal, false);
+                Clear(adminUser);
                 Reset(TextInput_AddUserSearch_MAMenu_1);
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
@@ -2296,7 +2253,7 @@ MAMenu_1 As screen:
             Fill: |-
                 =ColorValue("#FAFAFA")
             Height: =488
-            Items: =Search(MyPeople,TextInput_Add_CategoryMenu_mod_7.Text,"DisplayName")
+            Items: =adminUser
             Layout: =Layout.Vertical
             ShowScrollbar: =false
             TemplatePadding: =0
@@ -2351,7 +2308,7 @@ MAMenu_1 As screen:
                 PaddingLeft: =15
                 Size: =13
                 TabIndex: =If(Gallery_AddUserSearch_MAMenu_1.Visible, -1, 0)
-                Text: =ThisItem.DisplayName & " ( " & ThisItem.UserPrincipalName & " ) "
+                Text: =ThisItem.DisplayName & " ( " & ThisItem.Email & " ) "
                 Width: =430
                 Wrap: =false
                 X: =24
@@ -2370,7 +2327,7 @@ MAMenu_1 As screen:
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Cancel
-                OnSelect: =Remove(MyPeople, LookUp(MyPeople, UserPrincipalName = ThisItem.UserPrincipalName))
+                OnSelect: =Remove(adminUser, ThisItem)
                 PaddingBottom: =9
                 PaddingLeft: =9
                 PaddingRight: =9
@@ -2532,7 +2489,9 @@ MAMenu_1 As screen:
                             )
                         )
                     );
-                    */
+                    
+                    //// 기존 ////
+                    
                     If(
                         Not(ThisItem.UserPrincipalName in MyPeople.UserPrincipalName) && Not(
                             ThisItem.UserPrincipalName in LookUp(
@@ -2580,6 +2539,7 @@ MAMenu_1 As screen:
                     
                     //Reset(TextSearchBox1_1);
                     //등록완료시 초기화
+                    */
                 PaddingLeft: =15
                 Size: =12
                 TabIndex: =0
@@ -2601,8 +2561,38 @@ MAMenu_1 As screen:
                 HoverBorderColor: =RGBA(0, 0, 0, 0)
                 HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 HoverFill: =RGBA(0, 0, 0, 0)
-                Icon: =Icon.Add
-                OnSelect: =Select(Label_DisplayName_MAMenu_1)
+                Icon: |-
+                    =//Icon.Add
+                    If(ThisItem.Mail in adminUser.Email,
+                    Icon.Cancel,
+                    Icon.Add)
+                OnSelect: |-
+                    =If(
+                        ThisItem.Mail in adminUser.Email,
+                        Remove(adminUser, LookUp(adminUser, Email=ThisItem.Mail));
+                        Notify(
+                            "사용자 제거 완료.",
+                            NotificationType.Success,
+                            800
+                        )
+                        ,
+                        Collect(
+                            adminUser,
+                            {
+                                Claims: "i:0#.f|membership|" & ThisItem.UserPrincipalName,
+                                Department: ThisItem.Department,
+                                DisplayName: ThisItem.DisplayName,
+                                JobTitle: ThisItem.JobTitle,
+                                Email: ThisItem.Mail,
+                                Picture: 'Office365사용자'.UserPhotoV2(ThisItem.Id)
+                            }
+                        );
+                        Notify(
+                            "사용자 추가 완료.",
+                            NotificationType.Success,
+                            800
+                        )
+                    )
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
