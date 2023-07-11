@@ -66,7 +66,8 @@ CategoryMenu_modify As screen:
                     "ID",
                     "History",
                     "Teams",
-                    "FileCount"
+                    "FileCount",
+                    "DocumentLanguage"
                 )
             );
         PaddingLeft: =30
@@ -129,7 +130,8 @@ CategoryMenu_modify As screen:
                         Category_LV1:ThisRecord.Category_LV1,
                         Category_LV2:ThisRecord.Category_LV2,
                         Users:ThisRecord.Users,
-                        Teams:ThisRecord.Teams
+                        Teams:ThisRecord.Teams,
+                        DocumentLanguage:ThisRecord.DocumentLanguage
                     }
                 )
             );
@@ -171,7 +173,8 @@ CategoryMenu_modify As screen:
                     "Users",
                     "ID",
                     "History",
-                    "Teams"
+                    "Teams",
+                    "DocumentLanguage"
                 )
             );
             //Patch(Category_table,CategoryTable)
@@ -994,6 +997,7 @@ CategoryMenu_modify As screen:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 Color: =RGBA(51, 51, 51, 1)
+                Default: =If(ThisItem.DocumentLanguage="ko",true,false)
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 FalseFill: |-
                     =ColorValue("#D1D1D1")
@@ -1003,6 +1007,8 @@ CategoryMenu_modify As screen:
                 HandleFill: =RGBA(255, 255, 255, 1)
                 Height: =32
                 HoverBorderColor: =RGBA(0, 0, 0, 0)
+                OnChange: |-
+                    =Patch(CategoryTable,LookUp(CategoryTable, ID=ThisItem.ID), {DocumentLanguage:If(Toggle1.Value=true,"ko","en")});
                 OnSelect: =Select(Parent)
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 Size: =13
@@ -1055,6 +1061,7 @@ CategoryMenu_modify As screen:
                     {
                         Category_LV1: ThisItem.Value,
                         ID: Last(CategoryTable).ID + 1,
+                        DocumentLanguage:"ko",
                         LV1Order: LookUp(
                             CategoryTable,
                             Category_LV1 = ThisItem.Value
@@ -1240,7 +1247,8 @@ CategoryMenu_modify As screen:
                     Category_LV1: "새 메뉴" & Last(CategoryTable).ID + 1,
                     ID: Last(CategoryTable).ID + 1,
                     LV1Order: Last(CategoryTable).LV1Order + 1,
-                    LV2Order: 1
+                    LV2Order: 1,
+                    DocumentLanguage:"ko"
                 }
             );
             UpdateContext({testV:""});
