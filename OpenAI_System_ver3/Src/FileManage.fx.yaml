@@ -1195,6 +1195,10 @@ FileManage As screen:
                     MaxAttachmentSize: =100
                     MaxAttachmentsText: =""
                     NoAttachmentsColor: =RGBA(166, 166, 166, 1)
+                    OnAddFile: |-
+                        =Set(File_extensions,
+                        Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")))
+                    OnRemoveFile: =
                     PaddingBottom: =5
                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
                     PaddingRight: =5
@@ -1291,13 +1295,20 @@ FileManage As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |+
+            OnSelect: |-
                 =
+                
                 If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments), Notify(
                         "첨부 파일 등록은 필수입니다.",
                         NotificationType.Error,
                         800
                     ),
+                    If(Not(File_extensions.Value in ["pdf","pptx","ppt","doc","docx","PDF","PPTX","PPT","DOC","DOCX"]),Notify(
+                        "첨부 파일의 확장자가 올바르지 않습니다. (pdf,pptx,ppt,doc,docx 만 업로드 가능)",
+                        NotificationType.Error,
+                        1000
+                    ),
+                
                 If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
                 
                 
@@ -1340,10 +1351,8 @@ FileManage As screen:
                         "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
                         NotificationType.Error,
                         800
-                    );););
+                    ););););
                 ResetForm(Form_FileUpload_FM);
-                
-                
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
