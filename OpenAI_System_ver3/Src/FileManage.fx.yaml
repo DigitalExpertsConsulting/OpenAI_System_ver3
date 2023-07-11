@@ -902,6 +902,21 @@ FileManage As screen:
             Y: =284
             ZIndex: =19
 
+    Background_Modal_FileUpload_FM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =FileUploadLoding
+        Width: =1620
+        X: =300
+        ZIndex: =32
+
     ModalDialog_FileUpload_FM As group:
         Height: =5
         Width: =5
@@ -1322,8 +1337,8 @@ FileManage As screen:
                 
                 If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
                 
-                
-                
+                Set(FileUploadLoding,true);
+                Set(PAResult,
                 '똑실이-[Apps]파일업로드'.Run(
                     // LV1_Category
                     Dropdown_LV1Category_FileUpload_FM.Selected.Value,
@@ -1336,7 +1351,12 @@ FileManage As screen:
                             contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
                         }
                     }
-                );
+                ).pa_status);
+                 If(PAResult = "Complated",Concurrent(Refresh(FileUpload_table),
+                Set(FileUploadLoding,false),Set(PAResult,
+                "")));
+                
+                /*
                 Patch(
                     FileUpload_table,
                     {
@@ -1359,7 +1379,10 @@ FileManage As screen:
                         ),
                         Index_Status: "not_indexed"
                     }
-                ); UpdateContext({ModalVisible: false}); ,Notify(
+                ); 
+                */
+                
+                UpdateContext({ModalVisible: false}); ,Notify(
                         "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
                         NotificationType.Error,
                         800
@@ -1421,6 +1444,23 @@ FileManage As screen:
             X: =1240
             Y: =608
             ZIndex: =31
+
+    Image2 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =FileUploadLoding
+        X: =957
+        Y: =454
+        ZIndex: =33
 
     Group_DeleteQA_FM As group:
         Height: =5
