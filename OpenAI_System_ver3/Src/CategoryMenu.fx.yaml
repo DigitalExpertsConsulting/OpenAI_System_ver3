@@ -553,7 +553,8 @@ CategoryMenu As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(CategoryTable, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
-            Items: =SortByColumns(Filter(CategoryTable, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+            Items: |
+                =SortByColumns(Filter(CategoryTable, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -629,18 +630,23 @@ CategoryMenu As screen:
                     =ColorValue("#D1D1D1")
                 BorderThickness: =2
                 Color: =RGBA(51, 51, 51, 1)
-                Default: =If(ThisItem.Category_LV2="" || ThisItem.Category_LV2=Blank(), "새 메뉴", ThisItem.Category_LV2)
+                Default: |-
+                    =//If(ThisItem.Category_LV2="" || ThisItem.Category_LV2=Blank(), "새 메뉴", ThisItem.Category_LV2)
+                    ThisItem.Category_LV2
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 DisabledFill: =RGBA(244, 244, 244, 1)
                 DisplayMode: |-
-                    =DisplayMode.Edit/*If(
-                        TextInput_SubMenuName_CategoryMenu_mod_5.Text in "새 메뉴",
+                    =//DisplayMode.Edit
+                    
+                    If(
+                        IsBlank(ThisItem.Title),
                         DisplayMode.Edit,
                         DisplayMode.View
-                    )*/
+                    )
                 FocusedBorderThickness: =2
                 Height: =32
+                HintText: =If(ThisItem.Category_LV2="" || ThisItem.Category_LV2=Blank(), "새 메뉴", ThisItem.Category_LV2)
                 HoverBorderColor: =
                 HoverColor: =RGBA(51, 51, 51, 1)
                 HoverFill: =RGBA(255, 255, 255, 1)
