@@ -27,7 +27,8 @@ CategoryMenu As screen:
                 "History",
                 "Teams",
                 "FileCount",
-                "DocumentLanguage"
+                "DocumentLanguage",
+                "Author"
             )
         );
         Clear(delCate);
@@ -132,7 +133,8 @@ CategoryMenu As screen:
                         Category_LV2:ThisRecord.Category_LV2,
                         Users:ThisRecord.Users,
                         Teams:ThisRecord.Teams,
-                        DocumentLanguage:ThisRecord.DocumentLanguage
+                        DocumentLanguage:ThisRecord.DocumentLanguage,
+                        Author:ThisRecord.Author
                     }
                 )
             );
@@ -175,7 +177,8 @@ CategoryMenu As screen:
                     "ID",
                     "History",
                     "Teams",
-                    "DocumentLanguage"
+                    "DocumentLanguage",
+                    "Author"
                 )
             );
             //Patch(Category_table,CategoryTable)
@@ -300,7 +303,7 @@ CategoryMenu As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(CategoryTable)
+            Text: =CountRows(Filter(Category_table,!IsBlank(LV2Order)))
             Width: =61
             X: =34
             Y: =55
@@ -507,7 +510,7 @@ CategoryMenu As screen:
             BorderThickness: =2
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
-            DisplayMode: =
+            DisplayMode: =If(Office365사용자.MyProfile().Mail in LookUp(SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,DisplayMode.Disabled)
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
             Height: =35
@@ -543,7 +546,7 @@ CategoryMenu As screen:
             RadiusBottomRight: =10
             RadiusTopLeft: =10
             RadiusTopRight: =10
-            Transparency: =
+            Transparency: =If(Image_DeleteMainList_CategoryMenu.DisplayMode = DisplayMode.Disabled,0.5,0)
             Width: =35
             X: =1443
             Y: =23
@@ -963,7 +966,10 @@ CategoryMenu As screen:
                 BorderThickness: =2
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledFill: =RGBA(0, 0, 0, 0)
-                DisplayMode: =
+                DisplayMode: |-
+                    =If(Office365사용자.MyProfile().Mail in LookUp(SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.Author.Email ,DisplayMode.Edit,
+                    DisplayMode.Disabled))
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
                 Height: =35
@@ -994,7 +1000,7 @@ CategoryMenu As screen:
                 RadiusBottomRight: =10
                 RadiusTopLeft: =10
                 RadiusTopRight: =10
-                Transparency: =
+                Transparency: =If(Icon_DeleteSubMenu_CategoryMenu.DisplayMode = DisplayMode.Disabled,0.5,0)
                 Width: =35
                 X: =1412
                 Y: =20
