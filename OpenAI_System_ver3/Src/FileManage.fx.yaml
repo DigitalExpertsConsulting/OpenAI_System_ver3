@@ -1,19 +1,30 @@
 FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |+
+    OnVisible: |-
         =Concurrent(
             UpdateContext({ModalVisible: false}),
             UpdateContext({LogModalVisible: false}),
             UpdateContext({DelModalVisible: false}),
-            Set(delPopUp_File,false);,
-            Set(FileUploadLoding,false)
+            Set(
+                delPopUp_File,
+                false
+            );
+            ,
+            Set(
+                FileUploadLoding,
+                false
+            )
         );
-        
         ForAll(
-                Category_table,
-                Collect(Teams_GET,FirstN(ThisRecord.Teams,CountRows(ThisRecord.Teams)).Claims
-                )
+            Category_table,
+            Collect(
+                Teams_GET,
+                FirstN(
+                    ThisRecord.Teams,
+                    CountRows(ThisRecord.Teams)
+                ).Claims
+            )
         );
         Clear(testDist);
         Clear(offGroe);
@@ -47,8 +58,23 @@ FileManage As screen:
         Distinct(
             offGroe,
             ThisRecord
+        );
+        ClearCollect(
+            colCategoryLV1_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(CategoryTable,"LV1Order",SortOrder.Ascending),
+                Category_LV1
+            )
+        );
+        ClearCollect(
+            colCategoryLV2_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(CategoryTable,"LV2Order",SortOrder.Ascending),
+                Category_LV2
+            )
         )
-        
 
     Button_AddButton_FM As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -153,7 +179,30 @@ FileManage As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =718
-        Items: =SortByColumns(FileUpload_table,"ID",SortOrder.Descending)
+        Items: |-
+            =Filter(
+                SortByColumns(
+                    FileUpload_table,"ID",
+                    SortOrder.Descending
+                    ),
+            
+                Or(
+                    IsBlank(TextInput_SearchFileName_FM.Text),
+                    TextInput_SearchFileName_FM.Text in File_Name
+                )
+                
+                &&
+            
+                Or(
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1, Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체"
+                )
+            
+                &&
+            
+                Or(
+                    Dropdown_SearchCategoryLV2_FM.Selected.Value in Category_LV2, Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체"
+                )
+            )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowScrollbar: =false
@@ -369,7 +418,7 @@ FileManage As screen:
             OnSelect: =Select(Parent)
             Size: =13
             Text: =ThisItem.Upload_Date
-            Width: =201
+            Width: =205
             X: =977
             Y: =10
             ZIndex: =5
@@ -755,7 +804,7 @@ FileManage As screen:
             Size: =13
             Text: ="업로드 일시"
             Width: =109
-            X: =1356
+            X: =1375
             Y: =Label_FileName_FM.Y
             ZIndex: =7
 
@@ -1458,12 +1507,12 @@ FileManage As screen:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        DisabledFill: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(255, 255, 255, 1)
         Fill: =RGBA(255, 255, 255, 1)
         FocusedBorderThickness: =4
         Height: =80
-        HoverFill: =RGBA(105, 121, 126, 1)
-        PressedFill: =RGBA(105, 121, 126, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
         Width: =1540
         X: =340
         Y: =124
@@ -1701,7 +1750,7 @@ FileManage As screen:
         RadiusTopLeft: =0
         RadiusTopRight: =0
         Size: =12
-        Width: =400
+        Width: =280
         X: =445
         Y: =148
         ZIndex: =38
@@ -1744,11 +1793,11 @@ FileManage As screen:
         PaddingTop: =0
         Text: ="카테고리"
         Width: =90
-        X: =900
+        X: =750
         Y: =148
         ZIndex: =40
 
-    Dropdown_SearchCategory_FM As dropdown:
+    Dropdown_SearchCategoryLV1_FM As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
         ChevronBackground: =RGBA(255, 255, 255, 1)
         ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
@@ -1765,7 +1814,18 @@ FileManage As screen:
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
-        Items: =DropDownSample
+        Items: =colCategoryLV1_FM
+        OnChange: |-
+            =ClearCollect(
+                colCategoryLV2_FM, {Value : "전체"}, Distinct(CategoryTable, Category_LV2)
+            )
+            /*ClearCollect(
+                colCategoryLV2_FM, {Value : "전체"}, Distinct(CategoryTable, Category_LV2)
+            )*/
+            
+            /*ClearCollect(
+                colCategoryLV2_FM, {Value : "전체"}, Distinct(Filter(CategoryTable, Category_LV1 =  Dropdown_SearchCategoryLV1_FM.Selected.Value), Category_LV2)
+            ) */
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -1775,7 +1835,66 @@ FileManage As screen:
         PressedFill: =RGBA(105, 121, 126, 1)
         SelectionFill: =RGBA(105, 121, 126, 1)
         Size: =13
-        X: =990
+        Width: =240
+        X: =Label_SearchCategory_FM.X + Label_SearchCategory_FM.Width
         Y: =148
         ZIndex: =41
+
+    Dropdown_SearchCategoryLV2_FM As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =32
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =If(
+                Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                colCategoryLV2_FM,
+                Distinct(
+                    Filter(
+                        CategoryTable,
+                        Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
+                    ),
+                    Category_LV2
+                )
+            )
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Width: =240
+        X: =Label_SearchCategoryArrow_FM.X + Label_SearchCategoryArrow_FM.Width
+        Y: =148
+        ZIndex: =42
+
+    Label_SearchCategoryArrow_FM As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 18, 107, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Font: =Font.'Segoe UI'
+        Height: =47
+        PaddingLeft: =0
+        PaddingRight: =0
+        Text: =">"
+        Width: =43
+        X: =Dropdown_SearchCategoryLV1_FM.X + Dropdown_SearchCategoryLV1_FM.Width
+        Y: =138
+        ZIndex: =43
 
