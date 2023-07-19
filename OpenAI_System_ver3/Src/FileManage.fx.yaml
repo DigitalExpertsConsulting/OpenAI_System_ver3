@@ -1379,6 +1379,9 @@ FileManage As screen:
                 If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
                 
                 Set(FileUploadLoding,true);
+                Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
+                Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM.Selected.Value);
+                Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name);
                 Set(PAResult,
                 '똑실이-[Apps]파일업로드'.Run(
                     // LV1_Category
@@ -1393,9 +1396,7 @@ FileManage As screen:
                         }
                     }
                 ).pa_status);
-                 If(PAResult = "Completed",Concurrent(Refresh(FileUpload_table),
-                Set(FileUploadLoding,false),Set(PAResult,
-                "")));
+                 If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);));
                 
                 /*
                 Patch(
@@ -1429,7 +1430,7 @@ FileManage As screen:
                         800
                     );););););
                 
-                Set(FileRefresh, true);
+                
                 //Reset(Gallery_FileList_FM);
                 //Navigate(FileManage);  
                 ResetForm(Form_FileUpload_FM);
@@ -1734,51 +1735,45 @@ FileManage As screen:
         Y: =454
         ZIndex: =44
 
-    Button1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: =Reset(Gallery_FileList_FM);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =750
-        Y: =33
-        ZIndex: =45
-
-    Timer1 As timer:
+    Timer_FileRefresh_FM As timer:
         BorderColor: =RGBA(105, 121, 126, 1)
         BorderStyle: =BorderStyle.None
         DisabledBorderColor: =RGBA(244, 244, 244, 1)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        Duration: =2000
+        Duration: =1000
         Fill: =RGBA(105, 121, 126, 1)
         Font: =Font.'Segoe UI'
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: |-
-            =Reset(Gallery_FileList_FM);
-            Set(FileRefresh,false);
+        OnTimerEnd: |
+            =Refresh(FileUpload_table);
+            
+            If(
+                CountRows(
+                    Filter(
+                        FileUpload_table,
+                        Upload_CategoryLV1 = Category_LV1 && Upload_CategoryLV2 = Category_LV2 && Upload_FileName = File_Name
+                    )
+                ) > 0,
+                Reset(Gallery_FileList_FM);
+                Set(
+                    FileRefresh,
+                    false
+                );
+                
+                Set(FileUploadLoding,false);
+                Trace("true");
+                ,
+                Trace("false");
+            );
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Repeat: =true
         Start: =If( FileRefresh = true, true,false)
+        Visible: =false
         X: =942
         Y: =33
         ZIndex: =46
