@@ -1,7 +1,7 @@
 FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =Concurrent(
             UpdateContext({ModalVisible: false}),
             UpdateContext({LogModalVisible: false}),
@@ -77,7 +77,10 @@ FileManage As screen:
                 SortByColumns(CategoryTable,"LV2Order",SortOrder.Ascending),
                 Category_LV2
             )
-        )
+        );
+        
+        Reset(Gallery_FileList_FM);
+        
 
     Button_AddButton_FM As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -220,6 +223,7 @@ FileManage As screen:
         TemplatePadding: =0
         TemplateSize: =60
         Width: =1526
+        WrapCount: =0
         X: =354
         Y: =300
         ZIndex: =16
@@ -1353,7 +1357,7 @@ FileManage As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
+            OnSelect: |
                 =If( IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value),
                 Notify(
                         "할당된 카테고리가 없습니다.",
@@ -1424,6 +1428,10 @@ FileManage As screen:
                         NotificationType.Error,
                         800
                     );););););
+                
+                Set(FileRefresh, true);
+                //Reset(Gallery_FileList_FM);
+                //Navigate(FileManage);  
                 ResetForm(Form_FileUpload_FM);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -1725,6 +1733,55 @@ FileManage As screen:
         X: =957
         Y: =454
         ZIndex: =44
+
+    Button1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: =Reset(Gallery_FileList_FM);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        X: =750
+        Y: =33
+        ZIndex: =45
+
+    Timer1 As timer:
+        BorderColor: =RGBA(105, 121, 126, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(244, 244, 244, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Duration: =2000
+        Fill: =RGBA(105, 121, 126, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnTimerEnd: |-
+            =Reset(Gallery_FileList_FM);
+            Set(FileRefresh,false);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Start: =If( FileRefresh = true, true,false)
+        X: =942
+        Y: =33
+        ZIndex: =46
 
     Group_Search_FM As group:
         Height: =5
