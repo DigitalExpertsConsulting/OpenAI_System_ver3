@@ -17,7 +17,7 @@ FileManage As screen:
             )
         );
         ForAll(
-            Category_table,
+            똑실이_Category_table,
             Collect(
                 Teams_GET,
                 FirstN(
@@ -29,7 +29,7 @@ FileManage As screen:
         Clear(testDist);
         Clear(offGroe);
         ForAll(
-            Category_table,
+            똑실이_Category_table,
             Collect(
                 testDist,
                 ThisRecord.Teams
@@ -115,7 +115,7 @@ FileManage As screen:
             colCategoryLV1_FM,
             {Value: "전체"},
             Distinct(
-                SortByColumns(Category_table,"LV1Order",SortOrder.Ascending),
+                SortByColumns(똑실이_Category_table,"LV1Order",SortOrder.Ascending),
                 Category_LV1
             )
         );
@@ -123,7 +123,7 @@ FileManage As screen:
             colCategoryLV2_FM,
             {Value: "전체"},
             Distinct(
-                SortByColumns(Category_table,"LV2Order",SortOrder.Ascending),
+                SortByColumns(똑실이_Category_table,"LV2Order",SortOrder.Ascending),
                 Category_LV2
             )
         );
@@ -236,7 +236,7 @@ FileManage As screen:
         Items: |-
             =Filter(
                 SortByColumns(
-                    FileUpload_table,"ID",
+                    똑실이_FileUpload_table,"ID",
                     SortOrder.Descending
                     ),
             
@@ -388,8 +388,8 @@ FileManage As screen:
                 )
             OnSelect: |
                 =Patch(
-                    FileUpload_table,
-                    LookUp(FileUpload_table, ID = ThisItem.ID),
+                    똑실이_FileUpload_table,
+                    LookUp(똑실이_FileUpload_table, ID = ThisItem.ID),
                     {
                         Index_Status: "in_progress",
                         Index_Log: "인덱스 요청됨: " & Text(Now(), "yyyy-mm-dd hh:mm:ss")
@@ -398,7 +398,7 @@ FileManage As screen:
                 //'[TEST]똑실이-파일인덱스생성_테이블트리거'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
                 
                 Patch(
-                    Index_Generate,
+                    똑실이_Index_Generate,
                     {
                         Title : " ",
                         LV1_Category: ThisItem.Category_LV1, 
@@ -560,7 +560,7 @@ FileManage As screen:
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             DisplayMode: |-
-                =If(Office365사용자.MyProfile().Mail in LookUp(SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
+                =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
                 If(Office365사용자.MyProfile().Mail in ThisItem.Author.Email ,DisplayMode.Edit,
                 DisplayMode.Disabled))
             Fill: =RGBA(255, 255, 255, 1)
@@ -819,7 +819,7 @@ FileManage As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(FileUpload_table)
+        OnSelect: =Refresh(똑실이_FileUpload_table)
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -898,7 +898,7 @@ FileManage As screen:
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: =Refresh(FileUpload_table);
+        OnTimerEnd: =Refresh(똑실이_FileUpload_table);
         OnTimerStart: =
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
@@ -1054,7 +1054,7 @@ FileManage As screen:
 
         Form_FileUpload_FM As form:
             BorderColor: =RGBA(166, 166, 166, 1)
-            DataSource: =FileUpload_table
+            DataSource: =똑실이_FileUpload_table
             DefaultMode: =FormMode.New
             Height: =200
             NumberOfColumns: =2
@@ -1071,10 +1071,10 @@ FileManage As screen:
                 DataField: ="Category"
                 Default: =ThisItem.Category_LV2
                 DisplayMode: =Parent.DisplayMode
-                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"Category_LV2")
+                DisplayName: =DataSourceInfo([@똑실이_FileUpload_table],DataSourceInfo.DisplayName,"Category_LV2")
                 Fill: =RGBA(0, 0, 0, 0)
                 Height: =181
-                MaxLength: =DataSourceInfo([@FileUpload_table], DataSourceInfo.MaxLength, "Category_LV2")
+                MaxLength: =DataSourceInfo([@똑실이_FileUpload_table], DataSourceInfo.MaxLength, "Category_LV2")
                 Required: =false
                 Update: =Dropdown_LV2Category_FileUpload_FM.Selected.Value
                 Width: =294
@@ -1181,7 +1181,7 @@ FileManage As screen:
                         
                         Distinct(
                             Filter(
-                                Category_table,
+                                똑실이_Category_table,
                                 Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
                             ),
                             Category_LV1
@@ -1222,7 +1222,7 @@ FileManage As screen:
                     Items: |-
                         =Distinct(
                             Filter(
-                                Category_table,
+                                똑실이_Category_table,
                                 Category_LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                                 Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
                             ),
@@ -1249,7 +1249,7 @@ FileManage As screen:
                 DataField: ="{Attachments}"
                 Default: =ThisItem.'{Attachments}'
                 DisplayMode: =Parent.DisplayMode
-                DisplayName: =DataSourceInfo([@FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
+                DisplayName: =DataSourceInfo([@똑실이_FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
                 Fill: =RGBA(0, 0, 0, 0)
                 Height: =176
                 Required: =false
@@ -1424,7 +1424,7 @@ FileManage As screen:
                         1000
                     ),
                 
-                If(IsBlank(LookUp(FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
+                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
                 
                 Set(FileUploadLoding,true);
                 Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
@@ -1598,7 +1598,7 @@ FileManage As screen:
             OnSelect: |-
                 =
                 Patch(
-                    Index_Remove,
+                    똑실이_Index_Remove,
                     {
                         Title: LV2_Category&"-"&filename,
                         LV1_Category: LV1_Category, 
@@ -1609,8 +1609,8 @@ FileManage As screen:
                 );
                 
                 Patch(
-                    FileUpload_table,
-                    LookUp(FileUpload_table, ID = File_ID),
+                    똑실이_FileUpload_table,
+                    LookUp(똑실이_FileUpload_table, ID = File_ID),
                     {
                         Index_Status: "deleting"
                     }
@@ -1796,12 +1796,12 @@ FileManage As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnTimerEnd: |
-            =Refresh(FileUpload_table);
+            =Refresh(똑실이_FileUpload_table);
             
             If(
                 CountRows(
                     Filter(
-                        FileUpload_table,
+                        똑실이_FileUpload_table,
                         Upload_CategoryLV1 = Category_LV1 && Upload_CategoryLV2 = Category_LV2 && Upload_FileName = File_Name
                     )
                 ) > 0,
@@ -1946,7 +1946,7 @@ FileManage As screen:
                         Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
                         Distinct(
                             SortByColumns(
-                                Category_table,
+                                똑실이_Category_table,
                                 "LV2Order",
                                 SortOrder.Ascending
                             ),
@@ -1957,7 +1957,7 @@ FileManage As screen:
                          Distinct(
                             Filter(
                                 SortByColumns(
-                                    Category_table,
+                                    똑실이_Category_table,
                                     "LV2Order",
                                     SortOrder.Ascending
                                 ),
