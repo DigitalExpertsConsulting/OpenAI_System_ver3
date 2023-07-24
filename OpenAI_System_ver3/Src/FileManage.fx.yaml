@@ -59,6 +59,25 @@ FileManage As screen:
             offGroe,
             ThisRecord
         );
+        
+        ClearCollect(
+            colCategoryLV1_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(똑실이_Category_table,"LV1Order",SortOrder.Ascending),
+                Category_LV1
+            )
+        );
+        ClearCollect(
+            colCategoryLV2_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(똑실이_Category_table,"LV2Order",SortOrder.Ascending),
+                Category_LV2
+            )
+        );
+        
+        
         // 카테고리 컬렉션 "전체" 저장
         /*If(
             Office365사용자.MyProfile().Mail in LookUp(
@@ -110,7 +129,7 @@ FileManage As screen:
                 Category_LV2
             )
         );*/
-        
+        /*
         // 카테고리 컬렉션 "전체" 저장
         If(
             Office365사용자.MyProfile().Mail in LookUp(
@@ -160,7 +179,7 @@ FileManage As screen:
                         SortOrder.Ascending
                     ),
                     Category_LV2
-                ),*/
+                ),
                 // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
             Distinct(
                 Filter(
@@ -174,7 +193,7 @@ FileManage As screen:
                 Category_LV2
             )
         );
-        
+        */
         Reset(Gallery_FileList_FM);
 
     Button_AddButton_FM As button:
@@ -296,14 +315,14 @@ FileManage As screen:
             
                 Or(
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
-                    //, Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체"
+                    , Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체"
                 )
             
                 &&
             
                 Or(
                     Dropdown_SearchCategoryLV2_FM.Selected.Value in Category_LV2
-                    //, Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체"
+                    , Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체"
                 )
                 &&
             
@@ -1982,24 +2001,24 @@ FileManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: =colCategoryLV1_FM
-            OnChange: |+
+            OnChange: |-
                 =// 해당 드롭다운이 바뀔 때, 선택한 카테고리 LV1에 따라 카테고리 LV2의 드롭다운 속 아이템을 바꿈
                 
                 ClearCollect(
                     colCategoryLV2_FM,
-                    //{Value: "전체"},
+                    {Value: "전체"},
                     
-                    /*If(
+                    If(
                         // 첫 번째 드롭다운이 "전체"일 때
                         Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
                         Distinct(
                             SortByColumns(
-                                Category_table,
+                                똑실이_Category_table,
                                 "LV2Order",
                                 SortOrder.Ascending
                             ),
                             Category_LV2
-                        ),*/
+                        ),
                 
                         // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
                          Distinct(
@@ -2016,6 +2035,7 @@ FileManage As screen:
                          )
                     )
                 
+                )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
