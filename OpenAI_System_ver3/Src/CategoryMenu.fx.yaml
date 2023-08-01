@@ -653,7 +653,23 @@ CategoryMenu As screen:
                 HoverFill: =RGBA(255, 255, 255, 1)
                 Mode: =TextMode.MultiLine
                 OnChange: |-
-                    =Patch(CategoryTable, LookUp(CategoryTable, ID=ThisItem.ID), {Category_LV2:Self.Text});
+                    =If(
+                        Self.Text in CategoryVal,
+                        Notify(
+                            Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                            NotificationType.Error,
+                            10000
+                        ),
+                        Patch(
+                            CategoryTable,
+                            LookUp(
+                                CategoryTable,
+                                ID = ThisItem.ID
+                            ),
+                            {Category_LV2: Self.Text}
+                        );
+                        
+                    )
                 OnSelect: =
                 PaddingLeft: =10
                 PaddingRight: =10
@@ -1210,7 +1226,10 @@ CategoryMenu As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
             OnChange: |-
-                =ForAll(Sequence(CountRows(Filter(CategoryTable, Category_LV1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
+                =If(Self.Text in CategoryVal,Notify(Char(34)&"* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",NotificationType.Error,10000),
+                
+                ForAll(Sequence(CountRows(Filter(CategoryTable, Category_LV1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
+                )
             OnSelect: |-
                 =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
             PressedBorderColor: |-
