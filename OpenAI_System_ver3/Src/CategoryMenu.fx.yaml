@@ -652,9 +652,10 @@ CategoryMenu As screen:
                 HoverColor: =RGBA(51, 51, 51, 1)
                 HoverFill: =RGBA(255, 255, 255, 1)
                 Mode: =TextMode.MultiLine
-                OnChange: |-
-                    =If(
-                        Self.Text in CategoryVal,
+                OnChange: |
+                    =Set(CategoryVal2, Split(Self.Text, ""));
+                    If(
+                        CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0,
                         Notify(
                             Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
                             NotificationType.Error,
@@ -668,7 +669,7 @@ CategoryMenu As screen:
                             ),
                             {Category_LV2: Self.Text}
                         );
-                        
+                       
                     )
                 OnSelect: =
                 PaddingLeft: =10
@@ -1225,11 +1226,23 @@ CategoryMenu As screen:
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
-            OnChange: |-
-                =If(Self.Text in CategoryVal,Notify(Char(34)&"* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",NotificationType.Error,10000),
+            OnChange: |+
+                =Set(CategoryVal3, Split(Self.Text, ""));
+                
+                If(
+                    CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,
+                    Notify(
+                        Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                        NotificationType.Error,
+                        10000
+                    ),
                 
                 ForAll(Sequence(CountRows(Filter(CategoryTable, Category_LV1=ThisItem.Value))),Patch(CategoryTable, LookUp(CategoryTable, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
                 )
+                
+                
+                
+                
             OnSelect: |-
                 =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
             PressedBorderColor: |-
