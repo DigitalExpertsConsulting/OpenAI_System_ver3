@@ -686,18 +686,23 @@ BadWordManage As screen:
             HoverFill: |-
                 =ColorValue("#1141A3")
             OnSelect: |+
-                =If(
+                =
+                
+                
+                If(
                     !IsBlank(TextInput_BadWord_BWM.Text) && !IsBlank(TextInput_BadWordType_BWM.Text),
+                    ClearCollect(BadWordsList,Split(TextInput_BadWord_BWM.Text,","));
+                    ForAll(BadWordsList,
                     Collect(
                         똑실이_BadWords_table,
                         {
                             제목: ".",
-                            BadWords: TextInput_BadWord_BWM.Text,
+                            BadWords: ThisRecord.Value,
                             BadWords_Type: TextInput_BadWordType_BWM.Text,
                             Edit_Date: Now(),
                             Adder_Name: Office365사용자.MyProfile().DisplayName
                         }
-                    );
+                    ));
                     Set(EditBadWord, false);,
                     Notify(
                         "금칙어와 유형을 모두 입력해주세요",
@@ -705,6 +710,8 @@ BadWordManage As screen:
                         10000
                     )
                 );
+                
+                
                 ClearCollect(
                     BadWordsType,
                     {Value: "직접입력"},
