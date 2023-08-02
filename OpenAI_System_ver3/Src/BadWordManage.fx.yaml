@@ -2,16 +2,24 @@ BadWordManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |+
-        =Set(ViewBadWord, true);
-        Set(EditBadWord,false);
-        Set(delPopUp_BWM,false);
-        Set(delPopupBackground_BWM,false);
+        =Concurrent(
+        Set(ViewBadWord, true);,
+        Set(EditBadWord,false);,
+        Set(delPopUp_BWM,false);,
+        Set(delPopupBackground_BWM,false);,
         
         
-        Reset(TextInput_BWSearch_BWM);
+        Reset(TextInput_BWSearch_BWM);,
         
-        Reset(TextInput_BadWord_BWM);
-        Reset(TextInput_BadWordType_BWM);
+        Reset(TextInput_BadWord_BWM);,
+        Reset(TextInput_BadWordType_BWM);,
+        ClearCollect(
+            BadWordsType,
+            Distinct(똑실이_BadWords_table, BadWords_Type);
+            {Result: "직접입력"}
+        );
+        )
+        
         
 
     Button_Refresh_BWM As button:
@@ -596,7 +604,7 @@ BadWordManage As screen:
         TextInput_BadWordType_BWM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =""
+            Default: =Dropdown_BadWordType_BWM.Selected.Result
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -616,7 +624,7 @@ BadWordManage As screen:
             RadiusTopRight: =05
             Size: =13
             Visible: =EditBadWord
-            Width: =504
+            Width: =243
             X: =39
             Y: =188
             ZIndex: =6
@@ -727,6 +735,38 @@ BadWordManage As screen:
             X: =526
             Y: =252
             ZIndex: =9
+
+        Dropdown_BadWordType_BWM As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: =BadWordsType
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Width: =251
+            X: =292
+            Y: =188
+            ZIndex: =10
 
     New_Component_GNB_BWM As New_Component_GNB:
         ZIndex: =23
