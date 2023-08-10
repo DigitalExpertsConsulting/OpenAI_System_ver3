@@ -1389,7 +1389,8 @@ FileManage As screen:
                     NoAttachmentsText: ="업로드 가능한 파일 수는 1개입니다"
                     OnAddFile: |-
                         =Set(File_extensions,
-                        Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")))
+                        Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")));
+                        Set(FileName_noExtension,Left(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,Len(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name)-Len(Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,".")).Value)-1))
                     OnRemoveFile: =
                     PaddingBottom: =5
                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
@@ -1505,7 +1506,7 @@ FileManage As screen:
                         10000
                     ),
                 
-                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name=First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name) ),
+                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && File_Name_NoExtension=FileName_noExtension) ),
                 
                 Set(FileUploadLoding,true);
                 Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
