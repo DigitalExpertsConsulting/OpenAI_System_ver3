@@ -2359,12 +2359,7 @@ CategoryMenu As screen:
                 =ColorValue("#FAFAFA")
             FocusedBorderThickness: =1
             Height: =448
-            Items: |
-                =If(
-                    IsBlank(TextInput_Add_CategoryMenu_mod_1.Text),
-                    Office365그룹.ListGroups({'$top': 999}).value,
-                   GroupName
-                )
+            Items: =Groups
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -2521,7 +2516,18 @@ CategoryMenu As screen:
             DelayOutput: =true
             FocusedBorderThickness: =2
             HintText: ="검색"
-            OnChange: =ClearCollect(GroupName,Office365Groupsearch.Run(Self.Text).output)
+            OnChange: |-
+                =ClearCollect(
+                    Groups,
+                    ForAll(
+                        Table(ParseJSON(Office365Groupsearch.Run(Self.Text).output)),
+                        {
+                            id: ThisRecord.Value.id,
+                            mail: Text(ThisRecord.Value.mail),
+                            displayName: Text(ThisRecord.Value.displayName)
+                        }
+                    )
+                )
             OnSelect: =
             PaddingLeft: =15
             RadiusBottomLeft: =4
