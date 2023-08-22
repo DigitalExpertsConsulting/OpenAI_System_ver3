@@ -175,46 +175,38 @@ Screen1 As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |+
-            =
-            If(IsEmpty(DataCardValue_Attachment_FileUpload_Excel.Attachments), Notify(
+        OnSelect: |
+            =If(
+                IsEmpty(DataCardValue_Attachment_FileUpload_Excel.Attachments),
+                Notify(
                     "첨부 파일 등록은 필수입니다.",
                     NotificationType.Error,
                     10000
                 ),
-                If(Not(File_extensions.Value in ExcelVal),Notify(
-                    "첨부 파일의 확장자가 올바르지 않습니다. (xlsx 만 업로드 가능)",
-                    NotificationType.Error,
-                    10000
-                ),
-            
-            Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Name);
-            Set(PAResult,
-            '똑실이-[Apps]파일업로드'.Run(
-                // LV1_Category
-                Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                // LV2_Category
-                Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                // File
-                {
-                    file: {
-                        name: First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Name,
-                        contentBytes: First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Value
-                    }
-                }
-            ).pa_status);
-             If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM_2);));
-            
-             ,Notify(
-                    "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
-                    NotificationType.Error,
-                    10000
-                );););
-            
-            
+                If(
+                    Not(File_extensions.Value in ExcelVal),
+                    Notify(
+                        "첨부 파일의 확장자가 올바르지 않습니다. (xlsx 만 업로드 가능)",
+                        NotificationType.Error,
+                        10000
+                    ),
+                    Set(
+                        Upload_FileName,
+                        First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Name
+                    );
+                    '엑셀파일업로드'.Run(
+                        {
+                            file: {
+                                name: First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Name,
+                                contentBytes: First(DataCardValue_Attachment_FileUpload_Excel.Attachments).Value
+                            }
+                        }
+                    ); Notify( " 업로드 완료",NotificationType.Success, 10000)
+                );
+                
+            );
             //Reset(Gallery_FileList_FM);
             //Navigate(FileManage);  
-            
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: |-
