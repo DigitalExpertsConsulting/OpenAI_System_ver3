@@ -14,7 +14,6 @@ CategoryMenu_1 As screen:
         Set(CategoryPopup, false);
         );
         
-        /*
         ClearCollect(
             CategoryTable,
             ShowColumns(
@@ -34,7 +33,7 @@ CategoryMenu_1 As screen:
             )
         );
         Clear(delCate);
-        */
+        
         ClearCollect(
             Groups,
             ForAll(
@@ -114,7 +113,7 @@ CategoryMenu_1 As screen:
         FontWeight: =FontWeight.Bold
         Height: =64
         Size: =30
-        Text: ="test"
+        Text: ="카테고리 관리"
         Width: =393
         X: =343
         Y: =23
@@ -252,7 +251,7 @@ CategoryMenu_1 As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Distinct(Category_table_TestChoi,Category_LV1))
+            Text: =CountRows(Distinct(CategoryTable,Category_LV1))
             Width: =61
             X: =34
             Y: =55
@@ -317,7 +316,7 @@ CategoryMenu_1 As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Filter(Category_table_TestChoi,!IsBlank(LV2Order)))
+            Text: =CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order)))
             Width: =61
             X: =34
             Y: =55
@@ -385,7 +384,7 @@ CategoryMenu_1 As screen:
             Text: |-
                 =//CountIf(CategoryTable,(IsEmpty(Users) || IsBlank(Users))&& (TeamName="" || TeamName=Blank()))  & " / " & CountRows(CategoryTable) 
                 // && (TeamName="" || TeamName=Blank())
-                CountRows(Filter(Category_table_TestChoi, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
+                CountRows(Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
             Width: =53
             X: =34
             Y: =55
@@ -437,7 +436,7 @@ CategoryMenu_1 As screen:
             Font: =Font.'Segoe UI'
             Height: =23
             Size: =15
-            Text: ="/ " & CountRows(Filter(Category_table_TestChoi,!IsBlank(LV2Order))) & "개"
+            Text: ="/ " & CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order))) & "개"
             Width: =105
             X: =75
             Y: =67
@@ -476,7 +475,7 @@ CategoryMenu_1 As screen:
             //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
         ShowScrollbar: =false
         TemplatePadding: =0
-        TemplateSize: =150
+        TemplateSize: =400
         Width: =1500
         X: =372
         Y: =355
@@ -655,7 +654,7 @@ CategoryMenu_1 As screen:
                     =//DisplayMode.Edit
                     
                     If(
-                        IsBlank(ThisItem.Title),
+                        IsBlank(ThisItem.Category_LV2),
                         DisplayMode.Edit,
                         DisplayMode.View
                     )
@@ -1019,7 +1018,21 @@ CategoryMenu_1 As screen:
                 HoverFill: =
                 Image: =Delete
                 OnSelect: |
-                    =
+                    =//Remove(CategoryTable, ThisItem)
+                    /*
+                    If(
+                        ThisItem.FileCount > 0,
+                        Notify(
+                            "폴더에 파일이 존재합니다.",
+                            NotificationType.Error,
+                            800
+                        ),
+                        UpdateContext({AddPopUpID: ThisItem.ID});
+                        UpdateContext({delType: "Sub"});
+                        UpdateContext({delPopVi: true});
+                        
+                    )
+                    */
                     Refresh(똑실이_문서);
                     If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
@@ -1056,7 +1069,7 @@ CategoryMenu_1 As screen:
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
                     =If(
-                        IsBlank(ThisItem.Title),
+                        IsBlank(ThisItem.Category_LV2),
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
@@ -1120,18 +1133,20 @@ CategoryMenu_1 As screen:
             HoverFill: =
             OnSelect: |
                 =Collect(
-                    CategoryTable,
+                    Category_table_TestChoi,
                     {
+                        Title: ".",
                         Category_LV1: ThisItem.Value,
-                        ID: Last(CategoryTable).ID + 1,
+                        Category_LV2: "",
+                        //ID: Last(Category_table_TestChoi).ID + 1,
                         DocumentLanguage:"ko",
                         LV1Order: LookUp(
-                            CategoryTable,
+                            Category_table_TestChoi,
                             Category_LV1 = ThisItem.Value
                         ).LV1Order,
                         LV2Order: Last(
                             Filter(
-                                CategoryTable,
+                                Category_table_TestChoi,
                                 Category_LV1 = ThisItem.Value
                             )
                         ).LV2Order + 1
@@ -2723,7 +2738,7 @@ CategoryMenu_1 As screen:
                 Text: =ThisItem.DisplayName & " (" & ThisItem.Email & ")"
                 Width: =413
                 X: =24
-                Y: =5
+                Y: =9
                 ZIndex: =3
 
             Icon_ADD_Cancel_mod_9 As icon.Add:
@@ -2832,7 +2847,7 @@ CategoryMenu_1 As screen:
         Height: =1080
         HoverFill: =
         PressedFill: =
-        Visible: =catevisi
+        Visible: =false
         Width: =1620
         X: =300
         ZIndex: =56
@@ -3141,30 +3156,4 @@ CategoryMenu_1 As screen:
             X: =1168
             Y: =250
             ZIndex: =55
-
-    Button2 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: =Set(catevisi,false)
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =1042
-        Y: =44
-        ZIndex: =57
 
