@@ -3,7 +3,7 @@ CategoryMenu As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |
+    OnVisible: |-
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -33,6 +33,18 @@ CategoryMenu As screen:
             )
         );
         Clear(delCate);
+        
+        ClearCollect(
+            Groups,
+            ForAll(
+                Table(ParseJSON(Office365Groupsearch.Run("").output)),
+                {
+                    id: ThisRecord.Value.id,
+                    mail: Text(ThisRecord.Value.mail),
+                    displayName: Text(ThisRecord.Value.displayName)
+                }
+            )
+        );
 
     Button_Refresh_CategoryMenu As button:
         BorderColor: |-
@@ -820,6 +832,17 @@ CategoryMenu As screen:
                     UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddPopUpID: ThisItem.ID});
                     ClearCollect(AddTeamName,LookUp(CategoryTable, ID= ThisItem.ID).Teams);
+                    ClearCollect(
+                        Groups,
+                        ForAll(
+                            Table(ParseJSON(Office365Groupsearch.Run("").output)),
+                            {
+                                id: ThisRecord.Value.id,
+                                mail: Text(ThisRecord.Value.mail),
+                                displayName: Text(ThisRecord.Value.displayName)
+                            }
+                        )
+                    )
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
