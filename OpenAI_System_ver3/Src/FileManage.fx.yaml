@@ -1482,7 +1482,7 @@ FileManage As screen:
                 =ColorValue("#0F6CBD")
             FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
+            FontWeight: =FontWeight.Bold
             Height: =32
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
@@ -1513,6 +1513,35 @@ FileManage As screen:
                 Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
                 Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM.Selected.Value);
                 Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name);
+                
+                If(IsError(
+                   // Set(PAResult,
+                    '똑실이-[Apps]파일업로드'.Run(
+                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                        Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                        {
+                        file: {
+                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                                 }
+                        }
+                    )//.pa_status
+                   // )
+                    ) = true 
+                    ,  
+                    //에러 발생시 로딩창 off, 재시도 알림문구 on
+                    Set(FileUploadLoding,false); //로딩창 off
+                    Notify(
+                        "파일업로드 에러가 발생하여 재시도 해주시기 바랍니다.",
+                        NotificationType.Information
+                    ),
+                    //그 외 경우 타이머 가동
+                    Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM);)
+                    );
+                
+                
+                
+                /*
                 Set(PAResult,
                 '똑실이-[Apps]파일업로드'.Run(
                     // LV1_Category
@@ -1528,6 +1557,7 @@ FileManage As screen:
                     }
                 ).pa_status);
                  If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM);));
+                */
                 
                 /*
                 Patch(
