@@ -477,7 +477,7 @@ CategoryMenu As screen:
             //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
         ShowScrollbar: =false
         TemplatePadding: =0
-        TemplateSize: =Gallery_Sub_CategoryMenu.AllItemsCount * 64
+        TemplateSize: =Gallery_Main_CategoryMenu.AllItemsCount * 64
         Width: =1500
         X: =372
         Y: =355
@@ -3432,7 +3432,7 @@ CategoryMenu As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |
+            OnSelect: |-
                 =Set(CategoryVal2, Split(TextInput_AddMainCategoryNameMain_CategoryMenu.Text, ""));
                 Set(CategoryVal3, Split(TextInput_AddMainCategoryNameSub_CategoryMenu.Text, ""));
                 If(
@@ -3442,11 +3442,18 @@ CategoryMenu As screen:
                         NotificationType.Error,
                         2000
                     ),
-                    
+                
                 If(
                     CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0 || CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,
                     Notify(
                         Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                        NotificationType.Error,
+                        10000
+                    ),
+                    If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu.Text)),
+                
+                     Notify(
+                        "중복된 카테고리명입니다",
                         NotificationType.Error,
                         10000
                     ),
@@ -3469,8 +3476,8 @@ CategoryMenu As screen:
                         800
                     ); UpdateContext({AddMianCategory: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu);Reset(TextInput_AddMainCategoryNameSub_CategoryMenu);
                         Reset(Toggle_DocumentLanguage_CategoryMenu_3);
-                    
-                ););
+                
+                );););
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
