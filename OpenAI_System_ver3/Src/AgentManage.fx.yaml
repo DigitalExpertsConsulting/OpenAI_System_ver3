@@ -1,0 +1,2163 @@
+AgentManage As screen:
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |
+        =Concurrent(
+            UpdateContext({ModalVisible: false}),
+            Set(
+                delPopUp_File,
+                false
+            );
+            ,
+            Set(
+                FileUploadLoding,
+                false
+            )
+        );
+        ForAll(
+            똑실이_Category_table,
+            Collect(
+                Teams_GET,
+                FirstN(
+                    ThisRecord.Teams,
+                    CountRows(ThisRecord.Teams)
+                ).Claims
+            )
+        );
+        Clear(testDist);
+        Clear(offGroe);
+        ForAll(
+            똑실이_Category_table,
+            Collect(
+                testDist,
+                ThisRecord.Teams
+            )
+        );
+        ForAll(
+            testDist,
+            If(
+                CountRows(
+                    Filter(
+                        Office365그룹.ListGroupMembers(
+                            Mid(
+                                ThisRecord.Claims,
+                                40
+                            )
+                        ).value,
+                        User().Email in mail
+                    )
+                ) > 0,
+                Collect(
+                    offGroe,
+                    {Email: ThisRecord.Email}
+                )
+            )
+        );
+        Distinct(
+            offGroe,
+            ThisRecord
+        );
+        
+        
+        
+        // 카테고리 LV1 SuperAdmin 권한 확인 
+        If(
+            User().Email in LookUp(
+                똑실이_SuperAdmin_table,
+                User().Email in SuperUsers.Email
+            ).SuperUsers.Email,
+        // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
+            ClearCollect(
+                colCategoryLV1_FM,
+                {Value: "전체"},
+                Distinct(
+                    SortByColumns(
+                        똑실이_Category_table,
+                        "LV1Order",
+                        SortOrder.Ascending
+                    ),
+                    Category_LV1
+                )
+            ),
+        // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
+            ClearCollect(
+                colCategoryLV1_FM,
+                {Value: "전체"},
+                Distinct(
+                    Filter(
+                        SortByColumns(
+                            똑실이_Category_table,
+                            "LV1Order",
+                            SortOrder.Ascending
+                        ),
+                        User().Email in Users.Email
+                    ),
+                    Category_LV1
+                )
+            )
+        );
+        
+        
+        // 카테고리 LV2 
+        If(
+            User().Email in LookUp(
+                똑실이_SuperAdmin_table,
+                User().Email in SuperUsers.Email
+            ).SuperUsers.Email,
+        
+            ClearCollect(
+                colCategoryLV2_FM,
+                {Value: "전체"},
+                If(
+                // 첫 번째 드롭다운이 "전체"일 때
+                    Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
+                    Distinct(
+                        SortByColumns(
+                            똑실이_Category_table,
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
+                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                        Category_LV2
+                    ),
+                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                    Distinct(
+                        Filter(
+                            SortByColumns(
+                                똑실이_Category_table,
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
+                        ),
+                        Category_LV2
+                    )
+                )
+            ),
+            ClearCollect(
+                colCategoryLV2_FM,
+                {Value: "전체"},
+                If(
+                // 첫 번째 드롭다운이 "전체"일 때
+                    Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
+                    Distinct(
+                        Filter(
+                            SortByColumns(
+                                똑실이_Category_table,
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            User().Email in Users.Email
+                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                        ),
+                        Category_LV2
+                    ),
+                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                    Distinct(
+                        Filter(
+                            Filter(
+                                SortByColumns(
+                                    똑실이_Category_table,
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
+                            ),
+                            User().Email in Users.Email
+                        ),
+                        Category_LV2
+                    )
+                )
+            )
+        );
+        
+        
+        /*ClearCollect(
+            colCategoryLV1_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(똑실이_Category_table,"LV1Order",SortOrder.Ascending),
+                Category_LV1
+            )
+        );
+        ClearCollect(
+            colCategoryLV2_FM,
+            {Value: "전체"},
+            Distinct(
+                SortByColumns(똑실이_Category_table,"LV2Order",SortOrder.Ascending),
+                Category_LV2
+            )
+        );*/
+        
+        
+        Reset(Gallery_FileList_FM_1);
+
+    Button_AddButton_FM_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =Set(FileRefresh,false);
+            UpdateContext({ModalVisible: true});
+            
+            /*
+            ForAll(
+                Distinct(Filter(Teams_GET,Value),Value),
+                Collect(result_value,
+                   If(Office365사용자.MyProfile().Mail in 
+                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
+                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
+                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
+                   )
+                )
+            );
+            
+            
+            ForAll(
+                Category_table,
+                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
+            )
+            */
+            /*
+            Distinct(
+                Filter(
+                    Category_table,
+                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
+                ),
+                LV1
+            )
+            */
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="서버 업로드"
+        Width: =121
+        X: =1759
+        Y: =43
+        ZIndex: =1
+
+    Title_Header_FM_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: |-
+            ="Agent Management
+            "
+        Width: =691
+        X: =343
+        Y: =23
+        ZIndex: =3
+
+    "Gallery_FileList_FM_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =190
+        Items: |-
+            =Filter(
+                Search(
+                    Search(
+                        똑실이_AgentFunction_table​,
+                        TextInput_SearchFileName_FM_1.Text,
+                        "Function_ID"
+                    ),
+                    If(
+                        Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체",
+                        "",
+                        Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value
+                    ),
+                    "Type"
+                ),
+                Or(
+                    Dropdown_SearchCategoryLV1_FM_1.Selected.Value = Category_LV1,
+                    If(
+                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
+                        Category_LV1 in colCategoryLV1_FM
+                    )
+                ) && 
+                Or( 
+                    Dropdown_SearchCategoryLV2_FM_1.Selected.Value = Category_LV2,
+                    If(
+                    Dropdown_SearchCategoryLV2_FM_1.Selected.Value = "전체",
+                    Category_LV2 in colCategoryLV2_FM
+                ))
+            )
+        Layout: =Layout.Vertical
+        LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =60
+        Width: =1526
+        WrapCount: =0
+        X: =354
+        Y: =828
+        ZIndex: =4
+
+        Separator_FileList_FM_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(219, 219, 219, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =1491
+            X: =26
+            Y: =59
+            ZIndex: =1
+
+        Label_Gallery_FileName_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Function_ID
+            Width: =681
+            X: =29
+            Y: =10
+            ZIndex: =2
+
+        Label_Gallery_Category_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Category_LV1 & "  >  " & ThisItem.Category_LV2
+            Width: =307
+            X: =655
+            Y: =10
+            ZIndex: =3
+
+        Label_Date_Gallery_Category_FM_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Type
+            Width: =205
+            X: =977
+            Y: =10
+            ZIndex: =5
+
+        Image_Delete_Gallery_FileList_FM_1 As image:
+            BorderColor: |-
+                =RGBA(230, 230, 230, 1)
+                /*
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(230, 230, 230, 1),
+                    Color.White
+                )
+                */
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: |-
+                =DisplayMode.Edit
+                /*
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    DisplayMode.Edit,
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                )
+                */
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverFill: |-
+                =RGBA(219, 219, 219, 1)
+                /*
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+                */
+            Image: =Delete
+            OnSelect: |
+                =/*Concurrent(
+                    Set(
+                        ModalVisible_delFunction,
+                        true
+                    );
+                    ,
+                    Set(
+                        LV1_Category,
+                        ThisItem.Category_LV1
+                    );
+                    ,
+                    Set(
+                        LV2_Category,
+                        ThisItem.Category_LV2
+                    );
+                    ,
+                    Set(
+                        filename,
+                        ThisItem.File_Name
+                    );
+                    ,
+                    Set(
+                        File_ID,
+                        ThisItem.ID
+                    );
+                    ,
+                    UpdateContext({DelModalVisible: true});*/
+                /*
+                    Set(
+                        Count_File, LookUp(Category_table,Category_LV1=ThisItem.Category_LV1 && Category_LV2=ThisItem.Category_LV2).FileCount
+                    );
+                */  
+                //);
+                /*
+                If(LookUp(
+                            Category_table,
+                            LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value && Title = Dropdown_LV2Category_FileUpload_FM.Selected.Value
+                        ).FileCount > 0,
+                '똑실이-파일삭제'.Run(
+                    // LV1Category
+                    ThisItem.Lv1,
+                    // LV2Category
+                    ThisItem.Category,
+                    // FileName
+                    ThisItem.File_Name
+                ));*/
+                /*
+                '[TEST]똑실이-파일삭제'.Run(
+                    // LV1Category
+                    ThisItem.Lv1,
+                    // LV2Category
+                    ThisItem.Category,
+                    // FileName
+                    ThisItem.File_Name
+                );
+                */
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: |-
+                =RGBA(219, 219, 219, 1)
+                
+                /*
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+                */
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Transparency: =If(Image_Delete_Gallery_FileList_FM_1.DisplayMode = DisplayMode.Disabled, 0.5,0)
+            Width: =35
+            X: =1295
+            Y: =11
+            ZIndex: =9
+
+        "'Image_IndexLog_FM_1' As image":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Icon_Info
+            OnSelect: |-
+                =/*UpdateContext({
+                    LogModalVisible: true,
+                    LogContent: ThisItem.Index_Log
+                })*/
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =35
+            X: =1233
+            Y: =11
+            ZIndex: =10
+
+        Label_Gallery_Category_FM_2 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Name
+            Width: =307
+            X: =339
+            Y: =20
+            ZIndex: =11
+
+    Button_Refresh_FM_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: =Concurrent(Refresh(똑실이_Agent_table),Refresh(똑실이_AgentFunction_table​));
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="새로고침"
+        Width: =121
+        X: =1599
+        Y: =42
+        ZIndex: =8
+
+    Separator_Main_FM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Height: =1
+        OnSelect: =
+        Width: =1491
+        X: =364
+        Y: =Label_FileName_FM_1.Y + Label_FileName_FM_1.Height + 10
+        ZIndex: =9
+
+    New_Component_GNB_FM_1 As New_Component_GNB:
+        ZIndex: =10
+
+    Image_Refresh_FM_1 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =20
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =TokenMenuRefresh
+        OnSelect: =Select(Button_Refresh_FM_1)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =20
+        X: =1616
+        Y: =53
+        ZIndex: =11
+
+    RefreshTimer_FM_1 As timer:
+        AutoPause: =false
+        AutoStart: =true
+        BorderColor: =RGBA(105, 121, 126, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(244, 244, 244, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: =RGBA(105, 121, 126, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnTimerEnd: =Refresh(똑실이_FileUpload_table);
+        OnTimerStart: =
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Repeat: =true
+        Visible: =false
+        X: =1258
+        Y: =35
+        ZIndex: =12
+
+    Background_Modal_PAUpload_FM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =FileUploadLoding
+        Width: =1620
+        X: =300
+        ZIndex: =19
+
+    Image_PALoding_FM_1 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =FileUploadLoding
+        X: =957
+        Y: =454
+        ZIndex: =20
+
+    Group_FileList_FM_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =20
+
+        Rectangle_FileList_FM_1 As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =432
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Width: =1540
+            X: =340
+            Y: =608
+            ZIndex: =2
+
+        Label_FileName_FM_1 As label:
+            Color: |-
+                =ColorValue("#BDBDBD")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =20
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13
+            Text: ="기능ID"
+            Width: =80
+            X: =388
+            Y: =771
+            ZIndex: =5
+
+        Label_Date_FM_1 As label:
+            Align: =Align.Center
+            Color: |-
+                =ColorValue("#BDBDBD")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =20
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13
+            Text: ="유형"
+            Width: =109
+            X: =1313
+            Y: =771
+            ZIndex: =6
+
+        Label_Category_FM_1 As label:
+            Align: =Align.Center
+            Color: |-
+                =ColorValue("#BDBDBD")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =20
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13
+            Text: ="카테고리"
+            Width: =82
+            X: =1001
+            Y: =771
+            ZIndex: =7
+
+    Title_Header_FM_2 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =20
+        Text: |-
+            ="Agent 기능
+            "
+        Width: =691
+        X: =364
+        Y: =621
+        ZIndex: =21
+
+    Rectangle_FileList_FM_2 As rectangle:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =477
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Width: =1540
+        X: =341
+        Y: =102
+        ZIndex: =31
+
+    Label_Category_FM_2 As label:
+        Align: =Align.Center
+        Color: |-
+            =ColorValue("#BDBDBD")
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FontWeight: =FontWeight.Bold
+        Height: =20
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Size: =13
+        Text: ="기능명"
+        Width: =82
+        X: =684
+        Y: =771
+        ZIndex: =32
+
+    Separator_Main_FM_2 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Height: =1
+        OnSelect: =
+        Width: =1491
+        X: =365
+        Y: =178
+        ZIndex: =33
+
+    Title_Header_FM_3 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =20
+        Text: |-
+            ="Agent 관리
+            "
+        Width: =691
+        X: =365
+        Y: =115
+        ZIndex: =34
+
+    Button_AddButton_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =
+            UpdateContext({ModalVisible_ServerUpload: true});
+            
+            /*
+            ForAll(
+                Distinct(Filter(Teams_GET,Value),Value),
+                Collect(result_value,
+                   If(Office365사용자.MyProfile().Mail in 
+                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
+                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
+                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
+                   )
+                )
+            );
+            
+            
+            ForAll(
+                Category_table,
+                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
+            )
+            */
+            /*
+            Distinct(
+                Filter(
+                    Category_table,
+                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
+                ),
+                LV1
+            )
+            */
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="저장(jsonPA)"
+        Width: =121
+        X: =1470
+        Y: =523
+        ZIndex: =35
+
+    Label_SearchFileName_FM_2 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="published version"
+        Width: =164
+        X: =720
+        Y: =206
+        ZIndex: =36
+
+    Group_DeleteQA_FM_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        Button_DeleteFile_FM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =160
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =delPopUp_File
+            Width: =600
+            X: =810
+            Y: =419
+            ZIndex: =13
+
+        Button_OKDeleteFile_FM_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =/*
+                Patch(
+                    똑실이_Index_Remove,
+                    {
+                        제목: LV2_Category&"-"&filename,
+                        LV1_Category: LV1_Category, 
+                        LV2_Category: LV2_Category,
+                        filename: filename,
+                        File_ID: File_ID
+                    }
+                );
+                
+                Patch(
+                    똑실이_FileUpload_table,
+                    LookUp(똑실이_FileUpload_table, ID = File_ID),
+                    {
+                        Index_Status: "deleting"
+                    }
+                );
+                
+                /*
+                Patch(
+                    Category_table,
+                    LookUp(Category_table, Category_LV1=LV1_Category && Category_LV2=LV2_Category),
+                    {
+                        FileCount:Count_File-1
+                    }
+                );
+                */
+                
+                //LV2_Category
+                
+                Set(delPopUp_File,false);
+                UpdateContext({DelModalVisible : false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="삭제"
+            Visible: =true//delPopUp_File
+            Width: =50
+            X: =1277
+            Y: =523
+            ZIndex: =14
+
+        Button_CancleDeleteFile_FM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =Set(delPopUp_File,false);
+                UpdateContext({QALogEditVisible: false});
+                UpdateContext({DelModalVisible : false});
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =delPopUp_File
+            Width: =50
+            X: =1335
+            Y: =523
+            ZIndex: =15
+
+        Label_DeleteFile_FM_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =34
+            Size: =16
+            Text: ="삭제하시겠습니까?"
+            Visible: =delPopUp_File
+            Width: =193
+            X: =827
+            Y: =440
+            ZIndex: =16
+
+        Label_DeleteFileSub_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =10
+            Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
+            Visible: =delPopUp_File
+            Width: =562
+            X: =829
+            Y: =481
+            ZIndex: =17
+
+        Image_DeleteFileExit_FM_1 As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =Set(delPopUp_File,false);
+                UpdateContext({QALogEditVisible: false});
+                UpdateContext({DelModalVisible : false});
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =delPopUp_File
+            Width: =20
+            X: =1367
+            Y: =443
+            ZIndex: =18
+
+    TextInput1 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_Agent_table).Version
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =928
+        Y: =206
+        ZIndex: =37
+
+    Label_SearchFileName_FM_3 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="version"
+        Width: =164
+        X: =721
+        Y: =258
+        ZIndex: =38
+
+    TextInput1_1 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HintText: ="version을 입력해주세요"
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =929
+        Y: =258
+        ZIndex: =39
+
+    Label_SearchFileName_FM_4 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="name"
+        Width: =164
+        X: =721
+        Y: =312
+        ZIndex: =40
+
+    TextInput1_2 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HintText: ="name을 입력해주세요"
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =929
+        Y: =312
+        ZIndex: =41
+
+    Label_SearchFileName_FM_5 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="description"
+        Width: =164
+        X: =720
+        Y: =364
+        ZIndex: =42
+
+    TextInput1_3 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HintText: ="description를 입력해주세요"
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =928
+        Y: =364
+        ZIndex: =43
+
+    Label_SearchFileName_FM_6 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="fallback function"
+        Width: =164
+        X: =721
+        Y: =414
+        ZIndex: =44
+
+    TextInput1_4 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =""
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HintText: ="fallback function을 입력해주세요"
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =929
+        Y: =414
+        ZIndex: =45
+
+    Button_AddButton_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =If(IsBlank(TextInput1_1.Text)||IsBlank(TextInput1_2.Text)||IsBlank(TextInput1_3.Text)||IsBlank(TextInput1_4.Text),
+                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
+                Patch(
+            똑실이_Agent_table,
+            {Title:".",
+                Published_Version​:TextInput1.Text,
+                Version:TextInput1_1.Text,
+                Name: TextInput1_2.Text,
+                Description: TextInput1_3.Text,
+                Fallback_Function​: TextInput1_4.Text
+            });
+            Concurrent(Reset(TextInput1),Reset(TextInput1_1),Reset(TextInput1_2),Reset(TextInput1_3),Reset(TextInput1_4)));
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="저장"
+        Width: =121
+        X: =1539
+        Y: =414
+        ZIndex: =46
+
+    Background_Modal_FileUpload_FM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =Or(ModalVisible, LogModalVisible, DelModalVisible)
+        Width: =1920
+        ZIndex: =47
+
+    ModalDialog_ServerUpload_AgentManage As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =49
+
+        Background_ModalDialog_AgentManage As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =336
+            HoverFill: =
+            PressedFill: =
+            Visible: =ModalVisible_ServerUpload
+            Width: =642
+            X: =685
+            Y: =336
+            ZIndex: =48
+
+        Button_CloseModal_AgentManage As icon.Cancel:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =34
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext({ModalVisible_ServerUpload: false})
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =ModalVisible_ServerUpload
+            Width: =34
+            X: =1271
+            Y: =351
+            ZIndex: =49
+
+        Label_ServerUploadText_AgentManage As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Bold
+            Height: =48
+            Size: =24
+            Text: ="서버 업로드"
+            Visible: =ModalVisible_ServerUpload
+            Width: =419
+            X: =730
+            Y: =360
+            ZIndex: =50
+
+        Button_Submit_AgentManage As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |
+                =UpdateContext({ModalVisible_ServerUpload:false})
+                
+                
+                /*If( IsBlank(Dropdown_LV1Category_FileUpload_FM_1.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value),
+                Notify(
+                        "할당된 카테고리가 없습니다.",
+                        NotificationType.Error,
+                        10000
+                    ),
+                
+                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM_1.Attachments), Notify(
+                        "첨부 파일 등록은 필수입니다.",
+                        NotificationType.Error,
+                        10000
+                    ),
+                    If(Not(File_extensions.Value in FileVal),Notify(
+                        "첨부 파일의 확장자가 올바르지 않습니다. (pdf,pptx,ppt,doc,docx 만 업로드 가능)",
+                        NotificationType.Error,
+                        10000
+                    ),
+                
+                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM_1.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM_1.Selected.Value && FileNameNoExtension=gblFileNameNoExtension) ),
+                
+                Set(FileUploadLoding,true);
+                Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM_1.Selected.Value);
+                Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM_1.Selected.Value);
+                Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name);
+                
+                If(IsError(
+                   // Set(PAResult,
+                    '똑실이-[Apps]파일업로드'.Run(
+                        Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
+                        Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                        {
+                        file: {
+                            name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
+                                 }
+                        }
+                    )//.pa_status
+                   // )
+                    ) = true 
+                    ,  
+                    //에러 발생시 로딩창 off, 재시도 알림문구 on
+                    Set(FileUploadLoding,false); //로딩창 off
+                    Notify(
+                        "파일업로드 에러가 발생하여 재시도 해주시기 바랍니다.",
+                        NotificationType.Information
+                    ),
+                    //그 외 경우 타이머 가동
+                    Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM_1);)
+                    );
+                
+                
+                
+                /*
+                Set(PAResult,
+                '똑실이-[Apps]파일업로드'.Run(
+                    // LV1_Category
+                    Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                    // LV2_Category
+                    Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                    // File
+                    {
+                        file: {
+                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                        }
+                    }
+                ).pa_status);
+                 If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM);));
+                */
+                
+                /*
+                Patch(
+                    FileUpload_table,
+                    {
+                        Title: Concatenate(
+                            Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                            "-",
+                            First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
+                        ),
+                        Upload_Date: Now(),
+                        Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                        Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                        File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                        File_Type: Upper(
+                            Last(
+                                Split(
+                                    First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                    "."
+                                )
+                            ).Value
+                        ),
+                        Index_Status: "not_indexed"
+                    }
+                ); 
+                */
+                /*
+                UpdateContext({ModalVisible: false}); ,Notify(
+                        "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
+                        NotificationType.Error,
+                        10000
+                    );););););
+                
+                
+                //Reset(Gallery_FileList_FM);
+                //Navigate(FileManage);  
+                */
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Text: ="업로드"
+            Visible: =ModalVisible_ServerUpload
+            Width: =65
+            X: =1159
+            Y: =608
+            ZIndex: =51
+
+        Button_Cancel_AgentManage As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =UpdateContext({ModalVisible_ServerUpload: false})
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Text: ="취소"
+            Visible: =ModalVisible_ServerUpload
+            Width: =65
+            X: =1240
+            Y: =608
+            ZIndex: =52
+
+        Label_jsonText_AgentManage As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =41
+            PaddingLeft: =0
+            Size: =13
+            Text: ="json 변환"
+            Visible: =ModalVisible_ServerUpload
+            Width: =148
+            Wrap: =false
+            X: =743
+            Y: =412
+            ZIndex: =53
+
+        Label_json_AgentManage As label:
+            BorderColor: =RGBA(153, 153, 153, 1)
+            BorderThickness: =0.5
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =91
+            Size: =13
+            Text: ="텍스트"
+            Visible: =ModalVisible_ServerUpload
+            Width: =535
+            X: =742
+            Y: =463
+            ZIndex: =54
+
+    Button_AddButton_FM_4 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: =Navigate(AgentManage)
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="저장(jsonPA)"
+        Width: =121
+        X: =990
+        Y: =35
+        ZIndex: =55
+
+    Group_Search_FM_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =66
+
+        Rectangle_SearchBar_FM_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =56
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Width: =1540
+            X: =343
+            Y: =692
+            ZIndex: =22
+
+        TextInput_SearchFileName_FM_1 As text:
+            BorderColor: =RGBA(230, 230, 230, 1)
+            BorderThickness: =2
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            HintText: ="기능명을 입력하세요."
+            HoverBorderColor: =RGBA(0, 0, 0, 1)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Width: =280
+            X: =448
+            Y: =702
+            ZIndex: =23
+
+        Label_SearchFileName_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =33
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="기능명"
+            Width: =67
+            X: =378
+            Y: =702
+            ZIndex: =24
+
+        Label_SearchCategory_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =33
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="카테고리"
+            Width: =90
+            X: =753
+            Y: =702
+            ZIndex: =25
+
+        Dropdown_SearchCategoryLV1_FM_1 As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: ="전체"
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: =colCategoryLV1_FM
+            OnChange: |-
+                =If(
+                    User().Email in LookUp(
+                        똑실이_SuperAdmin_table,
+                        User().Email in SuperUsers.Email
+                    ).SuperUsers.Email,
+                
+                    ClearCollect(
+                        colCategoryLV2_FM,
+                        {Value: "전체"},
+                        If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                            Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
+                            Distinct(
+                                SortByColumns(
+                                    똑실이_Category_table,
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                                Category_LV2
+                            ),
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                            Distinct(
+                                Filter(
+                                    SortByColumns(
+                                        똑실이_Category_table,
+                                        "LV2Order",
+                                        SortOrder.Ascending
+                                    ),
+                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
+                                ),
+                                Category_LV2
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        colCategoryLV2_FM,
+                        {Value: "전체"},
+                        If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                            Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
+                            Distinct(
+                                Filter(
+                                    SortByColumns(
+                                        똑실이_Category_table,
+                                        "LV2Order",
+                                        SortOrder.Ascending
+                                    ),
+                                    User().Email in Users.Email
+                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                                ),
+                                Category_LV2
+                            ),
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                            Distinct(
+                                Filter(
+                                    Filter(
+                                        SortByColumns(
+                                            똑실이_Category_table,
+                                            "LV2Order",
+                                            SortOrder.Ascending
+                                        ),
+                                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
+                                    ),
+                                    User().Email in Users.Email
+                                ),
+                                Category_LV2
+                            )
+                        )
+                    )
+                )
+                
+                
+                /*// 해당 드롭다운이 바뀔 때, 선택한 카테고리 LV1에 따라 카테고리 LV2의 드롭다운 속 아이템을 바꿈
+                
+                ClearCollect(
+                    colCategoryLV2_FM,
+                    {Value: "전체"},
+                    
+                    If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                        Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                        Distinct(
+                            SortByColumns(
+                                똑실이_Category_table,
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV2
+                        ),
+                
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                         Distinct(
+                            Filter(
+                                SortByColumns(
+                                    똑실이_Category_table,
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                
+                                Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value 
+                            ),
+                            Category_LV2
+                         )
+                    )
+                
+                )*/
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Width: =240
+            X: =843
+            Y: =702
+            ZIndex: =26
+
+        Dropdown_SearchCategoryLV2_FM_1 As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: ="전체"
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =colCategoryLV2_FM
+                
+                /*If(
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                    colCategoryLV2_FM,
+                    Distinct(
+                        Filter(
+                            Category_table,
+                            Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
+                        ),
+                        Category_LV2
+                    )
+                )*/
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Width: =240
+            X: =Label_SearchCategoryArrow_FM_1.X + Label_SearchCategoryArrow_FM_1.Width
+            Y: =702
+            ZIndex: =27
+
+        Label_SearchCategoryArrow_FM_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            Height: =47
+            PaddingLeft: =0
+            PaddingRight: =0
+            Text: =">"
+            Width: =43
+            X: =Dropdown_SearchCategoryLV1_FM_1.X + Dropdown_SearchCategoryLV1_FM_1.Width
+            Y: =692
+            ZIndex: =28
+
+        Label_Datelabel_FM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =33
+            Text: ="유형"
+            Width: =52
+            X: =1394
+            Y: =702
+            ZIndex: =29
+
+        Dropdown_SearchCategoryLV1_FM_2 As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: ="전체"
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =["전체","deny", "const_text_data", "system_instruction", 
+                "api_call", "document_search"]
+            OnChange: |-
+                =If(
+                    User().Email in LookUp(
+                        똑실이_SuperAdmin_table,
+                        User().Email in SuperUsers.Email
+                    ).SuperUsers.Email,
+                
+                    ClearCollect(
+                        colCategoryLV2_FM,
+                        {Value: "전체"},
+                        If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                            Dropdown_SearchCategoryLV1_FM_2.Selected.Value = "전체",
+                            Distinct(
+                                SortByColumns(
+                                    똑실이_Category_table,
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                                Category_LV2
+                            ),
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                            Distinct(
+                                Filter(
+                                    SortByColumns(
+                                        똑실이_Category_table,
+                                        "LV2Order",
+                                        SortOrder.Ascending
+                                    ),
+                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_2.Selected.Value
+                                ),
+                                Category_LV2
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        colCategoryLV2_FM,
+                        {Value: "전체"},
+                        If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                            Dropdown_SearchCategoryLV1_FM_2.Selected.Value = "전체",
+                            Distinct(
+                                Filter(
+                                    SortByColumns(
+                                        똑실이_Category_table,
+                                        "LV2Order",
+                                        SortOrder.Ascending
+                                    ),
+                                    User().Email in Users.Email
+                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                                ),
+                                Category_LV2
+                            ),
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                            Distinct(
+                                Filter(
+                                    Filter(
+                                        SortByColumns(
+                                            똑실이_Category_table,
+                                            "LV2Order",
+                                            SortOrder.Ascending
+                                        ),
+                                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_2.Selected.Value
+                                    ),
+                                    User().Email in Users.Email
+                                ),
+                                Category_LV2
+                            )
+                        )
+                    )
+                )
+                
+                
+                /*// 해당 드롭다운이 바뀔 때, 선택한 카테고리 LV1에 따라 카테고리 LV2의 드롭다운 속 아이템을 바꿈
+                
+                ClearCollect(
+                    colCategoryLV2_FM,
+                    {Value: "전체"},
+                    
+                    If(
+                        // 첫 번째 드롭다운이 "전체"일 때
+                        Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                        Distinct(
+                            SortByColumns(
+                                똑실이_Category_table,
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV2
+                        ),
+                
+                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                         Distinct(
+                            Filter(
+                                SortByColumns(
+                                    똑실이_Category_table,
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                
+                                Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value 
+                            ),
+                            Category_LV2
+                         )
+                    )
+                
+                )*/
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Width: =240
+            X: =1480
+            Y: =699
+            ZIndex: =30
+
