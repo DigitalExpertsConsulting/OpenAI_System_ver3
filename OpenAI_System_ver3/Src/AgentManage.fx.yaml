@@ -2,40 +2,26 @@ AgentManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |
-        =Concurrent(
-            UpdateContext({ModalVisible: false}),
-            Set(
-                delPopUp_File,
-                false
-            );
-            ,
-            Set(
-                FileUploadLoding,
-                false
-            )
+    OnVisible: |+
+        =//변수 초기화
+        Concurrent(
+        UpdateContext({ModalVisible_ServerUpload: false});, //서버업로드 팝업 visible 변수 초기화
+        UpdateContext({ModalVisible_Background:false});, // 팝업 배경 visible 변수 초기화
+        Clear(colTeams);,//Teams 컬렉션 초기화
+        Clear(colOfficeGroupEmail);//그룹 이메일 컬렉션 초기화
         );
+        
+        
+        //Teams 칼럼 colTeams (이전testDist) 컬렉션에 할당
         ForAll(
             똑실이_Category_table,
             Collect(
-                Teams_GET,
-                FirstN(
-                    ThisRecord.Teams,
-                    CountRows(ThisRecord.Teams)
-                ).Claims
-            )
-        );
-        Clear(testDist);
-        Clear(offGroe);
-        ForAll(
-            똑실이_Category_table,
-            Collect(
-                testDist,
+                colTeams,
                 ThisRecord.Teams
             )
         );
-        ForAll(
-            testDist,
+        ForAll( //colTeams 컬렉션에 앱 사용자 이메일이 포함 된 경우 colOfficeGroupEmail (이전offGroe) 컬렉션에 그룹이메일 할당
+            colTeams,
             If(
                 CountRows(
                     Filter(
@@ -49,25 +35,28 @@ AgentManage As screen:
                     )
                 ) > 0,
                 Collect(
-                    offGroe,
+                    colOfficeGroupEmail,
                     {Email: ThisRecord.Email}
                 )
             )
         );
+        
+        //그룹 이메일 중복제거
         Distinct(
-            offGroe,
+            colOfficeGroupEmail,
             ThisRecord
         );
         
         
         
-        // 카테고리 LV1 SuperAdmin 권한 확인 
+        // SuperAdmin 권한 확인 
         If(
             User().Email in LookUp(
                 똑실이_SuperAdmin_table,
                 User().Email in SuperUsers.Email
             ).SuperUsers.Email,
-        // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
+            
+        // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 LV1 로드
             ClearCollect(
                 colCategoryLV1_FM,
                 {Value: "전체"},
@@ -80,7 +69,7 @@ AgentManage As screen:
                     Category_LV1
                 )
             ),
-        // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
+        // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV1 로드
             ClearCollect(
                 colCategoryLV1_FM,
                 {Value: "전체"},
@@ -190,8 +179,6 @@ AgentManage As screen:
             )
         );*/
         
-        
-        Reset(Gallery_FileList_FM_1);
 
     Button_AddButton_FM_1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -276,35 +263,36 @@ AgentManage As screen:
     "Gallery_FileList_FM_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        Height: =190
+        Height: =216
         Items: |-
-            =Filter(
+            =Search(
                 Search(
                     Search(
-                        똑실이_AgentFunction_table​,
-                        TextInput_SearchFileName_FM_1.Text,
-                        "Function_ID"
+                        Search(  //Function_ID InputText 필터
+                            똑실이_AgentFunction_table​,
+                            TextInput_SearchFileName_FM_1.Text,
+                            "Function_ID"
+                        ),
+                        If(  //유형 드롭다운 필터
+                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체",
+                            "",
+                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value
+                        ),
+                        "Type"
                     ),
-                    If(
-                        Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체",
-                        "",
-                        Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value
-                    ),
-                    "Type"
-                ),
-                Or(
-                    Dropdown_SearchCategoryLV1_FM_1.Selected.Value = Category_LV1,
-                    If(
+                    If(  // 카테고리 lv1 필터
                         Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
-                        Category_LV1 in colCategoryLV1_FM
-                    )
-                ) && 
-                Or( 
-                    Dropdown_SearchCategoryLV2_FM_1.Selected.Value = Category_LV2,
-                    If(
+                        "",
+                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value
+                    ),
+                    "Category_LV1"
+                ),
+                If(  // 카테고리 lv2 필터
                     Dropdown_SearchCategoryLV2_FM_1.Selected.Value = "전체",
-                    Category_LV2 in colCategoryLV2_FM
-                ))
+                    "",
+                    Dropdown_SearchCategoryLV2_FM_1.Selected.Value
+                ),
+                "Category_LV2"
             )
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
@@ -314,7 +302,7 @@ AgentManage As screen:
         Width: =1526
         WrapCount: =0
         X: =354
-        Y: =828
+        Y: =802
         ZIndex: =4
 
         Separator_FileList_FM_1 As rectangle:
@@ -562,7 +550,7 @@ AgentManage As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Concurrent(Refresh(똑실이_Agent_table),Refresh(똑실이_AgentFunction_table​));
+        OnSelect: =Concurrent(Refresh(똑실이_Agent_table),Refresh(똑실이_AgentFunction_table​));Navigate(AgentManage);
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -637,21 +625,6 @@ AgentManage As screen:
         Y: =35
         ZIndex: =12
 
-    Background_Modal_PAUpload_FM_1 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =FileUploadLoding
-        Width: =1620
-        X: =300
-        ZIndex: =19
-
     Image_PALoding_FM_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -667,6 +640,25 @@ AgentManage As screen:
         Visible: =FileUploadLoding
         X: =957
         Y: =454
+        ZIndex: =19
+
+    Title_Header_FM_2 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =20
+        Text: |-
+            ="Agent 기능
+            "
+        Width: =691
+        X: =364
+        Y: =621
         ZIndex: =20
 
     Group_FileList_FM_1 As group:
@@ -746,25 +738,6 @@ AgentManage As screen:
             Y: =771
             ZIndex: =7
 
-    Title_Header_FM_2 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Bold
-        Height: =64
-        Size: =20
-        Text: |-
-            ="Agent 기능
-            "
-        Width: =691
-        X: =364
-        Y: =621
-        ZIndex: =21
-
     Rectangle_FileList_FM_2 As rectangle:
         BorderColor: =RGBA(112, 112, 112, 1)
         DisabledFill: =RGBA(255, 255, 255, 1)
@@ -777,7 +750,7 @@ AgentManage As screen:
         Width: =1540
         X: =341
         Y: =102
-        ZIndex: =31
+        ZIndex: =30
 
     Label_Category_FM_2 As label:
         Align: =Align.Center
@@ -796,7 +769,7 @@ AgentManage As screen:
         Width: =82
         X: =684
         Y: =771
-        ZIndex: =32
+        ZIndex: =31
 
     Separator_Main_FM_2 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -806,7 +779,7 @@ AgentManage As screen:
         Width: =1491
         X: =365
         Y: =178
-        ZIndex: =33
+        ZIndex: =32
 
     Title_Header_FM_3 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -825,7 +798,7 @@ AgentManage As screen:
         Width: =691
         X: =365
         Y: =115
-        ZIndex: =34
+        ZIndex: =33
 
     Button_AddButton_FM_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -843,8 +816,9 @@ AgentManage As screen:
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =
-            UpdateContext({ModalVisible_ServerUpload: true});
+            =UpdateContext({ModalVisible_ServerUpload: true});
+            UpdateContext({ModalVisible_Background:true});
+            
             
             /*
             ForAll(
@@ -886,7 +860,7 @@ AgentManage As screen:
         Width: =121
         X: =1470
         Y: =523
-        ZIndex: =35
+        ZIndex: =34
 
     Label_SearchFileName_FM_2 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -905,6 +879,33 @@ AgentManage As screen:
         Text: ="published version"
         Width: =164
         X: =720
+        Y: =206
+        ZIndex: =35
+
+    TextInput1 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_Agent_table).Version
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =575
+        X: =928
         Y: =206
         ZIndex: =36
 
@@ -1120,33 +1121,6 @@ AgentManage As screen:
             Y: =443
             ZIndex: =18
 
-    TextInput1 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Version
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =DisplayMode.Disabled
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =928
-        Y: =206
-        ZIndex: =37
-
     Label_SearchFileName_FM_3 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -1165,17 +1139,16 @@ AgentManage As screen:
         Width: =164
         X: =721
         Y: =258
-        ZIndex: =38
+        ZIndex: =37
 
     TextInput1_1 As text:
         BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         Default: =""
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =4
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         HintText: ="version을 입력해주세요"
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1192,7 +1165,7 @@ AgentManage As screen:
         Width: =575
         X: =929
         Y: =258
-        ZIndex: =39
+        ZIndex: =38
 
     Label_SearchFileName_FM_4 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1212,17 +1185,16 @@ AgentManage As screen:
         Width: =164
         X: =721
         Y: =312
-        ZIndex: =40
+        ZIndex: =39
 
     TextInput1_2 As text:
         BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         Default: =""
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =4
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         HintText: ="name을 입력해주세요"
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1239,7 +1211,7 @@ AgentManage As screen:
         Width: =575
         X: =929
         Y: =312
-        ZIndex: =41
+        ZIndex: =40
 
     Label_SearchFileName_FM_5 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1259,17 +1231,16 @@ AgentManage As screen:
         Width: =164
         X: =720
         Y: =364
-        ZIndex: =42
+        ZIndex: =41
 
     TextInput1_3 As text:
         BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         Default: =""
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =4
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         HintText: ="description를 입력해주세요"
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1286,7 +1257,7 @@ AgentManage As screen:
         Width: =575
         X: =928
         Y: =364
-        ZIndex: =43
+        ZIndex: =42
 
     Label_SearchFileName_FM_6 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1306,17 +1277,16 @@ AgentManage As screen:
         Width: =164
         X: =721
         Y: =414
-        ZIndex: =44
+        ZIndex: =43
 
     TextInput1_4 As text:
         BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         Default: =""
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =4
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         HintText: ="fallback function을 입력해주세요"
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1333,7 +1303,7 @@ AgentManage As screen:
         Width: =575
         X: =929
         Y: =414
-        ZIndex: =45
+        ZIndex: =44
 
     Button_AddButton_FM_3 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1376,7 +1346,7 @@ AgentManage As screen:
         Width: =121
         X: =1539
         Y: =414
-        ZIndex: =46
+        ZIndex: =45
 
     Background_Modal_FileUpload_FM_1 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1390,7 +1360,22 @@ AgentManage As screen:
         PressedFill: =
         Visible: =Or(ModalVisible, LogModalVisible, DelModalVisible)
         Width: =1920
-        ZIndex: =47
+        ZIndex: =46
+
+    Background_Modal_PAUpload_FM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =ModalVisible_Background
+        Width: =1620
+        X: =300
+        ZIndex: =48
 
     ModalDialog_ServerUpload_AgentManage As group:
         Height: =5
@@ -1410,10 +1395,10 @@ AgentManage As screen:
             HoverFill: =
             PressedFill: =
             Visible: =ModalVisible_ServerUpload
-            Width: =642
-            X: =685
-            Y: =336
-            ZIndex: =48
+            Width: =988
+            X: =617
+            Y: =353
+            ZIndex: =49
 
         Button_CloseModal_AgentManage As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1428,15 +1413,16 @@ AgentManage As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Cancel
             OnSelect: |-
-                =UpdateContext({ModalVisible_ServerUpload: false})
+                =UpdateContext({ModalVisible_ServerUpload: false});
+                UpdateContext({ModalVisible_Background:false})
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =ModalVisible_ServerUpload
-            Width: =34
-            X: =1271
-            Y: =351
-            ZIndex: =49
+            Width: =52
+            X: =1519
+            Y: =368
+            ZIndex: =50
 
         Label_ServerUploadText_AgentManage As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1451,10 +1437,10 @@ AgentManage As screen:
             Size: =24
             Text: ="서버 업로드"
             Visible: =ModalVisible_ServerUpload
-            Width: =419
-            X: =730
-            Y: =360
-            ZIndex: =50
+            Width: =645
+            X: =686
+            Y: =377
+            ZIndex: =51
 
         Button_Submit_AgentManage As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1475,8 +1461,8 @@ AgentManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |
-                =UpdateContext({ModalVisible_ServerUpload:false})
-                
+                =UpdateContext({ModalVisible_ServerUpload:false});
+                UpdateContext({ModalVisible_Background:false})
                 
                 /*If( IsBlank(Dropdown_LV1Category_FileUpload_FM_1.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value),
                 Notify(
@@ -1594,10 +1580,10 @@ AgentManage As screen:
             RadiusTopRight: =4
             Text: ="업로드"
             Visible: =ModalVisible_ServerUpload
-            Width: =65
-            X: =1159
-            Y: =608
-            ZIndex: =51
+            Width: =100
+            X: =1346
+            Y: =625
+            ZIndex: =52
 
         Button_Cancel_AgentManage As button:
             BorderColor: |-
@@ -1623,7 +1609,8 @@ AgentManage As screen:
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ModalVisible_ServerUpload: false})
+                =UpdateContext({ModalVisible_ServerUpload: false});
+                UpdateContext({ModalVisible_Background:false})
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: |-
@@ -1636,10 +1623,10 @@ AgentManage As screen:
             RadiusTopRight: =4
             Text: ="취소"
             Visible: =ModalVisible_ServerUpload
-            Width: =65
-            X: =1240
-            Y: =608
-            ZIndex: =52
+            Width: =100
+            X: =1471
+            Y: =625
+            ZIndex: =53
 
         Label_jsonText_AgentManage As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1656,11 +1643,11 @@ AgentManage As screen:
             Size: =13
             Text: ="json 변환"
             Visible: =ModalVisible_ServerUpload
-            Width: =148
+            Width: =228
             Wrap: =false
-            X: =743
-            Y: =412
-            ZIndex: =53
+            X: =706
+            Y: =429
+            ZIndex: =54
 
         Label_json_AgentManage As label:
             BorderColor: =RGBA(153, 153, 153, 1)
@@ -1674,41 +1661,10 @@ AgentManage As screen:
             Size: =13
             Text: ="텍스트"
             Visible: =ModalVisible_ServerUpload
-            Width: =535
-            X: =742
-            Y: =463
-            ZIndex: =54
-
-    Button_AddButton_FM_4 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: =Navigate(AgentManage)
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장(jsonPA)"
-        Width: =121
-        X: =990
-        Y: =35
-        ZIndex: =55
+            Width: =823
+            X: =705
+            Y: =480
+            ZIndex: =55
 
     Group_Search_FM_1 As group:
         Height: =5
@@ -1730,11 +1686,10 @@ AgentManage As screen:
             Width: =1540
             X: =343
             Y: =692
-            ZIndex: =22
+            ZIndex: =21
 
         TextInput_SearchFileName_FM_1 As text:
-            BorderColor: =RGBA(230, 230, 230, 1)
-            BorderThickness: =2
+            BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
@@ -1743,9 +1698,10 @@ AgentManage As screen:
             FocusedBorderThickness: =4
             Height: =32
             HintText: ="기능명을 입력하세요."
-            HoverBorderColor: =RGBA(0, 0, 0, 1)
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
             PressedColor: =
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
@@ -1755,7 +1711,7 @@ AgentManage As screen:
             Width: =280
             X: =448
             Y: =702
-            ZIndex: =23
+            ZIndex: =22
 
         Label_SearchFileName_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1776,7 +1732,7 @@ AgentManage As screen:
             Width: =67
             X: =378
             Y: =702
-            ZIndex: =24
+            ZIndex: =23
 
         Label_SearchCategory_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1795,12 +1751,13 @@ AgentManage As screen:
             PaddingTop: =0
             Text: ="카테고리"
             Width: =90
-            X: =753
+            X: =780
             Y: =702
-            ZIndex: =25
+            ZIndex: =24
 
         Dropdown_SearchCategoryLV1_FM_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
             ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
             ChevronDisabledFill: =RGBA(166, 166, 166, 1)
@@ -1936,12 +1893,13 @@ AgentManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =843
+            X: =870
             Y: =702
-            ZIndex: =26
+            ZIndex: =25
 
         Dropdown_SearchCategoryLV2_FM_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
             ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
             ChevronDisabledFill: =RGBA(166, 166, 166, 1)
@@ -1982,9 +1940,9 @@ AgentManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =Label_SearchCategoryArrow_FM_1.X + Label_SearchCategoryArrow_FM_1.Width
+            X: =1167
             Y: =702
-            ZIndex: =27
+            ZIndex: =26
 
         Label_SearchCategoryArrow_FM_1 As label:
             Align: =Align.Center
@@ -1997,9 +1955,9 @@ AgentManage As screen:
             PaddingRight: =0
             Text: =">"
             Width: =43
-            X: =Dropdown_SearchCategoryLV1_FM_1.X + Dropdown_SearchCategoryLV1_FM_1.Width
+            X: =1119
             Y: =692
-            ZIndex: =28
+            ZIndex: =27
 
         Label_Datelabel_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -2014,12 +1972,13 @@ AgentManage As screen:
             Height: =33
             Text: ="유형"
             Width: =52
-            X: =1394
+            X: =1466
             Y: =702
-            ZIndex: =29
+            ZIndex: =28
 
         Dropdown_SearchCategoryLV1_FM_2 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
             ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
             ChevronDisabledFill: =RGBA(166, 166, 166, 1)
@@ -2157,7 +2116,7 @@ AgentManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =1480
-            Y: =699
-            ZIndex: =30
+            X: =1525
+            Y: =702
+            ZIndex: =29
 
