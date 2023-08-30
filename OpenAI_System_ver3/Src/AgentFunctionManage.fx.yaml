@@ -1,11 +1,15 @@
-AgentManage As screen:
+AgentFunctionManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |
         =//============================== << AgentManage 화면 접속 시 >> ==============================
-        
-        // 1. 초기화
+        // 1. 로딩 이미지 활성화
+        Concurrent(   
+            UpdateContext({gblLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({gblLoadingBackground:true})); // 로딩 스피너 배경 이미지 비활성 );
+            
+        // 2. 초기화
         
         Concurrent(   
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
@@ -200,78 +204,19 @@ AgentManage As screen:
             
         );
         
-        //============================== << Agent 기능 필터 초기화 >> ==============================
+        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
         Concurrent(
         
-            Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
-            Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
-            Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-            Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
+            Reset(TextInput_SearchFileName_FM_2),  // 기능명 InputText 리셋(Agent 기능 필터)
+            Reset(Dropdown_SearchCategoryLV1_FM_3),  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_SearchCategoryLV2_FM_2),  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_SearchCategoryLV1_FM_4),  // 유형 Dropbox 리셋(Agent 기능 필터)
+            UpdateContext({gblLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({gblLoadingBackground:false}); // 로딩 스피너 배경 이미지 비활성
         );
 
-    Button_AddButton_FM_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =Set(FileRefresh,false);
-            UpdateContext({ModalVisible: true});
-            
-            /*
-            ForAll(
-                Distinct(Filter(Teams_GET,Value),Value),
-                Collect(result_value,
-                   If(Office365사용자.MyProfile().Mail in 
-                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
-                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
-                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
-                   )
-                )
-            );
-            
-            
-            ForAll(
-                Category_table,
-                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
-            )
-            */
-            /*
-            Distinct(
-                Filter(
-                    Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
-                ),
-                LV1
-            )
-            */
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="서버 업로드"
-        Width: =121
-        X: =1759
-        Y: =43
-        ZIndex: =1
-
-    Title_Header_FM_1 As label:
+    Title_Header_FM_4 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -282,48 +227,47 @@ AgentManage As screen:
         FontWeight: =FontWeight.Bold
         Height: =64
         Size: =30
-        Text: |-
-            ="Agent Management
-            "
+        Text: ="Agent Function Manage"
         Width: =691
         X: =343
         Y: =23
         ZIndex: =3
 
-    "Gallery_FileList_FM_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+    "Gallery_FileList_FM_2 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        Height: =216
+        Height: =662
         Items: |-
-            =Search(
+            =Filter(
+            Searh(
                 Search(
                     Search(
                         Search(  //Function_ID InputText 필터
                             똑실이_AgentFunction_table​,
-                            TextInput_SearchFileName_FM_1.Text,
+                            TextInput_SearchFileName_FM_2.Text,
                             "Function_ID"
                         ),
                         If(  //유형 드롭다운 필터
-                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체",
+                            Dropdown_SearchCategoryLV1_FM_4.SelectedText.Value = "전체",
                             "",
-                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value
+                            Dropdown_SearchCategoryLV1_FM_4.SelectedText.Value
                         ),
                         "Type"
                     ),
                     If(  // 카테고리 lv1 필터
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1 = "전체",
+                        Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1 = "전체",
                         "",
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1
+                        Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1
                     ),
                     "Category_LV1"
                 ),
                 If(  // 카테고리 lv2 필터
-                    Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2 = "전체",
+                    Dropdown_SearchCategoryLV2_FM_2.Selected.Category_LV2 = "전체",
                     "",
-                    Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2
+                    Dropdown_SearchCategoryLV2_FM_2.Selected.Category_LV2
                 ),
                 "Category_LV2"
-            )
+            ),Category_Lv2 in colAgentManageLV2.Category_LV2)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         ShowScrollbar: =false
@@ -331,11 +275,11 @@ AgentManage As screen:
         TemplateSize: =60
         Width: =1526
         WrapCount: =0
-        X: =354
-        Y: =802
+        X: =341
+        Y: =316
         ZIndex: =4
 
-        Separator_FileList_FM_1 As rectangle:
+        Separator_FileList_FM_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             Fill: =RGBA(219, 219, 219, 1)
             Height: =1
@@ -345,7 +289,7 @@ AgentManage As screen:
             Y: =59
             ZIndex: =1
 
-        Label_Gallery_FileName_FM_1 As label:
+        Label_Gallery_FileName_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -362,7 +306,7 @@ AgentManage As screen:
             Y: =10
             ZIndex: =2
 
-        Label_Gallery_Category_FM_1 As label:
+        Label_Gallery_Category_FM_3 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -379,7 +323,7 @@ AgentManage As screen:
             Y: =10
             ZIndex: =3
 
-        Label_Date_Gallery_Category_FM_1 As label:
+        Label_Date_Gallery_Category_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -397,7 +341,7 @@ AgentManage As screen:
             Y: =10
             ZIndex: =5
 
-        Image_Delete_Gallery_FileList_FM_1 As image:
+        Image_Delete_Gallery_FileList_FM_2 As image:
             BorderColor: |-
                 =RGBA(230, 230, 230, 1)
                 /*
@@ -515,13 +459,13 @@ AgentManage As screen:
             RadiusBottomRight: =10
             RadiusTopLeft: =10
             RadiusTopRight: =10
-            Transparency: =If(Image_Delete_Gallery_FileList_FM_1.DisplayMode = DisplayMode.Disabled, 0.5,0)
+            Transparency: =If(Image_Delete_Gallery_FileList_FM_2.DisplayMode = DisplayMode.Disabled, 0.5,0)
             Width: =35
             X: =1295
             Y: =11
             ZIndex: =9
 
-        "'Image_IndexLog_FM_1' As image":
+        "'Image_IndexLog_FM_2' As image":
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -544,7 +488,7 @@ AgentManage As screen:
             Y: =11
             ZIndex: =10
 
-        Label_Gallery_Category_FM_2 As label:
+        Label_Gallery_Category_FM_4 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -561,7 +505,7 @@ AgentManage As screen:
             Y: =20
             ZIndex: =11
 
-    Button_Refresh_FM_1 As button:
+    Button_Refresh_FM_2 As button:
         BorderColor: |-
             =ColorValue("#D1D1D1")
         BorderThickness: =1
@@ -580,7 +524,7 @@ AgentManage As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Concurrent(Refresh(똑실이_Agent_table),Refresh(똑실이_AgentFunction_table​));Navigate(AgentManage);
+        OnSelect: =Concurrent(Refresh(똑실이_Agent_table),Refresh(똑실이_AgentFunction_table​));Navigate(AgentFunctionManage);
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -594,24 +538,24 @@ AgentManage As screen:
         Size: =11
         Text: ="새로고침"
         Width: =121
-        X: =1599
-        Y: =42
+        X: =1746
+        Y: =47
         ZIndex: =8
 
-    Separator_Main_FM_1 As rectangle:
+    Separator_Main_FM_4 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Height: =1
         OnSelect: =
         Width: =1491
-        X: =364
-        Y: =Label_FileName_FM_1.Y + Label_FileName_FM_1.Height + 10
+        X: =351
+        Y: =315
         ZIndex: =9
 
-    New_Component_GNB_FM_1 As New_Component_GNB:
+    New_Component_GNB_FM_2 As New_Component_GNB:
         ZIndex: =10
 
-    Image_Refresh_FM_1 As image:
+    Image_Refresh_FM_2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -622,15 +566,15 @@ AgentManage As screen:
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverFill: =RGBA(0, 0, 0, 0)
         Image: =TokenMenuRefresh
-        OnSelect: =Select(Button_Refresh_FM_1)
+        OnSelect: =Select(Button_Refresh_FM_2)
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
-        X: =1616
-        Y: =53
+        X: =1763
+        Y: =58
         ZIndex: =11
 
-    RefreshTimer_FM_1 As timer:
+    RefreshTimer_FM_2 As timer:
         AutoPause: =false
         AutoStart: =true
         BorderColor: =RGBA(105, 121, 126, 1)
@@ -655,7 +599,7 @@ AgentManage As screen:
         Y: =35
         ZIndex: =12
 
-    Image_PALoding_FM_1 As image:
+    Image_PALoding_FM_2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -667,12 +611,12 @@ AgentManage As screen:
         Image: ='6-dots-rotate'
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =FileUploadLoding
+        Visible: =gblLoadingSpinner
         X: =957
         Y: =454
         ZIndex: =19
 
-    Title_Header_FM_2 As label:
+    Title_Header_FM_6 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -687,38 +631,37 @@ AgentManage As screen:
             ="Agent 기능
             "
         Width: =691
-        X: =364
-        Y: =621
+        X: =351
+        Y: =135
         ZIndex: =20
 
-    Group_FileList_FM_1 As group:
+    Group_FileList_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =20
 
-        Rectangle_FileList_FM_1 As rectangle:
+        Rectangle_FileList_FM_4 As rectangle:
             BorderColor: =RGBA(112, 112, 112, 1)
             DisabledFill: =RGBA(255, 255, 255, 1)
             DisplayMode: =DisplayMode.View
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
-            Height: =432
+            Height: =856
             HoverFill: =RGBA(255, 255, 255, 1)
             PressedFill: =RGBA(255, 255, 255, 1)
             Width: =1540
-            X: =340
-            Y: =608
+            X: =327
+            Y: =122
             ZIndex: =2
 
-        Label_FileName_FM_1 As label:
+        Label_FileName_FM_2 As label:
             Color: |-
                 =ColorValue("#BDBDBD")
             DisabledColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
-            Height: =20
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
@@ -726,18 +669,18 @@ AgentManage As screen:
             Size: =13
             Text: ="기능ID"
             Width: =80
-            X: =388
-            Y: =771
+            X: =375
+            Y: =273
             ZIndex: =5
 
-        Label_Date_FM_1 As label:
+        Label_Date_FM_2 As label:
             Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
             DisabledColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
-            Height: =20
+            Height: =Label_FileName_FM_2.Height
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
@@ -745,18 +688,18 @@ AgentManage As screen:
             Size: =13
             Text: ="유형"
             Width: =109
-            X: =1313
-            Y: =771
+            X: =1300
+            Y: =Label_FileName_FM_2.Y
             ZIndex: =6
 
-        Label_Category_FM_1 As label:
+        Label_Category_FM_4 As label:
             Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
             DisabledColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
-            Height: =20
+            Height: =Label_FileName_FM_2.Height
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
@@ -764,32 +707,18 @@ AgentManage As screen:
             Size: =13
             Text: ="카테고리"
             Width: =82
-            X: =1001
-            Y: =771
+            X: =988
+            Y: =Label_FileName_FM_2.Y
             ZIndex: =7
 
-    Rectangle_FileList_FM_2 As rectangle:
-        BorderColor: =RGBA(112, 112, 112, 1)
-        DisabledFill: =RGBA(255, 255, 255, 1)
-        DisplayMode: =DisplayMode.View
-        Fill: =RGBA(255, 255, 255, 1)
-        FocusedBorderThickness: =4
-        Height: =477
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        Width: =1540
-        X: =341
-        Y: =102
-        ZIndex: =30
-
-    Label_Category_FM_2 As label:
+    Label_Category_FM_3 As label:
         Align: =Align.Center
         Color: |-
             =ColorValue("#BDBDBD")
         DisabledColor: =RGBA(166, 166, 166, 1)
         Fill: =RGBA(255, 255, 255, 1)
         FontWeight: =FontWeight.Bold
-        Height: =20
+        Height: =Label_FileName_FM_2.Height
         PaddingBottom: =0
         PaddingLeft: =0
         PaddingRight: =0
@@ -797,156 +726,18 @@ AgentManage As screen:
         Size: =13
         Text: ="기능명"
         Width: =82
-        X: =684
-        Y: =771
+        X: =671
+        Y: =Label_FileName_FM_2.Y
         ZIndex: =31
 
-    Separator_Main_FM_2 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Height: =1
-        OnSelect: =
-        Width: =1491
-        X: =365
-        Y: =178
-        ZIndex: =32
-
-    Title_Header_FM_3 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Bold
-        Height: =64
-        Size: =20
-        Text: |-
-            ="Agent 관리
-            "
-        Width: =691
-        X: =365
-        Y: =115
-        ZIndex: =33
-
-    Button_AddButton_FM_2 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =UpdateContext({ModalVisible_ServerUpload: true});
-            UpdateContext({ModalVisible_Background:true});
-            
-            
-            /*
-            ForAll(
-                Distinct(Filter(Teams_GET,Value),Value),
-                Collect(result_value,
-                   If(Office365사용자.MyProfile().Mail in 
-                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
-                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
-                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
-                   )
-                )
-            );
-            
-            
-            ForAll(
-                Category_table,
-                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
-            )
-            */
-            /*
-            Distinct(
-                Filter(
-                    Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
-                ),
-                LV1
-            )
-            */
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장(jsonPA)"
-        Width: =121
-        X: =1382
-        Y: =479
-        ZIndex: =34
-
-    Label_SearchFileName_FM_2 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="published version"
-        Width: =164
-        X: =720
-        Y: =206
-        ZIndex: =35
-
-    TextInput1 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Version
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =DisplayMode.Disabled
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =928
-        Y: =206
-        ZIndex: =36
-
-    Group_DeleteQA_FM_1 As group:
+    Group_DeleteQA_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =36
 
-        Button_DeleteFile_FM_1 As button:
+        Button_DeleteFile_FM_2 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -980,7 +771,7 @@ AgentManage As screen:
             Y: =419
             ZIndex: =13
 
-        Button_OKDeleteFile_FM_1 As button:
+        Button_OKDeleteFile_FM_2 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -1040,13 +831,13 @@ AgentManage As screen:
             RadiusTopRight: =4
             Size: =11
             Text: ="삭제"
-            Visible: =true//delPopUp_File
+            Visible: =delPopUp_File
             Width: =50
             X: =1277
             Y: =523
             ZIndex: =14
 
-        Button_CancleDeleteFile_FM_1 As button:
+        Button_CancleDeleteFile_FM_2 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -1090,7 +881,7 @@ AgentManage As screen:
             Y: =523
             ZIndex: =15
 
-        Label_DeleteFile_FM_1 As label:
+        Label_DeleteFile_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -1110,7 +901,7 @@ AgentManage As screen:
             Y: =440
             ZIndex: =16
 
-        Label_DeleteFileSub_FM_1 As label:
+        Label_DeleteFileSub_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1128,7 +919,7 @@ AgentManage As screen:
             Y: =481
             ZIndex: =17
 
-        Image_DeleteFileExit_FM_1 As image:
+        Image_DeleteFileExit_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1151,232 +942,7 @@ AgentManage As screen:
             Y: =443
             ZIndex: =18
 
-    Label_SearchFileName_FM_3 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="version"
-        Width: =164
-        X: =721
-        Y: =258
-        ZIndex: =37
-
-    TextInput1_1 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="version을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =258
-        ZIndex: =38
-
-    Label_SearchFileName_FM_4 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="name"
-        Width: =164
-        X: =721
-        Y: =312
-        ZIndex: =39
-
-    TextInput1_2 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="name을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =312
-        ZIndex: =40
-
-    Label_SearchFileName_FM_5 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="description"
-        Width: =164
-        X: =720
-        Y: =364
-        ZIndex: =41
-
-    TextInput1_3 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="description를 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =928
-        Y: =364
-        ZIndex: =42
-
-    Label_SearchFileName_FM_6 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="fallback function"
-        Width: =164
-        X: =721
-        Y: =414
-        ZIndex: =43
-
-    TextInput1_4 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="fallback function을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =414
-        ZIndex: =44
-
-    Button_AddButton_FM_3 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =If(IsBlank(TextInput1_1.Text)||IsBlank(TextInput1_2.Text)||IsBlank(TextInput1_3.Text)||IsBlank(TextInput1_4.Text),
-                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
-            
-                Patch(똑실이_Agent_table,{제목:".",Published_Version:TextInput1.Text,
-                Version:TextInput1_1.Text,
-                Name:TextInput1_2.Text,
-                Description:TextInput1_3.Text,
-                Fallback_Function:TextInput1_4.Text
-            });
-            Concurrent(Reset(TextInput1),Reset(TextInput1_1),Reset(TextInput1_2),Reset(TextInput1_3),Reset(TextInput1_4)));
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장"
-        Width: =121
-        X: =1539
-        Y: =414
-        ZIndex: =45
-
-    Background_Modal_PAUpload_FM_1 As rectangle:
+    Background_Modal_PAUpload_FM_2 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1391,14 +957,14 @@ AgentManage As screen:
         X: =300
         ZIndex: =48
 
-    ModalDialog_ServerUpload_AgentManage As group:
+    ModalDialog_ServerUpload_AgentManage_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =49
 
-        Background_ModalDialog_AgentManage As rectangle:
+        Background_ModalDialog_AgentManage_1 As rectangle:
             BorderColor: =RGBA(255, 255, 255, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1414,7 +980,7 @@ AgentManage As screen:
             Y: =353
             ZIndex: =49
 
-        Button_CloseModal_AgentManage As icon.Cancel:
+        Button_CloseModal_AgentManage_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1438,7 +1004,7 @@ AgentManage As screen:
             Y: =368
             ZIndex: =50
 
-        Label_ServerUploadText_AgentManage As label:
+        Label_ServerUploadText_AgentManage_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1456,7 +1022,7 @@ AgentManage As screen:
             Y: =377
             ZIndex: =51
 
-        Button_Submit_AgentManage As button:
+        Button_Submit_AgentManage_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1599,7 +1165,7 @@ AgentManage As screen:
             Y: =625
             ZIndex: =52
 
-        Button_Cancel_AgentManage As button:
+        Button_Cancel_AgentManage_1 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -1642,7 +1208,7 @@ AgentManage As screen:
             Y: =625
             ZIndex: =53
 
-        Label_jsonText_AgentManage As label:
+        Label_jsonText_AgentManage_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1663,7 +1229,7 @@ AgentManage As screen:
             Y: =429
             ZIndex: =54
 
-        Label_json_AgentManage As label:
+        Label_json_AgentManage_1 As label:
             BorderColor: =RGBA(153, 153, 153, 1)
             BorderThickness: =0.5
             Color: =RGBA(51, 51, 51, 1)
@@ -1680,70 +1246,7 @@ AgentManage As screen:
             Y: =480
             ZIndex: =55
 
-    Button1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |-
-            =//접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(colAgentManageDistLV1,Distinct(
-                Filter(
-                    똑실이_Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                    ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                ),
-                Category_LV1
-            ));
-            //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            ClearCollect(
-                colAgentManageLV1,
-                RenameColumns(colAgentManageDistLV1,"Value","Category_LV1")
-            );
-            //colAgentManageLV1 컬렉션에 전체 항목 추가
-            Collect(colAgentManageLV1,{Category_LV1:"전체"});
-            
-            //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(colAgentManageDistLV2,Distinct(
-                Filter(
-                    똑실이_Category_table,
-                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                    Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                    ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                ),
-                Category_LV2
-            ));
-            //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            ClearCollect(
-                colAgentManageLV2,
-                RenameColumns(colAgentManageDistLV2,"Value","Category_LV2")
-            );
-            //colAgentManageLV1 컬렉션에 전체 항목 추가
-            Collect(colAgentManageLV2,{Category_LV2:"전체"});
-            
-            //카테고리 드롭다운 리셋
-            Concurrent(Reset(Dropdown_SearchCategoryLV1_FM_1);,Reset(Dropdown_SearchCategoryLV2_FM_1));
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =412
-        Y: =385
-        ZIndex: =56
-
-    Label1 As label:
+    Label1_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1759,634 +1262,368 @@ AgentManage As screen:
                     똑실이_SuperAdmin_table,
                     User().Email in SuperUsers.Email
                 ).SuperUsers.Email,"수퍼어드민","일반유저")
-        X: =874
-        Y: =62
+        X: =1024
+        Y: =23
         ZIndex: =57
 
-    Button3 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+    Button_SubGalleryBody_CategoryMenu_1 As button:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: |
+            =1
+        Color: =RGBA(166, 166, 166, 1)
+        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+        DisabledColor: |-
+            =ColorValue("#FFFFFF")
+        DisabledFill: |-
+            =ColorValue("#FFFFFF")
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderColor: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |+
-            =//============================== << SuperAdmin 권한에 따라 카테고리 LV1 항목 분류 >> ==============================
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,// SuperAdmin 권한 확인
-                // 1. SuperAdmin인 경우
-                ClearCollect(
-                    colAgentManageDistLV1,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Descending
-                        ),
-                        Category_LV1
-                    )
-                );
-                // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV1 로드
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            ,
-                // 2. SuperAdmin이 아닌 경우
-                ClearCollect(//슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV1 로드
-                    colAgentManageDistLV1,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                offGroe,
-                                Email <> ""
-                            ).Email || LookUp(
-                                offGroe,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV1
-                    )
-                );
-                //접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            );
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,// SuperAdmin 권한 확인
-               // 1. SuperAdmin인 경우
-                ClearCollect(
-                    colAgentManageDistLV2,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV2Order",
-                            SortOrder.Descending
-                        ),
-                        Category_LV2
-                    )
-                );
-                // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV2: "전체"}
-                );
-                //colAgentManageLV2 컬렉션에 전체 항목 추가
-            ,
-                // 2. SuperAdmin이 아닌 경우
-                ClearCollect(//슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
-                    colAgentManageDistLV2,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                           // Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                offGroe,
-                                Email <> ""
-                            ).Email || LookUp(
-                                offGroe,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV2
-                    )
-                );
-                //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
-            ClearCollect(
-                    colAgentManageLV2,
-                    RenameColumns(
-                        colAgentManageDistLV2,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            Collect(
-                    colAgentManageLV2,
-                    {Category_LV2: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            );
-            
-            //============================== << AgentManage 화면 접속 시 >> ==============================
-            
-            Concurrent(
-                Refresh(똑실이_AgentFunction_table​);//DB REFRESH
-                UpdateContext({ModalVisible_ServerUpload: false});,  // 서버업로드 팝업 visible 변수 초기화
-                UpdateContext({ModalVisible_Background: false});,  // 팝업 배경 visible 변수 초기화
-                Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
-            );
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
+        Height: =56
+        HoverBorderColor: =RGBA(128, 128, 128, 1)
+        HoverColor: =RGBA(128, 128, 128, 1)
+        HoverFill: =RGBA(166, 166, 166, 0.1)
+        OnSelect: =
+        PressedBorderColor: =RGBA(74, 85, 88, 1)
+        PressedColor: =RGBA(74, 85, 88, 1)
+        PressedFill: =RGBA(166, 166, 166, 0.2)
         Size: =15
-        Text: ="onvisible"
-        X: =412
-        Y: =324
+        Text: ="Agent 기능 추가"
+        Width: =1540
+        X: =327
+        Y: =994
         ZIndex: =58
 
-    Button3_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
+    Icon2 As icon.AddLibrary:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =28
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |
-            =//============================== << AgentManage 화면 접속 시 >> ==============================
-            
-            // 1. 초기화
-            
-            Concurrent(   
-                Refresh(똑실이_AgentFunction_table​),//DB REFRESH
-                UpdateContext({ModalVisible_ServerUpload: false}),  // 서버업로드 팝업 visible 변수 초기화
-                UpdateContext({ModalVisible_Background: false}),  // 팝업 배경 visible 변수 초기화
-                Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
-                Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
-            
-            // 2. 유저가 속한 Teams 이메일 컬렉션 생성 -> colUserAssignedTeamsEmail
-            
-            ForAll( // Teams 칼럼의 모든 그룹 정보를 colAssignedTeamsInfo 컬렉션에 할당
-                똑실이_Category_table,
-                Collect(
-                    colAssignedTeamsInfo,
-                    ThisRecord.Teams
-                )
-            );
-            ForAll( // 사용자의 이메일이 그룹에 존제 시 그룹 이메일을 colUserAssignedTeamsEmail 컬렉션에 할당
-                colAssignedTeamsInfo,
-                If(
-                    CountRows(
-                        Filter(
-                            Office365그룹.ListGroupMembers(
-                                Mid(
-                                    ThisRecord.Claims,
-                                    40
-                                )
-                            ).value,
-                            User().Email in mail 
-                        )
-                    ) > 0,
-                    Collect(
-                        colUserAssignedTeamsEmail,
-                        {Email: ThisRecord.Email}
-                    )
-                )
-            );
-            Distinct( //colUserAssignedTeamsEmail 컬렉션 중복 제거
-                colUserAssignedTeamsEmail,
-                ThisRecord
-            );
-            
-            
-            
-            
-            
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV1 항목 분류 >> ==============================
-            
-            If( 
-                User().Email in LookUp( 
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email, // SuperAdmin 권한 확인
-            
-                // 1. SuperAdmin인 경우
-            
-                ClearCollect( 
-                    colAgentManageDistLV1,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV1
-                    )
-                ); // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV1 로드
-                ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                ,
-            
-                // 2. SuperAdmin이 아닌 경우
-            
-                ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV1 로드
-                    colAgentManageDistLV1,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Office365사용자.MyProfile().Mail in Users.Email || 
-                            LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                colUserAssignedTeamsEmail,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV1
-                    )
-                 ); //접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-                ClearCollect( 
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                
-            );
-            
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
-            
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email, // SuperAdmin 권한 확인
-            
-               // 1. SuperAdmin인 경우
-            
-                ClearCollect(
-                    colAgentManageDistLV2,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV2Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    )
-                );// 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
-                ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );//칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV2: "전체"}
-                );//colAgentManageLV2 컬렉션에 전체 항목 추가
-                ,
-            
-                // 2. SuperAdmin이 아닌 경우
-                
-                ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
-                    colAgentManageDistLV2,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                colUserAssignedTeamsEmail,
-                                Email <> ""
-                            ).Email || LookUp(
-                                colUserAssignedTeamsEmail,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV2
-                    )
-                ); //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
-                ClearCollect(
-                    colAgentManageLV2,
-                    RenameColumns(
-                        colAgentManageDistLV2,
-                        "Value",
-                        "Category_LV2"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-                Collect(
-                    colAgentManageLV2,
-                    {Category_LV2: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                
-            );
-            
-            //============================== << Agent 기능 필터 초기화 >> ==============================
-            
-            Concurrent(
-            
-                Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: |-
-            ="onvisible2
-            "
-        X: =412
-        Y: =515
-        ZIndex: =59
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.AddLibrary
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =23
+        X: =980
+        Y: =1008
+        ZIndex: =62
 
-    Button4 As button:
+    Background_Modal_PAUpload_FM_3 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |+
-            =Concurrent(
-                UpdateContext({ModalVisible: false}),
-                UpdateContext({LogModalVisible: false}),
-                UpdateContext({DelModalVisible: false}),
-                Set(
-                    delPopUp_File,
-                    false
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =gblLoadingBackground
+        Width: =1620
+        X: =300
+        ZIndex: =63
+
+    Background_Modal_PAUpload_FM_4 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =ModalVisible_Background
+        Width: =1620
+        X: =300
+        ZIndex: =64
+
+    "Gallery_FileList_FM_3 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =442
+        Items: |
+            =Searh(
+                Searh(
+                    Search(
+                        Search(    
+                             Filter(
+                                 똑실이_AgentFunction_table​, 
+                                 ThisRecord.Category_LV1 in colAgentManageLV1.Category_LV1 && 
+                                ThisRecord.Category_LV2 in colAgentManageLV2.Category_LV2),  
+                        TextInput_SearchFileName_FM_2.Text, "Function_ID"),
+                    If(  //유형 드롭다운 필터
+                    Dropdown_SearchCategoryLV1_FM_4.SelectedText.Value = "전체", 
+                    "",
+                    Dropdown_SearchCategoryLV1_FM_4.SelectedText.Value),
+                    "Type"
+                    ),
+                If(  // 카테고리 lv1 필터
+                Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1 = "전체",
+                "",
+                Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1),
+                "Category_LV1"
+                ),
+            If(  // 카테고리 lv2 필터
+            Dropdown_SearchCategoryLV2_FM_2.Selected.Category_LV2 = "전체",
+            "",
+            Dropdown_SearchCategoryLV2_FM_2.Selected.Category_LV2),
+            "Category_LV2");
+                
+        Layout: =Layout.Vertical
+        LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =60
+        Width: =1110
+        WrapCount: =0
+        X: =810
+        Y: =638
+        ZIndex: =65
+
+        Separator_FileList_FM_3 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(219, 219, 219, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =1491
+            X: =26
+            Y: =59
+            ZIndex: =1
+
+        Label_Gallery_FileName_FM_3 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Function_ID
+            Width: =681
+            X: =29
+            Y: =10
+            ZIndex: =2
+
+        Label_Gallery_Category_FM_5 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Category_LV1 & "  >  " & ThisItem.Category_LV2
+            Width: =307
+            X: =655
+            Y: =10
+            ZIndex: =3
+
+        Label_Date_Gallery_Category_FM_3 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Type
+            Width: =205
+            X: =977
+            Y: =10
+            ZIndex: =5
+
+        Image_Delete_Gallery_FileList_FM_3 As image:
+            BorderColor: |-
+                =RGBA(230, 230, 230, 1)
+                /*
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(230, 230, 230, 1),
+                    Color.White
+                )
+                */
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: |-
+                =DisplayMode.Edit
+                /*
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    DisplayMode.Edit,
+                    If(
+                        Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                )
+                */
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverFill: |-
+                =RGBA(219, 219, 219, 1)
+                /*
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+                */
+            Image: =Delete
+            OnSelect: |
+                =/*Concurrent(
+                    Set(
+                        ModalVisible_delFunction,
+                        true
+                    );
+                    ,
+                    Set(
+                        LV1_Category,
+                        ThisItem.Category_LV1
+                    );
+                    ,
+                    Set(
+                        LV2_Category,
+                        ThisItem.Category_LV2
+                    );
+                    ,
+                    Set(
+                        filename,
+                        ThisItem.File_Name
+                    );
+                    ,
+                    Set(
+                        File_ID,
+                        ThisItem.ID
+                    );
+                    ,
+                    UpdateContext({DelModalVisible: true});*/
+                /*
+                    Set(
+                        Count_File, LookUp(Category_table,Category_LV1=ThisItem.Category_LV1 && Category_LV2=ThisItem.Category_LV2).FileCount
+                    );
+                */  
+                //);
+                /*
+                If(LookUp(
+                            Category_table,
+                            LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value && Title = Dropdown_LV2Category_FileUpload_FM.Selected.Value
+                        ).FileCount > 0,
+                '똑실이-파일삭제'.Run(
+                    // LV1Category
+                    ThisItem.Lv1,
+                    // LV2Category
+                    ThisItem.Category,
+                    // FileName
+                    ThisItem.File_Name
+                ));*/
+                /*
+                '[TEST]똑실이-파일삭제'.Run(
+                    // LV1Category
+                    ThisItem.Lv1,
+                    // LV2Category
+                    ThisItem.Category,
+                    // FileName
+                    ThisItem.File_Name
                 );
-                ,
-                Set(
-                    FileUploadLoding,
-                    false
-                )
-            );
-            ForAll(
-                똑실이_Category_table,
-                Collect(
-                    Teams_GET,
-                    FirstN(
-                        ThisRecord.Teams,
-                        CountRows(ThisRecord.Teams)
-                    ).Claims
-                )
-            );
-            Clear(testDist);
-            Clear(offGroe);
-            ForAll(
-                똑실이_Category_table,
-                Collect(
-                    testDist,
-                    ThisRecord.Teams
-                )
-            );
-            ForAll(
-                testDist,
+                */
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: |-
+                =RGBA(219, 219, 219, 1)
+                
+                /*
                 If(
-                    CountRows(
-                        Filter(
-                            Office365그룹.ListGroupMembers(
-                                Mid(
-                                    ThisRecord.Claims,
-                                    40
-                                )
-                            ).value,
-                            User().Email in mail
-                        )
-                    ) > 0,
-                    Collect(
-                        offGroe,
-                        {Email: ThisRecord.Email}
-                    )
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
                 )
-            );
-            Distinct(
-                offGroe,
-                ThisRecord
-            );
-            
-            
-            
-            // 카테고리 LV1 SuperAdmin 권한 확인 
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,
-            // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
-                ClearCollect(
-                    colCategoryLV1_FM,
-                    {Value: "전체"},
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV1
-                    )
-                ),
-            // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
-                ClearCollect(
-                    colCategoryLV1_FM,
-                    {Value: "전체"},
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "LV1Order",
-                                SortOrder.Ascending
-                            ),
-                            User().Email in Users.Email
-                        ),
-                        Category_LV1
-                    )
-                )
-            );
-            
-            
-            // 카테고리 LV2 
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,
-            
-                ClearCollect(
-                    colCategoryLV2_FM,
-                    {Value: "전체"},
-                    If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
-                        Distinct(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "LV2Order",
-                                SortOrder.Ascending
-                            ),
-                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            Category_LV2
-                        ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                        Distinct(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
-                            ),
-                            Category_LV2
-                        )
-                    )
-                ),
-                ClearCollect(
-                    colCategoryLV2_FM,
-                    {Value: "전체"},
-                    If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
-                        Distinct(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                User().Email in Users.Email
-                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            ),
-                            Category_LV2
-                        ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                        Distinct(
-                            Filter(
-                                Filter(
-                                    SortByColumns(
-                                        똑실이_Category_table,
-                                        "LV2Order",
-                                        SortOrder.Ascending
-                                    ),
-                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
-                                ),
-                                User().Email in Users.Email
-                            ),
-                            Category_LV2
-                        )
-                    )
-                )
-            );
-            
-            Reset(Dropdown_SearchCategoryLV1_FM_1);
-            Reset(Dropdown_SearchCategoryLV2_FM_1)
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =413
-        Y: =449
-        ZIndex: =61
+                */
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Transparency: =If(Image_Delete_Gallery_FileList_FM_3.DisplayMode = DisplayMode.Disabled, 0.5,0)
+            Width: =35
+            X: =1295
+            Y: =11
+            ZIndex: =9
 
-    Group_Search_FM_1 As group:
+        "'Image_IndexLog_FM_3' As image":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Icon_Info
+            OnSelect: |-
+                =/*UpdateContext({
+                    LogModalVisible: true,
+                    LogContent: ThisItem.Index_Log
+                })*/
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =35
+            X: =1233
+            Y: =11
+            ZIndex: =10
+
+        Label_Gallery_Category_FM_6 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Name
+            Width: =307
+            X: =339
+            Y: =20
+            ZIndex: =11
+
+    Group_Search_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =66
 
-        Rectangle_SearchBar_FM_1 As rectangle:
+        Rectangle_SearchBar_FM_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2397,11 +1634,11 @@ AgentManage As screen:
             HoverFill: =RGBA(255, 255, 255, 1)
             PressedFill: =RGBA(255, 255, 255, 1)
             Width: =1540
-            X: =343
-            Y: =692
+            X: =330
+            Y: =206
             ZIndex: =21
 
-        TextInput_SearchFileName_FM_1 As text:
+        TextInput_SearchFileName_FM_2 As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
@@ -2422,11 +1659,11 @@ AgentManage As screen:
             RadiusTopRight: =0
             Size: =12
             Width: =280
-            X: =448
-            Y: =702
+            X: =435
+            Y: =216
             ZIndex: =22
 
-        Label_SearchFileName_FM_1 As label:
+        Label_SearchFileName_FM_12 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2443,11 +1680,11 @@ AgentManage As screen:
             PaddingTop: =0
             Text: ="기능명"
             Width: =67
-            X: =378
-            Y: =702
+            X: =365
+            Y: =216
             ZIndex: =23
 
-        Label_SearchCategory_FM_1 As label:
+        Label_SearchCategory_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2464,11 +1701,11 @@ AgentManage As screen:
             PaddingTop: =0
             Text: ="카테고리"
             Width: =90
-            X: =780
-            Y: =702
+            X: =767
+            Y: =216
             ZIndex: =24
 
-        Dropdown_SearchCategoryLV1_FM_1 As dropdown:
+        Dropdown_SearchCategoryLV1_FM_3 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -2488,7 +1725,89 @@ AgentManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: =colAgentManageLV1
-            OnChange: =
+            OnChange: |-
+                =If(!Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1="전체",
+                colAgentManageLV2
+                ,
+                
+                //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
+                
+                If(
+                    User().Email in LookUp(
+                        똑실이_SuperAdmin_table,
+                        User().Email in SuperUsers.Email
+                    ).SuperUsers.Email, // SuperAdmin 권한 확인
+                
+                   // 1. SuperAdmin인 경우
+                
+                    ClearCollect(
+                        colAgentManageDistLV2_OnChange,
+                        Distinct(
+                            SortByColumns( Filter(
+                                똑실이_Category_table,Category_LV1=Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1),
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV2
+                        )
+                    );// 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
+                    ClearCollect(
+                        colAgentManageLV2_OnChange,
+                        RenameColumns(
+                            colAgentManageDistLV2_OnChange,
+                            "Value",
+                            "Category_LV2"
+                        )
+                    );//칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
+                    Collect(
+                        colAgentManageLV2_OnChange,
+                        {Category_LV2: "전체"}
+                    );//colAgentManageLV2 컬렉션에 전체 항목 추가
+                    ,
+                
+                    // 2. SuperAdmin이 아닌 경우
+                    
+                    ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
+                        colAgentManageDistLV2_OnChange,
+                        Distinct(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1,
+                                Office365사용자.MyProfile().Mail in Users.Email || LookUp(
+                                    Teams,
+                                    Email <> Blank()
+                                ).Email in Filter(
+                                    colUserAssignedTeamsEmail,
+                                    Email <> ""
+                                ).Email || LookUp(
+                                    colUserAssignedTeamsEmail,
+                                    Email <> Blank()
+                                ).Email in Filter(
+                                    Teams,
+                                    Email <> ""
+                                ).Email
+                            ),
+                            Category_LV2
+                        )
+                    ); //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
+                    ClearCollect(
+                        colAgentManageLV2_OnChange,
+                        RenameColumns(
+                            colAgentManageDistLV2_OnChange,
+                            "Value",
+                            "Category_LV2"
+                        )
+                    ); //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
+                    Collect(
+                        colAgentManageLV2_OnChange,
+                        {Category_LV2: "전체"}
+                    ); //colAgentManageLV1 컬렉션에 전체 항목 추가
+                    
+                ));
+                
+                //============================== << Agent 기능 필터 초기화 >> ==============================
+                
+                Reset(Dropdown_SearchCategoryLV2_FM_2);  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2500,11 +1819,11 @@ AgentManage As screen:
             Size: =13
             Tooltip: ="카테고리 LV1을 선택해주세요"
             Width: =240
-            X: =870
-            Y: =702
+            X: =857
+            Y: =216
             ZIndex: =25
 
-        Dropdown_SearchCategoryLV2_FM_1 As dropdown:
+        Dropdown_SearchCategoryLV2_FM_2 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -2525,18 +1844,11 @@ AgentManage As screen:
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =
-                If(Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1="전체",
+                If(Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1="전체",
                 colAgentManageLV2
                 ,
-                Distinct(
-                    Filter(
-                        똑실이_Category_table,
-                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                        Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                        ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                    ),
-                    Category_LV2
-                ))
+                colAgentManageLV2_OnChange
+                )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2548,11 +1860,11 @@ AgentManage As screen:
             Size: =13
             Tooltip: ="카테고리 LV2을 선택해주세요"
             Width: =240
-            X: =1167
-            Y: =702
+            X: =1154
+            Y: =216
             ZIndex: =26
 
-        Label_SearchCategoryArrow_FM_1 As label:
+        Label_SearchCategoryArrow_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
@@ -2563,11 +1875,11 @@ AgentManage As screen:
             PaddingRight: =0
             Text: =">"
             Width: =43
-            X: =1119
-            Y: =692
+            X: =1106
+            Y: =206
             ZIndex: =27
 
-        Label_Datelabel_FM_1 As label:
+        Label_Datelabel_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2580,11 +1892,11 @@ AgentManage As screen:
             Height: =33
             Text: ="유형"
             Width: =52
-            X: =1466
-            Y: =702
+            X: =1453
+            Y: =216
             ZIndex: =28
 
-        Dropdown_SearchCategoryLV1_FM_2 As dropdown:
+        Dropdown_SearchCategoryLV1_FM_4 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderThickness: =1
             ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -2618,7 +1930,7 @@ AgentManage As screen:
                         {Value: "전체"},
                         If(
                         // 첫 번째 드롭다운이 "전체"일 때
-                            Dropdown_SearchCategoryLV1_FM_2.Selected.Value = "전체",
+                            Dropdown_SearchCategoryLV1_FM_4.Selected.Value = "전체",
                             Distinct(
                                 SortByColumns(
                                     똑실이_Category_table,
@@ -2636,7 +1948,7 @@ AgentManage As screen:
                                         "LV2Order",
                                         SortOrder.Ascending
                                     ),
-                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_2.Selected.Value
+                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_4.Selected.Value
                                 ),
                                 Category_LV2
                             )
@@ -2647,7 +1959,7 @@ AgentManage As screen:
                         {Value: "전체"},
                         If(
                         // 첫 번째 드롭다운이 "전체"일 때
-                            Dropdown_SearchCategoryLV1_FM_2.Selected.Value = "전체",
+                            Dropdown_SearchCategoryLV1_FM_4.Selected.Value = "전체",
                             Distinct(
                                 Filter(
                                     SortByColumns(
@@ -2669,7 +1981,7 @@ AgentManage As screen:
                                             "LV2Order",
                                             SortOrder.Ascending
                                         ),
-                                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_2.Selected.Value
+                                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_4.Selected.Value
                                     ),
                                     User().Email in Users.Email
                                 ),
@@ -2724,7 +2036,7 @@ AgentManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =1525
-            Y: =702
+            X: =1512
+            Y: =216
             ZIndex: =29
 
