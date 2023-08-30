@@ -1489,29 +1489,20 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |+
-                =UpdateContext({ErrorMessage: ""});
-                
-                
-                If(
+                =If(
                     IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value),
-                    UpdateContext({ErrorMessage: "할당된 카테고리가 없습니다."})
+                    Error("할당된 카테고리가 없습니다.");
                 );
                 
                 
                 If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
-                    UpdateContext({ErrorMessage: "첨부 파일 등록은 필수입니다."})
+                    Error("첨부 파일 등록은 필수입니다.");
                 );
                 
                 If(
                     Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
-                    UpdateContext({ErrorMessage: "동일한 파일이 이미 존재합니다."})
+                    Error("동일한 파일이 이미 존재합니다.");
                 );
-                
-                
-                If(Not(IsBlank(ErrorMessage)),
-                    Error(ErrorMessage)
-                );
-                
                 
                 If(
                     IsError(
@@ -1557,6 +1548,7 @@ FileManage As screen:
                     }
                 );
                 
+                UpdateContext({ModalVisible: false });
                 Refresh(똑실이_FileUpload_table);
                 ResetForm(Form_FileUpload_FM);
                 
@@ -1860,46 +1852,6 @@ FileManage As screen:
         X: =957
         Y: =454
         ZIndex: =44
-
-    Timer_FileRefresh_FM As timer:
-        BorderColor: =RGBA(105, 121, 126, 1)
-        BorderStyle: =BorderStyle.None
-        DisabledBorderColor: =RGBA(244, 244, 244, 1)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Duration: =5000
-        Fill: =RGBA(105, 121, 126, 1)
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: |
-            =Refresh(똑실이_FileUpload_table);
-            
-            If(
-                CountRows(
-                    Filter(
-                        똑실이_FileUpload_table,
-                        Upload_CategoryLV1 = Category_LV1 && Upload_CategoryLV2 = Category_LV2 && Upload_FileName = File_Name
-                    )
-                ) > 0,
-                Reset(Gallery_FileList_FM);
-                Set(
-                    FileRefresh,
-                    false
-                );
-                
-                Set(FileUploadLoding,false);
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Repeat: =true
-        Start: =If( FileRefresh = true, true,false)
-        Visible: =false
-        X: =942
-        Y: =33
-        ZIndex: =46
 
     Group_Search_FM As group:
         Height: =5
