@@ -1512,28 +1512,25 @@ FileManage As screen:
                     Error(ErrorMessage)
                 );
                 
-                Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
-                Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM.Selected.Value);
-                Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name);
                 
-                If(IsError(
-                    Set(FileUploadResult, '똑실이-[Apps]파일업로드'.Run(
-                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                        Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        {
-                        file: {
-                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                                 }
-                        }
-                    ))) = true 
-                    ,  
-                    //에러 발생시 로딩창 off, 재시도 알림문구 on
-                    Notify(
-                        "파일업로드 에러가 발생하여 재시도 해주시기 바랍니다.",
-                        NotificationType.Information
-                    )
-                    );
+                If(
+                    IsError(
+                        Set(
+                            FileUploadResult,
+                            '똑실이-[Apps]파일업로드'.Run(
+                                Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                                Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                                {
+                                    file: {
+                                        name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                        contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                                    }
+                                }
+                            )
+                        )
+                    ), 
+                    Error("파일업로드 에러가 발생하였습니다. 다시 시도해주세요.")
+                );
                 
                 
                 Patch(
@@ -1562,11 +1559,6 @@ FileManage As screen:
                 
                 Refresh(똑실이_FileUpload_table);
                 ResetForm(Form_FileUpload_FM);
-                
-                
-                
-                //Reset(Gallery_FileList_FM);
-                //Navigate(FileManage);  
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
