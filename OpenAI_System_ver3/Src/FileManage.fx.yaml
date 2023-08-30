@@ -1489,25 +1489,28 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |+
-                =If( IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value),
-                Notify(
-                        "할당된 카테고리가 없습니다.",
-                        NotificationType.Error,
-                        10000
-                    ),
+                =UpdateContext({ErrorMessage: ""});
                 
-                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments), Notify(
-                        "첨부 파일 등록은 필수입니다.",
-                        NotificationType.Error,
-                        10000
-                    ),
-                    If(Not(File_extensions.Value in FileVal),Notify(
-                        "첨부 파일의 확장자가 올바르지 않습니다. (pdf,pptx,ppt,doc,docx 만 업로드 가능)",
-                        NotificationType.Error,
-                        10000
-                    ),
                 
-                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension) ),
+                If(
+                    IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value),
+                    UpdateContext({ErrorMessage: "할당된 카테고리가 없습니다."})
+                );
+                
+                
+                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
+                    UpdateContext({ErrorMessage: "첨부 파일 등록은 필수입니다."})
+                );
+                
+                If(
+                    Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
+                    UpdateContext({ErrorMessage: "동일한 파일이 이미 존재합니다."})
+                );
+                
+                
+                If(Not(IsBlank(ErrorMessage)),
+                    Error(ErrorMessage)
+                );
                 
                 Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM.Selected.Value);
                 Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM.Selected.Value);
@@ -1560,12 +1563,6 @@ FileManage As screen:
                 Refresh(똑실이_FileUpload_table);
                 ResetForm(Form_FileUpload_FM);
                 
-                
-                UpdateContext({ModalVisible: false}); ,Notify(
-                        "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
-                        NotificationType.Error,
-                        10000
-                    );););););
                 
                 
                 //Reset(Gallery_FileList_FM);
