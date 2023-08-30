@@ -1516,7 +1516,7 @@ FileManage As screen:
                 
                 If(IsError(
                    // Set(PAResult,
-                    '똑실이-[Apps]파일업로드'.Run(
+                    Set(FileUploadResult, '똑실이-[Apps]파일업로드'.Run(
                         Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                         Dropdown_LV2Category_FileUpload_FM.Selected.Value,
                         {
@@ -1525,7 +1525,7 @@ FileManage As screen:
                             contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
                                  }
                         }
-                    )//.pa_status
+                    ))//.pa_status
                    // )
                     ) = true 
                     ,  
@@ -1559,9 +1559,9 @@ FileManage As screen:
                  If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM);));
                 */
                 
-                /*
+                
                 Patch(
-                    FileUpload_table,
+                    똑실이_FileUpload_table,
                     {
                         Title: Concatenate(
                             Dropdown_LV2Category_FileUpload_FM.Selected.Value,
@@ -1571,7 +1571,7 @@ FileManage As screen:
                         Upload_Date: Now(),
                         Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                         Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                        File_Name: FileUploadResult.filename,
                         File_Type: Upper(
                             Last(
                                 Split(
@@ -1583,7 +1583,7 @@ FileManage As screen:
                         Index_Status: "not_indexed"
                     }
                 ); 
-                */
+                
                 
                 UpdateContext({ModalVisible: false}); ,Notify(
                         "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
