@@ -1504,25 +1504,25 @@ FileManage As screen:
                     Error("동일한 파일이 이미 존재합니다.");
                 );
                 
-                If(
-                    IsError(
-                        Set(
-                            FileUploadResult,
-                            '똑실이-[Apps]파일업로드'.Run(
-                                Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                                {
-                                    file: {
-                                        name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                        contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                                    }
-                                }
-                            )
-                        )
-                    ), 
-                    Error("파일업로드 에러가 발생하였습니다. 다시 시도해주세요.")
-                );
+                UpdateContext({
+                    FileUploadResult: {
+                        filename: ""
+                    }
+                });
                 
+                
+                UpdateContext({
+                    FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
+                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                        Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                        {
+                            file: {
+                                name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                            }
+                        }
+                    )
+                });
                 
                 Patch(
                     똑실이_FileUpload_table,
