@@ -7,14 +7,14 @@ AgentManage As screen:
         
         // 1. 로딩 이미지 활성화
         Concurrent(   
-            UpdateContext({gblLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
-            UpdateContext({gblLoadingBackground:true})); // 로딩 스피너 배경 이미지 비활성 );
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:true})); // 로딩 스피너 배경 이미지 비활성 );
         
         // 2. 초기화
         Concurrent(   
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
-            UpdateContext({ModalVisible_ServerUpload: false}),  // 서버업로드 팝업 visible 변수 초기화
-            UpdateContext({ModalVisible_Background: false}),  // 팝업 배경 visible 변수 초기화
+            UpdateContext({locServerUploadPopup: false}),  // 서버업로드 팝업 visible 변수 초기화
+            UpdateContext({locServerUploadPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
@@ -151,15 +151,15 @@ AgentManage As screen:
                 )
             );// 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
             ClearCollect(
-                colAgentManageLV1,
+                colAgentManageLV2,
                 RenameColumns(
-                    colAgentManageDistLV1,
+                    colAgentManageDistLV2,
                     "Value",
                     "Category_LV2"
                 )
             );//칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
             Collect(
-                colAgentManageLV1,
+                colAgentManageLV2,
                 {Category_LV2: "전체"}
             );//colAgentManageLV2 컬렉션에 전체 항목 추가
             ,
@@ -210,9 +210,10 @@ AgentManage As screen:
             Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
             Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
             Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-            Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
-            UpdateContext({gblLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
-            UpdateContext({gblLoadingBackground:false}); // 로딩 스피너 배경 이미지 비활성
+            Reset(Dropdown_SearchCategoryLV1_FM_2);,  // 유형 Dropbox 리셋(Agent 기능 필터)
+            Reset(Gallery_FileList_FM_1), // 겔러리 리셋
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:false}); // 로딩 스피너 배경 이미지 비활성
         );
         
 
@@ -647,7 +648,7 @@ AgentManage As screen:
         Visible: =FileUploadLoding
         X: =957
         Y: =454
-        ZIndex: =19
+        ZIndex: =18
 
     Title_Header_FM_2 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -666,7 +667,7 @@ AgentManage As screen:
         Width: =691
         X: =364
         Y: =621
-        ZIndex: =20
+        ZIndex: =19
 
     Group_FileList_FM_1 As group:
         Height: =5
@@ -745,20 +746,6 @@ AgentManage As screen:
             Y: =771
             ZIndex: =7
 
-    Rectangle_FileList_FM_2 As rectangle:
-        BorderColor: =RGBA(112, 112, 112, 1)
-        DisabledFill: =RGBA(255, 255, 255, 1)
-        DisplayMode: =DisplayMode.View
-        Fill: =RGBA(255, 255, 255, 1)
-        FocusedBorderThickness: =4
-        Height: =477
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        Width: =1540
-        X: =340
-        Y: =102
-        ZIndex: =30
-
     Label_Category_FM_2 As label:
         Align: =Align.Center
         Color: |-
@@ -776,146 +763,7 @@ AgentManage As screen:
         Width: =82
         X: =684
         Y: =771
-        ZIndex: =31
-
-    Separator_Main_FM_2 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Height: =1
-        OnSelect: =
-        Width: =1491
-        X: =365
-        Y: =178
-        ZIndex: =32
-
-    Title_Header_FM_3 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Bold
-        Height: =64
-        Size: =20
-        Text: |-
-            ="Agent 관리
-            "
-        Width: =691
-        X: =365
-        Y: =115
-        ZIndex: =33
-
-    Button_AddButton_FM_2 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =UpdateContext({ModalVisible_ServerUpload: true});
-            UpdateContext({ModalVisible_Background:true});
-            
-            
-            /*
-            ForAll(
-                Distinct(Filter(Teams_GET,Value),Value),
-                Collect(result_value,
-                   If(Office365사용자.MyProfile().Mail in 
-                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
-                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
-                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
-                   )
-                )
-            );
-            
-            
-            ForAll(
-                Category_table,
-                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
-            )
-            */
-            /*
-            Distinct(
-                Filter(
-                    Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
-                ),
-                LV1
-            )
-            */
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장(jsonPA)"
-        Tooltip: ="PA가 실행됩니다"
-        Width: =121
-        X: =1382
-        Y: =481
-        ZIndex: =34
-
-    Label_SearchFileName_FM_2 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="published version"
-        Width: =164
-        X: =720
-        Y: =206
-        ZIndex: =35
-
-    TextInput1 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Version
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =DisplayMode.Disabled
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =928
-        Y: =206
-        ZIndex: =36
+        ZIndex: =30
 
     Group_DeleteQA_FM_1 As group:
         Height: =5
@@ -956,7 +804,7 @@ AgentManage As screen:
             Width: =600
             X: =810
             Y: =419
-            ZIndex: =13
+            ZIndex: =12
 
         Button_OKDeleteFile_FM_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1022,7 +870,7 @@ AgentManage As screen:
             Width: =50
             X: =1277
             Y: =523
-            ZIndex: =14
+            ZIndex: =13
 
         Button_CancleDeleteFile_FM_1 As button:
             BorderColor: |-
@@ -1066,7 +914,7 @@ AgentManage As screen:
             Width: =50
             X: =1335
             Y: =523
-            ZIndex: =15
+            ZIndex: =14
 
         Label_DeleteFile_FM_1 As label:
             Align: =Align.Center
@@ -1086,7 +934,7 @@ AgentManage As screen:
             Width: =193
             X: =827
             Y: =440
-            ZIndex: =16
+            ZIndex: =15
 
         Label_DeleteFileSub_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1104,7 +952,7 @@ AgentManage As screen:
             Width: =562
             X: =829
             Y: =481
-            ZIndex: =17
+            ZIndex: =16
 
         Image_DeleteFileExit_FM_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1127,257 +975,16 @@ AgentManage As screen:
             Width: =20
             X: =1367
             Y: =443
-            ZIndex: =18
+            ZIndex: =17
 
-    Label_SearchFileName_FM_3 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="version"
-        Width: =164
-        X: =721
-        Y: =258
-        ZIndex: =37
-
-    TextInput1_1 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="version을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =258
-        ZIndex: =38
-
-    Label_SearchFileName_FM_4 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="name"
-        Width: =164
-        X: =721
-        Y: =312
-        ZIndex: =39
-
-    TextInput1_2 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="name을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =312
-        ZIndex: =40
-
-    Label_SearchFileName_FM_5 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="description"
-        Width: =164
-        X: =720
-        Y: =364
-        ZIndex: =41
-
-    TextInput1_3 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="description를 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =928
-        Y: =364
-        ZIndex: =42
-
-    Label_SearchFileName_FM_6 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="fallback function"
-        Width: =164
-        X: =721
-        Y: =414
-        ZIndex: =43
-
-    TextInput1_4 As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =""
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="fallback function을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =575
-        X: =929
-        Y: =414
-        ZIndex: =44
-
-    Button_AddButton_FM_3 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =If(IsBlank(TextInput1_1.Text)||IsBlank(TextInput1_2.Text)||IsBlank(TextInput1_3.Text)||IsBlank(TextInput1_4.Text),
-                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
-            
-                Patch(똑실이_Agent_table,{제목:".",Published_Version:TextInput1.Text,
-                Version:TextInput1_1.Text,
-                Name:TextInput1_2.Text,
-                Description:TextInput1_3.Text,
-                Fallback_Function:TextInput1_4.Text
-            });
-            Concurrent(Reset(TextInput1),Reset(TextInput1_1),Reset(TextInput1_2),Reset(TextInput1_3),Reset(TextInput1_4)));
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장"
-        Tooltip: ="리스트가 패치됩니다"
-        Width: =121
-        X: =1239
-        Y: =481
-        ZIndex: =45
-
-    Background_Modal_PAUpload_FM_1 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =ModalVisible_Background
-        Width: =1620
-        X: =300
-        ZIndex: =48
-
-    ModalDialog_ServerUpload_AgentManage As group:
+    Popup_ServerUpload_AM As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =49
 
-        Background_ModalDialog_AgentManage As rectangle:
+        Window_Popup_AM As rectangle:
             BorderColor: =RGBA(255, 255, 255, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1387,13 +994,13 @@ AgentManage As screen:
             Height: =392
             HoverFill: =
             PressedFill: =
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =986
             X: =617
             Y: =345
-            ZIndex: =49
+            ZIndex: =45
 
-        Button_CloseModal_AgentManage As icon.Cancel:
+        Button_ClosePopup_AM As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1411,13 +1018,13 @@ AgentManage As screen:
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =52
             X: =1535
             Y: =362
-            ZIndex: =50
+            ZIndex: =46
 
-        Label_ServerUploadText_AgentManage As label:
+        Label_PopupTitle_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1430,13 +1037,13 @@ AgentManage As screen:
             Height: =55
             Size: =20
             Text: ="서버 업로드"
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =645
             X: =697
             Y: =399
-            ZIndex: =51
+            ZIndex: =47
 
-        Button_Submit_AgentManage As button:
+        Button_Submit_AM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1573,13 +1180,13 @@ AgentManage As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Text: ="업로드"
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =100
             X: =1309
             Y: =637
-            ZIndex: =52
+            ZIndex: =48
 
-        Button_Cancel_AgentManage As button:
+        Button_Cancel_AM As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -1616,13 +1223,13 @@ AgentManage As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Text: ="취소"
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =100
             X: =1421
             Y: =637
-            ZIndex: =53
+            ZIndex: =49
 
-        Label_json_AgentManage As label:
+        Label_json_AM As label:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =0.5
@@ -1638,13 +1245,43 @@ AgentManage As screen:
             PaddingTop: =10
             Size: =13
             Text: ="json 변환 샘플 텍스트"
-            Visible: =ModalVisible_ServerUpload
+            Visible: =locServerUploadPopup
             Width: =823
             X: =697
             Y: =459
-            ZIndex: =55
+            ZIndex: =50
 
-    Image_PALoding_FM_3 As image:
+    Background_Popup_ServerUpload_AM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locServerUploadPopupBackground
+        Width: =1620
+        X: =300
+        ZIndex: =51
+
+    Background_LoadingSpinner_AM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locLoadingSpinnerBackground
+        Width: =1620
+        X: =300
+        ZIndex: =52
+
+    Image_LoadingSpinner_AM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1656,25 +1293,396 @@ AgentManage As screen:
         Image: ='6-dots-rotate'
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =gblLoadingSpinner
+        Visible: =locLoadingSpinner
         X: =957
         Y: =454
-        ZIndex: =58
+        ZIndex: =53
 
-    Background_Modal_PAUpload_FM_5 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =gblLoadingBackground
-        Width: =1620
-        X: =300
-        ZIndex: =59
+    AgentManagement_AM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =54
+
+        Window_AgentManagement_AM As rectangle:
+            BorderColor: =RGBA(112, 112, 112, 1)
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =477
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Width: =1540
+            X: =340
+            Y: =102
+            ZIndex: =29
+
+        Separator_AgentManagement_AM As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Height: =1
+            OnSelect: =
+            Width: =1491
+            X: =365
+            Y: =178
+            ZIndex: =31
+
+        Label_TitleAgentManagement_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Bold
+            Height: =64
+            Size: =20
+            Text: |-
+                ="Agent 관리
+                "
+            Width: =691
+            X: =365
+            Y: =115
+            ZIndex: =32
+
+        Button_RunPA_AM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =UpdateContext({ModalVisible_ServerUpload: true});
+                UpdateContext({ModalVisible_Background:true});
+                
+                
+                /*
+                ForAll(
+                    Distinct(Filter(Teams_GET,Value),Value),
+                    Collect(result_value,
+                       If(Office365사용자.MyProfile().Mail in 
+                       FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
+                       CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
+                       ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
+                       )
+                    )
+                );
+                
+                
+                ForAll(
+                    Category_table,
+                    Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
+                )
+                */
+                /*
+                Distinct(
+                    Filter(
+                        Category_table,
+                        Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
+                    ),
+                    LV1
+                )
+                */
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="저장(jsonPA)"
+            Tooltip: ="PA가 실행됩니다"
+            Width: =121
+            X: =1382
+            Y: =481
+            ZIndex: =33
+
+        Label_PublishedVersion_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="published version"
+            Width: =164
+            X: =720
+            Y: =206
+            ZIndex: =34
+
+        TextInput_PublishedVersion_AM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =Last(똑실이_Agent_table).Version
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =13
+            Width: =575
+            X: =928
+            Y: =206
+            ZIndex: =35
+
+        Label_Version_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="version"
+            Width: =164
+            X: =721
+            Y: =258
+            ZIndex: =36
+
+        TextInput_Version_AM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            HintText: ="version을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =13
+            Width: =575
+            X: =929
+            Y: =258
+            ZIndex: =37
+
+        Label_Name_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="name"
+            Width: =164
+            X: =721
+            Y: =312
+            ZIndex: =38
+
+        TextInput_Name_AM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            HintText: ="name을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =13
+            Width: =575
+            X: =929
+            Y: =312
+            ZIndex: =39
+
+        Label_Description_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="description"
+            Width: =164
+            X: =720
+            Y: =364
+            ZIndex: =40
+
+        TextInput_Description_AM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            HintText: ="description를 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =13
+            Width: =575
+            X: =928
+            Y: =364
+            ZIndex: =41
+
+        Label_FallbackFunction_AM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="fallback function"
+            Width: =164
+            X: =721
+            Y: =414
+            ZIndex: =42
+
+        TextInput_FallbackFunction_AM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            HintText: ="fallback function을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =13
+            Width: =575
+            X: =929
+            Y: =414
+            ZIndex: =43
+
+        Button_PatchListButton_AM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
+                    Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
+                
+                    Patch(똑실이_Agent_table,{제목:".",Published_Version:TextInput_PublishedVersion_AM.Text,
+                    Version:TextInput_Version_AM.Text,
+                    Name:TextInput_Name_AM.Text,
+                    Description:TextInput_Description_AM.Text,
+                    Fallback_Function:TextInput_FallbackFunction_AM.Text
+                });
+                Concurrent(Reset(TextInput_PublishedVersion_AM),Reset(TextInput_Version_AM),Reset(TextInput_Name_AM),Reset(TextInput_Description_AM),Reset(TextInput_FallbackFunction_AM)));
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="저장"
+            Tooltip: ="리스트가 패치됩니다"
+            Width: =121
+            X: =1239
+            Y: =481
+            ZIndex: =44
 
     Group_Search_FM_1 As group:
         Height: =5
@@ -1696,7 +1704,7 @@ AgentManage As screen:
             Width: =1540
             X: =343
             Y: =692
-            ZIndex: =21
+            ZIndex: =20
 
         TextInput_SearchFileName_FM_1 As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1722,7 +1730,7 @@ AgentManage As screen:
             Width: =280
             X: =448
             Y: =702
-            ZIndex: =22
+            ZIndex: =21
 
         Label_SearchFileName_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1743,7 +1751,7 @@ AgentManage As screen:
             Width: =67
             X: =378
             Y: =702
-            ZIndex: =23
+            ZIndex: =22
 
         Label_SearchCategory_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1764,7 +1772,7 @@ AgentManage As screen:
             Width: =90
             X: =780
             Y: =702
-            ZIndex: =24
+            ZIndex: =23
 
         Dropdown_SearchCategoryLV1_FM_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1787,7 +1795,7 @@ AgentManage As screen:
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: =colAgentManageLV1
             OnChange: |-
-                =If(!Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1="전체",
+                =If(!Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1="전체",
                 colAgentManageLV2
                 ,
                 
@@ -1882,7 +1890,7 @@ AgentManage As screen:
             Width: =240
             X: =870
             Y: =702
-            ZIndex: =25
+            ZIndex: =24
 
         Dropdown_SearchCategoryLV2_FM_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1922,7 +1930,7 @@ AgentManage As screen:
             Width: =240
             X: =1167
             Y: =702
-            ZIndex: =26
+            ZIndex: =25
 
         Label_SearchCategoryArrow_FM_1 As label:
             Align: =Align.Center
@@ -1937,7 +1945,7 @@ AgentManage As screen:
             Width: =43
             X: =1119
             Y: =692
-            ZIndex: =27
+            ZIndex: =26
 
         Label_Datelabel_FM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1954,7 +1962,7 @@ AgentManage As screen:
             Width: =52
             X: =1466
             Y: =702
-            ZIndex: =28
+            ZIndex: =27
 
         Dropdown_SearchCategoryLV1_FM_2 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -2099,5 +2107,5 @@ AgentManage As screen:
             Width: =240
             X: =1525
             Y: =702
-            ZIndex: =29
+            ZIndex: =28
 
