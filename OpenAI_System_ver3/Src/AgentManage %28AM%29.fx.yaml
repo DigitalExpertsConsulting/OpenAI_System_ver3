@@ -13,8 +13,8 @@
         // 2. 초기화
         Concurrent(   
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
-            UpdateContext({locServerUploadPopup: false}),  // 서버업로드 팝업 visible 변수 초기화
-            UpdateContext({locServerUploadPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
+            UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
+            UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
@@ -212,8 +212,8 @@
             Reset(Dropdown_GalleryFilter_CategoryLV2_AM);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
             Reset(Dropdown_GalleryFilter_Type_AM);,  // 유형 Dropbox 리셋(Agent 기능 필터)
             Reset(Gallery_AgentFunction_AM), // 겔러리 리셋
-            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
-            UpdateContext({locLoadingSpinnerBackground:false}); // 로딩 스피너 배경 이미지 비활성
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성화
+            UpdateContext({locLoadingSpinnerBackground:false}); // 로딩 스피너 배경 이미지 비활성화
         );
         
 
@@ -340,7 +340,7 @@
         ZIndex: =5
 
     New_Component_GNB_AM As New_Component_GNB:
-        ZIndex: =10
+        ZIndex: =8
 
     Image_Refresh_AM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -360,6 +360,53 @@
         X: =1616
         Y: =53
         ZIndex: =11
+
+    Background_Popup_AM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locPopupBackground
+        Width: =1620
+        X: =300
+        ZIndex: =38
+
+    Background_LoadingSpinner_AM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locLoadingSpinnerBackground
+        Width: =1620
+        X: =300
+        ZIndex: =45
+
+    Image_LoadingSpinner_AM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =957
+        Y: =454
+        ZIndex: =46
 
     Popup_ServerUpload_AM As group:
         Height: =5
@@ -382,7 +429,7 @@
             Width: =986
             X: =617
             Y: =345
-            ZIndex: =44
+            ZIndex: =39
 
         Button_PopupServerUpload_Close_AM As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -397,8 +444,10 @@
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Cancel
             OnSelect: |-
-                =UpdateContext({ModalVisible_ServerUpload: false});
-                UpdateContext({ModalVisible_Background:false})
+                =Concurrent(
+                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -406,7 +455,7 @@
             Width: =52
             X: =1535
             Y: =362
-            ZIndex: =45
+            ZIndex: =40
 
         Label_PopupServerUpload_Title_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -425,7 +474,7 @@
             Width: =645
             X: =697
             Y: =399
-            ZIndex: =46
+            ZIndex: =41
 
         Button_PopupServerUpload_Submit_AM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -446,8 +495,10 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |
-                =UpdateContext({ModalVisible_ServerUpload:false});
-                UpdateContext({ModalVisible_Background:false})
+                =Concurrent(
+                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
                 
                 /*If( IsBlank(Dropdown_LV1Category_FileUpload_FM_1.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value),
                 Notify(
@@ -568,7 +619,7 @@
             Width: =100
             X: =1309
             Y: =637
-            ZIndex: =47
+            ZIndex: =42
 
         Button_PopupServerUpload_Cancel_AM As button:
             BorderColor: |-
@@ -594,8 +645,10 @@
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ModalVisible_ServerUpload: false});
-                UpdateContext({ModalVisible_Background:false})
+                =Concurrent(
+                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: |-
@@ -611,7 +664,7 @@
             Width: =100
             X: =1421
             Y: =637
-            ZIndex: =48
+            ZIndex: =43
 
         Label_PopupServerUpload_json_AM As label:
             BorderColor: |-
@@ -633,54 +686,7 @@
             Width: =823
             X: =697
             Y: =459
-            ZIndex: =49
-
-    Background_Popup_ServerUpload_AM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =locServerUploadPopupBackground
-        Width: =1620
-        X: =300
-        ZIndex: =50
-
-    Background_LoadingSpinner_AM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =locLoadingSpinnerBackground
-        Width: =1620
-        X: =300
-        ZIndex: =51
-
-    Image_LoadingSpinner_AM As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =locLoadingSpinner
-        X: =957
-        Y: =454
-        ZIndex: =52
+            ZIndex: =44
 
     AgentFunction_AM As group:
         Height: =5
@@ -1019,7 +1025,7 @@
             Width: =82
             X: =1001
             Y: =771
-            ZIndex: =8
+            ZIndex: =9
 
         Separator_GalleryHeader_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1029,7 +1035,7 @@
             Width: =1491
             X: =364
             Y: =Label_GalleryHeader_FunctionID_AM.Y + Label_GalleryHeader_FunctionID_AM.Height + 10
-            ZIndex: =9
+            ZIndex: =10
 
         Label_TitleAgentFunction_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1048,7 +1054,7 @@
             Width: =691
             X: =364
             Y: =621
-            ZIndex: =18
+            ZIndex: =12
 
         Window_GalleryFilter_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1063,7 +1069,7 @@
             Width: =1540
             X: =343
             Y: =692
-            ZIndex: =19
+            ZIndex: =13
 
         TextInput_GalleryFilter_FunctionID_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1089,7 +1095,7 @@
             Width: =280
             X: =448
             Y: =702
-            ZIndex: =20
+            ZIndex: =14
 
         Label_GalleryFilter_FunctionID_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1110,7 +1116,7 @@
             Width: =67
             X: =378
             Y: =702
-            ZIndex: =21
+            ZIndex: =15
 
         Label_GalleryFilter_Category_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1131,7 +1137,7 @@
             Width: =90
             X: =780
             Y: =702
-            ZIndex: =22
+            ZIndex: =16
 
         Dropdown_GalleryFilter_CategoryLV1_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1249,7 +1255,7 @@
             Width: =240
             X: =870
             Y: =702
-            ZIndex: =23
+            ZIndex: =17
 
         Dropdown_GalleryFilter_CategoryLV2_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1289,7 +1295,7 @@
             Width: =240
             X: =1167
             Y: =702
-            ZIndex: =24
+            ZIndex: =18
 
         "'Label_GalleryFilter_>_AM' As label":
             Align: =Align.Center
@@ -1304,7 +1310,7 @@
             Width: =43
             X: =1119
             Y: =692
-            ZIndex: =25
+            ZIndex: =19
 
         Label_GalleryFilter_Type_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1321,7 +1327,7 @@
             Width: =52
             X: =1466
             Y: =702
-            ZIndex: =26
+            ZIndex: =20
 
         Dropdown_GalleryFilter_Type_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1466,7 +1472,7 @@
             Width: =240
             X: =1525
             Y: =702
-            ZIndex: =27
+            ZIndex: =21
 
         Label_GalleryHeader_Name_AM As label:
             Align: =Align.Center
@@ -1485,7 +1491,7 @@
             Width: =82
             X: =684
             Y: =771
-            ZIndex: =29
+            ZIndex: =23
 
     AgentManagement_AM As group:
         Height: =5
@@ -1506,7 +1512,7 @@
             Width: =1540
             X: =340
             Y: =102
-            ZIndex: =28
+            ZIndex: =22
 
         Separator_AgentManagement_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1516,7 +1522,7 @@
             Width: =1491
             X: =365
             Y: =178
-            ZIndex: =30
+            ZIndex: =24
 
         Label_TitleAgentManagement_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1535,7 +1541,7 @@
             Width: =691
             X: =365
             Y: =115
-            ZIndex: =31
+            ZIndex: =25
 
         Button_RunPA_AM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1553,8 +1559,10 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =UpdateContext({ModalVisible_ServerUpload: true});
-                UpdateContext({ModalVisible_Background:true});
+                =Concurrent(
+                UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
+                UpdateContext({locPopupBackground:true}) // 서버 업로드 팝업 배경 이미지 활성화
+                )
                 
                 
                 /*
@@ -1598,7 +1606,7 @@
             Width: =121
             X: =1382
             Y: =481
-            ZIndex: =32
+            ZIndex: =26
 
         Label_PublishedVersion_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1618,7 +1626,7 @@
             Width: =164
             X: =720
             Y: =206
-            ZIndex: =33
+            ZIndex: =27
 
         TextInput_PublishedVersion_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1645,7 +1653,7 @@
             Width: =575
             X: =928
             Y: =206
-            ZIndex: =34
+            ZIndex: =28
 
         Label_Version_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1665,7 +1673,7 @@
             Width: =164
             X: =721
             Y: =258
-            ZIndex: =35
+            ZIndex: =29
 
         TextInput_Version_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1691,7 +1699,7 @@
             Width: =575
             X: =929
             Y: =258
-            ZIndex: =36
+            ZIndex: =30
 
         Label_Name_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1711,7 +1719,7 @@
             Width: =164
             X: =721
             Y: =312
-            ZIndex: =37
+            ZIndex: =31
 
         TextInput_Name_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1737,7 +1745,7 @@
             Width: =575
             X: =929
             Y: =312
-            ZIndex: =38
+            ZIndex: =32
 
         Label_Description_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1757,7 +1765,7 @@
             Width: =164
             X: =720
             Y: =364
-            ZIndex: =39
+            ZIndex: =33
 
         TextInput_Description_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1783,7 +1791,7 @@
             Width: =575
             X: =928
             Y: =364
-            ZIndex: =40
+            ZIndex: =34
 
         Label_FallbackFunction_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1803,7 +1811,7 @@
             Width: =164
             X: =721
             Y: =414
-            ZIndex: =41
+            ZIndex: =35
 
         TextInput_FallbackFunction_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1829,7 +1837,7 @@
             Width: =575
             X: =929
             Y: =414
-            ZIndex: =42
+            ZIndex: =36
 
         Button_PatchListButton_AM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1871,5 +1879,5 @@
             Width: =121
             X: =1239
             Y: =481
-            ZIndex: =43
+            ZIndex: =37
 
