@@ -2,11 +2,15 @@ AgentManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |
+    OnVisible: |+
         =//============================== << AgentManage 화면 접속 시 >> ==============================
         
-        // 1. 초기화
+        // 1. 로딩 이미지 활성화
+        Concurrent(   
+            UpdateContext({gblLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({gblLoadingBackground:true})); // 로딩 스피너 배경 이미지 비활성 );
         
+        // 2. 초기화
         Concurrent(   
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
             UpdateContext({ModalVisible_ServerUpload: false}),  // 서버업로드 팝업 visible 변수 초기화
@@ -14,8 +18,7 @@ AgentManage As screen:
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
-        // 2. 유저가 속한 Teams 이메일 컬렉션 생성 -> colUserAssignedTeamsEmail
-        
+        // 3. 유저가 속한 Teams 이메일 컬렉션 생성 -> colUserAssignedTeamsEmail
         ForAll( // Teams 칼럼의 모든 그룹 정보를 colAssignedTeamsInfo 컬렉션에 할당
             똑실이_Category_table,
             Collect(
@@ -23,7 +26,7 @@ AgentManage As screen:
                 ThisRecord.Teams
             )
         );
-        ForAll( // 사용자의 이메일이 그룹에 존제 시 그룹 이메일을 colUserAssignedTeamsEmail 컬렉션에 할당
+        ForAll( // 사용자의 이메일이 그룹에 존재 시 그룹 이메일을 colUserAssignedTeamsEmail 컬렉션에 할당
             colAssignedTeamsInfo,
             If(
                 CountRows(
@@ -200,7 +203,7 @@ AgentManage As screen:
             
         );
         
-        //============================== << Agent 기능 필터 초기화 >> ==============================
+        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
         Concurrent(
         
@@ -208,7 +211,10 @@ AgentManage As screen:
             Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
             Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
             Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
+            UpdateContext({gblLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({gblLoadingBackground:false}); // 로딩 스피너 배경 이미지 비활성
         );
+        
 
     Button_AddButton_FM_1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -295,35 +301,26 @@ AgentManage As screen:
         DelayItemLoading: =true
         Height: =216
         Items: |-
-            =Search(
-                Search(
-                    Search(
-                        Search(  //Function_ID InputText 필터
-                            똑실이_AgentFunction_table​,
-                            TextInput_SearchFileName_FM_1.Text,
-                            "Function_ID"
-                        ),
-                        If(  //유형 드롭다운 필터
-                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체",
-                            "",
-                            Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value
-                        ),
-                        "Type"
-                    ),
-                    If(  // 카테고리 lv1 필터
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1 = "전체",
-                        "",
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1
-                    ),
-                    "Category_LV1"
-                ),
-                If(  // 카테고리 lv2 필터
-                    Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2 = "전체",
+            =Search(  
+                Search(               
+                    Search(        
+                        Search(   
+                            Filter(똑실이_AgentFunction_table​, 
+                                ThisRecord.Category_LV1 in colAgentManageLV1.Category_LV1 && 
+                                ThisRecord.Category_LV2 in colAgentManageLV2.Category_LV2),
+                        TextInput_SearchFileName_FM_1.Text, "Function_ID"), 
+                    If(  //유형 드롭다운 필터
+                    Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value = "전체", 
                     "",
-                    Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2
-                ),
-                "Category_LV2"
-            )
+                    Dropdown_SearchCategoryLV1_FM_2.SelectedText.Value),
+                    "Type"), 
+                If(  // 카테고리 lv1 필터
+                Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1 = "전체",
+                "",
+                Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1),
+                "Category_LV1"),
+            If(Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2="전체",
+            "", Dropdown_SearchCategoryLV2_FM_1.Selected.Category_LV2),"Category_LV2")
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         ShowScrollbar: =false
@@ -1680,69 +1677,6 @@ AgentManage As screen:
             Y: =480
             ZIndex: =55
 
-    Button1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |-
-            =//접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(colAgentManageDistLV1,Distinct(
-                Filter(
-                    똑실이_Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                    ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                ),
-                Category_LV1
-            ));
-            //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            ClearCollect(
-                colAgentManageLV1,
-                RenameColumns(colAgentManageDistLV1,"Value","Category_LV1")
-            );
-            //colAgentManageLV1 컬렉션에 전체 항목 추가
-            Collect(colAgentManageLV1,{Category_LV1:"전체"});
-            
-            //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(colAgentManageDistLV2,Distinct(
-                Filter(
-                    똑실이_Category_table,
-                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                    Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                    ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                ),
-                Category_LV2
-            ));
-            //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            ClearCollect(
-                colAgentManageLV2,
-                RenameColumns(colAgentManageDistLV2,"Value","Category_LV2")
-            );
-            //colAgentManageLV1 컬렉션에 전체 항목 추가
-            Collect(colAgentManageLV2,{Category_LV2:"전체"});
-            
-            //카테고리 드롭다운 리셋
-            Concurrent(Reset(Dropdown_SearchCategoryLV1_FM_1);,Reset(Dropdown_SearchCategoryLV2_FM_1));
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =412
-        Y: =385
-        ZIndex: =56
-
     Label1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -1763,621 +1697,37 @@ AgentManage As screen:
         Y: =62
         ZIndex: =57
 
-    Button3 As button:
+    Image_PALoding_FM_3 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |+
-            =//============================== << SuperAdmin 권한에 따라 카테고리 LV1 항목 분류 >> ==============================
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,// SuperAdmin 권한 확인
-                // 1. SuperAdmin인 경우
-                ClearCollect(
-                    colAgentManageDistLV1,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Descending
-                        ),
-                        Category_LV1
-                    )
-                );
-                // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV1 로드
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            ,
-                // 2. SuperAdmin이 아닌 경우
-                ClearCollect(//슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV1 로드
-                    colAgentManageDistLV1,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                offGroe,
-                                Email <> ""
-                            ).Email || LookUp(
-                                offGroe,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV1
-                    )
-                );
-                //접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            );
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,// SuperAdmin 권한 확인
-               // 1. SuperAdmin인 경우
-                ClearCollect(
-                    colAgentManageDistLV2,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV2Order",
-                            SortOrder.Descending
-                        ),
-                        Category_LV2
-                    )
-                );
-                // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
-            ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            Collect(
-                    colAgentManageLV1,
-                    {Category_LV2: "전체"}
-                );
-                //colAgentManageLV2 컬렉션에 전체 항목 추가
-            ,
-                // 2. SuperAdmin이 아닌 경우
-                ClearCollect(//슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
-                    colAgentManageDistLV2,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                           // Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                offGroe,
-                                Email <> ""
-                            ).Email || LookUp(
-                                offGroe,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV2
-                    )
-                );
-                //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
-            ClearCollect(
-                    colAgentManageLV2,
-                    RenameColumns(
-                        colAgentManageDistLV2,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );
-                //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-            Collect(
-                    colAgentManageLV2,
-                    {Category_LV2: "전체"}
-                );
-                //colAgentManageLV1 컬렉션에 전체 항목 추가
-            );
-            
-            //============================== << AgentManage 화면 접속 시 >> ==============================
-            
-            Concurrent(
-                Refresh(똑실이_AgentFunction_table​);//DB REFRESH
-                UpdateContext({ModalVisible_ServerUpload: false});,  // 서버업로드 팝업 visible 변수 초기화
-                UpdateContext({ModalVisible_Background: false});,  // 팝업 배경 visible 변수 초기화
-                Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
-            );
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="onvisible"
-        X: =412
-        Y: =324
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =gblLoadingSpinner
+        X: =957
+        Y: =454
         ZIndex: =58
 
-    Button3_1 As button:
+    Background_Modal_PAUpload_FM_5 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |
-            =//============================== << AgentManage 화면 접속 시 >> ==============================
-            
-            // 1. 초기화
-            
-            Concurrent(   
-                Refresh(똑실이_AgentFunction_table​),//DB REFRESH
-                UpdateContext({ModalVisible_ServerUpload: false}),  // 서버업로드 팝업 visible 변수 초기화
-                UpdateContext({ModalVisible_Background: false}),  // 팝업 배경 visible 변수 초기화
-                Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
-                Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
-            
-            // 2. 유저가 속한 Teams 이메일 컬렉션 생성 -> colUserAssignedTeamsEmail
-            
-            ForAll( // Teams 칼럼의 모든 그룹 정보를 colAssignedTeamsInfo 컬렉션에 할당
-                똑실이_Category_table,
-                Collect(
-                    colAssignedTeamsInfo,
-                    ThisRecord.Teams
-                )
-            );
-            ForAll( // 사용자의 이메일이 그룹에 존제 시 그룹 이메일을 colUserAssignedTeamsEmail 컬렉션에 할당
-                colAssignedTeamsInfo,
-                If(
-                    CountRows(
-                        Filter(
-                            Office365그룹.ListGroupMembers(
-                                Mid(
-                                    ThisRecord.Claims,
-                                    40
-                                )
-                            ).value,
-                            User().Email in mail 
-                        )
-                    ) > 0,
-                    Collect(
-                        colUserAssignedTeamsEmail,
-                        {Email: ThisRecord.Email}
-                    )
-                )
-            );
-            Distinct( //colUserAssignedTeamsEmail 컬렉션 중복 제거
-                colUserAssignedTeamsEmail,
-                ThisRecord
-            );
-            
-            
-            
-            
-            
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV1 항목 분류 >> ==============================
-            
-            If( 
-                User().Email in LookUp( 
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email, // SuperAdmin 권한 확인
-            
-                // 1. SuperAdmin인 경우
-            
-                ClearCollect( 
-                    colAgentManageDistLV1,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV1
-                    )
-                ); // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV1 로드
-                ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                ,
-            
-                // 2. SuperAdmin이 아닌 경우
-            
-                ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV1 로드
-                    colAgentManageDistLV1,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Office365사용자.MyProfile().Mail in Users.Email || 
-                            LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                colUserAssignedTeamsEmail,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV1
-                    )
-                 ); //접근가능한 유저의 카테고리 LV1(중복 제거) colAgentManageDistLV1 컬렉션에 할당
-                ClearCollect( 
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV1"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV1 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV1: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                
-            );
-            
-            //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
-            
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email, // SuperAdmin 권한 확인
-            
-               // 1. SuperAdmin인 경우
-            
-                ClearCollect(
-                    colAgentManageDistLV2,
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV2Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    )
-                );// 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
-                ClearCollect(
-                    colAgentManageLV1,
-                    RenameColumns(
-                        colAgentManageDistLV1,
-                        "Value",
-                        "Category_LV2"
-                    )
-                );//칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-                Collect(
-                    colAgentManageLV1,
-                    {Category_LV2: "전체"}
-                );//colAgentManageLV2 컬렉션에 전체 항목 추가
-                ,
-            
-                // 2. SuperAdmin이 아닌 경우
-                
-                ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
-                    colAgentManageDistLV2,
-                    Distinct(
-                        Filter(
-                            똑실이_Category_table,
-                            Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                            Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                                Teams,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                colUserAssignedTeamsEmail,
-                                Email <> ""
-                            ).Email || LookUp(
-                                colUserAssignedTeamsEmail,
-                                Email <> Blank()
-                            ).Email in Filter(
-                                Teams,
-                                Email <> ""
-                            ).Email
-                        ),
-                        Category_LV2
-                    )
-                ); //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
-                ClearCollect(
-                    colAgentManageLV2,
-                    RenameColumns(
-                        colAgentManageDistLV2,
-                        "Value",
-                        "Category_LV2"
-                    )
-                ); //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
-                Collect(
-                    colAgentManageLV2,
-                    {Category_LV2: "전체"}
-                ); //colAgentManageLV1 컬렉션에 전체 항목 추가
-                
-            );
-            
-            //============================== << Agent 기능 필터 초기화 >> ==============================
-            
-            Concurrent(
-            
-                Reset(TextInput_SearchFileName_FM_1);,  // 기능명 InputText 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_1);,  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV2_FM_1);,  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
-                Reset(Dropdown_SearchCategoryLV1_FM_2);  // 유형 Dropbox 리셋(Agent 기능 필터)
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: |-
-            ="onvisible2
-            "
-        X: =412
-        Y: =515
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =gblLoadingBackground
+        Width: =1620
+        X: =300
         ZIndex: =59
-
-    Button4 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |+
-            =Concurrent(
-                UpdateContext({ModalVisible: false}),
-                UpdateContext({LogModalVisible: false}),
-                UpdateContext({DelModalVisible: false}),
-                Set(
-                    delPopUp_File,
-                    false
-                );
-                ,
-                Set(
-                    FileUploadLoding,
-                    false
-                )
-            );
-            ForAll(
-                똑실이_Category_table,
-                Collect(
-                    Teams_GET,
-                    FirstN(
-                        ThisRecord.Teams,
-                        CountRows(ThisRecord.Teams)
-                    ).Claims
-                )
-            );
-            Clear(testDist);
-            Clear(offGroe);
-            ForAll(
-                똑실이_Category_table,
-                Collect(
-                    testDist,
-                    ThisRecord.Teams
-                )
-            );
-            ForAll(
-                testDist,
-                If(
-                    CountRows(
-                        Filter(
-                            Office365그룹.ListGroupMembers(
-                                Mid(
-                                    ThisRecord.Claims,
-                                    40
-                                )
-                            ).value,
-                            User().Email in mail
-                        )
-                    ) > 0,
-                    Collect(
-                        offGroe,
-                        {Email: ThisRecord.Email}
-                    )
-                )
-            );
-            Distinct(
-                offGroe,
-                ThisRecord
-            );
-            
-            
-            
-            // 카테고리 LV1 SuperAdmin 권한 확인 
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,
-            // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
-                ClearCollect(
-                    colCategoryLV1_FM,
-                    {Value: "전체"},
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "LV1Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV1
-                    )
-                ),
-            // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
-                ClearCollect(
-                    colCategoryLV1_FM,
-                    {Value: "전체"},
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "LV1Order",
-                                SortOrder.Ascending
-                            ),
-                            User().Email in Users.Email
-                        ),
-                        Category_LV1
-                    )
-                )
-            );
-            
-            
-            // 카테고리 LV2 
-            If(
-                User().Email in LookUp(
-                    똑실이_SuperAdmin_table,
-                    User().Email in SuperUsers.Email
-                ).SuperUsers.Email,
-            
-                ClearCollect(
-                    colCategoryLV2_FM,
-                    {Value: "전체"},
-                    If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
-                        Distinct(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "LV2Order",
-                                SortOrder.Ascending
-                            ),
-                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            Category_LV2
-                        ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                        Distinct(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
-                            ),
-                            Category_LV2
-                        )
-                    )
-                ),
-                ClearCollect(
-                    colCategoryLV2_FM,
-                    {Value: "전체"},
-                    If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                        Dropdown_SearchCategoryLV1_FM_1.Selected.Value = "전체",
-                        Distinct(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                User().Email in Users.Email
-                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            ),
-                            Category_LV2
-                        ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                        Distinct(
-                            Filter(
-                                Filter(
-                                    SortByColumns(
-                                        똑실이_Category_table,
-                                        "LV2Order",
-                                        SortOrder.Ascending
-                                    ),
-                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Value
-                                ),
-                                User().Email in Users.Email
-                            ),
-                            Category_LV2
-                        )
-                    )
-                )
-            );
-            
-            Reset(Dropdown_SearchCategoryLV1_FM_1);
-            Reset(Dropdown_SearchCategoryLV2_FM_1)
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        X: =413
-        Y: =449
-        ZIndex: =61
 
     Group_Search_FM_1 As group:
         Height: =5
@@ -2488,7 +1838,89 @@ AgentManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: =colAgentManageLV1
-            OnChange: =
+            OnChange: |-
+                =If(!Dropdown_SearchCategoryLV1_FM_3.Selected.Category_LV1="전체",
+                colAgentManageLV2
+                ,
+                
+                //============================== << SuperAdmin 권한에 따라 카테고리 LV2 항목 분류 >> ==============================
+                
+                If(
+                    User().Email in LookUp(
+                        똑실이_SuperAdmin_table,
+                        User().Email in SuperUsers.Email
+                    ).SuperUsers.Email, // SuperAdmin 권한 확인
+                
+                   // 1. SuperAdmin인 경우
+                
+                    ClearCollect(
+                        colAgentManageDistLV2_OnChange,
+                        Distinct(
+                            SortByColumns( Filter(
+                                똑실이_Category_table,Category_LV1=Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1),
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV2
+                        )
+                    );// 슈퍼 어드민에 본인 계정 정보가 있을 경우, 모든 카테고리 LV2 로드
+                    ClearCollect(
+                        colAgentManageLV2_OnChange,
+                        RenameColumns(
+                            colAgentManageDistLV2_OnChange,
+                            "Value",
+                            "Category_LV2"
+                        )
+                    );//칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
+                    Collect(
+                        colAgentManageLV2_OnChange,
+                        {Category_LV2: "전체"}
+                    );//colAgentManageLV2 컬렉션에 전체 항목 추가
+                    ,
+                
+                    // 2. SuperAdmin이 아닌 경우
+                    
+                    ClearCollect( //슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 LV2 로드
+                        colAgentManageDistLV2_OnChange,
+                        Distinct(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
+                                Office365사용자.MyProfile().Mail in Users.Email || LookUp(
+                                    Teams,
+                                    Email <> Blank()
+                                ).Email in Filter(
+                                    colUserAssignedTeamsEmail,
+                                    Email <> ""
+                                ).Email || LookUp(
+                                    colUserAssignedTeamsEmail,
+                                    Email <> Blank()
+                                ).Email in Filter(
+                                    Teams,
+                                    Email <> ""
+                                ).Email
+                            ),
+                            Category_LV2
+                        )
+                    ); //접근가능한 유저의 카테고리 LV2(중복 제거) colAgentManageDistLV1 컬렉션에 할당    
+                    ClearCollect(
+                        colAgentManageLV2_OnChange,
+                        RenameColumns(
+                            colAgentManageDistLV2_OnChange,
+                            "Value",
+                            "Category_LV2"
+                        )
+                    ); //칼럼명 Rename하여 colAgentManageLV2 컬렉션에 할당
+                    Collect(
+                        colAgentManageLV2_OnChange,
+                        {Category_LV2: "전체"}
+                    ); //colAgentManageLV1 컬렉션에 전체 항목 추가
+                    
+                ));
+                
+                //============================== << Agent 기능 필터 초기화 >> ==============================
+                
+                Reset(Dropdown_SearchCategoryLV2_FM_1);  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2524,19 +1956,11 @@ AgentManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =
-                If(Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1="전체",
+                =If(Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1="전체",
                 colAgentManageLV2
                 ,
-                Distinct(
-                    Filter(
-                        똑실이_Category_table,
-                        Category_LV1 = Dropdown_SearchCategoryLV1_FM_1.Selected.Category_LV1,
-                        Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                        ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                    ),
-                    Category_LV2
-                ))
+                colAgentManageLV2_OnChange
+                )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
