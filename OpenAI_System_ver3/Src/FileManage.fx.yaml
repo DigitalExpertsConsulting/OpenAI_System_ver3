@@ -1489,7 +1489,8 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |+
-                =If(
+                =
+                If(
                     IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value),
                     Error("할당된 카테고리가 없습니다.");
                 );
@@ -1505,9 +1506,8 @@ FileManage As screen:
                 );
                 
                 UpdateContext({
-                    FileUploadResult: {
-                        filename: ""
-                    }
+                    FileUploadResult: 
+                       ""
                 });
                 
                 
@@ -1521,7 +1521,7 @@ FileManage As screen:
                                 contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
                             }
                         }
-                    )
+                    ).filename
                 });
                 
                 Patch(
@@ -1535,7 +1535,7 @@ FileManage As screen:
                         Upload_Date: Now(),
                         Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                         Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        File_Name: FileUploadResult.filename,
+                        File_Name: FileUploadResult,
                         File_Type: Upper(
                             Last(
                                 Split(
