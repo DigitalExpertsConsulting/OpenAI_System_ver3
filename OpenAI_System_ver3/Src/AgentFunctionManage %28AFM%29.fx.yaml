@@ -15,9 +15,8 @@
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
             
             UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+            UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
             UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
-        
-            UpdateContext({locPopupServerUpload: false}),  // 서버업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupServerUploadBackground: false}),  // 팝업 배경 visible 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
@@ -400,7 +399,15 @@
                 */
             Image: =Delete
             OnSelect: |
-                =/*Concurrent(
+                =Concurrent(
+                    UpdateContext({locAgentFunctionDeletePopup:true}),// Agent 기능 삭제 팝업 활성화
+                    UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
+                    UpdateContext({locSelectedAgentFunctionItemID:ThisItem.ID}) //선택한 Agent 기능 ID값 locSelectedAgentFunctionItemID 변수에 할당
+                );
+                
+                
+                
+                /*Concurrent(
                     Set(
                         ModalVisible_delFunction,
                         true
@@ -604,7 +611,7 @@
         OnSelect: |-
             =Concurrent(
                 UpdateContext({locAgentFunctionAddPopup:true}),// Agent 기능 추가 팝업 활성화
-                UpdateContext({locAgentFunctionAddPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
+                UpdateContext({locPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
             );
         PressedBorderColor: =RGBA(74, 85, 88, 1)
         PressedColor: =RGBA(74, 85, 88, 1)
@@ -667,7 +674,7 @@
         HoverFill: =
         OnSelect: =
         PressedFill: =
-        Visible: =locAgentFunctionAddPopupBackground
+        Visible: =locPopupBackground
         Width: =1920
         ZIndex: =24
 
@@ -1187,7 +1194,7 @@
             Y: =148
             ZIndex: =19
 
-    Popup_AgentFunction_Delte_AFM As group:
+    Popup_AgentFunction_Delete_AFM As group:
         Height: =5
         Width: =5
         X: =40
@@ -1222,7 +1229,7 @@
             RadiusTopRight: =8
             Size: =15
             Text: =""
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =600
             X: =801
             Y: =428
@@ -1244,40 +1251,10 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =
-                Patch(
-                    똑실이_Index_Remove,
-                    {
-                        제목: LV2_Category&"-"&filename,
-                        LV1_Category: LV1_Category, 
-                        LV2_Category: LV2_Category,
-                        filename: filename,
-                        File_ID: File_ID
-                    }
+                =Concurrent(
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
                 );
-                
-                Patch(
-                    똑실이_FileUpload_table,
-                    LookUp(똑실이_FileUpload_table, ID = File_ID),
-                    {
-                        Index_Status: "deleting"
-                    }
-                );
-                
-                /*
-                Patch(
-                    Category_table,
-                    LookUp(Category_table, Category_LV1=LV1_Category && Category_LV2=LV2_Category),
-                    {
-                        FileCount:Count_File-1
-                    }
-                );
-                */
-                
-                //LV2_Category
-                
-                Set(delPopUp_File,false);
-                UpdateContext({DelModalVisible : false});
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1288,7 +1265,7 @@
             RadiusTopRight: =4
             Size: =11
             Text: ="삭제"
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =50
             X: =1268
             Y: =532
@@ -1317,9 +1294,10 @@
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =Set(delPopUp_File,false);
-                UpdateContext({QALogEditVisible: false});
-                UpdateContext({DelModalVisible : false});
+                =Concurrent(
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: |-
@@ -1332,7 +1310,7 @@
             RadiusTopRight: =4
             Size: =11
             Text: ="취소"
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =50
             X: =1326
             Y: =532
@@ -1352,7 +1330,7 @@
             Height: =34
             Size: =16
             Text: ="삭제하시겠습니까?"
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =193
             X: =818
             Y: =449
@@ -1370,7 +1348,7 @@
             Height: =24
             Size: =10
             Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =562
             X: =820
             Y: =490
@@ -1388,12 +1366,13 @@
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =Exit
             OnSelect: |-
-                =Set(delPopUp_File,false);
-                UpdateContext({QALogEditVisible: false});
-                UpdateContext({DelModalVisible : false});
+                =Concurrent(
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =false
+            Visible: =locAgentFunctionDeletePopup
             Width: =20
             X: =1358
             Y: =452
@@ -1487,8 +1466,12 @@
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
-                =/*
+            OnSelect: |+
+                =Concurrent(
+                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
+                /*
                 Patch(
                     똑실이_Index_Remove,
                     {
@@ -1519,10 +1502,6 @@
                 */
                 
                 
-                Concurrent(
-                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                    UpdateContext({locAgentFunctionAddPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
-                );
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1565,7 +1544,7 @@
                 =
                 Concurrent(
                     UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                    UpdateContext({locAgentFunctionAddPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
                 );
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
@@ -1637,7 +1616,7 @@
                 =
                 Concurrent(
                     UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                    UpdateContext({locAgentFunctionAddPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
                 );
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -1646,4 +1625,19 @@
             X: =1643
             Y: =284
             ZIndex: =36
+
+    Label1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =locSelectedAgentFunctionItemID
+        X: =856
+        Y: =38
+        ZIndex: =39
 
