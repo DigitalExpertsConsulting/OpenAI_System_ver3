@@ -7,10 +7,12 @@
         // 1. 로딩 이미지 활성화
         Concurrent(   
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
-            UpdateContext({locLoadingSpinnerBackground:false})); // 로딩 스피너 배경 이미지 비활성 
+            UpdateContext({locLoadingSpinnerBackground:false})
+            ); // 로딩 스피너 배경 이미지 비활성 
         
-        Set(gblStartPage,"AgentFunctionManageDetail")
         
+        Set(gblStartPage,"AgentFunctionManageDetail"); // gblStartPage 변수 설정
+        UpdateContext({locSelectedAgentDataItemID:0});  // locSelectedAgentDataItemID 변수 초기화
         /*
         // 2. 초기화
         
@@ -116,7 +118,7 @@
         FontWeight: =FontWeight.Semibold
         Height: =75
         Size: =16
-        Text: ="get_order_info"
+        Text: =LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID).Function_ID
         Width: =249
         X: =650
         Y: =41
@@ -208,53 +210,6 @@
         Y: =1007
         ZIndex: =27
 
-    Background_Popup_AFMD As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        OnSelect: =
-        PressedFill: =
-        Visible: =locPopupBackground
-        Width: =1920
-        ZIndex: =28
-
-    Background_LoadingSpinner_AFMD As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =locLoadingSpinnerBackground
-        Width: =1620
-        X: =300
-        ZIndex: =35
-
-    Image_LoadingSpinner_AFMD As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =locLoadingSpinner
-        X: =957
-        Y: =454
-        ZIndex: =36
-
     "'test selected item id' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -264,11 +219,14 @@
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =gblSelectedAgentFunctionItemID
-        X: =1346
-        Y: =41
-        ZIndex: =37
+        Height: =37
+        Size: =20
+        Text: |-
+            ="SelectedAgentFunctionID:" & gblSelectedAgentFunctionItemID
+        Width: =404
+        X: =540
+        Y: =1011
+        ZIndex: =28
 
     testuser_erase_2 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -288,7 +246,143 @@
                 ).SuperUsers.Email,"수퍼어드민","일반유저")
         X: =1570
         Y: =48
-        ZIndex: =38
+        ZIndex: =29
+
+    "Gallery2 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Items: =똑실이_AgentFunctionData_table
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =64
+        Width: =770
+        X: =1071
+        Y: =273
+        ZIndex: =30
+
+        Separator2 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(230, 230, 230, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight-Self.Height
+            ZIndex: =5
+
+        Rectangle1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Height: =60
+            OnSelect: =Select(Parent)
+            Visible: =ThisItem.IsSelected
+            Width: =4
+            ZIndex: =6
+
+        Label_SelectedAgentFunctionModify_Name_AFMD_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Source
+            Width: =185
+            X: =25
+            Y: =2
+            ZIndex: =7
+
+        Label_SelectedAgentFunctionModify_Name_AFMD_2 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Name
+            Width: =185
+            X: =218
+            Y: =2
+            ZIndex: =8
+
+        Label_SelectedAgentFunctionModify_Name_AFMD_3 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Description
+            Width: =251
+            X: =411
+            Y: =2
+            ZIndex: =9
+
+        Icon_DeleteSubMenu_CategoryMenu_2 As image:
+            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: |-
+                =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
+                If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
+                DisplayMode.Disabled))
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: =RGBA(224, 224, 224, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Delete
+            OnSelect: |
+                =Concurrent(
+                    UpdateContext({locAgentDataDeletePopup:true}),// 현재 Agent 기능에서 선택한 Agent Data삭제 팝업 활성화
+                    UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
+                    UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
+                );
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Transparency: =If(Icon_DeleteSubMenu_CategoryMenu_2.DisplayMode = DisplayMode.Disabled,0.5,0)
+            Width: =32
+            X: =702
+            Y: =17
+            ZIndex: =10
+
+    Background_Popup_AFMD As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        OnSelect: =
+        PressedFill: =
+        Visible: =locPopupBackground
+        Width: =1920
+        ZIndex: =31
 
     Selected_AgentFunction_AgentData_AFMD As group:
         Height: =5
@@ -327,8 +421,8 @@
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Width: =23
-            X: =1351
-            Y: =399
+            X: =1345
+            Y: =915
             ZIndex: =6
 
         Button_SelectedAgentFunctionAgentData_AddAgentData_AFMD As button:
@@ -353,8 +447,8 @@
             HoverFill: =RGBA(166, 166, 166, 0.1)
             OnSelect: |-
                 =Concurrent(
-                    UpdateContext({locAgentFunctionAddPopup:true}),// Agent 기능 추가 팝업 활성화
-                    UpdateContext({locPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
+                    UpdateContext({locAgentDataAddPopup:true}),// Agent Data 추가 팝업 활성화
+                    UpdateContext({locPopupBackground:true})// Agent Data 추가 팝업 배경 이미지 활성화
                 );
             PressedBorderColor: =RGBA(74, 85, 88, 1)
             PressedColor: =RGBA(74, 85, 88, 1)
@@ -362,9 +456,59 @@
             Size: =15
             Text: ="Agent Data 추가"
             Width: =775
-            X: =1072
-            Y: =398
+            X: =1066
+            Y: =914
             ZIndex: =7
+
+    Background_LoadingSpinner_AFMD As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locLoadingSpinnerBackground
+        Width: =1620
+        X: =300
+        ZIndex: =44
+
+    Image_LoadingSpinner_AFMD As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =957
+        Y: =454
+        ZIndex: =45
+
+    "'test selected item id_1' As label":
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =37
+        Size: =20
+        Text: |-
+            ="SelectedAgentDataID:" & locSelectedAgentDataItemID
+        Width: =404
+        X: =1022
+        Y: =1016
+        ZIndex: =46
 
     Selected_AgentFunction_Modify_AFMD As group:
         Height: =5
@@ -825,6 +969,194 @@
             Y: =364
             ZIndex: =24
 
+    Popup_Selected_AgentFunction_AgnetData_Delete_AFMD As group:
+        Height: =5
+        Width: =5
+        X: =20
+        Y: =20
+        ZIndex: =46
+
+        Window_PopupSelectedAgentFunctionAgnetDataDelete_AFMD As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =160
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =locAgentDataDeletePopup
+            Width: =600
+            X: =801
+            Y: =426
+            ZIndex: =38
+
+        Button_PopupSelectedAgentFunctionAgnetDataDelete_Cancel_AFMD As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentDataDeletePopup:false}),// Agent Data 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =locAgentDataDeletePopup
+            Width: =50
+            X: =1337
+            Y: =536
+            ZIndex: =39
+
+        Label_PopupSelectedAgentFunctionAgnetDataDelete_TitleText_AFMD As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =34
+            Size: =16
+            Text: ="삭제하시겠습니까?"
+            Visible: =locAgentDataDeletePopup
+            Width: =193
+            X: =829
+            Y: =453
+            ZIndex: =40
+
+        Label_PopupSelectedAgentFunctionAgnetDataDelete_SubTitleText_AFMD As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =10
+            Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
+            Visible: =locAgentDataDeletePopup
+            Width: =562
+            X: =831
+            Y: =494
+            ZIndex: =41
+
+        Image_PopupSelectedAgentFunctionAgnetDataDelete_Cancel_AFMD As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentDataDeletePopup:false}),// Agent Data 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locAgentDataDeletePopup
+            Width: =20
+            X: =1369
+            Y: =456
+            ZIndex: =42
+
+        Button_PopupSelectedAgentFunctionAgnetDataDelete_Delete_AFMD As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |
+                =RemoveIf(똑실이_AgentFunctionData_table,ID=locSelectedAgentDataItemID); // Agent Data 삭제
+                
+                Refresh(똑실이_AgentFunctionData_table); //DB Refresh
+                
+                Concurrent(
+                    UpdateContext({locAgentDataDeletePopup:false}), // Agent Data 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="삭제"
+            Visible: =locAgentDataDeletePopup
+            Width: =50
+            X: =1279
+            Y: =536
+            ZIndex: =43
+
     Popup_Selected_AgentFunction_Delete_AFMD As group:
         Height: =5
         Width: =5
@@ -864,7 +1196,7 @@
             Width: =600
             X: =801
             Y: =428
-            ZIndex: =29
+            ZIndex: =32
 
         Button_PopupSelectedAgentFunctionDelete_Cancel_AFMD As button:
             BorderColor: |-
@@ -890,7 +1222,7 @@
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =Concurrent(
-                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent Function삭제 팝업 비활성화
                     UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
                 );
             PressedBorderColor: |-
@@ -909,7 +1241,7 @@
             Width: =50
             X: =1326
             Y: =532
-            ZIndex: =30
+            ZIndex: =33
 
         Label_PopupSelectedAgentFunctionDelete_TitleText_AFMD As label:
             Align: =Align.Center
@@ -929,7 +1261,7 @@
             Width: =193
             X: =818
             Y: =449
-            ZIndex: =31
+            ZIndex: =34
 
         Label_PopupSelectedAgentFunctionDelete_SubTitleText_AFMD As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -947,7 +1279,7 @@
             Width: =562
             X: =820
             Y: =490
-            ZIndex: =32
+            ZIndex: =35
 
         Image_PopupSelectedAgentFunctionDelete_Cancel_AFMD As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -962,7 +1294,7 @@
             Image: =Exit
             OnSelect: |-
                 =Concurrent(
-                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent Function 삭제 팝업 비활성화
                     UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
                 );
             PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -971,7 +1303,7 @@
             Width: =20
             X: =1358
             Y: =452
-            ZIndex: =33
+            ZIndex: =36
 
         Button_PopupSelectedAgentFunctionDelete_Delete_AFMD As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -988,17 +1320,17 @@
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |
-                =RemoveIf(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID); // Agent 기능 삭제
+            OnSelect: |-
+                =RemoveIf(똑실이_AgentFunction_table​,ID=locSelectedAgentDataItemID); // Agent Function 삭제
                 
                 Refresh(똑실이_AgentFunction_table​); //DB Refresh
                 
                 Concurrent(
-                    UpdateContext({locAgentFunctionDeletePopup:false}), // Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locAgentFunctionDeletePopup:false}), // Agent Function 삭제 팝업 비활성화
                     UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
                 );
                 
-                Back();// AgentFunctionMange 화면으로 이동
+                Back();  // 삭제 후 Agemt Function 관리 화면으로 이동
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1013,5 +1345,414 @@
             Width: =50
             X: =1268
             Y: =532
-            ZIndex: =34
+            ZIndex: =37
+
+    Label_ScreenSubTitle_FunctionID_AFMD_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =75
+        Size: =16
+        Text: ="Agent Data"
+        Width: =249
+        X: =1064
+        Y: =167
+        ZIndex: =67
+
+    Popup_AgentFunction_Add_AFM_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =67
+
+        Window_PopupAgentFunctionAdd_AFM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =470
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =locAgentDataAddPopup
+            Width: =1052
+            X: =591
+            Y: =312
+            ZIndex: =47
+
+        Window_PopupAgentFunctionAdd_Item_AFM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: =
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0,0,0,0)
+            FocusedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =280
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: =
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Size: =11
+            Text: =""
+            Visible: =locAgentDataAddPopup
+            Width: =838
+            X: =681
+            Y: =405
+            ZIndex: =48
+
+        Button_PopupAgentFunctionAdd_Cancel_AFM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =35
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |
+                =
+                // ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                
+                Concurrent(
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM_1);,// Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM_1);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM_1);,
+                    UpdateContext({locAgentDataAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =locAgentDataAddPopup
+            Width: =100
+            X: =1419
+            Y: =704
+            ZIndex: =49
+
+        Label_PopupAgentFunctionAdd_Title_AFM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =57
+            Size: =16
+            Text: ="Agent Data 추가"
+            Visible: =locAgentDataAddPopup
+            Width: =388
+            X: =681
+            Y: =342
+            ZIndex: =50
+
+        Image_PopupAgentFunctionAdd_Delete_AFM_1 As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =51
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |
+                =
+                // ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                
+                Concurrent(
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM_1);, // Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM_1);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM_1);,
+                    UpdateContext({locAgentDataAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locAgentDataAddPopup
+            Width: =40
+            X: =1585
+            Y: =325
+            ZIndex: =52
+
+        Label_PopupAgentFunctionAdd_Header_Name_AFM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =33
+            Size: =10
+            Text: ="source"
+            Visible: =locAgentDataAddPopup
+            Width: =90
+            X: =784
+            Y: =433
+            ZIndex: =55
+
+        Label_PopupAgentFunctionAdd_Header_Description_AFM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =33
+            Size: =10
+            Text: ="name"
+            Visible: =locAgentDataAddPopup
+            Width: =90
+            X: =781
+            Y: =476
+            ZIndex: =56
+
+        Label_PopupAgentFunctionAdd_Header_Config_AFM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =33
+            Size: =10
+            Text: ="description"
+            Visible: =locAgentDataAddPopup
+            Width: =90
+            X: =781
+            Y: =522
+            ZIndex: =57
+
+        TextInput_PopupAgentFunctionAdd_Name_AFM_1 As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =27
+            HintText: ="source를 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능명을 입력해주세요"
+            Visible: =locAgentDataAddPopup
+            Width: =297
+            X: =875
+            Y: =437
+            ZIndex: =58
+
+        TextInput_PopupAgentFunctionAdd_Description_AFM_1 As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =27
+            HintText: ="name을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능설명을 입력하세요."
+            Visible: =locAgentDataAddPopup
+            Width: =297
+            X: =875
+            Y: =478
+            ZIndex: =64
+
+        TextInput_PopupAgentFunctionAdd_Config_AFM_1 As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =131
+            HintText: ="description 텍스트를 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="Config 텍스트를 입력해주세요"
+            Visible: =locAgentDataAddPopup
+            Width: =532
+            X: =875
+            Y: =521
+            ZIndex: =65
+
+        Button_PopupAgentFunctionAdd_Add_AFM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =35
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |+
+                =
+                
+                // ========================= << Agent Function Data 추가 >> =========================
+                
+                If(
+                    // 조건1: 모든 항목이 비어있지 않음
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Name_AFM_1.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Description_AFM_1.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Config_AFM_1.Text)
+                
+                    ,
+                    
+                    // 조건을 모두 만족할 경우  
+                    Patch(똑실이_AgentFunctionData_table,  
+                        {
+                        제목:"""""",
+                        Function_ID:LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID).Function_ID,
+                        Source:TextInput_PopupAgentFunctionAdd_Name_AFM_1.Text,
+                        Name:TextInput_PopupAgentFunctionAdd_Description_AFM_1.Text,
+                        Description:TextInput_PopupAgentFunctionAdd_Config_AFM_1.Text
+                        }
+                    );
+                    
+                    // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
+                
+                    Concurrent(
+                        Reset(TextInput_PopupAgentFunctionAdd_Name_AFM_1), // Agent Data 추가 입력 컨트롤 리셋
+                        Reset(TextInput_PopupAgentFunctionAdd_Description_AFM_1),
+                        Reset(TextInput_PopupAgentFunctionAdd_Config_AFM_1),
+                        UpdateContext({locAgentDataAddPopup:false}),// Agent Data 추가 팝업 비활성화
+                        UpdateContext({locPopupBackground:false})   // Agent Data 추가 팝업 배경 이미지 비활성화
+                    );
+                ,
+                
+                    // 조건을 모두 만족하지 않을 경우 안내 문구 출력
+                    Notify("비어있는 항목이 존재합니다.",NotificationType.Error)
+                    
+                );
+                
+                
+                Refresh(똑실이_AgentFunctionData_table); //DB Refresh
+                
+                
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="추가"
+            Tooltip: ="버튼 클릭 시 입력하신 Agent 기능이 추가됩니다"
+            Visible: =locAgentDataAddPopup
+            Width: =100
+            X: =1308
+            Y: =704
+            ZIndex: =66
 
