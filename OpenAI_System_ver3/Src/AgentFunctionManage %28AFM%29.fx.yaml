@@ -400,8 +400,10 @@
                 =ColorValue("#F5F5F5")
             Image: =Remarks
             OnSelect: |-
-                =Set(gblSelectedAgentFunctionItemID,ThisItem.ID); //선택한 Agent 기능 ID값 gblSelectedAgentFunctionItemID 변수에 할당
-                
+                =Concurrent(
+                    Set(gblSelectedAgentFunctionItemID,ThisItem.ID), //선택한 Agent 기능 ID값 gblSelectedAgentFunctionItemID 변수에 할당
+                    Set(gblSelectedAgentFunctionItemType,ThisItem.Type) //선택한 Agent 기능 Type값 gblSelectedAgentFunctionItemType 변수에 할당
+                );
                 Navigate('AgentFunctionManageDetail (AFMD)')
             PaddingBottom: =3
             PaddingLeft: =3
@@ -587,15 +589,16 @@
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Size: =13
+        Size: =20
         Text: |-
-            =If( 
+            ="유저권한: "&If( 
                 User().Email in LookUp( 
                     똑실이_SuperAdmin_table,
                     User().Email in SuperUsers.Email
                 ).SuperUsers.Email,"수퍼어드민","일반유저")
-        X: =1570
-        Y: =48
+        Width: =297
+        X: =1238
+        Y: =7
         ZIndex: =23
 
     Background_Popup_AFM As rectangle:
@@ -1260,6 +1263,33 @@
         X: =1369
         Y: =38
         ZIndex: =53
+
+    testresetpage As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: =Set(gblStartPage, ""); Navigate('AgentFunctionManage (AFM)');
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="스타트 페이지 초기화"
+        Width: =265
+        X: =1235
+        Y: =48
+        ZIndex: =54
 
     Popup_AgentFunction_Add_AFM As group:
         Height: =5

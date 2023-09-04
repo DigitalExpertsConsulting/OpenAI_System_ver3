@@ -11,7 +11,8 @@
             UpdateContext({locLoadingSpinnerBackground:true})); // 로딩 스피너 배경 이미지 비활성 );
         
         // 2. 초기화
-        Concurrent(   
+        Concurrent(
+            Set(gblStartPage,"AgentMange"),   
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
             UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
@@ -322,6 +323,8 @@
             =Concurrent(
                 Refresh(똑실이_Agent_table),
                 Refresh(똑실이_AgentFunction_table​)); //DB REFRESH
+            
+            Concurrent(Reset(TextInput_PublishedVersion_AM),Reset(TextInput_Version_AM),Reset(TextInput_Name_AM),Reset(TextInput_Description_AM),Reset(TextInput_FallbackFunction_AM));
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -1534,7 +1537,7 @@
         TextInput_Version_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =""
+            Default: =Last(똑실이_Agent_table).Version
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1580,7 +1583,7 @@
         TextInput_Name_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =""
+            Default: =Last(똑실이_Agent_table).Name
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1626,7 +1629,7 @@
         TextInput_Description_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =""
+            Default: =Last(똑실이_Agent_table).Description
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1672,7 +1675,7 @@
         TextInput_FallbackFunction_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =""
+            Default: =Last(똑실이_Agent_table).Fallback_Function
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1714,7 +1717,9 @@
                 =If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
                     Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
                 
-                    Patch(똑실이_Agent_table,LookUp(똑실이_Agent_table,ID=1),{제목:".",Published_Version:TextInput_PublishedVersion_AM.Text,
+                    Patch(똑실이_Agent_table,Last(똑실이_Agent_table),
+                    {제목:"""""", 
+                    Published_Version:TextInput_PublishedVersion_AM.Text,
                     Version:TextInput_Version_AM.Text,
                     Name:TextInput_Name_AM.Text,
                     Description:TextInput_Description_AM.Text,
