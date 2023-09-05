@@ -1231,7 +1231,7 @@ CategoryMenu As screen:
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
                 Size: =12
-                Text: =If(ThisItem.DocumentLanguage = "ko","한국어","English")
+                Text: =Switch(ThisItem.DocumentLanguage,"ko","한국어", "en","English","ja","日本語")
                 Width: =82
                 X: =1328
                 Y: =16
@@ -3249,8 +3249,36 @@ CategoryMenu As screen:
             Y: =250
             ZIndex: =55
 
+    Button_Border2_CategoryMenu As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        DisabledBorderColor: |-
+            =ColorValue("#D1D1D1")
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        DisplayMode: =DisplayMode.Disabled
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Size: =15
+        Text: =""
+        Visible: =AddMianCategory
+        Width: =266
+        X: =884
+        Y: =565
+        ZIndex: =73
+
     Dropdown_AddDocumentLanguage_CategoryMenu As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
+        BorderStyle: =BorderStyle.None
         ChevronBackground: =RGBA(255, 255, 255, 1)
         ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
         ChevronDisabledFill: =RGBA(166, 166, 166, 1)
@@ -3263,9 +3291,11 @@ CategoryMenu As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
         Font: =Font.'Segoe UI'
+        Height: =29
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(212, 212, 212, 1)
+        HoverFill: |-
+            =ColorValue("#FFFFFF")
         Items: =["한국어", "English", "日本語"]
         PaddingBottom: =5
         PaddingLeft: =12
@@ -3273,38 +3303,14 @@ CategoryMenu As screen:
         PaddingTop: =5
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =RGBA(105, 121, 126, 1)
+        PressedFill: |-
+            =ColorValue("#FFFFFF")
         SelectionFill: =RGBA(105, 121, 126, 1)
         Size: =13
         Visible: =AddMianCategory
+        Width: =255
         X: =891
-        Y: =565
-        ZIndex: =73
-
-    Button1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: ='MicrosoftTeams-image (10)'
-        RadiusTopRight: =0
-        Size: =15
-        Text: =""
-        X: =967
-        Y: =507
+        Y: =571
         ZIndex: =74
 
     Group_MainCategoryPopUp_CategoryMenu As group:
@@ -3527,8 +3533,9 @@ CategoryMenu As screen:
                             Category_LV2: Trim(TextInput_AddMainCategoryNameSub_CategoryMenu.Text),
                             //ID: Last(똑실이_Category_table).ID + 1,
                             LV1Order: Last(똑실이_Category_table).LV1Order + 1,
-                            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu.Text)),Last(똑실이_Category_table).LV2Order+1,1)              ,
-                            DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
+                            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu.Text)),Last(똑실이_Category_table).LV2Order+1,1),
+                            //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
+                            DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_CategoryMenu.Selected.Value,"한국어","ko","English","en","日本語","ja")
                         }
                     );
                     Notify(
@@ -3788,7 +3795,7 @@ CategoryMenu As screen:
                 =ColorValue("#0F6CBD")
             RadioSize: =32
             Size: =13
-            Visible: =AddMianCategory
+            Visible: =false
             Width: =263
             X: =883
             Y: =563
