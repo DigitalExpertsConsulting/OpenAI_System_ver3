@@ -2,31 +2,63 @@
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =//============================== << AgentFunctionManageDetail 화면 접속 시 >> ==============================
         // 1. 로딩 이미지 활성화
         Concurrent(   
-            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
-            UpdateContext({locLoadingSpinnerBackground:false})
-            ); // 로딩 스피너 배경 이미지 비활성 
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:true}) // 로딩 스피너 배경 이미지 비활성 
+            ); 
         
-        
-        Set(gblStartPage,"AgentFunctionManageDetail"); // gblStartPage 변수 설정
-        UpdateContext({locSelectedAgentDataItemID:0});  // locSelectedAgentDataItemID 변수 초기화
-        /*
         // 2. 초기화
-        
-        
-        Concurrent(   
-            Refresh(똑실이_AgentFunction_table​),//DB REFRESH
-            
-            UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+        Concurrent(
+            Set(gblStartPage,"AgentFunctionManageDetail"), // gblStartPage 변수 설정
+            Refresh(똑실이_AgentFunctionData_table),//DB REFRESH
+            Refresh(똑실이_FileUpload_table),//DB REFRESH
             UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+            UpdateContext({locAgentDataAddPopup:false}),// Agent Data 추가 팝업 비활성화
             UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
-            Set(gblSelectedAgentFunctionItemID,0), // gblSelectedAgentFunctionItemID 변수 초기화
-            Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
-            Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
-        */
+            UpdateContext({locSelectedAgentDataItemID:0}), // locSelectedAgentDataItemID 변수 초기화 -> 선택한 Agent Data ID
+            UpdateContext({locAPICall:false}), //Agent Data Visible 변수 초기화
+            UpdateContext({locDocumentSearch:false}) //Agent Data Visible 변수 초기화
+        );
+        
+        // 3. Agent Data Visible 변수 값 할당
+        
+        /* Agent Data(화면우측에 존재)은 사용자가 선택하는 Agent Function의 유형에 따라 표시되는 컨트롤(헤더&갤러리)이 달라짐
+            1. api_call: Agent에 사용하는 Data -> 똑실이_AgentFunctionData_table(DB)
+            2. document_search: 카테고리에 포함되어있는 문서 리스트 -> 똑실이_FileUpload_table(DB)
+            3. 그 외: 미표시 */
+        
+        If( 
+            // 3-1. api_call인 경우
+            gblSelectedAgentFunctionItemType="api_call", 
+            UpdateContext({locAPICall:true}),
+            // 3-2. document_search인 경우
+            gblSelectedAgentFunctionItemType="document_search",
+            UpdateContext({locDocumentSearch:true}));
+        
+        // 4. 로딩 이미지 비활성화
+        Concurrent(   
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성 
+            ); 
+        
+        
+
+    Window_SelectedAgentFunctionAgentData_AFMD As rectangle:
+        BorderColor: =RGBA(204, 204, 204, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =813
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Width: =826
+        X: =1022
+        Y: =153
+        ZIndex: =1
 
     Label_ScreenMainTitle_AFMD As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -223,84 +255,7 @@
         PressedFill: =
         Visible: =locPopupBackground
         Width: =1920
-        ZIndex: =30
-
-    Selected_AgentFunction_AgentData_AFMD As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =39
-
-        Window_SelectedAgentFunctionAgentData_AFMD As rectangle:
-            BorderColor: =RGBA(204, 204, 204, 1)
-            BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(255, 255, 255, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =813
-            HoverFill: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(255, 255, 255, 1)
-            Width: =826
-            X: =1022
-            Y: =153
-            ZIndex: =1
-
-        Icon_SelectedAgentFunctionAgentData_AddAgentData_AFMD As icon.AddLibrary:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =30
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.AddLibrary
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Width: =23
-            X: =1335
-            Y: =911
-            ZIndex: =6
-
-        Button_SelectedAgentFunctionAgentData_AddAgentData_AFMD As button:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderThickness: |
-                =1
-            Color: =RGBA(166, 166, 166, 1)
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: |-
-                =ColorValue("#FFFFFF")
-            DisabledFill: |-
-                =ColorValue("#FFFFFF")
-            Fill: =RGBA(0, 0, 0, 0)
-            FocusedBorderColor: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =34
-            HoverBorderColor: =RGBA(128, 128, 128, 1)
-            HoverColor: =RGBA(128, 128, 128, 1)
-            HoverFill: =RGBA(166, 166, 166, 0.1)
-            OnSelect: |-
-                =Concurrent(
-                    UpdateContext({locAgentDataAddPopup:true}),// Agent Data 추가 팝업 활성화
-                    UpdateContext({locPopupBackground:true})// Agent Data 추가 팝업 배경 이미지 활성화
-                );
-            PaddingLeft: =15
-            PressedBorderColor: =RGBA(74, 85, 88, 1)
-            PressedColor: =RGBA(74, 85, 88, 1)
-            PressedFill: =RGBA(166, 166, 166, 0.2)
-            Size: =15
-            Text: ="Agent Data 추가"
-            Width: =730
-            X: =1066
-            Y: =908
-            ZIndex: =7
+        ZIndex: =29
 
     Background_LoadingSpinner_AFMD As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -315,7 +270,7 @@
         Visible: =locLoadingSpinnerBackground
         Width: =1620
         X: =300
-        ZIndex: =43
+        ZIndex: =42
 
     Image_LoadingSpinner_AFMD As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -332,7 +287,7 @@
         Visible: =locLoadingSpinner
         X: =957
         Y: =454
-        ZIndex: =44
+        ZIndex: =43
 
     Selected_AgentFunction_Modify_AFMD As group:
         Height: =5
@@ -832,7 +787,7 @@
             Width: =600
             X: =801
             Y: =426
-            ZIndex: =37
+            ZIndex: =36
 
         Button_PopupSelectedAgentFunctionAgnetDataDelete_Cancel_AFMD As button:
             BorderColor: |-
@@ -877,7 +832,7 @@
             Width: =50
             X: =1337
             Y: =536
-            ZIndex: =38
+            ZIndex: =37
 
         Label_PopupSelectedAgentFunctionAgnetDataDelete_TitleText_AFMD As label:
             Align: =Align.Center
@@ -897,7 +852,7 @@
             Width: =193
             X: =829
             Y: =453
-            ZIndex: =39
+            ZIndex: =38
 
         Label_PopupSelectedAgentFunctionAgnetDataDelete_SubTitleText_AFMD As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -915,7 +870,7 @@
             Width: =562
             X: =831
             Y: =494
-            ZIndex: =40
+            ZIndex: =39
 
         Image_PopupSelectedAgentFunctionAgnetDataDelete_Cancel_AFMD As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -939,7 +894,7 @@
             Width: =20
             X: =1369
             Y: =456
-            ZIndex: =41
+            ZIndex: =40
 
         Button_PopupSelectedAgentFunctionAgnetDataDelete_Delete_AFMD As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -979,7 +934,7 @@
             Width: =50
             X: =1279
             Y: =536
-            ZIndex: =42
+            ZIndex: =41
 
     Popup_Selected_AgentFunction_Delete_AFMD As group:
         Height: =5
@@ -1020,7 +975,7 @@
             Width: =600
             X: =801
             Y: =428
-            ZIndex: =31
+            ZIndex: =30
 
         Button_PopupSelectedAgentFunctionDelete_Cancel_AFMD As button:
             BorderColor: |-
@@ -1065,7 +1020,7 @@
             Width: =50
             X: =1326
             Y: =532
-            ZIndex: =32
+            ZIndex: =31
 
         Label_PopupSelectedAgentFunctionDelete_TitleText_AFMD As label:
             Align: =Align.Center
@@ -1085,7 +1040,7 @@
             Width: =193
             X: =818
             Y: =449
-            ZIndex: =33
+            ZIndex: =32
 
         Label_PopupSelectedAgentFunctionDelete_SubTitleText_AFMD As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1103,7 +1058,7 @@
             Width: =562
             X: =820
             Y: =490
-            ZIndex: =34
+            ZIndex: =33
 
         Image_PopupSelectedAgentFunctionDelete_Cancel_AFMD As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1127,7 +1082,7 @@
             Width: =20
             X: =1358
             Y: =452
-            ZIndex: =35
+            ZIndex: =34
 
         Button_PopupSelectedAgentFunctionDelete_Delete_AFMD As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1169,7 +1124,7 @@
             Width: =50
             X: =1268
             Y: =532
-            ZIndex: =36
+            ZIndex: =35
 
     Label_ScreenSubTitle_FunctionID_AFMD_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1187,7 +1142,7 @@
         Width: =249
         X: =1057
         Y: =157
-        ZIndex: =58
+        ZIndex: =56
 
     "'test selected type' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1205,156 +1160,7 @@
             ="선택한 기능유형: "&gblSelectedAgentFunctionItemType
         Width: =389
         X: =1531
-        ZIndex: =59
-
-    "'agent data' As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =607
-        Items: =똑실이_AgentFunctionData_table
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        TemplatePadding: =0
-        TemplateSize: =64
-        Width: =725
-        X: =1071
-        Y: =277
-        ZIndex: =61
-
-        Separator2_1 As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            Fill: =RGBA(230, 230, 230, 1)
-            Height: =1
-            OnSelect: =Select(Parent)
-            Width: =Parent.TemplateWidth
-            Y: =Parent.TemplateHeight-Self.Height
-            ZIndex: =5
-
-        Label_SelectedAgentFunctionModify_Name_AFMD_4 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =60
-            Size: =10
-            Text: =ThisItem.Source
-            Width: =207
-            X: =25
-            Y: =2
-            ZIndex: =7
-
-        Label_SelectedAgentFunctionModify_Name_AFMD_5 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =60
-            Size: =10
-            Text: =ThisItem.Name
-            Width: =155
-            X: =248
-            Y: =2
-            ZIndex: =8
-
-        Label_SelectedAgentFunctionModify_Name_AFMD_6 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =60
-            Size: =10
-            Text: =ThisItem.Description
-            Width: =251
-            X: =411
-            Y: =2
-            ZIndex: =9
-
-        Icon_DeleteSubMenu_CategoryMenu_3 As image:
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            DisplayMode: |-
-                =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
-                If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
-                DisplayMode.Disabled))
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =32
-            HoverBorderColor: =RGBA(224, 224, 224, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            Image: =Delete
-            OnSelect: |
-                =Concurrent(
-                    UpdateContext({locAgentDataDeletePopup:true}),// 현재 Agent 기능에서 선택한 Agent Data삭제 팝업 활성화
-                    UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
-                    UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
-                );
-            PaddingBottom: =05
-            PaddingLeft: =05
-            PaddingRight: =05
-            PaddingTop: =05
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Transparency: =If(Icon_DeleteSubMenu_CategoryMenu_3.DisplayMode = DisplayMode.Disabled,0.5,0)
-            Width: =32
-            X: =673
-            Y: =15
-            ZIndex: =10
-
-    Label_ScreenSubTitle_FunctionID_AFMD_5 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =56
-        Size: =11
-        Text: ="Source"
-        Width: =189
-        X: =1090
-        Y: =216
         ZIndex: =66
-
-    Label_ScreenSubTitle_FunctionID_AFMD_6 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =56
-        Size: =11
-        Text: ="Name"
-        Width: =142
-        X: =1321
-        Y: =216
-        ZIndex: =67
 
     Popup_AgentFunction_Add_AFM_1 As group:
         Height: =5
@@ -1395,7 +1201,7 @@
             Width: =1052
             X: =591
             Y: =312
-            ZIndex: =46
+            ZIndex: =44
 
         Window_PopupAgentFunctionAdd_Item_AFM_1 As button:
             BorderColor: |-
@@ -1427,7 +1233,7 @@
             Width: =838
             X: =681
             Y: =405
-            ZIndex: =47
+            ZIndex: =45
 
         Button_PopupAgentFunctionAdd_Cancel_AFM_1 As button:
             BorderColor: |-
@@ -1478,7 +1284,7 @@
             Width: =100
             X: =1419
             Y: =704
-            ZIndex: =48
+            ZIndex: =46
 
         Label_PopupAgentFunctionAdd_Title_AFM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1497,7 +1303,7 @@
             Width: =388
             X: =681
             Y: =342
-            ZIndex: =49
+            ZIndex: =47
 
         Image_PopupAgentFunctionAdd_Delete_AFM_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1527,7 +1333,7 @@
             Width: =40
             X: =1585
             Y: =325
-            ZIndex: =50
+            ZIndex: =48
 
         Label_PopupAgentFunctionAdd_Header_Name_AFM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1545,7 +1351,7 @@
             Width: =90
             X: =784
             Y: =433
-            ZIndex: =51
+            ZIndex: =49
 
         Label_PopupAgentFunctionAdd_Header_Description_AFM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1563,7 +1369,7 @@
             Width: =90
             X: =781
             Y: =476
-            ZIndex: =52
+            ZIndex: =50
 
         Label_PopupAgentFunctionAdd_Header_Config_AFM_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1581,7 +1387,7 @@
             Width: =90
             X: =781
             Y: =522
-            ZIndex: =53
+            ZIndex: =51
 
         TextInput_PopupAgentFunctionAdd_Name_AFM_1 As text:
             BorderColor: |-
@@ -1609,7 +1415,7 @@
             Width: =297
             X: =875
             Y: =437
-            ZIndex: =54
+            ZIndex: =52
 
         TextInput_PopupAgentFunctionAdd_Description_AFM_1 As text:
             BorderColor: |-
@@ -1637,7 +1443,7 @@
             Width: =297
             X: =875
             Y: =478
-            ZIndex: =55
+            ZIndex: =53
 
         TextInput_PopupAgentFunctionAdd_Config_AFM_1 As text:
             BorderColor: |-
@@ -1666,7 +1472,7 @@
             Width: =532
             X: =875
             Y: =521
-            ZIndex: =56
+            ZIndex: =54
 
         Button_PopupAgentFunctionAdd_Add_AFM_1 As button:
             BorderColor: |-
@@ -1745,35 +1551,254 @@
             Width: =100
             X: =1308
             Y: =704
+            ZIndex: =55
+
+    "'agent data group' As group":
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =70
+
+        Icon_SelectedAgentFunctionAgentData_AddAgentData_AFMD As icon.AddLibrary:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =30
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.AddLibrary
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locAPICall
+            Width: =23
+            X: =1335
+            Y: =911
+            ZIndex: =6
+
+        Button_SelectedAgentFunctionAgentData_AddAgentData_AFMD As button:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: |
+                =1
+            Color: =RGBA(166, 166, 166, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: |-
+                =ColorValue("#FFFFFF")
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderColor: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =34
+            HoverBorderColor: =RGBA(128, 128, 128, 1)
+            HoverColor: =RGBA(128, 128, 128, 1)
+            HoverFill: =RGBA(166, 166, 166, 0.1)
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentDataAddPopup:true}),// Agent Data 추가 팝업 활성화
+                    UpdateContext({locPopupBackground:true})// Agent Data 추가 팝업 배경 이미지 활성화
+                );
+            PaddingLeft: =15
+            PressedBorderColor: =RGBA(74, 85, 88, 1)
+            PressedColor: =RGBA(74, 85, 88, 1)
+            PressedFill: =RGBA(166, 166, 166, 0.2)
+            Size: =15
+            Text: ="Agent Data 추가"
+            Visible: =locAPICall
+            Width: =730
+            X: =1066
+            Y: =908
+            ZIndex: =7
+
+        "'agent data' As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DelayItemLoading: =true
+            Height: =607
+            Items: =똑실이_AgentFunctionData_table
+            Layout: =Layout.Vertical
+            LoadingSpinner: =LoadingSpinner.Data
+            TemplatePadding: =0
+            TemplateSize: =64
+            Visible: =locAPICall
+            Width: =725
+            X: =1071
+            Y: =277
             ZIndex: =57
 
-    Label_ScreenSubTitle_FunctionID_AFMD_7 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =56
-        Size: =11
-        Text: ="Description"
-        Width: =238
-        X: =1475
-        Y: =216
-        ZIndex: =68
+            Separator2_1 As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                Fill: =RGBA(230, 230, 230, 1)
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: =Parent.TemplateHeight-Self.Height
+                ZIndex: =5
 
-    Separator2_3 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        Fill: =RGBA(149, 149, 149, 1)
-        Height: =1.5
-        OnSelect: =//
-        Width: =725
-        X: =1072
-        Y: =274
-        ZIndex: =69
+            Label_SelectedAgentFunctionModify_Name_AFMD_4 As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                Height: =60
+                Size: =10
+                Text: =ThisItem.Source
+                Width: =207
+                X: =25
+                Y: =2
+                ZIndex: =7
+
+            Label_SelectedAgentFunctionModify_Name_AFMD_5 As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                Height: =60
+                Size: =10
+                Text: =ThisItem.Name
+                Width: =155
+                X: =248
+                Y: =2
+                ZIndex: =8
+
+            Label_SelectedAgentFunctionModify_Name_AFMD_6 As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                Height: =60
+                Size: =10
+                Text: =ThisItem.Description
+                Width: =251
+                X: =411
+                Y: =2
+                ZIndex: =9
+
+            Icon_DeleteSubMenu_CategoryMenu_3 As image:
+                BorderColor: =RGBA(224, 224, 224, 1)
+                BorderThickness: =2
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                DisplayMode: |-
+                    =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
+                    DisplayMode.Disabled))
+                Fill: =RGBA(255, 255, 255, 1)
+                FocusedBorderThickness: =4
+                Height: =32
+                HoverBorderColor: =RGBA(224, 224, 224, 1)
+                HoverFill: |-
+                    =ColorValue("#F5F5F5")
+                Image: =Delete
+                OnSelect: |
+                    =Concurrent(
+                        UpdateContext({locAgentDataDeletePopup:true}),// 현재 Agent 기능에서 선택한 Agent Data삭제 팝업 활성화
+                        UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
+                        UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
+                    );
+                PaddingBottom: =05
+                PaddingLeft: =05
+                PaddingRight: =05
+                PaddingTop: =05
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedFill: |-
+                    =ColorValue("#E0E0E0")
+                RadiusBottomLeft: =4
+                RadiusBottomRight: =4
+                RadiusTopLeft: =4
+                RadiusTopRight: =4
+                Transparency: =If(Icon_DeleteSubMenu_CategoryMenu_3.DisplayMode = DisplayMode.Disabled,0.5,0)
+                Width: =32
+                X: =673
+                Y: =15
+                ZIndex: =10
+
+        Label_ScreenSubTitle_FunctionID_AFMD_5 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =56
+            Size: =11
+            Text: ="Source"
+            Visible: =locAPICall
+            Width: =189
+            X: =1090
+            Y: =216
+            ZIndex: =62
+
+        Label_ScreenSubTitle_FunctionID_AFMD_6 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =56
+            Size: =11
+            Text: ="Name"
+            Visible: =locAPICall
+            Width: =142
+            X: =1321
+            Y: =216
+            ZIndex: =63
+
+        Label_ScreenSubTitle_FunctionID_AFMD_7 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =56
+            Size: =11
+            Text: ="Description"
+            Visible: =locAPICall
+            Width: =238
+            X: =1475
+            Y: =216
+            ZIndex: =64
+
+        Separator2_3 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(149, 149, 149, 1)
+            Height: =1.5
+            OnSelect: =//
+            Visible: =locAPICall
+            Width: =725
+            X: =1072
+            Y: =274
+            ZIndex: =65
 
     "'fileuploaed group' As group":
         Height: =5
@@ -1792,11 +1817,11 @@
             ShowScrollbar: =false
             TemplatePadding: =0
             TemplateSize: =64
-            Visible: =false
+            Visible: =locDocumentSearch
             Width: =725
             X: =1071
             Y: =302
-            ZIndex: =29
+            ZIndex: =28
 
             Separator2 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1871,11 +1896,11 @@
             Height: =56
             Size: =11
             Text: ="파일명"
-            Visible: =false
+            Visible: =locDocumentSearch
             Width: =249
             X: =1094
             Y: =232
-            ZIndex: =62
+            ZIndex: =58
 
         Label_ScreenSubTitle_FunctionID_AFMD_3 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1890,11 +1915,11 @@
             Height: =56
             Size: =11
             Text: ="업로드 일시"
-            Visible: =false
+            Visible: =locDocumentSearch
             Width: =131
             X: =1466
             Y: =234
-            ZIndex: =63
+            ZIndex: =59
 
         Label_ScreenSubTitle_FunctionID_AFMD_4 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1909,20 +1934,20 @@
             Height: =56
             Size: =11
             Text: ="인덱스 여부"
-            Visible: =false
+            Visible: =locDocumentSearch
             Width: =131
             X: =1646
             Y: =232
-            ZIndex: =64
+            ZIndex: =60
 
         Separator2_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             Fill: =RGBA(149, 149, 149, 1)
             Height: =1.5
             OnSelect: =//
-            Visible: =false
+            Visible: =locDocumentSearch
             Width: =725
             X: =1071
             Y: =295
-            ZIndex: =65
+            ZIndex: =61
 
