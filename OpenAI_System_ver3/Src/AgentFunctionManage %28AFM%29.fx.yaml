@@ -382,7 +382,7 @@
             Y: =Label_GalleryAgentFunction_FunctionID_AFM.Y
             ZIndex: =11
 
-        Image_CategroyRemarks_CategoryMenu_1 As image:
+        Image_GalleryAgentFunction_Modify_AFM As image:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =2
@@ -420,7 +420,7 @@
             Y: =10
             ZIndex: =12
 
-        Icon_DeleteSubMenu_CategoryMenu_1 As image:
+        Icon_GalleryAgentFunction_Delete_AFM As image:
             BorderColor: =RGBA(224, 224, 224, 1)
             BorderThickness: =2
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -453,11 +453,30 @@
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
-            Transparency: =If(Icon_DeleteSubMenu_CategoryMenu_1.DisplayMode = DisplayMode.Disabled,0.5,0)
+            Transparency: =If(Icon_GalleryAgentFunction_Delete_AFM.DisplayMode = DisplayMode.Disabled,0.5,0)
             Width: =32
             X: =1321
             Y: =10
             ZIndex: =13
+
+        Rectangle1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =58
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: |-
+                =Concurrent(
+                    Set(gblSelectedAgentFunctionItemID,ThisItem.ID), //선택한 Agent 기능 ID값 gblSelectedAgentFunctionItemID 변수에 할당
+                    Set(gblSelectedAgentFunctionItemType,ThisItem.Type) //선택한 Agent 기능 Type값 gblSelectedAgentFunctionItemType 변수에 할당
+                );
+                Navigate('AgentFunctionManageDetail (AFMD)')
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =1236
+            ZIndex: =14
 
     Button_Refresh_AFM As button:
         BorderColor: |-
@@ -1948,7 +1967,7 @@
             DisabledFill: =RGBA(244, 244, 244, 1)
             FocusedBorderThickness: =1.5
             Height: =27
-            HintText: ="기능ID를 입력해주세요"
+            HintText: ="고유한 기능ID를 입력해주세요"
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
@@ -2059,9 +2078,11 @@
                     // 조건2: 드롭다운 컨트롤 값이 "전체"가 아님
                     And(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Category_LV1<>"전체",
                     Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Category_LV2<>"전체",
-                    Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value<>"전체")
-                    ,
+                    Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value<>"전체")&&
                     
+                    // 조건3: 기능ID가 고유값인 경우
+                    CountRows(Filter(똑실이_AgentFunction_table​,Function_ID=TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text))<1
+                    ,
                     // 조건을 모두 만족할 경우  
                     Patch(똑실이_AgentFunction_table​, 
                         {
@@ -2092,7 +2113,7 @@
                 ,
                 
                     // 조건을 모두 만족하지 않을 경우 안내 문구 출력
-                    Notify("비어있는 항목 또는 선택하지 않은 항목이 존재합니다.",NotificationType.Error)
+                    Notify("기능 ID가 중복되거나 입력하지 않은 항목이 존재합니다.",NotificationType.Error)
                     
                 );
                 
