@@ -16,7 +16,8 @@
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
             UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
-            Set(request_body,""), //Agent테이블Json변환용 변수 초기화
+            Set(gblRequestBody,""), //Agent테이블Json변환 PA 출력값 변수 초기화
+            Set(gblAgentServerUploadPAResult,""), // Agent서버업로드 PA 결과값 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
@@ -326,7 +327,7 @@
             =ColorValue("#115EA3")
         OnSelect: |
             =// 서버 업로드 PA 실행
-            Set(gblAgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody));
+            Set(gblAgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody).flowstatus);
             
             // 로딩창 활성화
             Concurrent(
@@ -335,8 +336,7 @@
             );
             
             // PA 결과에 따라 분기
-            
-            If(gblAgentServerUploadPAResult=Boolean(true)
+            If(gblAgentServerUploadPAResult="success"
             ,
             
                 // 1. PA 성공 시 Published_Version를 현재 Agent 버전으로 패치
@@ -357,7 +357,7 @@
             // 변수 초기화 및 로딩창 비활성화
                 Concurrent(
                 Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
-                Set(gblAgentServerUploadPAResult, false), // Agent테이블서버업로드 PA 출력 변수 초기화
+                Set(gblAgentServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
                 UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
                 UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
                 );
@@ -376,21 +376,6 @@
         X: =1759
         Y: =45
         ZIndex: =36
-
-    TEST As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =gblAgentServerUploadPAResult
-        X: =943
-        Y: =35
-        ZIndex: =37
 
     Background_Popup_AM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1580,7 +1565,7 @@
                 = // PA 관련 변수 초기화
                 Concurrent(
                     Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
-                    Set(gblAgentServerUploadPAResult,false) // 서버업로드 PA 결과 변수 초기화
+                    Set(gblAgentServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
                     );
                 
                 // 조건 - 각 컨트롤이 모두 비어있지 않을 경우
