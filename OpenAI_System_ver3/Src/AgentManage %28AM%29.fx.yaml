@@ -331,14 +331,14 @@
             
             
             
-            //에이전트 서버 업로드 PA 실행 및 출력 변수 할당
+            //에이전트 서버 업로드 PA 실행
             
+            IfError('[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody), 
             
-            Set(gblServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody).flowstatus);
+                    // PA 에러 시 실패 알림창 로드
+                    Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error),
             
-            
-            If(gblServerUploadPAResult = "success",
-                    //PA 출력값이 "success"인 경우
+                    // PA 성공 시 패치 후 성공 알림창 로드
                     Patch(똑실이_Agent_table,
                     Last(똑실이_Agent_table),
                         {
@@ -346,13 +346,8 @@
                         Published_Version:Last(똑실이_Agent_table).Version // 똑실이_Agent_table에서 Published_Version을 현재 Agent 버전으로 패치
                         }
                     ); 
-                    Notify("서버 업로드 완료하였습니다.",NotificationType.Success);,
-                    //그 외 경우
-                    Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error)
-                );
-            
-            
-            
+                    Notify("서버 업로드 완료하였습니다.",NotificationType.Success);
+            );
             
             // 변수 초기화 및 로딩창 비활성화
                 Concurrent(
