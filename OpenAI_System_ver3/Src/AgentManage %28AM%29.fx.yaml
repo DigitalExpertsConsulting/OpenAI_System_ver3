@@ -236,7 +236,7 @@
         Width: =691
         X: =343
         Y: =23
-        ZIndex: =3
+        ZIndex: =2
 
     Button_Refresh_AM As button:
         BorderColor: |-
@@ -279,10 +279,10 @@
         Width: =120
         X: =1624
         Y: =46
-        ZIndex: =5
+        ZIndex: =4
 
     New_Component_GNB_AM As New_Component_GNB:
-        ZIndex: =8
+        ZIndex: =7
 
     Image_Refresh_AM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -301,7 +301,84 @@
         Width: =20
         X: =1641
         Y: =55
-        ZIndex: =11
+        ZIndex: =10
+
+    Button_ServerUpload_AM As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |
+            =// 서버 업로드 PA 실행
+            Set(AgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody));
+            
+            // 로딩창 활성화
+                Concurrent(
+                UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
+                UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                );
+            
+            // PA 결과에 따라 분기
+            
+            If(gblAgentServerUploadPAResult="true",
+            
+            // 1. PA 성공 시 Published_Version를 현재 Agent 버전으로 패치
+                Patch(똑실이_Agent_table,
+                Last(똑실이_Agent_table),
+                {제목:""""""
+                Published_Version:Last(똑실이_Agent_table).Version 
+                });
+                
+            );
+            
+            // 로딩창 비활성화
+                Concurrent(
+                UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
+                UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
+                );
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="서버 업로드"
+        Tooltip: ="버튼 클릭 시 서버 업로드가 진행됩니다"
+        Width: =120
+        X: =1759
+        Y: =45
+        ZIndex: =36
+
+    TEST As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =gblAgentServerUploadPAResult
+        X: =943
+        Y: =35
+        ZIndex: =37
 
     Background_Popup_AM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -349,94 +426,6 @@
         X: =957
         Y: =454
         ZIndex: =46
-
-    TEST As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =gblAgentServerUploadPAResult
-        X: =943
-        Y: =35
-        ZIndex: =47
-
-    Button_ServerUpload_AM As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =38
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =// 조건 - 각 컨트롤이 모두 비어있지 않을 경우
-            
-            If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
-                // 하나라도 비어있을 경우 알림창 로드
-                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
-            
-                // 똑실이_Agent_table 패치 진행
-                Patch(똑실이_Agent_table,
-                Last(똑실이_Agent_table),
-                {제목:"""""", 
-                Version:TextInput_Version_AM.Text,
-                Name:TextInput_Name_AM.Text,
-                Description:TextInput_Description_AM.Text,
-                Fallback_Function:TextInput_FallbackFunction_AM.Text
-                });
-            
-                // 서버 업로드 팝업 로드
-                Concurrent(
-                UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
-                UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 활성화
-                Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
-                Set(gblAgentServerUploadPAResult,false) // 서버업로드 PA 결과 변수 초기화
-                );
-            
-                // Agent테이블Json변환 PA 실행
-                Set(gblRequestBody,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
-                UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
-            
-                //컨트롤 리셋
-                Concurrent(
-                Reset(TextInput_PublishedVersion_AM),
-                Reset(TextInput_Version_AM),
-                Reset(TextInput_Name_AM),
-                Reset(TextInput_Description_AM),
-                Reset(TextInput_FallbackFunction_AM)
-                );
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="서버 업로드"
-        Tooltip: ="리스트가 패치됩니다"
-        Width: =120
-        X: =1759
-        Y: =45
-        ZIndex: =48
 
     Popup_ServerUpload_AM As group:
         Height: =5
@@ -633,7 +622,7 @@
             Width: =1540
             X: =340
             Y: =608
-            ZIndex: =2
+            ZIndex: =1
 
         "Gallery_AgentFunction_AM As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -669,7 +658,7 @@
             WrapCount: =0
             X: =354
             Y: =802
-            ZIndex: =4
+            ZIndex: =3
 
             Separator_GalleryAgentFunction_AM As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -766,7 +755,7 @@
             Width: =80
             X: =388
             Y: =771
-            ZIndex: =6
+            ZIndex: =5
 
         Label_GalleryHeader_Type_AM As label:
             Align: =Align.Center
@@ -785,7 +774,7 @@
             Width: =109
             X: =1313
             Y: =771
-            ZIndex: =7
+            ZIndex: =6
 
         Label_GalleryHeader_Category_AM As label:
             Align: =Align.Center
@@ -804,7 +793,7 @@
             Width: =82
             X: =1001
             Y: =771
-            ZIndex: =9
+            ZIndex: =8
 
         Separator_GalleryHeader_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -814,7 +803,7 @@
             Width: =1491
             X: =364
             Y: =Label_GalleryHeader_FunctionID_AM.Y + Label_GalleryHeader_FunctionID_AM.Height + 10
-            ZIndex: =10
+            ZIndex: =9
 
         Label_TitleAgentFunction_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -833,7 +822,7 @@
             Width: =691
             X: =364
             Y: =621
-            ZIndex: =12
+            ZIndex: =11
 
         Window_GalleryFilter_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -848,7 +837,7 @@
             Width: =1540
             X: =343
             Y: =692
-            ZIndex: =13
+            ZIndex: =12
 
         TextInput_GalleryFilter_FunctionID_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -874,7 +863,7 @@
             Width: =280
             X: =448
             Y: =702
-            ZIndex: =14
+            ZIndex: =13
 
         Label_GalleryFilter_FunctionID_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -895,7 +884,7 @@
             Width: =67
             X: =378
             Y: =702
-            ZIndex: =15
+            ZIndex: =14
 
         Label_GalleryFilter_Category_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -916,7 +905,7 @@
             Width: =90
             X: =780
             Y: =702
-            ZIndex: =16
+            ZIndex: =15
 
         Dropdown_GalleryFilter_CategoryLV1_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1034,7 +1023,7 @@
             Width: =240
             X: =870
             Y: =702
-            ZIndex: =17
+            ZIndex: =16
 
         Dropdown_GalleryFilter_CategoryLV2_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1074,7 +1063,7 @@
             Width: =240
             X: =1167
             Y: =702
-            ZIndex: =18
+            ZIndex: =17
 
         "'Label_GalleryFilter_>_AM' As label":
             Align: =Align.Center
@@ -1089,7 +1078,7 @@
             Width: =43
             X: =1119
             Y: =692
-            ZIndex: =19
+            ZIndex: =18
 
         Label_GalleryFilter_Type_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1106,7 +1095,7 @@
             Width: =52
             X: =1466
             Y: =702
-            ZIndex: =20
+            ZIndex: =19
 
         Dropdown_GalleryFilter_Type_AM As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1251,7 +1240,7 @@
             Width: =240
             X: =1525
             Y: =702
-            ZIndex: =21
+            ZIndex: =20
 
         Label_GalleryHeader_Name_AM As label:
             Align: =Align.Center
@@ -1270,7 +1259,7 @@
             Width: =82
             X: =684
             Y: =771
-            ZIndex: =23
+            ZIndex: =22
 
     AgentManagement_AM As group:
         Height: =5
@@ -1291,7 +1280,7 @@
             Width: =1540
             X: =340
             Y: =102
-            ZIndex: =22
+            ZIndex: =21
 
         Separator_AgentManagement_AM As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1301,7 +1290,7 @@
             Width: =1491
             X: =365
             Y: =178
-            ZIndex: =24
+            ZIndex: =23
 
         Label_TitleAgentManagement_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1320,7 +1309,7 @@
             Width: =691
             X: =365
             Y: =115
-            ZIndex: =25
+            ZIndex: =24
 
         Label_PublishedVersion_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1340,7 +1329,7 @@
             Width: =164
             X: =720
             Y: =206
-            ZIndex: =27
+            ZIndex: =25
 
         TextInput_PublishedVersion_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1367,7 +1356,7 @@
             Width: =575
             X: =928
             Y: =206
-            ZIndex: =28
+            ZIndex: =26
 
         Label_Version_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1387,7 +1376,7 @@
             Width: =164
             X: =721
             Y: =258
-            ZIndex: =29
+            ZIndex: =27
 
         TextInput_Version_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1413,7 +1402,7 @@
             Width: =575
             X: =929
             Y: =258
-            ZIndex: =30
+            ZIndex: =28
 
         Label_Name_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1433,7 +1422,7 @@
             Width: =164
             X: =721
             Y: =312
-            ZIndex: =31
+            ZIndex: =29
 
         TextInput_Name_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1459,7 +1448,7 @@
             Width: =575
             X: =929
             Y: =312
-            ZIndex: =32
+            ZIndex: =30
 
         Label_Description_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1479,7 +1468,7 @@
             Width: =164
             X: =720
             Y: =364
-            ZIndex: =33
+            ZIndex: =31
 
         TextInput_Description_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1505,7 +1494,7 @@
             Width: =575
             X: =928
             Y: =364
-            ZIndex: =34
+            ZIndex: =32
 
         Label_FallbackFunction_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1525,7 +1514,7 @@
             Width: =164
             X: =721
             Y: =414
-            ZIndex: =35
+            ZIndex: =33
 
         TextInput_FallbackFunction_AM As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1553,7 +1542,7 @@
             Width: =575
             X: =929
             Y: =414
-            ZIndex: =36
+            ZIndex: =34
 
         Button_PatchListButton_AM As button:
             BorderColor: |-
@@ -1626,9 +1615,9 @@
             RadiusTopRight: =4
             Size: =11
             Text: ="저장"
-            Tooltip: ="리스트가 패치됩니다"
+            Tooltip: =" Agent_table이 입력하신 내용으로 업데이트 됩니다"
             Width: =120
             X: =1383
             Y: =525
-            ZIndex: =37
+            ZIndex: =35
 
