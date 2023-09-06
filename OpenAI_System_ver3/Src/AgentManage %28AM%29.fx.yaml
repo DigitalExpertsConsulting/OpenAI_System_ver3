@@ -336,9 +336,10 @@
             
             // PA 결과에 따라 분기
             
-            If(gblAgentServerUploadPAResult=Boolean(true),
+            If(gblAgentServerUploadPAResult=Boolean(true)
+            ,
             
-            // 1. PA 성공 시 Published_Version를 현재 Agent 버전으로 패치
+                // 1. PA 성공 시 Published_Version를 현재 Agent 버전으로 패치
                 Patch(똑실이_Agent_table,
                 Last(똑실이_Agent_table),
                     {
@@ -346,6 +347,10 @@
                         Published_Version:Last(똑실이_Agent_table).Version 
                     }
                 );
+            ,
+            
+                // 2. PA 실패 시 알림창 로드
+                Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error);
                 
             );
             
