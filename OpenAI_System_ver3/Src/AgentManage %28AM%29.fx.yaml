@@ -17,7 +17,7 @@
             UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
             Set(gblRequestBody,""), //Agent테이블Json변환 PA 출력값 변수 초기화
-            Set(gblAgentServerUploadPAResult,""), // Agent서버업로드 PA 결과값 변수 초기화
+            Set(gblServerUploadPAResult,""), // Agent서버업로드 PA 결과값 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
@@ -73,7 +73,7 @@
                 Distinct(
                     SortByColumns(
                         똑실이_Category_table,
-                        "LV1Order",
+                        "Category_LV1",
                         SortOrder.Ascending
                     ),
                     Category_LV1
@@ -100,13 +100,8 @@
                 Distinct(
                     Filter(
                         똑실이_Category_table,
-                        Office365사용자.MyProfile().Mail in Users.Email || LookUp(
-                            Teams,
-                            Email <> Blank()
-                        ).Email in Filter(
-                            colUserAssignedTeamsEmail,
-                            Email <> ""
-                        ).Email || LookUp(
+                        Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams,Email <> Blank()).Email in Filter(colUserAssignedTeamsEmail,Email <> "").Email
+                        || LookUp(
                             colUserAssignedTeamsEmail,
                             Email <> Blank()
                         ).Email in Filter(
@@ -333,31 +328,36 @@
                 UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
                 UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
             );
-                
-            // 에이전트 서버 업로드 PA 실행 및 출력 변수 할당 
-            Set(gblAgentServerUploadFlowStatus, '[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody).flowstatus);
             
             
-            If(gblAgentServerUploadPAResult = "success",
-                
-                // PA 성공 시 
-                Patch(똑실이_Agent_table,
-                Last(똑실이_Agent_table),
-                    {
+            
+            //에이전트 서버 업로드 PA 실행 및 출력 변수 할당
+            
+            
+            Set(gblServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody).flowstatus);
+            
+            
+            If(gblServerUploadPAResult = "success",
+                    //PA 출력값이 "success"인 경우
+                    Patch(똑실이_Agent_table,
+                    Last(똑실이_Agent_table),
+                        {
                         제목:"""""",
                         Published_Version:Last(똑실이_Agent_table).Version // 똑실이_Agent_table에서 Published_Version을 현재 Agent 버전으로 패치
-                    }
-                ); 
-                ,
+                        }
+                    ); 
+                    Notify("서버 업로드 완료하였습니다.",NotificationType.Success);,
+                    //그 외 경우
+                    Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error)
+                );
             
-                // PA 실패 시
-                Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error,2500);
-            );
+            
+            
             
             // 변수 초기화 및 로딩창 비활성화
                 Concurrent(
                 Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
-                Set(gblAgentServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
+                Set(gblServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
                 UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
                 UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
                 );
@@ -1565,7 +1565,7 @@
                 = // PA 관련 변수 초기화
                 Concurrent(
                     Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
-                    Set(gblAgentServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
+                    Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
                     );
                 
                 // 조건 - 각 컨트롤이 모두 비어있지 않을 경우
