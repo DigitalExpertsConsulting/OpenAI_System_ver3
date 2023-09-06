@@ -16,6 +16,7 @@
             Refresh(똑실이_AgentFunction_table​),//DB REFRESH
             UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
+            Set(request_body,""), //Agent테이블Json변환용 변수 초기화
             Clear(colAssignedTeamsInfo),// 컬렉션 초기화 (이전 컬렉션명 testDost) 
             Clear(colUserAssignedTeamsEmail)); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
@@ -218,41 +219,6 @@
         );
         
 
-    Button_ServerUpload_AM As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =Set(FileRefresh,false);
-            UpdateContext({ModalVisible: true});
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="서버 업로드"
-        Width: =121
-        X: =1759
-        Y: =42
-        ZIndex: =1
-
     Label_ScreenTitle_AM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -310,8 +276,8 @@
         Size: =11
         Text: ="새로고침"
         Width: =121
-        X: =1599
-        Y: =42
+        X: =1759
+        Y: =47
         ZIndex: =5
 
     New_Component_GNB_AM As New_Component_GNB:
@@ -332,8 +298,8 @@
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
-        X: =1616
-        Y: =53
+        X: =1776
+        Y: =58
         ZIndex: =11
 
     Background_Popup_AM As rectangle:
@@ -402,8 +368,8 @@
             PressedFill: =
             Visible: =locServerUploadPopup
             Width: =986
-            X: =617
-            Y: =117
+            X: =529
+            Y: =143
             ZIndex: =39
 
         Button_PopupServerUpload_Close_AM As icon.Cancel:
@@ -428,8 +394,8 @@
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =locServerUploadPopup
             Width: =52
-            X: =1535
-            Y: =143
+            X: =1447
+            Y: =169
             ZIndex: =40
 
         Label_PopupServerUpload_Title_AM As label:
@@ -447,8 +413,8 @@
             Text: ="서버 업로드"
             Visible: =locServerUploadPopup
             Width: =645
-            X: =697
-            Y: =154
+            X: =609
+            Y: =180
             ZIndex: =41
 
         Button_PopupServerUpload_Submit_AM As button:
@@ -457,6 +423,7 @@
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =If(!IsBlank(request_body),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화 
             Fill: |-
                 =ColorValue("#0F6CBD")
             FocusedBorderColor: |-
@@ -469,119 +436,13 @@
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |
+            OnSelect: |+
                 =Concurrent(
                 UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
                 UpdateContext({locPopupBackground:false}), // 서버 업로드 팝업 배경 이미지 비활성화
-                '[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(request_body)
-                )
+                Set(AgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(request_body))
+                );
                 
-                /*If( IsBlank(Dropdown_LV1Category_FileUpload_FM_1.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM_1.Selected.Value),
-                Notify(
-                        "할당된 카테고리가 없습니다.",
-                        NotificationType.Error,
-                        10000
-                    ),
-                
-                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM_1.Attachments), Notify(
-                        "첨부 파일 등록은 필수입니다.",
-                        NotificationType.Error,
-                        10000
-                    ),
-                    If(Not(File_extensions.Value in FileVal),Notify(
-                        "첨부 파일의 확장자가 올바르지 않습니다. (pdf,pptx,ppt,doc,docx 만 업로드 가능)",
-                        NotificationType.Error,
-                        10000
-                    ),
-                
-                If(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM_1.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM_1.Selected.Value && FileNameNoExtension=gblFileNameNoExtension) ),
-                
-                Set(FileUploadLoding,true);
-                Set(Upload_CategoryLV1,Dropdown_LV1Category_FileUpload_FM_1.Selected.Value);
-                Set(Upload_CategoryLV2,Dropdown_LV2Category_FileUpload_FM_1.Selected.Value);
-                Set(Upload_FileName,First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name);
-                
-                If(IsError(
-                   // Set(PAResult,
-                    '똑실이-[Apps]파일업로드'.Run(
-                        Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
-                        Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
-                        {
-                        file: {
-                            name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
-                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
-                                 }
-                        }
-                    )//.pa_status
-                   // )
-                    ) = true 
-                    ,  
-                    //에러 발생시 로딩창 off, 재시도 알림문구 on
-                    Set(FileUploadLoding,false); //로딩창 off
-                    Notify(
-                        "파일업로드 에러가 발생하여 재시도 해주시기 바랍니다.",
-                        NotificationType.Information
-                    ),
-                    //그 외 경우 타이머 가동
-                    Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM_1);)
-                    );
-                
-                
-                
-                /*
-                Set(PAResult,
-                '똑실이-[Apps]파일업로드'.Run(
-                    // LV1_Category
-                    Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                    // LV2_Category
-                    Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                    // File
-                    {
-                        file: {
-                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                        }
-                    }
-                ).pa_status);
-                 If(PAResult = "Completed",Concurrent( Set(PAResult,""),Set(FileRefresh, true);,ResetForm(Form_FileUpload_FM);));
-                */
-                
-                /*
-                Patch(
-                    FileUpload_table,
-                    {
-                        Title: Concatenate(
-                            Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                            "-",
-                            First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
-                        ),
-                        Upload_Date: Now(),
-                        Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                        Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        File_Name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                        File_Type: Upper(
-                            Last(
-                                Split(
-                                    First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                    "."
-                                )
-                            ).Value
-                        ),
-                        Index_Status: "not_indexed"
-                    }
-                ); 
-                */
-                /*
-                UpdateContext({ModalVisible: false}); ,Notify(
-                        "해당 카테고리에 동일한 이름의 파일이 존재합니다.",
-                        NotificationType.Error,
-                        10000
-                    );););););
-                
-                
-                //Reset(Gallery_FileList_FM);
-                //Navigate(FileManage);  
-                */
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -593,8 +454,8 @@
             Text: ="업로드"
             Visible: =locServerUploadPopup
             Width: =100
-            X: =1309
-            Y: =787
+            X: =1221
+            Y: =813
             ZIndex: =42
 
         Button_PopupServerUpload_Cancel_AM As button:
@@ -638,8 +499,8 @@
             Text: ="취소"
             Visible: =locServerUploadPopup
             Width: =100
-            X: =1421
-            Y: =787
+            X: =1333
+            Y: =813
             ZIndex: =43
 
         Label_PopupServerUpload_json_AM As label:
@@ -661,8 +522,8 @@
             Text: =request_body
             Visible: =locServerUploadPopup
             Width: =823
-            X: =697
-            Y: =214
+            X: =609
+            Y: =240
             ZIndex: =44
 
     AgentFunction_AM As group:
@@ -1373,72 +1234,6 @@
             Y: =115
             ZIndex: =25
 
-        Button_RunPA_AM As button:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =Concurrent(
-                UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
-                UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                Set(request_body,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body)
-                )
-                
-                
-                /*
-                ForAll(
-                    Distinct(Filter(Teams_GET,Value),Value),
-                    Collect(result_value,
-                       If(Office365사용자.MyProfile().Mail in 
-                       FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
-                       CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
-                       ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
-                       )
-                    )
-                );
-                
-                
-                ForAll(
-                    Category_table,
-                    Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
-                )
-                */
-                /*
-                Distinct(
-                    Filter(
-                        Category_table,
-                        Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
-                    ),
-                    LV1
-                )
-                */
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =11
-            Text: ="저장(jsonPA)"
-            Tooltip: ="PA가 실행됩니다"
-            Width: =121
-            X: =1382
-            Y: =521
-            ZIndex: =26
-
         Label_PublishedVersion_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -1463,7 +1258,7 @@
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
-            Default: =Last(똑실이_Agent_table).Version
+            Default: =Last(똑실이_Agent_table).Published_Version
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1688,18 +1483,44 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
+                =// 조건 - 각 컨트롤이 모두 비어있지 않을 경우
+                
+                If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
+                    // 하나라도 비어있을 경우 알림창 로드
                     Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
                 
-                    Patch(똑실이_Agent_table,Last(똑실이_Agent_table),
+                    // 똑실이_Agent_table 패치 진행
+                    Patch(똑실이_Agent_table,
+                    Last(똑실이_Agent_table),
                     {제목:"""""", 
-                    Published_Version:TextInput_PublishedVersion_AM.Text,
+                    //Published_Version:TextInput_PublishedVersion_AM.Text,
                     Version:TextInput_Version_AM.Text,
                     Name:TextInput_Name_AM.Text,
                     Description:TextInput_Description_AM.Text,
                     Fallback_Function:TextInput_FallbackFunction_AM.Text
-                });
-                Concurrent(Reset(TextInput_PublishedVersion_AM),Reset(TextInput_Version_AM),Reset(TextInput_Name_AM),Reset(TextInput_Description_AM),Reset(TextInput_FallbackFunction_AM)));
+                    });
+                
+                    // 서버 업로드 팝업 로드
+                    Concurrent(
+                    UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
+                    UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
+                    UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 활성화
+                    Set(request_body,"") // Agent테이블Json변환 PA 출력값 변수 초기화
+                    );
+                
+                    // Agent테이블Json변환 PA 실행
+                    Set(request_body,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
+                    UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
+                
+                    //컨트롤 리셋
+                    Concurrent(
+                    Reset(TextInput_PublishedVersion_AM),
+                    Reset(TextInput_Version_AM),
+                    Reset(TextInput_Name_AM),
+                    Reset(TextInput_Description_AM),
+                    Reset(TextInput_FallbackFunction_AM)
+                    );
+                );
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1712,7 +1533,7 @@
             Text: ="저장"
             Tooltip: ="리스트가 패치됩니다"
             Width: =121
-            X: =1276
-            Y: =13
+            X: =1383
+            Y: =528
             ZIndex: =37
 
