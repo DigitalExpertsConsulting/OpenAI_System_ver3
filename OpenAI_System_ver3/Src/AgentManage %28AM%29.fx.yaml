@@ -310,6 +310,9 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: |-
+            =If(!IsBlank(gblRequestBody), DisplayMode.Edit, DisplayMode.Disabled)
+            //  gblRequestBody 변수가 비어있지 않을 때만 버튼 활성화
         Fill: |-
             =ColorValue("#0F6CBD")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -323,29 +326,33 @@
             =ColorValue("#115EA3")
         OnSelect: |
             =// 서버 업로드 PA 실행
-            Set(AgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody));
+            Set(gblAgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody));
             
             // 로딩창 활성화
-                Concurrent(
+            Concurrent(
                 UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
                 UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
-                );
+            );
             
             // PA 결과에 따라 분기
             
-            If(gblAgentServerUploadPAResult="true",
+            If(gblAgentServerUploadPAResult=Boolean(true),
             
             // 1. PA 성공 시 Published_Version를 현재 Agent 버전으로 패치
                 Patch(똑실이_Agent_table,
                 Last(똑실이_Agent_table),
-                {제목:""""""
-                Published_Version:Last(똑실이_Agent_table).Version 
-                });
+                    {
+                        제목:"""""",
+                        Published_Version:Last(똑실이_Agent_table).Version 
+                    }
+                );
                 
             );
             
-            // 로딩창 비활성화
+            // 변수 초기화 및 로딩창 비활성화
                 Concurrent(
+                Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
+                Set(gblAgentServerUploadPAResult, false), // Agent테이블서버업로드 PA 출력 변수 초기화
                 UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
                 UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
                 );
@@ -464,8 +471,9 @@
             Icon: =Icon.Cancel
             OnSelect: |-
                 =Concurrent(
-                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
-                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                    UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                    UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
                 )
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -501,7 +509,7 @@
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            DisplayMode: =If(!IsBlank(request_body),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화 
+            DisplayMode: =If(!IsBlank(gblRequestBody),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화 
             Fill: |-
                 =ColorValue("#0F6CBD")
             FocusedBorderColor: |-
@@ -560,8 +568,9 @@
                 =ColorValue("#F5F5F5")
             OnSelect: |-
                 =Concurrent(
-                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
-                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                    UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                    UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
                 )
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
