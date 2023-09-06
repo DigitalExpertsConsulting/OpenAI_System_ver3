@@ -251,6 +251,7 @@
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         FocusedBorderThickness: =2
         FontWeight: =FontWeight.Semibold
+        Height: =38
         HoverBorderColor: |-
             =ColorValue("#C7C7C7")
         HoverColor: |-
@@ -275,9 +276,9 @@
         RadiusTopRight: =4
         Size: =11
         Text: ="새로고침"
-        Width: =121
-        X: =1759
-        Y: =47
+        Width: =120
+        X: =1624
+        Y: =46
         ZIndex: =5
 
     New_Component_GNB_AM As New_Component_GNB:
@@ -298,8 +299,8 @@
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
-        X: =1776
-        Y: =58
+        X: =1641
+        Y: =55
         ZIndex: =11
 
     Background_Popup_AM As rectangle:
@@ -348,6 +349,94 @@
         X: =957
         Y: =454
         ZIndex: =46
+
+    TEST As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =gblAgentServerUploadPAResult
+        X: =943
+        Y: =35
+        ZIndex: =47
+
+    Button_ServerUpload_AM As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =// 조건 - 각 컨트롤이 모두 비어있지 않을 경우
+            
+            If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
+                // 하나라도 비어있을 경우 알림창 로드
+                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
+            
+                // 똑실이_Agent_table 패치 진행
+                Patch(똑실이_Agent_table,
+                Last(똑실이_Agent_table),
+                {제목:"""""", 
+                Version:TextInput_Version_AM.Text,
+                Name:TextInput_Name_AM.Text,
+                Description:TextInput_Description_AM.Text,
+                Fallback_Function:TextInput_FallbackFunction_AM.Text
+                });
+            
+                // 서버 업로드 팝업 로드
+                Concurrent(
+                UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
+                UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
+                UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 활성화
+                Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                Set(gblAgentServerUploadPAResult,false) // 서버업로드 PA 결과 변수 초기화
+                );
+            
+                // Agent테이블Json변환 PA 실행
+                Set(gblRequestBody,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
+                UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
+            
+                //컨트롤 리셋
+                Concurrent(
+                Reset(TextInput_PublishedVersion_AM),
+                Reset(TextInput_Version_AM),
+                Reset(TextInput_Name_AM),
+                Reset(TextInput_Description_AM),
+                Reset(TextInput_FallbackFunction_AM)
+                );
+            );
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="서버 업로드"
+        Tooltip: ="리스트가 패치됩니다"
+        Width: =120
+        X: =1759
+        Y: =45
+        ZIndex: =48
 
     Popup_ServerUpload_AM As group:
         Height: =5
@@ -439,8 +528,7 @@
             OnSelect: |+
                 =Concurrent(
                 UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
-                UpdateContext({locPopupBackground:false}), // 서버 업로드 팝업 배경 이미지 비활성화
-                Set(AgentServerUploadPAResult,'[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(request_body))
+                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
                 );
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -451,7 +539,7 @@
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
-            Text: ="업로드"
+            Text: ="확인"
             Visible: =locServerUploadPopup
             Width: =100
             X: =1221
@@ -519,7 +607,7 @@
             PaddingRight: =10
             PaddingTop: =10
             Size: =13
-            Text: =request_body
+            Text: =gblRequestBody
             Visible: =locServerUploadPopup
             Width: =823
             X: =609
@@ -1468,7 +1556,9 @@
             ZIndex: =36
 
         Button_PatchListButton_AM As button:
-            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1478,12 +1568,19 @@
             FocusedBorderThickness: =2
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
+            Height: =38
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =// 조건 - 각 컨트롤이 모두 비어있지 않을 경우
+                = // PA 관련 변수 초기화
+                Concurrent(
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                    Set(gblAgentServerUploadPAResult,false) // 서버업로드 PA 결과 변수 초기화
+                    );
+                
+                // 조건 - 각 컨트롤이 모두 비어있지 않을 경우
                 
                 If(IsBlank(TextInput_Version_AM.Text)||IsBlank(TextInput_Name_AM.Text)||IsBlank(TextInput_Description_AM.Text)||IsBlank(TextInput_FallbackFunction_AM.Text),
                     // 하나라도 비어있을 경우 알림창 로드
@@ -1493,7 +1590,6 @@
                     Patch(똑실이_Agent_table,
                     Last(똑실이_Agent_table),
                     {제목:"""""", 
-                    //Published_Version:TextInput_PublishedVersion_AM.Text,
                     Version:TextInput_Version_AM.Text,
                     Name:TextInput_Name_AM.Text,
                     Description:TextInput_Description_AM.Text,
@@ -1504,12 +1600,11 @@
                     Concurrent(
                     UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
                     UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                    UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 활성화
-                    Set(request_body,"") // Agent테이블Json변환 PA 출력값 변수 초기화
+                    UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
                     );
                 
                     // Agent테이블Json변환 PA 실행
-                    Set(request_body,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
+                    Set(gblRequestBody,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
                     UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
                 
                     //컨트롤 리셋
@@ -1532,8 +1627,8 @@
             Size: =11
             Text: ="저장"
             Tooltip: ="리스트가 패치됩니다"
-            Width: =121
+            Width: =120
             X: =1383
-            Y: =528
+            Y: =525
             ZIndex: =37
 
