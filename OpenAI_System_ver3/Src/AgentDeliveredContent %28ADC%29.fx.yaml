@@ -1,8 +1,11 @@
 "'AgentDeliveredContent (ADC)' As screen":
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =UpdateContext({Agent_locAPICall:false}); //Agent Data Visible 변수 초기화
+        UpdateContext({Agent_locDocumentSearch:false}) //Agent Data Visible 변수 초기화
 
-    Label_ContentsMain_DeliveredContent_1 As label:
+    Label_ContentsMain_ADC As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -19,7 +22,7 @@
         Y: =23
         ZIndex: =2
 
-    Rectangle_CategoryGallery_DeliveredContent_1 As rectangle:
+    Rectangle_CategoryNameGallery_ADC As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -35,22 +38,25 @@
         Y: =113
         ZIndex: =3
 
-    Gallery_LV1_DeliveredContent_1 As gallery.variableTemplateHeightGallery:
+    Gallery_LV1LV2_ADC As gallery.variableTemplateHeightGallery:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =805
-        Items: =SortByColumns(똑실이_AgentFunction_table​, "LV1LV2Order", SortOrder.Ascending)
+        Items: |-
+            =ForAll(Distinct(Filter(SortByColumns(똑실이_AgentFunction_table​, "LV1LV2Order", SortOrder.Ascending),Type="api_call" || Type="document_search"), Category_LV1LV2), {Result: ThisRecord.Value})
+            
+            //ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowScrollbar: =false
         TemplatePadding: =30
         TemplateSize: =305
-        Width: =1537
+        Width: =806
         X: =343
         Y: =234
         ZIndex: =4
 
-        Label_LV1_DeliveredContent_1 As label:
+        Label_LV1LV2_ADC As label:
             Align: =Align.Center
             BorderThickness: =1
             Color: =RGBA(51, 51, 51, 1)
@@ -75,17 +81,17 @@
                 ) * 61 - 20) / 2, 30)
             ZIndex: =1
 
-        Gallery_LV2_DeliveredContent_1 As gallery.variableTemplateHeightGallery:
+        Gallery_Name_ADC As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
-            Height: =CountRows(Gallery_LV2_DeliveredContent_1.AllItems)*71
+            Height: =CountRows(Gallery_Name_ADC.AllItems)*71
             Items: |+
                 =SortByColumns(
                     Filter(
                         똑실이_AgentFunction_table​,
-                        Category_LV1LV2 = ThisItem.Category_LV1LV2
+                        Category_LV1LV2 = ThisItem.Result
                     ),
-                    "Name",
+                    "NameOrder",
                     SortOrder.Ascending
                 ) 
                 
@@ -106,11 +112,11 @@
             TemplatePadding: =16
             TemplateSize: =196
             Visible: =If(ThisItem.IsSelected,true,false)
-            Width: =1147
+            Width: =469
             X: =260
             ZIndex: =2
 
-            Label_LV2_DeliveredContent_1 As label:
+            Label_Name_ADC As label:
                 Align: =Align.Center
                 BorderThickness: =1
                 Color: =RGBA(51, 51, 51, 1)
@@ -126,7 +132,7 @@
                 Y: =20
                 ZIndex: =1
 
-            Rectangle_LV2_DeliveredContent_1 As rectangle:
+            Rectangle_Name_ADC As rectangle:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
                 BorderThickness: =1
@@ -137,12 +143,12 @@
                 Height: =1
                 HoverFill: =RGBA(105, 121, 126, 1)
                 PressedFill: =RGBA(105, 121, 126, 1)
-                Width: |+
-                    =If(ThisItem.Name=1,112,60)
-                    
+                Width: |
+                    =If(ThisItem.NameOrder=1,112,60)
+                    //If(ThisItem.LV2Order=1,112,60)
                 X: |-
-                    =If(Rectangle_LV2_DeliveredContent_1.Width = 60,55,
-                    If(Rectangle_LV2_DeliveredContent_1.Width = 112,4))
+                    =If(Rectangle_Name_ADC.Width = 60,55,
+                    If(Rectangle_Name_ADC.Width = 112,4))
                 Y: =25
                 ZIndex: =4
 
@@ -168,7 +174,9 @@
                     =ColorValue("#242424")
                 HoverFill: |-
                     =ColorValue("#FAFAFA")
-                OnSelect: =Select(Parent)
+                OnSelect: |-
+                    =//Select(Parent)
+                    UpdateContext({Filter_Name:ThisItem.Name})
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedColor: |-
@@ -185,7 +193,7 @@
                 X: =118
                 ZIndex: =5
 
-            Circle_LV2_DeliveredContent_1 As circle:
+            Circle_Name_ADC As circle:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -201,7 +209,7 @@
                 Y: =23
                 ZIndex: =7
 
-        Rectangle_LV1_DeliveredContent_1 As rectangle:
+        Rectangle_LV1LV2_ADC As rectangle:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -209,14 +217,24 @@
             Fill: |-
                 =ColorValue("#D1D1D1")
             FocusedBorderThickness: =4
-            Height: |
+            Height: |-
                 =//234
                 CountRows(
                     Filter(
                         똑실이_AgentFunction_table​,
-                        Category_LV1LV2 = ThisItem.Category_LV1LV2
+                        Category_LV1LV2 = ThisItem.Result
                     )
                 ) * 67 -67
+                
+                /*
+                //234
+                CountRows(
+                    Filter(
+                        똑실이_Category_table,
+                        Category_LV1 = ThisItem.Result
+                    )
+                ) * 67 -67
+                */
             HoverFill: =RGBA(105, 121, 126, 1)
             PressedFill: =RGBA(105, 121, 126, 1)
             Visible: =If(ThisItem.IsSelected,true,false)
@@ -225,7 +243,7 @@
             Y: =42
             ZIndex: =3
 
-        Button_LV1_DeliveredContent_1 As button:
+        Button_LV1LV2_ADC As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: |-
@@ -247,7 +265,8 @@
                 =ColorValue("#242424")
             HoverFill: |-
                 =ColorValue("#FAFAFA")
-            OnSelect: =Select(Parent)
+            OnSelect: |
+                =UpdateContext({Filter_LV1LV2:ThisItem.Result});
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
             PressedColor: |-
@@ -259,16 +278,16 @@
             RadiusTopLeft: =8
             RadiusTopRight: =8
             Size: =15
-            Text: =ThisItem.Category_LV1LV2
+            Text: =ThisItem.Result
             Width: =224
             X: =59
             Y: =17
             ZIndex: =4
 
-    New_Component_GNB_DeliveredContent_1 As New_Component_GNB:
+    New_Component_GNB_ADC As New_Component_GNB:
         ZIndex: =8
 
-    Button_TopTilte_DeliveredContent_1 As button:
+    Button_Category_ADC As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -293,13 +312,13 @@
         RadiusTopLeft: =8
         RadiusTopRight: =8
         Size: =15
-        Text: ="상위"
+        Text: ="카테고리"
         Width: =224
         X: =432
         Y: =172
         ZIndex: =11
 
-    Button_DetailTilt_DeliveredContent_1 As button:
+    Button_Function_ADC As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -324,13 +343,13 @@
         RadiusTopLeft: =8
         RadiusTopRight: =8
         Size: =15
-        Text: ="세부"
+        Text: ="기능"
         Width: =224
         X: =767
         Y: =172
         ZIndex: =12
 
-    Button_Remarks_DeliveredContent_1 As button:
+    Button_Detail_ADC As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -360,4 +379,52 @@
         X: =1108
         Y: =172
         ZIndex: =13
+
+    Rectangle_ApiCallBackground_ADC As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderThickness: =4
+        Height: =732
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        Width: =640
+        X: =1108
+        Y: =277
+        ZIndex: =14
+
+    Label_LV1LV2Test_ADC As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =Filter_LV1LV2
+        X: =804
+        Y: =47
+        ZIndex: =15
+
+    Label_NameTest_ADC As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =Filter_Name
+        X: =975
+        Y: =47
+        ZIndex: =16
 
