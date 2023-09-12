@@ -1,9 +1,8 @@
 "'AgentDeliveredContent (ADC)' As screen":
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
-        =UpdateContext({Agent_locAPICall:false}); //Agent Data Visible 변수 초기화
-        UpdateContext({Agent_locDocumentSearch:false}) //Agent Data Visible 변수 초기화
+    OnVisible: |
+        =
 
     Label_ContentsMain_ADC As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -176,7 +175,7 @@
                     =ColorValue("#FAFAFA")
                 OnSelect: |-
                     =//Select(Parent)
-                    UpdateContext({Filter_Name:ThisItem.Name})
+                    Set(Filter_Name,ThisItem.Name)
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedColor: |-
@@ -266,7 +265,7 @@
             HoverFill: |-
                 =ColorValue("#FAFAFA")
             OnSelect: |
-                =UpdateContext({Filter_LV1LV2:ThisItem.Result});
+                =Set(Filter_LV1LV2,ThisItem.Result);
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
             PressedColor: |-
@@ -380,12 +379,12 @@
         Y: =172
         ZIndex: =13
 
-    Rectangle_ApiCallBackground_ADC As rectangle:
+    Rectangle_APICallBackground_ADC As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
         DisabledFill: =RGBA(166, 166, 166, 1)
-        Fill: =RGBA(105, 121, 126, 1)
+        Fill: =RGBA(237, 237, 237, 1)
         FocusedBorderThickness: =4
         Height: =732
         HoverFill: =RGBA(105, 121, 126, 1)
@@ -407,7 +406,9 @@
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         Size: =13
-        Text: =Filter_LV1LV2
+        Text: |
+            =Filter_LV1LV2
+        Visible: =If(Office365사용자.MyProfileV2().displayName="한인구",true,false)
         X: =804
         Y: =47
         ZIndex: =15
@@ -424,7 +425,169 @@
         Font: =Font.'Segoe UI'
         Size: =13
         Text: =Filter_Name
+        Visible: =If(Office365사용자.MyProfileV2().displayName="한인구",true,false)
         X: =975
         Y: =47
         ZIndex: =16
+
+    Label_AgentDataAPICall_Header_Source_AFMD_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =56
+        Size: =11
+        Text: ="Source"
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        Width: =189
+        X: =1126
+        Y: =277
+        ZIndex: =17
+
+    Label__AgentDataAPICall_Header_Name_AFMD_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =56
+        Size: =11
+        Text: ="Name"
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        Width: =142
+        X: =1357
+        Y: =277
+        ZIndex: =18
+
+    Label_AgentDataAPICall_Header_Description_AFMD_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =56
+        Size: =11
+        Text: ="Description"
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        Width: =238
+        X: =1511
+        Y: =277
+        ZIndex: =19
+
+    Separator_AgentDataAPICall_Header_Line_AFMD_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(109, 49, 162, 1)
+        Height: =0
+        OnSelect: =//
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        Width: =640
+        X: =1108
+        Y: =335
+        ZIndex: =20
+
+    "Gallery_AgentDataAPICall_AFMD_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =674
+        Items: =Filter(똑실이_AgentFunctionData_table,Function_ID=LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID).Function_ID)
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =64
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false)
+        X: =1108
+        Y: =335
+        ZIndex: =21
+
+        Separator_GalleryAgentDataAPICall_AFMD_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(230, 230, 230, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight-Self.Height
+            ZIndex: =5
+
+        Label_GalleryAgentDataAPICall_Source_AFMD_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Source
+            Width: =207
+            X: =25
+            Y: =2
+            ZIndex: =7
+
+        Label_GalleryAgentDataAPICall_Name_AFMD_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Name
+            Width: =155
+            X: =248
+            Y: =2
+            ZIndex: =8
+
+        Label_GalleryAgentDataAPICall_Description_AFMD_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =60
+            Size: =10
+            Text: =ThisItem.Description
+            Width: =251
+            X: =389
+            Y: =2
+            ZIndex: =9
+
+        Rectangle3_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =64
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: |
+                =Concurrent(
+                    UpdateContext({locAgentDataModifyPopup:true}),// 현재 Agent 기능에서 선택한 Agent Data삭제 팝업 활성화
+                    UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
+                    UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
+                );
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =640
+            ZIndex: =11
 
