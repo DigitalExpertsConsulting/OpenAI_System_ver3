@@ -2,20 +2,20 @@ FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |
+    OnVisible: |-
         =Concurrent(
-            UpdateContext({ModalVisible: false}),
-            UpdateContext({LogModalVisible: false}),
-            UpdateContext({DelModalVisible: false}),
+            UpdateContext({ ModalVisible: false }),
+            UpdateContext({ LogModalVisible: false }),
+            UpdateContext({ DelModalVisible: false }),
             Set(
                 delPopUp_File,
                 false
             );
             ,
-            Set(
-                FileUploadLoding,
-                false
-            )
+        Set(
+            FileUploadLoding,
+            false
+        )
         );
         ForAll(
             똑실이_Category_table,
@@ -52,7 +52,7 @@ FileManage As screen:
                 ) > 0,
                 Collect(
                     offGroe,
-                    {Email: ThisRecord.Email}
+                    { Email: ThisRecord.Email }
                 )
             )
         );
@@ -62,116 +62,19 @@ FileManage As screen:
         );
         
         
+        // pa에서 카테고리 목록들 가져오기
+        // Set(load_category, Table(ParseJSON('[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_categorylv1)));
         
-        // 카테고리 LV1 SuperAdmin 권한 확인 
-        If(
-            User().Email in LookUp(
-                똑실이_SuperAdmin_table,
-                User().Email in SuperUsers.Email
-            ).SuperUsers.Email,
-        // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
-            ClearCollect(
-                colCategoryLV1_FM,
-                {Value: "전체"},
-                Distinct(
-                    SortByColumns(
-                        똑실이_Category_table,
-                        "Category_LV1",
-                        SortOrder.Ascending
-                    ),
-                    Category_LV1
-                )
-            ),
-        // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
-            ClearCollect(
-                colCategoryLV1_FM,
-                {Value: "전체"},
-                Distinct(
-                    Filter(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "Category_LV1",
-                            SortOrder.Ascending
-                        ),
-                        User().Email in Users.Email
-                    ),
-                    Category_LV1
-                )
-            )
+        Set(tmp_load_category, '[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email));
+        
+        ClearCollect(
+            colCategoryLV1_FM,
+            Table(ParseJSON(tmp_load_category.output_categorylv1))
         );
         
-        
-        // 카테고리 LV2 
-        If(
-            User().Email in LookUp(
-                똑실이_SuperAdmin_table,
-                User().Email in SuperUsers.Email
-            ).SuperUsers.Email,
-        
-            ClearCollect(
-                colCategoryLV2_FM,
-                {Value: "전체"},
-                If(
-                // 첫 번째 드롭다운이 "전체"일 때
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "Category_LV2",
-                            SortOrder.Ascending
-                        ),
-                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        Category_LV2
-                    ),
-                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            ),
-                            Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        ),
-                        Category_LV2
-                    )
-                )
-            ),
-            ClearCollect(
-                colCategoryLV2_FM,
-                {Value: "전체"},
-                If(
-                // 첫 번째 드롭다운이 "전체"일 때
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            ),
-                            User().Email in Users.Email
-                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        ),
-                        Category_LV2
-                    ),
-                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                    Distinct(
-                        Filter(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "Category_LV2",
-                                    SortOrder.Ascending
-                                ),
-                                Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            ),
-                            User().Email in Users.Email
-                        ),
-                        Category_LV2
-                    )
-                )
-            )
+        ClearCollect(
+            colCategoryLV2_FM,
+            Table(ParseJSON(tmp_load_category.output_categorylv2))
         );
         
         
