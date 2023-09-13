@@ -2,20 +2,20 @@ FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |
+    OnVisible: |-
         =Concurrent(
-            UpdateContext({ModalVisible: false}),
-            UpdateContext({LogModalVisible: false}),
-            UpdateContext({DelModalVisible: false}),
+            UpdateContext({ ModalVisible: false }),
+            UpdateContext({ LogModalVisible: false }),
+            UpdateContext({ DelModalVisible: false }),
             Set(
                 delPopUp_File,
                 false
             );
             ,
-            Set(
-                FileUploadLoding,
-                false
-            )
+        Set(
+            FileUploadLoding,
+            false
+        )
         );
         ForAll(
             똑실이_Category_table,
@@ -52,7 +52,7 @@ FileManage As screen:
                 ) > 0,
                 Collect(
                     offGroe,
-                    {Email: ThisRecord.Email}
+                    { Email: ThisRecord.Email }
                 )
             )
         );
@@ -69,10 +69,10 @@ FileManage As screen:
                 똑실이_SuperAdmin_table,
                 User().Email in SuperUsers.Email
             ).SuperUsers.Email,
-        // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
+            // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
             ClearCollect(
                 colCategoryLV1_FM,
-                {Value: "전체"},
+                { Value: "전체" },
                 Distinct(
                     SortByColumns(
                         똑실이_Category_table,
@@ -82,10 +82,10 @@ FileManage As screen:
                     Category_LV1
                 )
             ),
-        // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
+            // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
             ClearCollect(
                 colCategoryLV1_FM,
-                {Value: "전체"},
+                { Value: "전체" },
                 Distinct(
                     Filter(
                         SortByColumns(
@@ -110,9 +110,9 @@ FileManage As screen:
         
             ClearCollect(
                 colCategoryLV2_FM,
-                {Value: "전체"},
+                { Value: "전체" },
                 If(
-                // 첫 번째 드롭다운이 "전체"일 때
+                    // 첫 번째 드롭다운이 "전체"일 때
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
                     Distinct(
                         SortByColumns(
@@ -123,7 +123,7 @@ FileManage As screen:
                         //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
                         Category_LV2
                     ),
-                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
                     Distinct(
                         Filter(
                             SortByColumns(
@@ -139,9 +139,9 @@ FileManage As screen:
             ),
             ClearCollect(
                 colCategoryLV2_FM,
-                {Value: "전체"},
+                { Value: "전체" },
                 If(
-                // 첫 번째 드롭다운이 "전체"일 때
+                    // 첫 번째 드롭다운이 "전체"일 때
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
                     Distinct(
                         Filter(
@@ -151,11 +151,11 @@ FileManage As screen:
                                 SortOrder.Ascending
                             ),
                             User().Email in Users.Email
-                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
+                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
                         ),
                         Category_LV2
                     ),
-                // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
                     Distinct(
                         Filter(
                             Filter(
