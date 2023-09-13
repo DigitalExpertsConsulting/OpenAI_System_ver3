@@ -62,115 +62,17 @@ FileManage As screen:
         );
         
         
+        // Set(tmp_load_category, '[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email));
         
-        // 카테고리 LV1 SuperAdmin 권한 확인 
-        If(
-            User().Email in LookUp(
-                똑실이_SuperAdmin_table,
-                User().Email in SuperUsers.Email
-            ).SuperUsers.Email,
-            // 슈퍼 어드민에 본인 계정 정보가 있을 경우, 전체 카테고리 로드
-            ClearCollect(
-                colCategoryLV1_FM,
-                { Value: "전체" },
-                Distinct(
-                    SortByColumns(
-                        똑실이_Category_table,
-                        "Category_LV1",
-                        SortOrder.Ascending
-                    ),
-                    Category_LV1
-                )
-            ),
-            // 슈퍼 어드민에 본인 계정 정보가 없을 경우, 권한 있는 카테고리만 로드
-            ClearCollect(
-                colCategoryLV1_FM,
-                { Value: "전체" },
-                Distinct(
-                    Filter(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "Category_LV1",
-                            SortOrder.Ascending
-                        ),
-                        User().Email in Users.Email
-                    ),
-                    Category_LV1
-                )
-            )
-        );
-        
-        
-        // 카테고리 LV2 
-        If(
-            User().Email in LookUp(
-                똑실이_SuperAdmin_table,
-                User().Email in SuperUsers.Email
-            ).SuperUsers.Email,
-        
-            ClearCollect(
-                colCategoryLV2_FM,
-                { Value: "전체" },
-                If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    Distinct(
-                        SortByColumns(
-                            똑실이_Category_table,
-                            "Category_LV2",
-                            SortOrder.Ascending
-                        ),
-                        //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        Category_LV2
-                    ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            ),
-                            Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        ),
-                        Category_LV2
-                    )
-                )
-            ),
-            ClearCollect(
-                colCategoryLV2_FM,
-                { Value: "전체" },
-                If(
-                    // 첫 번째 드롭다운이 "전체"일 때
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    Distinct(
-                        Filter(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            ),
-                            User().Email in Users.Email
-                            //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                        ),
-                        Category_LV2
-                    ),
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                    Distinct(
-                        Filter(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "Category_LV2",
-                                    SortOrder.Ascending
-                                ),
-                                Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                            ),
-                            User().Email in Users.Email
-                        ),
-                        Category_LV2
-                    )
-                )
+        ClearCollect(
+            colCategory,
+            {Category_LV1: "전체",Category_LV2: "전체"},
+            ForAll(
+                Table(ParseJSON('[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                {
+                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                }
             )
         );
         
@@ -191,7 +93,6 @@ FileManage As screen:
                 Category_LV2
             )
         );*/
-        
         
         Reset(Gallery_FileList_FM);
 
@@ -315,7 +216,7 @@ FileManage As screen:
             
                 Or(
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1,
-                    If(Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체", Category_LV1 in colCategoryLV1_FM)
+                    If(Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체", Category_LV1 in colCategory.Category_LV1)
                 )
             
             
@@ -323,7 +224,7 @@ FileManage As screen:
             
                 Or(
                     Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2,
-                    If(Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체", Category_LV2 in colCategoryLV2_FM)
+                    If(Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체", Category_LV2 in colCategory.Category_LV2)
                 )
                 &&
             
@@ -1960,115 +1861,34 @@ FileManage As screen:
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
-            Items: =colCategoryLV1_FM
-            OnChange: |-
-                =If(
-                    User().Email in LookUp(
-                        똑실이_SuperAdmin_table,
-                        User().Email in SuperUsers.Email
-                    ).SuperUsers.Email,
-                
-                    ClearCollect(
-                        colCategoryLV2_FM,
-                        {Value: "전체"},
-                        If(
-                        // 첫 번째 드롭다운이 "전체"일 때
-                            Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                            Distinct(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                                Category_LV2
-                            ),
-                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                            Distinct(
-                                Filter(
-                                    SortByColumns(
-                                        똑실이_Category_table,
-                                        "LV2Order",
-                                        SortOrder.Ascending
-                                    ),
-                                    Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                                ),
-                                Category_LV2
-                            )
-                        )
-                    ),
-                    ClearCollect(
-                        colCategoryLV2_FM,
-                        {Value: "전체"},
-                        If(
-                        // 첫 번째 드롭다운이 "전체"일 때
-                            Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                            Distinct(
-                                Filter(
-                                    SortByColumns(
-                                        똑실이_Category_table,
-                                        "LV2Order",
-                                        SortOrder.Ascending
-                                    ),
-                                    User().Email in Users.Email
-                                //Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                                ),
-                                Category_LV2
-                            ),
-                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                            Distinct(
-                                Filter(
-                                    Filter(
-                                        SortByColumns(
-                                            똑실이_Category_table,
-                                            "LV2Order",
-                                            SortOrder.Ascending
-                                        ),
-                                        Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value
-                                    ),
-                                    User().Email in Users.Email
-                                ),
-                                Category_LV2
-                            )
-                        )
-                    )
+            Items: |-
+                =Distinct(
+                    colCategory,
+                    Category_LV1
                 )
                 
-                
-                /*// 해당 드롭다운이 바뀔 때, 선택한 카테고리 LV1에 따라 카테고리 LV2의 드롭다운 속 아이템을 바꿈
-                
-                ClearCollect(
-                    colCategoryLV2_FM,
-                    {Value: "전체"},
-                    
-                    If(
-                        // 첫 번째 드롭다운이 "전체"일 때
-                        Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                // colCategoryLV1_FM
+            OnChange: |-
+                =/*If(
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value <> "전체",
+                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
+                    ClearCollect(
+                        colCategoryLV2_FM,
+                        {Value: "전체"},
                         Distinct(
-                            SortByColumns(
-                                똑실이_Category_table,
-                                "LV2Order",
-                                SortOrder.Ascending
-                            ),
-                            Category_LV2
-                        ),
-                
-                        // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                         Distinct(
                             Filter(
                                 SortByColumns(
                                     똑실이_Category_table,
                                     "LV2Order",
                                     SortOrder.Ascending
                                 ),
-                                
-                                Category_LV1 = Dropdown_SearchCategoryLV1_FM.Selected.Value 
+                                Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM.Selected.Value)
                             ),
                             Category_LV2
-                         )
+                        )
                     )
-                
-                )*/
+                )
+                */
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2102,7 +1922,20 @@ FileManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =colCategoryLV2_FM
+                =If(
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
+                    Distinct(
+                        colCategory,
+                        Category_LV1
+                    ),
+                    Distinct(
+                        Filter(
+                            colCategory,
+                            Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or "전체" = Category_LV1
+                        ),
+                        Category_LV2
+                    )
+                )
                 
                 /*If(
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
