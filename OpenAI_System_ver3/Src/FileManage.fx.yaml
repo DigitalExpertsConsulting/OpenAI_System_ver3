@@ -61,18 +61,22 @@ FileManage As screen:
             ThisRecord
         );
         
-        
-        // Set(tmp_load_category, '[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email));
-        
         ClearCollect(
             colCategory,
-            {Category_LV1: "전체",Category_LV2: "전체"},
-            ForAll(
-                Table(ParseJSON('[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
-                {
-                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
-                }
+            {Category_LV1: "전체",Category_LV2: "전체", LV2Order:"0"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('[DEV]똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
             )
         );
         
@@ -1925,13 +1929,22 @@ FileManage As screen:
                 =If(
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
                     Distinct(
-                        colCategory,
-                        Category_LV1
-                    ),
-                    Distinct(
-                        Filter(
+                        SortByColumns(
                             colCategory,
-                            Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or "전체" = Category_LV1
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV2
+                    )
+                    ,
+                    Distinct(
+                        SortByColumns(
+                            Filter(
+                                colCategory,
+                                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or "전체" = Category_LV1
+                            ),
+                            "LV2Order",
+                            SortOrder.Ascending
                         ),
                         Category_LV2
                     )
