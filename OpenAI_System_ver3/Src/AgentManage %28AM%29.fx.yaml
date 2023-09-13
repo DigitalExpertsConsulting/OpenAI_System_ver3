@@ -320,9 +320,19 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |
+        OnSelect: |+
             =
+            // "저장 버튼" -> "서버 업로드 버튼" 으로 이전
+            // 서버 업로드 팝업 로드
+                Concurrent(
+                UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
+                UpdateContext({locPopupBackground:true})  // 서버 업로드 팝업 배경 이미지 활성화
+                //UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                );
             
+            
+            
+            /* "서버 업로드 버튼" -> 팝업창의 "확인 버튼"으로 이전
             // 로딩창 활성화
             Concurrent(
                 UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
@@ -356,6 +366,10 @@
                 UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
                 UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
                 );
+            
+            */
+            
+            
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: |-
@@ -507,12 +521,47 @@
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |+
-                =Concurrent(
+            OnSelect: |-
+                =/*
+                Concurrent(
                 UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
                 UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
                 );
+                */
                 
+                // 로딩창 활성화
+                Concurrent(
+                    UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
+                    UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                );
+                
+                
+                
+                //에이전트 서버 업로드 PA 실행
+                
+                IfError('[DEV]똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody), 
+                
+                        // PA 에러 시 실패 알림창 로드
+                        Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error),
+                
+                        // PA 성공 시 패치 후 성공 알림창 로드
+                        Patch(똑실이_Agent_table,
+                        Last(똑실이_Agent_table),
+                            {
+                            제목:"""""",
+                            Published_Version:Last(똑실이_Agent_table).Version // 똑실이_Agent_table에서 Published_Version을 현재 Agent 버전으로 패치
+                            }
+                        ); 
+                        Notify("서버 업로드 완료하였습니다.",NotificationType.Success);
+                );
+                
+                // 변수 초기화 및 로딩창 비활성화
+                    Concurrent(
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
+                    Set(gblServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
+                    UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
+                    UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
+                    );
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -590,7 +639,7 @@
             PaddingRight: =10
             PaddingTop: =10
             Size: =13
-            Text: =gblRequestBody
+            Text: =gblRequestBody 
             Visible: =locServerUploadPopup
             Width: =823
             X: =609
@@ -1578,17 +1627,34 @@
                     Description:TextInput_Description_AM.Text,
                     Fallback_Function:TextInput_FallbackFunction_AM.Text
                     });
-                
-                    // 서버 업로드 팝업 로드
-                    Concurrent(
-                    UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
-                    UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                    UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                    //
+                    
+                    /* "저장 버튼" -> "서버 업로드 버튼" 이전
+                    
+                            // 서버 업로드 팝업 로드
+                            Concurrent(
+                            UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
+                            UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
+                            UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                            );
+                            //
+                            
+                    */
+                    
+                    // 추가한 코드 9/13
+                    Concurrent( 
+                            UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
+                            UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
                     );
+                
                 
                     // Agent테이블Json변환 PA 실행
                     Set(gblRequestBody,'[DEV]똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
                     UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
+                
+                    // 추가한 코드 9/13
+                    UpdateContext({locPopupBackground:false}); // 서버 업로드 팝업 배경 이미지 활성화
+                    Notify("저장을 완료하였습니다.",NotificationType.Success);
                 
                     //컨트롤 리셋
                     Concurrent(
