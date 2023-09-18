@@ -42,9 +42,10 @@
         DelayItemLoading: =true
         Height: =805
         Items: |-
-            =ForAll(Distinct(Filter(SortByColumns(똑실이_AgentFunction_table​, "LV1LV2Order", SortOrder.Ascending),Type="api_call" || Type="document_search"), Category_LV1LV2), {Result: ThisRecord.Value})
-            
+            =//ForAll(Distinct(Filter(SortByColumns(똑실이_AgentFunction_table​, "LV1LV2Order", SortOrder.Ascending),Type="api_call" || Type="document_search"), Category_LV1LV2), {Result: ThisRecord.Value})
             //ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
+            
+            ForAll(Distinct(SortByColumns(똑실이_AgentFunction_table​, "LV1LV2Order", SortOrder.Ascending), Category_LV1LV2), {Result: ThisRecord.Value})
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowScrollbar: =false
@@ -158,6 +159,9 @@
             Button_LV2_DeliveredContent_1 As button:
                 BorderColor: |-
                     =ColorValue("#D1D1D1")
+                BorderThickness: |-
+                    =// BorderThickness와 FocuseBorderColor를 같이 맞춰줘야함
+                    If(ThisItem.Name=Filter_Name,5,2)
                 Color: |-
                     =ColorValue("#242424")
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -167,7 +171,9 @@
                     =ColorValue("#FAFAFA")
                 FocusedBorderColor: |-
                     =ColorValue("#D1D1D1")
-                FocusedBorderThickness: =3
+                FocusedBorderThickness: |
+                    =// BorderThickness와 FocuseBorderColor를 같이 맞춰줘야함
+                    5
                 Font: =Font.'Segoe UI'
                 FontWeight: =FontWeight.Semibold
                 Height: =50
@@ -249,6 +255,9 @@
         Button_LV1LV2_ADC As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
+            BorderThickness: |
+                =// BorderThickness와 FocuseBorderColor를 같이 맞춰줘야함
+                If(ThisItem.Result=Filter_LV1LV2,5,2)
             Color: |-
                 =ColorValue("#242424")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -258,7 +267,9 @@
                 =ColorValue("#FAFAFA")
             FocusedBorderColor: |-
                 =ColorValue("#D1D1D1")
-            FocusedBorderThickness: =3
+            FocusedBorderThickness: |-
+                =// BorderThickness와 FocuseBorderColor를 같이 맞춰줘야함
+                5
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Height: =50
@@ -270,6 +281,7 @@
                 =ColorValue("#FAFAFA")
             OnSelect: |+
                 =Set(Filter_LV1LV2,ThisItem.Result);
+                
                 
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
@@ -762,4 +774,23 @@
             X: =492
             Y: =2
             ZIndex: =9
+
+    Label_AgentDateTitle_ADC As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =48
+        Size: =15
+        Text: ="◼    " & Filter_LV1LV2 & "     ➜    " & Filter_Name  & " "
+        Visible: =If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="api_call",true,false) || If(LookUp(똑실이_AgentFunction_table​,Category_LV1LV2=Filter_LV1LV2 && Name=Filter_Name).Type="document_search",true,false)
+        Width: =641
+        X: =1108
+        Y: =229
+        ZIndex: =22
 
