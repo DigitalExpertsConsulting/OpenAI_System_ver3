@@ -2,8 +2,13 @@
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnHidden: =Set(gblStartPage,"AgentMange")
     OnVisible: |-
-        =//============================== << AgentManage 화면 접속 시 >> ==============================
+        =//============================== << 시작 페이지에 따라 onvisible 구분 >> ==============================
+        //Agent 기능 관리 상세 화면에서 접속 시 onvisible 실행 안함
+        If(gblStartPage="AgentFunctionManageDetail","",
+        
+        //============================== << AgentManage 화면 접속 시 >> ==============================
         
         // 1. 로딩 이미지 활성화
         Concurrent(   
@@ -53,6 +58,7 @@
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성화
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성화
         );
+        );
 
     Label_ScreenTitle_AM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -66,7 +72,7 @@
         Height: =64
         Size: =30
         Text: |-
-            ="Agent Management
+            ="Agent 관리
             "
         Width: =691
         X: =343
@@ -632,6 +638,28 @@
                 X: =339
                 Y: =20
                 ZIndex: =11
+
+            Rectangle_GalleryAgentFunction_Modify_AM As rectangle:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                Fill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =58
+                HoverFill: =RGBA(0, 0, 0, 0)
+                OnSelect: |-
+                    =Concurrent(
+                        Set(gblSelectedAgentFunctionItemID,ThisItem.ID), //선택한 Agent 기능 ID값 gblSelectedAgentFunctionItemID 변수에 할당
+                        Set(gblSelectedAgentFunctionItemType,ThisItem.Type), //선택한 Agent 기능 Type값 gblSelectedAgentFunctionItemType 변수에 할당
+                        Set(gblSelectedAgentFunctionItemFuction_ID,ThisItem.Function_ID) //선택한 Agent 기능 Fuction_ID값 gblSelectedAgentFunctionItemFuction_ID 변수에 할당
+                    );
+                    Navigate('AgentFunctionManageDetail (AFMD)')
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =1236
+                X: =40
+                Y: =2
+                ZIndex: =12
 
         Label_GalleryHeader_FunctionID_AM As label:
             Color: |-
