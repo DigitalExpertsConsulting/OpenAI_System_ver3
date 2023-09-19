@@ -1049,6 +1049,20 @@
                 =ColorValue("#242424")
             HoverFill: |-
                 =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                                
+                Concurrent(
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: |-
@@ -1115,6 +1129,20 @@
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =Exit
+            OnSelect: |-
+                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                                
+                Concurrent(
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =locAgentFunctionAddPopup
@@ -1496,6 +1524,68 @@
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
+            OnSelect: |-
+                =// ========================= << Agent 기능 추가 >> =========================
+                
+                If(
+                    // 조건1: 모든 항목이 비어있지 않음
+                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value)&&
+                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value)&&
+                    !IsBlank(Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value)&&
+                    !IsBlank(TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Name_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Description_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Config_AFM.Text)&&
+                
+                    // 조건2: 드롭다운 컨트롤 값이 "----------(DEFAULT_CATEGORY_VALUE)" 가 아님
+                    And(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value<>DEFAULT_CATEGORY_VALUE,
+                    Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value<>DEFAULT_CATEGORY_VALUE,
+                    Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value<>DEFAULT_CATEGORY_VALUE)&&
+                    
+                    // 조건3: 기능ID가 고유값인 경우
+                    CountRows(Filter(똑실이_AgentFunction_table​,Function_ID=TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text))<1
+                    ,
+                    // 조건을 모두 만족할 경우  
+                    Patch(똑실이_AgentFunction_table​, 
+                        {
+                        제목:"""""",
+                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                        Category_LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                        Type:Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value,
+                        Function_ID:TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text,
+                        Name:TextInput_PopupAgentFunctionAdd_Name_AFM.Text,
+                        Description:TextInput_PopupAgentFunctionAdd_Description_AFM.Text,
+                        Config:TextInput_PopupAgentFunctionAdd_Config_AFM.Text,
+                        //새로 추가한 열
+                        Category_LV1LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value & " > " & Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                        LV1LV2Order:Last(똑실이_AgentFunction_table​).LV1LV2Order + 1,
+                        NameOrder:If(!IsBlank(LookUp(똑실이_AgentFunction_table​,Category_LV1=Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.SelectedText.Value &&               
+                                    Category_LV2=Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.SelectedText.Value)),Last(똑실이_AgentFunction_table​).NameOrder+1,1)
+                        }
+                    );
+                    
+                    // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
+                
+                    Concurrent(
+                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                        Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                        Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                        UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                        UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                    );
+                ,
+                
+                    // 조건을 모두 만족하지 않을 경우 안내 문구 출력
+                    Notify("기능 ID가 중복되거나 입력하지 않은 항목이 존재합니다.",NotificationType.Error)
+                    
+                );
+                
+                
+                Refresh(똑실이_AgentFunction_table​); //DB Refresh
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
