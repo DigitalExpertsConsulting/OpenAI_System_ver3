@@ -2,13 +2,17 @@ FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |
         =Concurrent(
             UpdateContext({ ModalVisible: false }),
             UpdateContext({ LogModalVisible: false }),
             UpdateContext({ DelModalVisible: false }),
+            UpdateContext({ locLoadingSpinner: true }), // 로딩 스피너 활성화
             Set(delPopUp_File,false),
-            Set(FileUploadLoding,false)
+            Set(FileUploadLoding,false),
+            Reset(Dropdown_SearchCategoryLV1_FM), // 카테고리1 드롭박스 리셋
+            Reset(Dropdown_SearchCategoryLV2_FM), // 카테고리2 드롭박스 리셋
+            Reset(Gallery_FileList_FM) // 갤러리 드롭박스 리셋
         );
         
         
@@ -31,7 +35,7 @@ FileManage As screen:
             )
         );
         
-        Reset(Gallery_FileList_FM);
+        UpdateContext({ locLoadingSpinner: false }) // 로딩 스피너 비활성화
 
     Button_AddButton_FM As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1650,6 +1654,23 @@ FileManage As screen:
         X: =957
         Y: =454
         ZIndex: =44
+
+    Image_LoadingSpinner_FM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =977
+        Y: =474
+        ZIndex: =45
 
     Group_Search_FM As group:
         Height: =5
