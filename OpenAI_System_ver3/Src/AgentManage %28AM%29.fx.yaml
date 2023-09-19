@@ -21,24 +21,23 @@
             Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
         ); // 컬렉션 초기화 (이전 컬렉션명 offGroe)
         
-        Concurrent(
-            // 3. 할당된 권한 불러오기
-            ClearCollect(
-                colAgentManage,
-                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE},
-                ForAll(
-                    Table(ParseJSON('똑실이-[Apps]Agent사용자카테고리목록'.Run(User().Email).output_category)),
-                    {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2)
-                    }
-                )
-            ),
-            // 4. 기본 Type 컬렉션 설정
-            ClearCollect(
-                    colAgentManageType,
-                    {Value: DEFAULT_CATEGORY_VALUE}
+        
+        // 3. 할당된 권한 불러오기
+        ClearCollect(
+            colAgentManage,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE},
+            ForAll(
+                Table(ParseJSON('똑실이-[Apps]Agent사용자카테고리목록'.Run(User().Email).output_category)),
+                {
+                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                }
             )
+        );
+        // 4. 기본 Type 컬렉션 설정
+        ClearCollect(
+                colAgentManageType,
+                {Value: DEFAULT_CATEGORY_VALUE}
         );
         
         
