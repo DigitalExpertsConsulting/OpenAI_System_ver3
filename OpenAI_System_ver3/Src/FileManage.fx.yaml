@@ -7,63 +7,14 @@ FileManage As screen:
             UpdateContext({ ModalVisible: false }),
             UpdateContext({ LogModalVisible: false }),
             UpdateContext({ DelModalVisible: false }),
-            Set(
-                delPopUp_File,
-                false
-            );
-            ,
-        Set(
-            FileUploadLoding,
-            false
-        )
+            Set(delPopUp_File,false);
+            Set(FileUploadLoding,false)
         );
-        ForAll(
-            똑실이_Category_table,
-            Collect(
-                Teams_GET,
-                FirstN(
-                    ThisRecord.Teams,
-                    CountRows(ThisRecord.Teams)
-                ).Claims
-            )
-        );
-        Clear(testDist);
-        Clear(offGroe);
-        ForAll(
-            똑실이_Category_table,
-            Collect(
-                testDist,
-                ThisRecord.Teams
-            )
-        );
-        ForAll(
-            testDist,
-            If(
-                CountRows(
-                    Filter(
-                        Office365그룹.ListGroupMembers(
-                            Mid(
-                                ThisRecord.Claims,
-                                40
-                            )
-                        ).value,
-                        User().Email in mail
-                    )
-                ) > 0,
-                Collect(
-                    offGroe,
-                    { Email: ThisRecord.Email }
-                )
-            )
-        );
-        Distinct(
-            offGroe,
-            ThisRecord
-        );
+        
         
         ClearCollect(
             colCategory,
-            {Category_LV1: "전체",Category_LV2: "전체", LV2Order:"0"},
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0"},
             SortByColumns(
                 ForAll(
                     Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
@@ -79,24 +30,6 @@ FileManage As screen:
                 SortOrder.Ascending
             )
         );
-        
-        
-        /*ClearCollect(
-            colCategoryLV1_FM,
-            {Value: "전체"},
-            Distinct(
-                SortByColumns(똑실이_Category_table,"LV1Order",SortOrder.Ascending),
-                Category_LV1
-            )
-        );
-        ClearCollect(
-            colCategoryLV2_FM,
-            {Value: "전체"},
-            Distinct(
-                SortByColumns(똑실이_Category_table,"LV2Order",SortOrder.Ascending),
-                Category_LV2
-            )
-        );*/
         
         Reset(Gallery_FileList_FM);
 
@@ -118,34 +51,6 @@ FileManage As screen:
         OnSelect: |-
             =Set(FileRefresh,false);
             UpdateContext({ModalVisible: true});
-            
-            /*
-            ForAll(
-                Distinct(Filter(Teams_GET,Value),Value),
-                Collect(result_value,
-                   If(Office365사용자.MyProfile().Mail in 
-                   FirstN(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value,
-                   CountRows(Office365그룹.ListGroupMembers(Right(ThisRecord.Value,36)).value)).mail
-                   ,First(Office365그룹.ListGroups({'$filter': "ID  eq '" & Right(ThisRecord.Value,36)  & "'"}).value).mail
-                   )
-                )
-            );
-            
-            
-            ForAll(
-                Category_table,
-                Collect(Teams_GET2, First(ThisRecord.Teams).Email in result_value)
-            )
-            */
-            /*
-            Distinct(
-                Filter(
-                    Category_table,
-                    Office365사용자.MyProfile().Mail in Users.Email ||  in Teams.Email
-                ),
-                LV1
-            )
-            */
         PaddingLeft: =35
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
@@ -210,7 +115,7 @@ FileManage As screen:
                     똑실이_FileUpload_table,"ID",
                     SortOrder.Descending
                     ),
-            
+                // 파일명으로 검색
                 Or(
                     IsBlank(TextInput_SearchFileName_FM.Text),
                     TextInput_SearchFileName_FM.Text in File_Name
@@ -218,18 +123,14 @@ FileManage As screen:
                 
                 &&
             
-                Or(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1,
-                    If(Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체", Category_LV1 in colCategory.Category_LV1)
-                )
-            
+                // 선택한 Category_LV1
+                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
             
                 &&
             
-                Or(
-                    Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2,
-                    If(Dropdown_SearchCategoryLV2_FM.Selected.Value = "전체", Category_LV2 in colCategory.Category_LV2)
-                )
+                // 선택한 Category_LV2
+                Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2
+            
                 &&
             
                 (Upload_Date >= DatePicker_SearchDateMin_FM.SelectedDate)
@@ -1156,23 +1057,10 @@ FileManage As screen:
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
-                        =/*Distinct(
-                            Filter(
-                                Category_table,
-                                Office365사용자.MyProfile().Mail in Users.Email || Office365사용자.MyProfile().Mail in Teams.Email
-                            ),
-                            LV1
-                        )*/
-                        
-                        Distinct(
-                            Filter(
-                                똑실이_Category_table,
-                                Office365사용자.MyProfile().Mail in Users.Email ||  LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                                ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                            ),
+                        =Distinct(
+                            colCategory,
                             Category_LV1
                         )
-                        //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).LV1
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -1206,16 +1094,21 @@ FileManage As screen:
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
-                        =Distinct(
-                            Filter(
-                                똑실이_Category_table,
-                                Category_LV1 = Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                Office365사용자.MyProfile().Mail in Users.Email || LookUp(Teams, Email<>Blank()).Email in Filter(offGroe, Email<>"").Email
-                                ||  LookUp(offGroe, Email<>Blank()).Email in Filter(Teams, Email<>"").Email
-                            ),
-                            Category_LV2
+                        =If(
+                            Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            [DEFAULT_CATEGORY_VALUE],
+                            Distinct(
+                                SortByColumns(
+                                    Filter(
+                                        colCategory,
+                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                                    ),
+                                    "LV2Order",
+                                    SortOrder.Ascending
+                                ),
+                                Category_LV2
+                            )
                         )
-                        //Filter(Category_table, LookUp(Teams, DisplayName<>Blank()).DisplayName in Filter(offGroe, Name<>"").Name).Name
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -1870,29 +1763,6 @@ FileManage As screen:
                     colCategory,
                     Category_LV1
                 )
-                
-                // colCategoryLV1_FM
-            OnChange: |-
-                =/*If(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value <> "전체",
-                    // 첫 번째 드롭다운이 특정 카테고리를 선택했을 때
-                    ClearCollect(
-                        colCategoryLV2_FM,
-                        {Value: "전체"},
-                        Distinct(
-                            Filter(
-                                SortByColumns(
-                                    똑실이_Category_table,
-                                    "LV2Order",
-                                    SortOrder.Ascending
-                                ),
-                                Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM.Selected.Value)
-                            ),
-                            Category_LV2
-                        )
-                    )
-                )
-                */
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -1927,21 +1797,13 @@ FileManage As screen:
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =If(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    Distinct(
-                        SortByColumns(
-                            colCategory,
-                            "LV2Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    )
-                    ,
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    [DEFAULT_CATEGORY_VALUE],
                     Distinct(
                         SortByColumns(
                             Filter(
                                 colCategory,
-                                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or "전체" = Category_LV1
+                                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
                             ),
                             "LV2Order",
                             SortOrder.Ascending
@@ -1949,18 +1811,6 @@ FileManage As screen:
                         Category_LV2
                     )
                 )
-                
-                /*If(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = "전체",
-                    colCategoryLV2_FM,
-                    Distinct(
-                        Filter(
-                            Category_table,
-                            Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
-                        ),
-                        Category_LV2
-                    )
-                )*/
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
