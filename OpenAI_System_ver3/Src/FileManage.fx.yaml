@@ -15,13 +15,33 @@ FileManage As screen:
             Reset(Gallery_FileList_FM) // 갤러리 드롭박스 리셋
         );
         
+        Set(categoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
         
         ClearCollect(
             colCategory,
             {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0"},
             SortByColumns(
                 ForAll(
-                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                    Table(ParseJSON(categoryList)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        
+        ClearCollect(
+            colCategorySelect,
+            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON(categoryList)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
@@ -119,7 +139,7 @@ FileManage As screen:
                     똑실이_FileUpload_table,"ID",
                     SortOrder.Descending
                     ),
-                // 파일명으로 검색
+            
                 Or(
                     IsBlank(TextInput_SearchFileName_FM.Text),
                     TextInput_SearchFileName_FM.Text in File_Name
@@ -127,14 +147,18 @@ FileManage As screen:
                 
                 &&
             
-                // 선택한 Category_LV1
-                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1
+                Or(
+                    Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1,
+                    If(Dropdown_SearchCategoryLV1_FM.Selected.Value = DEFAULT_CATEGORY_VALUE, Category_LV1 in colCategory.Category_LV1)
+                )
+            
             
                 &&
             
-                // 선택한 Category_LV2
-                Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2
-            
+                Or(
+                    Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2,
+                    If(Dropdown_SearchCategoryLV2_FM.Selected.Value = DEFAULT_CATEGORY_VALUE, Category_LV2 in colCategory.Category_LV2)
+                )
                 &&
             
                 (Upload_Date >= DatePicker_SearchDateMin_FM.SelectedDate)
@@ -1090,7 +1114,7 @@ FileManage As screen:
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
                         =Distinct(
-                            colCategory,
+                            colCategorySelect,
                             Category_LV1
                         )
                     PaddingBottom: =5
@@ -1127,13 +1151,13 @@ FileManage As screen:
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
                         =If(
-                            Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                            [DEFAULT_CATEGORY_VALUE],
+                            Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
+                            [DEFAULT_SELECT_CATEGORY_VALUE],
                             Distinct(
                                 SortByColumns(
                                     Filter(
-                                        colCategory,
-                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                                        colCategorySelect,
+                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
                                     ),
                                     "LV2Order",
                                     SortOrder.Ascending
@@ -1808,7 +1832,7 @@ FileManage As screen:
             ChevronHoverBackground: =RGBA(212, 212, 212, 1)
             ChevronHoverFill: =RGBA(33, 33, 33, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: ="전체"
+            Default: =DEFAULT_CATEGORY_VALUE
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1845,7 +1869,7 @@ FileManage As screen:
             ChevronHoverBackground: =RGBA(212, 212, 212, 1)
             ChevronHoverFill: =RGBA(33, 33, 33, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: ="전체"
+            Default: =DEFAULT_CATEGORY_VALUE
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1857,7 +1881,15 @@ FileManage As screen:
             Items: |-
                 =If(
                     Dropdown_SearchCategoryLV1_FM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    [DEFAULT_CATEGORY_VALUE],
+                    Distinct(
+                        SortByColumns(
+                            colCategory,
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV2
+                    )
+                    ,
                     Distinct(
                         SortByColumns(
                             Filter(
