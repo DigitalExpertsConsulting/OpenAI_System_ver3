@@ -33,7 +33,7 @@
         // 3. 할당된 권한 불러오기
         ClearCollect(
             colAgentManage,
-            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE, Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE},
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE},
             ForAll(
                 Table(ParseJSON('똑실이-[Apps]Agent사용자카테고리목록'.Run(User().Email).output_category)),
                 {
@@ -45,8 +45,19 @@
         
         // 4. 기본 Type 컬렉션 설정
         ClearCollect(
-                colAgentManageType,
-                {Value: DEFAULT_SELECT_CATEGORY_VALUE}
+            colAgentManageType,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+            ForAll(
+                똑실이_AgentFunction_table​,
+                If(
+                    Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
+                    {
+                        Category_LV1: Text(ThisRecord.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Category_LV2),
+                        Type: Text(ThisRecord.Type)
+                    }        
+                )
+            )
         );
         
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
@@ -120,22 +131,22 @@
                             ),
                         //유형 드롭다운 필터
                         If(
-                            Dropdown_GalleryFilter_Type_AFM.SelectedText.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                            DEFAULT_SELECT_CATEGORY_VALUE,
+                            Dropdown_GalleryFilter_Type_AFM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
+                            "",
                             Dropdown_GalleryFilter_Type_AFM.SelectedText.Value
                         ),
                         "Type"
                     ),
                     If(// 카테고리 lv1 필터
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                        DEFAULT_SELECT_CATEGORY_VALUE,
+                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        "",
                         Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value
                     ),
                     "Category_LV1"
                 ),
                 If(// 카테고리 lv2 필터
-                    Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                    DEFAULT_SELECT_CATEGORY_VALUE,
+                    Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    "",
                     Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value
                 ),
                 "Category_LV2"
@@ -768,32 +779,19 @@
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |
+            Items: |-
                 =If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                    [DEFAULT_SELECT_CATEGORY_VALUE],
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    Distinct(
+                        colAgentManage,
+                        Category_LV2
+                    ),
                     Distinct(
                         Filter(
                             colAgentManage,
-                            Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_SELECT_CATEGORY_VALUE
+                            Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
                         ),
                         Category_LV2
-                    )
-                )
-            OnChange: |-
-                =ClearCollect(
-                    colAgentManageType,
-                    {Value: DEFAULT_SELECT_CATEGORY_VALUE},
-                    Distinct(
-                        SortByColumns(
-                            Filter(
-                                똑실이_AgentFunction_table​,
-                                Category_LV1 = Text(Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value),
-                                Category_LV2 = Text(Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value)
-                            ),
-                            "LV1LV2Order"
-                        ),
-                        Type
                     )
                 )
             PaddingBottom: =5
@@ -864,9 +862,31 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                    [DEFAULT_SELECT_CATEGORY_VALUE],
-                    colAgentManageType
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Distinct(
+                        colAgentManageType,
+                        Type
+                    ),
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        Distinct(
+                            Filter(
+                                colAgentManageType,
+                                Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            Type
+                        ),
+                        // CategoryLv2만 선택됬을때
+                        Distinct(
+                            Filter(
+                                colAgentManageType,
+                                Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value || Category_LV2 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            Type
+                        )
+                    )
                 )
             PaddingBottom: =5
             PaddingLeft: =12
