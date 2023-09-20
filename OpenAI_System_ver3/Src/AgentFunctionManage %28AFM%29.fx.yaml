@@ -60,6 +60,27 @@
             )
         );
         
+        // 5. Agent 기능 추가 시의 카테고리 권한 불러오기
+        
+        ClearCollect(
+            colCategorySelect,
+            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
         Concurrent(
@@ -1312,7 +1333,7 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =Distinct(
-                    colAgentManage.Category_LV1,
+                    colCategorySelect,
                     Category_LV1
                 )
             OnChange: =
@@ -1358,9 +1379,13 @@
                     Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
                     [DEFAULT_SELECT_CATEGORY_VALUE],
                     Distinct(
-                        Filter(
-                            colAgentManage,
-                            Category_LV1 = Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_SELECT_CATEGORY_VALUE
+                        SortByColumns(
+                            Filter(
+                                colCategorySelect,
+                                Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
+                            ),
+                            "LV2Order",
+                            SortOrder.Ascending
                         ),
                         Category_LV2
                     )
