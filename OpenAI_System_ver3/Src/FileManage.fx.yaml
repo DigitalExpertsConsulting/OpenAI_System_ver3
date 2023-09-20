@@ -203,6 +203,7 @@ FileManage As screen:
             BorderColor: |
                 =Switch(
                     Button_Gallery_FileList_IndexRequest_FM.Text,
+                    "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#B4D6FA"),
                     "생성중", ColorValue("#F9C4A6"),
                     "삭제중",ColorValue("#F1BBBC"),
@@ -211,6 +212,7 @@ FileManage As screen:
             Color: |-
                 =Switch(
                     Button_Gallery_FileList_IndexRequest_FM.Text,
+                    "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
                     "삭제중",ColorValue("#D13438"),
@@ -235,7 +237,7 @@ FileManage As screen:
             DisabledBorderColor: =Self.BorderColor
             DisabledColor: =Self.Color
             DisabledFill: =Self.Fill
-            DisplayMode: =If(ThisItem.Index_Status <> "deleting", DisplayMode.Edit, DisplayMode.Disabled)
+            DisplayMode: =If(ThisItem.Index_Status <> "deleting" || ThisItem.Index_Status <> "uploading", DisplayMode.Edit, DisplayMode.Disabled)
             Fill: |-
                 =ColorValue("#FFFFFF")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -244,6 +246,7 @@ FileManage As screen:
             HoverBorderColor: |
                 =Switch(
                     Button_Gallery_FileList_IndexRequest_FM.Text,
+                    "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#B4D6FA"),
                     "생성중", ColorValue("#F9C4A6"),
                     "삭제중",ColorValue("#F1BBBC"),
@@ -252,6 +255,7 @@ FileManage As screen:
             HoverColor: |
                 =Switch(
                     Button_Gallery_FileList_IndexRequest_FM.Text,
+                    "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
                     "삭제중",ColorValue("#D13438"),
@@ -292,6 +296,7 @@ FileManage As screen:
             PressedBorderColor: |
                 =Switch(
                     Button_Gallery_FileList_IndexRequest_FM.Text,
+                    "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
                     "삭제중",ColorValue("#D13438"),
@@ -336,6 +341,7 @@ FileManage As screen:
             Text: |-
                 =Switch(
                     ThisItem.Index_Status,
+                    "uploading","업로드중",
                     "not_indexed", "생성",
                     "indexed", "생성완료",
                     "in_progress", "생성중",
@@ -591,6 +597,28 @@ FileManage As screen:
             X: =1268
             Y: =19
             ZIndex: =11
+
+        Icon1 As icon.Sync:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Sync
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text = "업로드중" , true, false)
+            Width: =20
+            X: =1266
+            Y: =21
+            ZIndex: =12
 
     Group_FileList_FM As group:
         Height: =5
@@ -1304,8 +1332,10 @@ FileManage As screen:
                 
                 If(
                     Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
-                    Error("동일한 파일이 이미 존재합니다.");
-                );
+                    //Error("동일한 파일이 이미 존재합니다.");
+                //);
+                
+                Error("동일한 파일이 이미 존재합니다."),
                 
                 UpdateContext({
                     FileUploadResult: 
@@ -1346,9 +1376,17 @@ FileManage As screen:
                                 )
                             ).Value
                         ),
-                        Index_Status: "not_indexed"
+                        FileNameNoExtension : gblFileNameNoExtension
+                        ,
+                        // 수정작업 필요
+                        //Index_Status: "not_indexed"
+                        Index_Status:"uploading"
                     }
-                );Refresh(똑실이_FileUpload_table);
+                );
+                
+                );
+                
+                Refresh(똑실이_FileUpload_table);
                 
                 UpdateContext({ModalVisible: false });
                 
