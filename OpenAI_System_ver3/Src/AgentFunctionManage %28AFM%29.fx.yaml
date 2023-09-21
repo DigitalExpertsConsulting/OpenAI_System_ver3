@@ -384,21 +384,21 @@
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =ClearCollect(
+            =/*ClearCollect(
                 colAgentManageType,
-                {Value: DEFAULT_SELECT_CATEGORY_VALUE},
-                Distinct(
-                    SortByColumns(
-                        Filter(
-                            똑실이_AgentFunction_table​,
-                            Category_LV1 = Text(Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value),
-                            Category_LV2 = Text(Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value)
-                        ),
-                        "LV1LV2Order"
-                    ),
-                    Type
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+                ForAll(
+                    똑실이_AgentFunction_table​,
+                    If(
+                        Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
+                        {
+                            Category_LV1: Text(ThisRecord.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Category_LV2),
+                            Type: Text(ThisRecord.Type)
+                        }        
+                    )
                 )
-            );
+            );*/
             
             Concurrent(
                 Refresh(똑실이_Agent_table),
@@ -1608,6 +1608,69 @@
                         NameOrder:If(!IsBlank(LookUp(똑실이_AgentFunction_table​,Category_LV1=Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.SelectedText.Value &&               
                                     Category_LV2=Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.SelectedText.Value)),Last(똑실이_AgentFunction_table​).NameOrder+1,1)
                         }
+                    );
+                    
+                    // 처음 등록한 Category_LV1 이거나 Category_LV2 인경우 컬렉션에 추가
+                    If(
+                        // Category_LV1이 처음 등록된 경우
+                        !(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value in colAgentManage.Category_LV1),
+                        Collect(
+                            colAgentManage,
+                            {
+                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                            }
+                        );
+                        Collect(
+                            colAgentManageType,
+                            {
+                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                            }
+                        ),
+                        If(
+                            // Category_LV2가 처음 등록된 경우
+                            !(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value in colAgentManage.Category_LV2),
+                            Collect(
+                                colAgentManage,
+                                {
+                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                }
+                            );
+                            Collect(
+                                colAgentManageType,
+                                {
+                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                }
+                            ),
+                            /*
+                                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+                            */
+                            If(
+                                // Type만 새로 등록된 경우
+                                !(
+                                    {
+                                        Category_LV1: Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                    } in colAgentManageType
+                                ),
+                                Collect(
+                                    colAgentManageType,
+                                    {
+                                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                    }
+                                )
+                            )
+                        )   
                     );
                     
                     // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
