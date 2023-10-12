@@ -552,9 +552,29 @@ MAMenu As screen:
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeam
                 OnSelect: |-
-                    =UpdateContext({menuPopupVi:true});
+                    =
+                    /*
+                    UpdateContext({menuPopupVi:true});
                     UpdateContext({menuSelected:ThisItem.ID});
                     ClearCollect(viewTeamName_Menu, LookUp(NewMACollect,ID=ThisItem.ID).Teams);
+                    */
+                    
+                    UpdateContext({menuPopupVi:true});
+                    UpdateContext({menuSelected: ThisItem.ID});
+                    ClearCollect(viewTeamName_Menu,LookUp(NewMACollect, ID= ThisItem.ID).Teams);
+                    ClearCollect(
+                        MAMenu_Groups,
+                        ForAll(
+                            Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
+                            {
+                                id: ThisRecord.Value.id,
+                                mail: Text(ThisRecord.Value.mail),
+                                displayName: Text(ThisRecord.Value.displayName),
+                                securityEnabled: Text(ThisRecord.Value.securityEnabled),
+                                is365: Text(ThisRecord.Value.is365)
+                            }
+                        )
+                    )
                 PressedBorderColor: |-
                     =ColorValue("#D1D1D1")
                 PressedFill: |-
@@ -866,15 +886,21 @@ MAMenu As screen:
                     ThisRecord.Teams
                 )
             );
+            
             ForAll(
                 gnbdist,
                 If(
                     CountRows(
                         Filter(
                             Office365그룹.ListGroupMembers(
-                                Mid(
+                                /*Mid( 삭제예정
                                     ThisRecord.Claims,
                                     40
+                                )*/
+                                Mid(
+                                // Claims값에 c:0o.c|federateddirectoryclaimprovider|가 포함되는 경우 40번째 글자부터 Claims값 가져오기
+                                // Claims값에 c:0t.c|tenant|가 포함되는 경우 15번째 글자부터 Claims값 가져오기
+                                ThisRecord.Claims,If("c:0o.c|federateddirectoryclaimprovider|" in ThisRecord.Claims,40,15)
                                 )
                             ).value,
                             User().Email in mail
@@ -1450,8 +1476,9 @@ MAMenu As screen:
                 =ColorValue("#FAFAFA")
             FocusedBorderThickness: =1
             Height: =488
-            Items: |
-                =If(
+            Items: |-
+                =/*삭제 예정
+                If(
                     IsBlank(TextInput_AddGroup_MAMenu.Text),
                     Office365그룹.ListGroups({'$top': 999}).value,
                     Office365그룹.ListGroups(
@@ -1461,6 +1488,8 @@ MAMenu As screen:
                         }
                     ).value
                 )
+                */
+                MAMenu_Groups
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -1529,18 +1558,18 @@ MAMenu As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: |-
                     =If(
-                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in viewTeamName_Menu.Claims,
+                        If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in viewTeamName_Menu.Claims,
                         Icon.Cancel,
                         Icon.Add
                     )
                 OnSelect: |-
                     =If(
-                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in viewTeamName_Menu.Claims,
+                        If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in viewTeamName_Menu.Claims,
                         Remove(
                             viewTeamName_Menu,
                             LookUp(
                                 viewTeamName_Menu,
-                                Claims = "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id
+                                Claims = If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id
                             );
                         );
                         Notify(
@@ -1551,7 +1580,7 @@ MAMenu As screen:
                         Collect(
                             viewTeamName_Menu,
                             {
-                                Claims: "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id,
+                                Claims: If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id,
                                 Department:"",
                                 DisplayName: ThisItem.displayName,
                                 Email:ThisItem.mail,
@@ -1612,14 +1641,28 @@ MAMenu As screen:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Default: =""
-            FocusedBorderThickness: =1
+            FocusedBorderThickness: =2
             HintText: ="검색"
+            OnChange: |-
+                =ClearCollect(
+                    MAMenu_Groups,
+                    ForAll(
+                        Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run(Self.Text).output)),
+                        {
+                            id: ThisRecord.Value.id,
+                            mail: Text(ThisRecord.Value.mail),
+                            displayName: Text(ThisRecord.Value.displayName),
+                            securityEnabled: Text(ThisRecord.Value.securityEnabled),
+                            is365: Text(ThisRecord.Value.is365)
+                        }
+                    )
+                )
             OnSelect: =
             PaddingLeft: =15
-            RadiusBottomLeft: =8
-            RadiusBottomRight: =8
-            RadiusTopLeft: =8
-            RadiusTopRight: =8
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =
+            RadiusTopRight: =4
             Reset: =resetSearch
             Visible: =menuPopupVi
             X: =886
