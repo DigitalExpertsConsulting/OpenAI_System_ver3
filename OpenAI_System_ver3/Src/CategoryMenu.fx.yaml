@@ -941,7 +941,8 @@ CategoryMenu As screen:
                                 id: ThisRecord.Value.id,
                                 mail: Text(ThisRecord.Value.mail),
                                 displayName: Text(ThisRecord.Value.displayName),
-                                securityEnabled: Text(ThisRecord.Value.securityEnabled)
+                                securityEnabled: Text(ThisRecord.Value.securityEnabled),
+                                is365: Text(ThisRecord.Value.is365)
                             }
                         )
                     )
@@ -2459,7 +2460,9 @@ CategoryMenu As screen:
                 =ColorValue("#FAFAFA")
             FocusedBorderThickness: =1
             Height: =448
-            Items: =Filter(Groups,securityEnabled = "false")
+            Items: |-
+                =//Filter(Groups,securityEnabled = "false")
+                Groups
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -2530,18 +2533,18 @@ CategoryMenu As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: |-
                     =If(
-                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in AddTeamName.Claims,
+                        If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in AddTeamName.Claims,
                         Icon.Cancel,
                         Icon.Add
                     )
                 OnSelect: |-
                     =If(
-                        "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id in AddTeamName.Claims,
+                        If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in AddTeamName.Claims,
                         Remove(
                             AddTeamName,
                             LookUp(
                                 AddTeamName,
-                                Claims = "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id
+                                Claims = If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id
                             );
                         );
                         Notify(
@@ -2552,7 +2555,7 @@ CategoryMenu As screen:
                         Collect(
                             AddTeamName,
                             {
-                                Claims: "c:0o.c|federateddirectoryclaimprovider|" & ThisItem.id,
+                                Claims: If(ThisItem.is365=true,"c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id,
                                 Department:"",
                                 DisplayName: ThisItem.displayName,
                                 Email:ThisItem.mail,
@@ -2624,7 +2627,8 @@ CategoryMenu As screen:
                             id: ThisRecord.Value.id,
                             mail: Text(ThisRecord.Value.mail),
                             displayName: Text(ThisRecord.Value.displayName),
-                            securityEnabled: Text(ThisRecord.Value.securityEnabled)
+                            securityEnabled: Text(ThisRecord.Value.securityEnabled),
+                            is365: Text(ThisRecord.Value.is365)
                         }
                     )
                 )
