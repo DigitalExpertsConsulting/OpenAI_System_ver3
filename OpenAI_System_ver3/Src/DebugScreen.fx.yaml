@@ -3,6 +3,22 @@ DebugScreen As screen:
     OnVisible: |-
         =UpdateContext({CSV_Download_Popup:false})
 
+    Background_Color As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        Fill: =RGBA(152, 208, 70, 1)
+        FocusedBorderThickness: =4
+        Height: =277
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Visible: =CSV_Download_Popup
+        Width: =704
+        X: =1132
+        Y: =456
+        ZIndex: =1
+
     GNB_DebugScreen As New_Component_GNB:
         ZIndex: =2
 
@@ -151,8 +167,8 @@ DebugScreen As screen:
             =/*'[DEV]-똑실이-[Apps]질의응답페이지엑셀다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value)*/
             
             
-            UpdateContext({CSV_Download_Popup:true})
-            //'[DEV]-똑실이-[Apps]질의응답페이지CSV다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value)
+            UpdateContext({CSV_Download_Popup:true});
+            '[DEV]-똑실이-[Apps]질의응답페이지CSV다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value)
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -353,151 +369,171 @@ DebugScreen As screen:
         Y: =120
         ZIndex: =17
 
-    CSV_Download_PopUp As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =24
+    CSV_Download_Gallery As gallery.galleryVertical:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =242
+        Items: |-
+            =SortByColumns(
+                똑실이_CSV_Download_table,
+                "ID",
+                SortOrder.Descending
+            )
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplateSize: =45
+        Visible: =CSV_Download_Popup
+        Width: =919
+        X: =432
+        Y: =710
+        ZIndex: =18
 
-        Background_Color As rectangle:
+        Label_CSV_Download_Type As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
-            DisabledFill: =RGBA(166, 166, 166, 1)
-            Fill: =RGBA(152, 208, 70, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
             FocusedBorderThickness: =4
-            Height: =277
-            HoverFill: =RGBA(105, 121, 126, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            Visible: =CSV_Download_Popup
-            Width: =704
-            X: =1116
-            Y: =490
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Type
+            X: =40
             ZIndex: =1
 
-        CSV_Download_Gallery As gallery.galleryVertical:
+        Label_CSV_Download_File_Name As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            HoverColor: |
+                =//Self.Color
+                Color.Blue
+            OnSelect: =//Launch(ThisItem.CSV_Link)
+            Size: =13
+            Text: =ThisItem.File_Name
+            Width: =304
+            X: =190
+            ZIndex: =2
+
+        Label_CSV_Download_Count As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            Size: =13
+            Text: =ThisItem.Count
+            X: =530
+            ZIndex: =4
+
+        Icon_Download As icon.Download:
             BorderColor: =RGBA(166, 166, 166, 1)
-            DelayItemLoading: =true
-            Height: =275
-            Items: |-
-                =SortByColumns(
-                    똑실이_CSV_Download_table,
-                    "ID",
-                    SortOrder.Descending
-                )
-            Layout: =Layout.Vertical
-            LoadingSpinner: =LoadingSpinner.Data
-            TemplateSize: =45
-            Visible: =CSV_Download_Popup
-            Width: =704
-            X: =1116
-            Y: =492
-            ZIndex: =18
-
-            Label_CSV_Download_Type As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                OnSelect: =Select(Parent)
-                Size: =13
-                Text: =ThisItem.Type
-                X: =40
-                Y: =40
-                ZIndex: =1
-
-            Label_CSV_Download_File_Name As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                HoverColor: |
-                    =//Self.Color
-                    Color.Red
-                OnSelect: =Launch(ThisItem.CSV_Link)
-                Size: =13
-                Text: =ThisItem.File_Name
-                Width: =304
-                X: =190
-                Y: =40
-                ZIndex: =2
-
-            Label_CSV_Download_Status As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                OnSelect: =Select(Parent)
-                Size: =13
-                Text: =ThisItem.Status
-                X: =483
-                Y: =40
-                ZIndex: =3
-
-        Text_Label_CSV_Type As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
+            Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =31
-            Size: =13
-            Text: ="다운로드 유형"
-            Visible: =CSV_Download_Popup
-            Width: =129
-            X: =1150
-            Y: =492
-            ZIndex: =19
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: |-
+                =//ColorFade(RGBA(105, 121, 126, 1), -30%)
+                Color.Blue
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Download
+            OnSelect: |-
+                =//Select(Parent)
+                Launch(ThisItem.CSV_Link)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =40
+            X: =475
+            Y: =6
+            ZIndex: =5
 
-        Text_Label_CSV_File_Name As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
+        Icon_Web_Link As icon.Link:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =31
-            Size: =13
-            Text: ="파일이름"
-            Visible: =CSV_Download_Popup
-            Width: =91
-            X: =1390
-            Y: =492
-            ZIndex: =20
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Link
+            OnSelect: =Launch(ThisItem.Web_Link)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =40
+            X: =435
+            Y: =12
+            ZIndex: =6
 
-        Text_Label_CSV_Status As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =31
-            Size: =13
-            Text: ="상태"
-            Visible: =CSV_Download_Popup
-            Width: =47
-            X: =1635
-            Y: =492
-            ZIndex: =21
+    Text_Label_CSV_Type As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =31
+        Size: =13
+        Text: ="다운로드 유형"
+        Visible: =CSV_Download_Popup
+        Width: =129
+        X: =1150
+        Y: =492
+        ZIndex: =19
+
+    Text_Label_CSV_File_Name As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =31
+        Size: =13
+        Text: ="파일이름"
+        Visible: =CSV_Download_Popup
+        Width: =91
+        X: =1390
+        Y: =492
+        ZIndex: =20
+
+    Text_Label_CSV_Status As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =31
+        Size: =13
+        Text: ="상태"
+        Visible: =CSV_Download_Popup
+        Width: =47
+        X: =1635
+        Y: =492
+        ZIndex: =21
 
