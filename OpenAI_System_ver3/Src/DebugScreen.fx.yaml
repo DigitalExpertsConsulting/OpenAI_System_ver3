@@ -3,22 +3,6 @@ DebugScreen As screen:
     OnVisible: |-
         =UpdateContext({CSV_Download_Popup:false})
 
-    Background_Color As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =RGBA(166, 166, 166, 1)
-        Fill: =RGBA(152, 208, 70, 1)
-        FocusedBorderThickness: =4
-        Height: =277
-        HoverFill: =RGBA(105, 121, 126, 1)
-        PressedFill: =RGBA(105, 121, 126, 1)
-        Visible: =CSV_Download_Popup
-        Width: =704
-        X: =1132
-        Y: =456
-        ZIndex: =1
-
     GNB_DebugScreen As New_Component_GNB:
         ZIndex: =2
 
@@ -166,7 +150,13 @@ DebugScreen As screen:
         OnSelect: |-
             =/*'[DEV]-똑실이-[Apps]질의응답페이지엑셀다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value)*/
             
-            '[DEV]-똑실이-[Apps]질의응답페이지CSV다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value)
+            UpdateContext({CSVLoadingSpinner:true});
+            Notify("CSV 다운로드 중입니다");
+            
+            '[DEV]-똑실이-[Apps]질의응답페이지CSV다운로드'.Run(Dev_Excel_Download_TextInput_WirteName.Text,Dev_Excel_Download_TextInput_Question.Text,Dev_Excel_Download_DatePicker_StartDate.SelectedDate,Dev_Excel_Download_DatePicker_EndDate.SelectedDate,Dev_Excel_Download_IsLike.Value);
+            
+            UpdateContext({CSVLoadingSpinner:false});
+            Notify("CSV 다운로드 완료");
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -354,6 +344,7 @@ DebugScreen As screen:
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnSelect: |-
             =UpdateContext({CSV_Download_Popup:true});
+            Refresh(똑실이_CSV_Download_table)
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -451,7 +442,9 @@ DebugScreen As screen:
             Icon: =Icon.Download
             OnSelect: |-
                 =//Select(Parent)
-                Launch(ThisItem.CSV_Link)
+                Launch(ThisItem.CSV_Link);
+                Patch(똑실이_CSV_Download_table, LookUp(똑실이_CSV_Download_table, ID=ThisItem.ID), {Count:ThisItem.Count+1});
+                Refresh(똑실이_CSV_Download_table);
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -570,4 +563,43 @@ DebugScreen As screen:
         X: =1718
         Y: =490
         ZIndex: =23
+
+    Icon_CSV_Popup_Close As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =35
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: |-
+            =UpdateContext({CSV_Download_Popup:false});
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =31
+        X: =1805
+        Y: =455
+        ZIndex: =24
+
+    Image_LoadingSpinner_CSV As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =CSVLoadingSpinner
+        X: =957
+        Y: =454
+        ZIndex: =25
 
