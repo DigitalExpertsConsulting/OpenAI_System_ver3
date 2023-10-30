@@ -1145,6 +1145,85 @@ QALog As screen:
     New_Component_GNB_QALog As New_Component_GNB:
         ZIndex: =26
 
+    Button_CSV_Download_QALog As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =UpdateContext({LodingPopup:true});
+            Notify("CSV 다운로드 중입니다");
+            
+            UpdateContext({output_csv:'똑실이-[Apps]질의응답페이지CSV다운로드'.Run(TextInput_SearchUser_QALog.Text,TextInput_SearchQuestion_QALog.Text,DatePicker_SearchDateMin_QALog.SelectedDate,DatePicker_SearchDateMax_QALog.SelectedDate,Checkbox_LikeCheck_QALog.Value,User().Email)});
+            
+            UpdateContext({download_link:output_csv.download_link});
+            
+            UpdateContext({onedrive_file_id:output_csv.onedrive_file_id});
+            
+            If(
+                IsBlank(output_csv.download_link),
+                Notify("일시적인 문제가 발생했습니다 다시 시도해주세요",NotificationType.Error),
+                Launch(download_link);
+                Notify("CSV 다운로드 완료",NotificationType.Success)
+            );
+            
+            '똑실이-[Apps]질의응답페이지CSV다운로드내역삭제'.Run(onedrive_file_id);
+            
+            UpdateContext({LodingPopup:false});
+        PaddingBottom: =8
+        PaddingLeft: =46
+        PaddingRight: =16
+        PaddingTop: =8
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="CSV 다운로드"
+        Width: =165
+        X: =1572
+        Y: =47
+        ZIndex: =27
+
+    Icon_CSV_Download_QALog As icon.Download:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =Color.Black
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =24
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Download
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =28
+        X: =1585
+        Y: =55
+        ZIndex: =28
+
     Background_Modal_QALog As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -1158,7 +1237,40 @@ QALog As screen:
         Visible: =QALogVisible
         Width: =1620
         X: =300
-        ZIndex: =35
+        ZIndex: =29
+
+    Background_Loding_QALog As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =Image_Loding_QALog.Visible
+        Width: =1920
+        ZIndex: =38
+
+    Image_Loding_QALog As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =64
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =LodingPopup
+        Width: =64
+        X: =1012
+        Y: =477
+        ZIndex: =39
 
     Group_QuestionPopup_QALog As group:
         Height: =5
@@ -1197,7 +1309,7 @@ QALog As screen:
             Width: =600
             X: =734
             Y: =272
-            ZIndex: =36
+            ZIndex: =30
 
         Gallery_QuestionPopup_QALog As gallery.galleryVertical:
             BorderColor: |-
@@ -1215,7 +1327,7 @@ QALog As screen:
             Width: =552
             X: =758
             Y: =334
-            ZIndex: =37
+            ZIndex: =31
 
             Label_QuestionPopup_QALog As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1252,7 +1364,7 @@ QALog As screen:
             Width: =202
             X: =762
             Y: =290
-            ZIndex: =38
+            ZIndex: =32
 
         Icon_QuestionPopupClose_QALog As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -1268,7 +1380,7 @@ QALog As screen:
             Width: =20
             X: =1291
             Y: =297
-            ZIndex: =39
+            ZIndex: =33
 
     Group_AnswerPopup_QALog As group:
         Height: =5
@@ -1290,7 +1402,7 @@ QALog As screen:
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =680
+            Height: =689
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -1306,8 +1418,8 @@ QALog As screen:
             Visible: =AnswerPopup
             Width: =600
             X: =734
-            Y: =277
-            ZIndex: =41
+            Y: =268
+            ZIndex: =34
 
         Gallery_AnswerPopup_QALog As gallery.galleryVertical:
             BorderColor: |-
@@ -1316,7 +1428,7 @@ QALog As screen:
             DelayItemLoading: =true
             Fill: |-
                 =ColorValue("#FFFFFF")
-            Height: =592
+            Height: =600
             Items: =Filter(똑실이_QA_table, ID= CheckedID,Answer)
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
@@ -1324,8 +1436,8 @@ QALog As screen:
             Visible: =AnswerPopup
             Width: =552
             X: =758
-            Y: =339
-            ZIndex: =42
+            Y: =331
+            ZIndex: =35
 
             Label_AnswerPopup_QALog As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1361,8 +1473,8 @@ QALog As screen:
             Visible: =AnswerPopup
             Width: =202
             X: =762
-            Y: =297
-            ZIndex: =43
+            Y: =288
+            ZIndex: =36
 
         Icon_AnswerPopup_QALog As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -1377,41 +1489,8 @@ QALog As screen:
             Visible: =AnswerPopup
             Width: =20
             X: =1291
-            Y: =300
-            ZIndex: =44
-
-    Background_Loding_QALog As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =Image_Loding_QALog.Visible
-        Width: =1920
-        ZIndex: =46
-
-    Image_Loding_QALog As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =64
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =LodingPopup
-        Width: =64
-        X: =1012
-        Y: =477
-        ZIndex: =47
+            Y: =291
+            ZIndex: =37
 
     Group_SherchQAGallery_QALog As group:
         Height: =5
@@ -1697,85 +1776,6 @@ QALog As screen:
             X: =1023
             Y: =148
             ZIndex: =13
-
-    Button_CSV_Download_QALog As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: |-
-            =ColorValue("#C7C7C7")
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =UpdateContext({LodingPopup:true});
-            Notify("CSV 다운로드 중입니다");
-            
-            UpdateContext({output_csv:'똑실이-[Apps]질의응답페이지CSV다운로드'.Run(TextInput_SearchUser_QALog.Text,TextInput_SearchQuestion_QALog.Text,DatePicker_SearchDateMin_QALog.SelectedDate,DatePicker_SearchDateMax_QALog.SelectedDate,Checkbox_LikeCheck_QALog.Value,User().Email)});
-            
-            UpdateContext({download_link:output_csv.download_link});
-            
-            UpdateContext({onedrive_file_id:output_csv.onedrive_file_id});
-            
-            If(
-                IsBlank(output_csv.download_link),
-                Notify("일시적인 문제가 발생했습니다 다시 시도해주세요",NotificationType.Error),
-                Launch(download_link);
-                Notify("CSV 다운로드 완료",NotificationType.Success)
-            );
-            
-            '똑실이-[Apps]질의응답페이지CSV다운로드내역삭제'.Run(onedrive_file_id);
-            
-            UpdateContext({LodingPopup:false});
-        PaddingBottom: =8
-        PaddingLeft: =46
-        PaddingRight: =16
-        PaddingTop: =8
-        PressedBorderColor: |-
-            =ColorValue("#B3B3B3")
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="CSV 다운로드"
-        Width: =165
-        X: =1572
-        Y: =47
-        ZIndex: =48
-
-    Icon_CSV_Download_QALog As icon.Download:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =Color.Black
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(220, 220, 220, 1)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =24
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Icon: =Icon.Download
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =28
-        X: =1585
-        Y: =55
-        ZIndex: =49
 
     Group_QALogGalleryHeader_QALog As group:
         Height: =5
