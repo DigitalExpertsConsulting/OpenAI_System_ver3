@@ -1727,11 +1727,15 @@ QALog As screen:
             
             UpdateContext({onedrive_file_id:output_csv.onedrive_file_id});
             
-            Launch(download_link);
+            If(
+                IsBlank(output_csv.download_link),
+                Notify("일시적인 문제가 발생했습니다 다시 시도해주세요",NotificationType.Error),
+                Launch(download_link);
+                Notify("CSV 다운로드 완료",NotificationType.Success)
+            );
             
             '똑실이-[Apps]질의응답페이지CSV다운로드내역삭제'.Run(onedrive_file_id);
             
-            Notify("CSV 다운로드 완료",NotificationType.Success);
             UpdateContext({LodingPopup:false});
         PaddingBottom: =8
         PaddingLeft: =46
