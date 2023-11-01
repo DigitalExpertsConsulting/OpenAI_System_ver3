@@ -1345,69 +1345,68 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |+
-                =
-                If(
-                    (IsBlank(Dropdown_LV1Category_FileUpload_FM.Selected.Value) && IsBlank(Dropdown_LV2Category_FileUpload_FM.Selected.Value)) Or
-                    (Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE),
-                    Error("할당된 카테고리가 없습니다.");
+                =If(
+                    Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
+                    Notify("할당된 카테고리가 없습니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
                 );
                 
                 
                 If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
-                    Error("첨부 파일 등록은 필수입니다.");
+                    Notify("첨부 파일 등록은 필수입니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
                 );
                 
                 If(
                     Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
                 
-                Error("동일한 파일이 이미 존재합니다."),
+                Notify("동일한 파일이 이미 존재합니다.",NotificationType.Error),
+                If(
+                    !ErrorFM,
+                    UpdateContext({
+                        FileUploadResult: 
+                        ""
+                    });
                 
-                UpdateContext({
-                    FileUploadResult: 
-                       ""
-                });
                 
-                
-                UpdateContext({
-                    FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
-                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                        Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        {
-                            file: {
-                                name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                            }
-                        }
-                    ).filename
-                });
-                
-                Patch(
-                    똑실이_FileUpload_table,
-                    {
-                        제목: Concatenate(
+                    UpdateContext({
+                        FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
+                            Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                             Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                            "-",
-                            First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
-                        ),
-                        Upload_Date: Now(),
-                        Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                        Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                        File_Name: FileUploadResult,
-                        File_Type: Upper(
-                            Last(
-                                Split(
-                                    First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                    "."
-                                )
-                            ).Value
-                        ),
-                        FileNameNoExtension : gblFileNameNoExtension
-                        ,
-                        //Index_Status: "not_indexed"
-                        Index_Status:"uploading"
-                    }
-                );
+                            {
+                                file: {
+                                    name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                                }
+                            }
+                        ).filename
+                    });
                 
+                    Patch(
+                        똑실이_FileUpload_table,
+                        {
+                            제목: Concatenate(
+                                Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                                "-",
+                                First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
+                            ),
+                            Upload_Date: Now(),
+                            Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
+                            Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                            File_Name: FileUploadResult,
+                            File_Type: Upper(
+                                Last(
+                                    Split(
+                                        First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                        "."
+                                    )
+                                ).Value
+                            ),
+                            FileNameNoExtension : gblFileNameNoExtension
+                            ,
+                            //Index_Status: "not_indexed"
+                            Index_Status:"uploading"
+                        }
+                    );
+                )
                 );
                 
                 Refresh(똑실이_FileUpload_table);
