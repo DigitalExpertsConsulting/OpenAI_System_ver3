@@ -10,7 +10,11 @@
             UpdateContext({locLoadingSpinnerBackground:true})
         );
         // 2. 초기화
-        Refresh(똑실이_ChatbotText_table); //DB REFRESH
+        Concurrent(
+            Refresh(똑실이_ChatbotText_table), //DB REFRESH
+            UpdateContext({previewText:"웰컴 메시지"})
+        );
+        
         
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
@@ -34,7 +38,7 @@
         Width: =691
         X: =343
         Y: =23
-        ZIndex: =2
+        ZIndex: =1
 
     Button_Refresh_CM As button:
         BorderColor: |-
@@ -56,12 +60,7 @@
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =Concurrent(
-                Refresh(똑실이_Agent_table),
-                Refresh(똑실이_AgentFunction_table​)); //DB REFRESH
-            
-            Concurrent(Reset(TextInput_PublishedVersion_CM),Reset(TextInput_Version_CM),Reset(TextInput_Name_CM),Reset(TextInput_Description_CM),Reset(TextInput_FallbackFunction_CM));
+        OnSelect: =Refresh(똑실이_ChatbotText_table);
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -77,10 +76,10 @@
         Width: =120
         X: =1624
         Y: =46
-        ZIndex: =4
+        ZIndex: =2
 
     New_Component_GNB_CM As New_Component_GNB:
-        ZIndex: =7
+        ZIndex: =3
 
     Image_Refresh_CM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -99,7 +98,48 @@
         Width: =20
         X: =1641
         Y: =55
-        ZIndex: =10
+        ZIndex: =4
+
+    Window_Preview_CM As rectangle:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =432
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Width: =1540
+        X: =339
+        Y: =607
+        ZIndex: =5
+
+    Separator_AgentManagement_CM_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Height: =1
+        OnSelect: =
+        Width: =1491
+        X: =365
+        Y: =689
+        ZIndex: =6
+
+    Label_TitleAgentManagement_CM_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =20
+        Text: ="미리보기 - "&previewText
+        Width: =691
+        X: =365
+        Y: =626
+        ZIndex: =7
 
     Window_AgentManagement_CM As rectangle:
         BorderColor: =RGBA(112, 112, 112, 1)
@@ -107,13 +147,13 @@
         DisplayMode: =DisplayMode.View
         Fill: =RGBA(255, 255, 255, 1)
         FocusedBorderThickness: =4
-        Height: =953
+        Height: =470
         HoverFill: =RGBA(255, 255, 255, 1)
         PressedFill: =RGBA(255, 255, 255, 1)
         Width: =1540
         X: =340
         Y: =102
-        ZIndex: =21
+        ZIndex: =9
 
     Separator_AgentManagement_CM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -123,7 +163,7 @@
         Width: =1491
         X: =365
         Y: =178
-        ZIndex: =23
+        ZIndex: =10
 
     Label_TitleAgentManagement_CM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -136,37 +176,17 @@
         FontWeight: =FontWeight.Bold
         Height: =64
         Size: =20
-        Text: ="ChatBot 메시지 관리"
+        Text: ="현재 ChatBot 메시지"
         Width: =691
         X: =365
         Y: =115
-        ZIndex: =24
+        ZIndex: =11
 
-    Label_PublishedVersion_CM As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="published version"
-        Width: =164
-        X: =378
-        Y: =195
-        ZIndex: =25
-
-    TextInput_PublishedVersion_CM As text:
+    TextInput_BadWordMSG_CM As text:
         BorderColor: =RGBA(166, 166, 166, 1)
         BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Published_Version
+        Default: =Last(똑실이_ChatbotText_table).BadwordWarning_msg
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
@@ -184,12 +204,12 @@
         RadiusTopLeft: =0
         RadiusTopRight: =0
         Size: =13
-        Width: =550
-        X: =550
-        Y: =195
-        ZIndex: =26
+        Width: =1000
+        X: =615
+        Y: =499
+        ZIndex: =12
 
-    Label_Version_CM As label:
+    Label_BadWordMSG_CM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -197,279 +217,209 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="version"
-        Width: =164
-        X: =1137
-        Y: =194
-        ZIndex: =27
-
-    TextInput_Version_CM As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Version
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="version을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =550
-        X: =1304
-        Y: =195
-        ZIndex: =28
-
-    Label_Name_CM As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="name"
-        Width: =164
-        X: =378
-        Y: =251
-        ZIndex: =29
-
-    TextInput_Name_CM As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Name
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        HintText: ="name을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =550
-        X: =550
-        Y: =251
-        ZIndex: =30
-
-    Label_Description_CM As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="description"
-        Width: =164
-        X: =378
-        Y: =311
-        ZIndex: =31
-
-    TextInput_Description_CM As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Description
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        Height: =181
-        HintText: ="description를 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        Mode: =TextMode.MultiLine
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =550
-        X: =550
-        Y: =311
-        ZIndex: =32
-
-    Label_FallbackFunction_CM As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="fallback function"
-        Width: =164
-        X: =1137
-        Y: =251
-        ZIndex: =33
-
-    TextInput_FallbackFunction_CM As text:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(51, 51, 51, 1)
-        Default: =Last(똑실이_Agent_table).Fallback_Function
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        Height: =240
-        HintText: ="fallback function을 입력해주세요"
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverColor: =RGBA(51, 51, 51, 1)
-        HoverFill: =RGBA(255, 255, 255, 1)
-        Mode: =TextMode.MultiLine
-        PressedBorderColor: =RGBA(105, 121, 126, 1)
-        PressedColor: =RGBA(51, 51, 51, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =13
-        Width: =550
-        X: =1304
-        Y: =252
-        ZIndex: =34
-
-    Button_PatchListButton_CM As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =38
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            = // PA 관련 변수 초기화
-            Concurrent(
-                Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
-                Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
-                );
-            
-            // 조건 - 각 컨트롤이 모두 비어있지 않을 경우
-            
-            If(IsBlank(TextInput_Version_CM.Text)||IsBlank(TextInput_Name_CM.Text)||IsBlank(TextInput_Description_CM.Text)||IsBlank(TextInput_FallbackFunction_CM.Text),
-                // 하나라도 비어있을 경우 알림창 로드
-                Notify("비어있는 항목이 존재합니다.",NotificationType.Error),
-            
-                // 똑실이_Agent_table 패치 진행
-                Patch(똑실이_Agent_table,
-                Last(똑실이_Agent_table),
-                {제목:"""""", 
-                Version:TextInput_Version_CM.Text,
-                Name:TextInput_Name_CM.Text,
-                Description:TextInput_Description_CM.Text,
-                Fallback_Function:TextInput_FallbackFunction_CM.Text
-                });
-                //
-                
-                /* "저장 버튼" -> "서버 업로드 버튼" 이전
-                
-                        // 서버 업로드 팝업 로드
-                        Concurrent(
-                        UpdateContext({locServerUploadPopup:true});, // 서버 업로드 팝업 활성화
-                        UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                        UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
-                        );
-                        //
-                        
-                */
-                
-                // 추가한 코드 9/13
-                Concurrent( 
-                        UpdateContext({locPopupBackground:true}), // 서버 업로드 팝업 배경 이미지 활성화
-                        UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
-                );
-            
-            
-                // Agent테이블Json변환 PA 실행
-                Set(gblRequestBody,'똑실이-[Apps]Agent테이블Json변환'.Run().request_body); 
-                UpdateContext({locLoadingSpinner:false}); // 로딩 스피너 비활성화
-            
-                // 추가한 코드 9/13
-                UpdateContext({locPopupBackground:false}); // 서버 업로드 팝업 배경 이미지 활성화
-                Notify("저장을 완료하였습니다.",NotificationType.Success);
-            
-                //컨트롤 리셋
-                Concurrent(
-                Reset(TextInput_PublishedVersion_CM),
-                Reset(TextInput_Version_CM),
-                Reset(TextInput_Name_CM),
-                Reset(TextInput_Description_CM),
-                Reset(TextInput_FallbackFunction_CM)
-                );
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="저장"
-        Tooltip: =" Agent_table이 입력하신 내용으로 업데이트 됩니다"
-        Width: =120
-        X: =1734
-        Y: =516
-        ZIndex: =35
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="금칙어 경고 메시지"
+        Width: =165
+        X: =380
+        Y: =499
+        ZIndex: =13
+
+    TextInput_StartMSG_CM As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_ChatbotText_table).Start_msg
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =1000
+        X: =615
+        Y: =419
+        ZIndex: =14
+
+    Label_StartMSG_CM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="스타트 메시지"
+        Width: =124
+        X: =382
+        Y: =419
+        ZIndex: =15
+
+    TextInput_WelcomeMSG_CM As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_ChatbotText_table).Welcome_msg
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =1000
+        X: =615
+        Y: =339
+        ZIndex: =16
+
+    Label_WelcomeMSG_CM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="웰컴 메시지"
+        Width: =164
+        X: =380
+        Y: =339
+        ZIndex: =17
+
+    TextInput_BotCallName_CM As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_ChatbotText_table).BotCallName
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =1000
+        X: =615
+        Y: =266
+        ZIndex: =18
+
+    Label_BotCallName_CM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="봇 호출명(BotCallName)"
+        Width: =230
+        X: =378
+        Y: =266
+        ZIndex: =19
+
+    TextInput_BotName_CM As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =Last(똑실이_ChatbotText_table).BotName
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Width: =1000
+        X: =615
+        Y: =200
+        ZIndex: =20
+
+    Label_BotName_CM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="봇이름(BotName)"
+        Width: =165
+        X: =380
+        Y: =200
+        ZIndex: =21
 
     Button_ServerUpload_CM As button:
         BorderColor: |-
@@ -556,7 +506,7 @@
         Width: =120
         X: =1759
         Y: =45
-        ZIndex: =36
+        ZIndex: =22
 
     Background_Popup_CM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -571,7 +521,7 @@
         Visible: =locPopupBackground
         Width: =1620
         X: =300
-        ZIndex: =38
+        ZIndex: =23
 
     Background_LoadingSpinner_CM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -586,7 +536,7 @@
         Visible: =locLoadingSpinnerBackground
         Width: =1620
         X: =300
-        ZIndex: =45
+        ZIndex: =30
 
     Image_LoadingSpinner_CM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -603,7 +553,33 @@
         Visible: =locLoadingSpinner
         X: =957
         Y: =454
-        ZIndex: =46
+        ZIndex: =31
+
+    Label2 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        Fill: |-
+            =//RGBA(0, 0, 0, 0)
+            Color.BlanchedAlmond
+        FocusedBorderThickness: =4
+        Height: =290
+        Size: =18
+        Text: |-
+            =//"텍스트"
+            Switch(
+                previewText,
+                "웰컴 메시지", Substitute(Substitute(Substitute(TextInput_WelcomeMSG_CM.Text,"(BotName)", TextInput_BotName_CM.Text),"(BotCallName)",TextInput_BotCallName_CM.Text),". ","."&Char(10))
+            )
+        VerticalAlign: =VerticalAlign.Top
+        Width: =1361
+        X: =458
+        Y: =718
+        ZIndex: =32
 
     Popup_ServerUpload_CM As group:
         Height: =5
@@ -626,7 +602,7 @@
             Width: =986
             X: =529
             Y: =143
-            ZIndex: =39
+            ZIndex: =24
 
         Button_PopupServerUpload_Close_CM As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -653,7 +629,7 @@
             Width: =52
             X: =1447
             Y: =169
-            ZIndex: =40
+            ZIndex: =25
 
         Label_PopupServerUpload_Title_CM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -672,7 +648,7 @@
             Width: =645
             X: =609
             Y: =180
-            ZIndex: =41
+            ZIndex: =26
 
         Button_PopupServerUpload_Submit_CM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -752,7 +728,7 @@
             Width: =100
             X: =1221
             Y: =813
-            ZIndex: =42
+            ZIndex: =27
 
         Button_PopupServerUpload_Cancel_CM As button:
             BorderColor: |-
@@ -798,7 +774,7 @@
             Width: =100
             X: =1333
             Y: =813
-            ZIndex: =43
+            ZIndex: =28
 
         Label_PopupServerUpload_json_CM As label:
             BorderColor: |-
@@ -821,5 +797,5 @@
             Width: =823
             X: =609
             Y: =240
-            ZIndex: =44
+            ZIndex: =29
 
