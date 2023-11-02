@@ -18,7 +18,8 @@
             UpdateContext({badWordText:"금칙어 경고 메시지"}),
             UpdateContext({previewSelectColor:RGBA(54, 176, 75, 1)}), // 선택한 미리보기 글자색
             UpdateContext({previewSelectBackgroundColor:RGBA(187, 221, 140, 1)}),  // 미리보기 글자 배경색
-            UpdateContext({editIconHoverColor:RGBA(0,121,187,1)})  // 편집 아이콘 마우스 오버 색
+            UpdateContext({editIconHoverColor:RGBA(0,121,187,1)}),  // 편집 아이콘 마우스 오버 색
+            UpdateContext({editModal:false})  // 편집 아이콘 마우스 오버 색
         );
         
         UpdateContext({previewText:welComeText});
@@ -557,8 +558,10 @@
             editIconHoverColor
         HoverFill: =RGBA(0, 0, 0, 0)
         Icon: =Icon.Edit
-        OnSelect: |
+        OnSelect: |+
             =UpdateContext({editModal:true});
+            UpdateContext({modalSelected:"BotName"});
+            
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedFill: =RGBA(0, 0, 0, 0)
@@ -702,21 +705,6 @@
         Y: =45
         ZIndex: =27
 
-    Background_Popup_CM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =locPopupBackground
-        Width: =1620
-        X: =300
-        ZIndex: =28
-
     Background_LoadingSpinner_CM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -730,7 +718,7 @@
         Visible: =locLoadingSpinnerBackground
         Width: =1620
         X: =300
-        ZIndex: =35
+        ZIndex: =34
 
     Image_LoadingSpinner_CM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -747,7 +735,38 @@
         Visible: =locLoadingSpinner
         X: =957
         Y: =454
+        ZIndex: =35
+
+    Background_Modal_CM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =editModal
+        Width: =1620
+        X: =300
         ZIndex: =36
+
+    Background_ModalEdit_CM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =690
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Visible: =editModal
+        Width: =1068
+        X: =593
+        Y: =180
+        ZIndex: =37
 
     Label_ModalEditTitle_CM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -758,13 +777,135 @@
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         FontWeight: =FontWeight.Bold
-        Height: =64
+        Height: =82
         Size: =20
-        Text: ="현재 ChatBot 메시지"
-        Width: =691
-        X: =631
-        Y: =116
-        ZIndex: =37
+        Text: |-
+            =//modalSelected & " - Edit"
+            Switch(
+                modalSelected,
+                "BotName", Label_BotName_CM.Text
+            ) & " - Edit"
+        Visible: =editModal
+        Width: =350
+        X: =593
+        Y: =184
+        ZIndex: =38
+
+    Icon_ModalEditClose_CM As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =45
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: |-
+            =UpdateContext({editModal:false});
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =editModal
+        Width: =45
+        X: =1593
+        Y: =195
+        ZIndex: =39
+
+    Separator_ModalEdit_CM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Height: =1
+        OnSelect: =
+        Visible: =editModal
+        Width: =1070
+        X: =595
+        Y: =253
+        ZIndex: =40
+
+    Icon3 As icon.Help:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =30
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Help
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =editModal
+        Width: =38
+        X: =598
+        Y: =263
+        ZIndex: =41
+
+    TextInput_BotName_CM_1 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: |-
+            =Switch(
+                modalSelected,
+                "BotName", "다른 메시지에 (BotName)에 해당하는 이름입니다."
+            )
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Visible: =editModal
+        Width: =1000
+        X: =643
+        Y: =260
+        ZIndex: =42
+
+    TextInput1 As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =TextInput_BotName_CM.Text
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =384
+        HintText: ="(BotName)에 해당하는 이름입니다."
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedBorderColor: =RGBA(105, 121, 126, 1)
+        PressedColor: =RGBA(51, 51, 51, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =13
+        Visible: =editModal
+        Width: =981
+        X: =643
+        Y: =365
+        ZIndex: =43
 
     Popup_ServerUpload_CM As group:
         Height: =5
@@ -787,7 +928,7 @@
             Width: =986
             X: =529
             Y: =143
-            ZIndex: =29
+            ZIndex: =28
 
         Button_PopupServerUpload_Close_CM As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -814,7 +955,7 @@
             Width: =52
             X: =1447
             Y: =169
-            ZIndex: =30
+            ZIndex: =29
 
         Label_PopupServerUpload_Title_CM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -833,7 +974,7 @@
             Width: =645
             X: =609
             Y: =180
-            ZIndex: =31
+            ZIndex: =30
 
         Button_PopupServerUpload_Submit_CM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -913,7 +1054,7 @@
             Width: =100
             X: =1221
             Y: =813
-            ZIndex: =32
+            ZIndex: =31
 
         Button_PopupServerUpload_Cancel_CM As button:
             BorderColor: |-
@@ -959,7 +1100,7 @@
             Width: =100
             X: =1333
             Y: =813
-            ZIndex: =33
+            ZIndex: =32
 
         Label_PopupServerUpload_json_CM As label:
             BorderColor: |-
@@ -982,5 +1123,5 @@
             Width: =823
             X: =609
             Y: =240
-            ZIndex: =34
+            ZIndex: =33
 
