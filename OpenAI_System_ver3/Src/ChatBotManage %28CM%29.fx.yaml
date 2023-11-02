@@ -9,15 +9,23 @@
             UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 활성
             UpdateContext({locLoadingSpinnerBackground:true})
         );
+        
         // 2. 초기화
         Concurrent(
             Refresh(똑실이_ChatbotText_table), //DB REFRESH
-            UpdateContext({previewText:"웰컴 메시지"})
+            UpdateContext({welComeText:"웰컴 메시지"}),
+            UpdateContext({startText:"스타트 메시지"}),
+            UpdateContext({badWordText:"금칙어 경고 메시지"}),
+            UpdateContext({previewSelectColor:RGBA(54, 176, 75, 1)}), // 선택한 미리보기 글자색
+            UpdateContext({previewSelectBackgroundColor:RGBA(187, 221, 140, 1)})  // 미리보기 글자 배경색
         );
+        
+        UpdateContext({previewText:welComeText});
         
         
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
+        // 3. 로딩 이미지 비활성화
         Concurrent(
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성화
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성화
@@ -213,18 +221,27 @@
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
+        Color: |-
+            =If(
+                previewText = badWordText,
+                previewSelectColor,
+                RGBA(51, 51, 51, 1)
+            )
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =38
+        OnSelect: |-
+            =UpdateContext({previewText:badWordText});
         PaddingBottom: =0
         PaddingLeft: =0
         PaddingRight: =0
         PaddingTop: =0
-        Text: ="금칙어 경고 메시지"
+        Text: |-
+            =badWordText
+            //"금칙어 경고 메시지"
         Width: =165
         X: =380
         Y: =499
@@ -261,18 +278,25 @@
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
+        Color: |-
+            =If(
+                previewText = startText,
+                previewSelectColor,
+                RGBA(51, 51, 51, 1)
+            )
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =38
+        OnSelect: |-
+            =UpdateContext({previewText:startText});
         PaddingBottom: =0
         PaddingLeft: =0
         PaddingRight: =0
         PaddingTop: =0
-        Text: ="스타트 메시지"
+        Text: =startText
         Width: =124
         X: =382
         Y: =419
@@ -309,17 +333,26 @@
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
+        Color: |-
+            =If(
+                previewText = welComeText,
+                previewSelectColor,
+                RGBA(51, 51, 51, 1)
+            )
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
+        OnSelect: |-
+            =UpdateContext({previewText:welComeText});
         PaddingBottom: =0
         PaddingLeft: =0
         PaddingRight: =0
         PaddingTop: =0
-        Text: ="웰컴 메시지"
+        Text: |-
+            =welComeText
+            //"웰컴 메시지"
         Width: =164
         X: =380
         Y: =339
@@ -563,9 +596,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(255, 255, 255, 1)
-        Fill: |-
-            =//RGBA(0, 0, 0, 0)
-            Color.BlanchedAlmond
+        Fill: =RGBA(187, 221, 140, 1)
         FocusedBorderThickness: =4
         Height: =290
         Size: =18
@@ -573,7 +604,7 @@
             =//"텍스트"
             Switch(
                 previewText,
-                "웰컴 메시지", Substitute(Substitute(Substitute(TextInput_WelcomeMSG_CM.Text,"(BotName)", TextInput_BotName_CM.Text),"(BotCallName)",TextInput_BotCallName_CM.Text),". ","."&Char(10))
+                welComeText, Substitute(Substitute(Substitute(TextInput_WelcomeMSG_CM.Text,"(BotName)", TextInput_BotName_CM.Text),"(BotCallName)",TextInput_BotCallName_CM.Text),". ","."&Char(10))
             )
         VerticalAlign: =VerticalAlign.Top
         Width: =1361
