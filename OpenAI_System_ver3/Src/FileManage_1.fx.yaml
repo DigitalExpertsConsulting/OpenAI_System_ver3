@@ -3,8 +3,10 @@ FileManage_1 As screen:
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |
-        =UpdateContext({
-            FileSearchLastId: 0
+        =ClearCollect(FileSearchStack_FM_1, []);
+        
+        UpdateContext({
+            fileSearchLastId: Int(0)
         });
         
         Concurrent(
@@ -129,15 +131,15 @@ FileManage_1 As screen:
             ="파일 관리
             "
         Width: =691
-        X: =343
+        X: =349
         Y: =23
         ZIndex: =15
 
     "Gallery_FileList_FM_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        Height: =718
-        Items: =FileSearchResult
+        Height: =635
+        Items: =FileSearchResult_FM_1
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         ShowScrollbar: =false
@@ -755,7 +757,10 @@ FileManage_1 As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(똑실이_FileUpload_table)
+        OnSelect: |-
+            =UpdateContext({fileSearchTimerStart: false});
+            Reset(FileSearchTimer_FM_1);
+            UpdateContext({fileSearchTimerStart: true});
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -1712,9 +1717,14 @@ FileManage_1 As screen:
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: |+
+        OnTimerStart: |+
             =UpdateContext({
-                FileSearchResponse: '[DEV]-똑실이-[Apps]파일검색'.Run({
+                locLoadingSpinner: true,
+                fileSearchLoading: true 
+            });
+            
+            UpdateContext({
+                fileSearchResponse: '[DEV]-똑실이-[Apps]파일검색'.Run({
                     // 파일명
                     text: TextInput_SearchFileName_FM_1.Text,
                     // StartDate
@@ -1726,30 +1736,81 @@ FileManage_1 As screen:
                     // Category LV2
                     text_4: If(Dropdown_SearchCategoryLV2_FM_1.Selected.Value = DEFAULT_CATEGORY_VALUE, "", Dropdown_SearchCategoryLV1_FM_1.Selected.Value),
                     // 스킵 ID
-                    number: FileSearchLastId
+                    number: Coalesce(fileSearchLastId, 0)
                 }).result_json
             });
             
             ClearCollect(
-                FileSearchResult,
+                FileSearchResult_FM_1,
                 ForAll(
-                    Table(ParseJSON(FileSearchResponse)),
+                    Table(ParseJSON(fileSearchResponse)),
                     {
-                        Id: ThisRecord.Value.ID,
-                        File_Name: ThisRecord.Value.File_Name,
-                        Category_LV1: ThisRecord.Value.Category_LV1,
-                        Category_LV2: ThisRecord.Value.Category_LV2
+                        ID: Int(ThisRecord.Value.ID),
+                        File_Name: Text(ThisRecord.Value.File_Name),
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                        Index_Status: Text(ThisRecord.Value.Index_Status),
+                        Index_Log: Text(ThisRecord.Value.Index_Log)
                     }
                 )
             );
+            
+            UpdateContext({ 
+                locLoadingSpinner: false,
+                FileSearchLoading: false
+            });
             
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Repeat: =true
+        Start: =fileSearchTimerStart
         X: =1167
         Y: =35
         ZIndex: =46
+
+    ClearStartDateButton_FM_1 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMin_FM_1);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1565
+        Y: =152
+        ZIndex: =47
+
+    ClearEndDateButton_FM_1 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMax_FM_1);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1801
+        Y: =153
+        ZIndex: =48
 
     Group_Search_FM_1 As group:
         Height: =5
@@ -1778,6 +1839,7 @@ FileManage_1 As screen:
             BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
+            DelayOutput: =true
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1787,6 +1849,16 @@ FileManage_1 As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 1)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
+            OnChange: |-
+                =ClearCollect(FileSearchStack_FM_1, []);
+                UpdateContext({
+                    fileSearchLastId: 0,
+                    fileSearchTimerStart: false
+                });
+                Reset(FileSearchTimer_FM_1);
+                UpdateContext({
+                    fileSearchTimerStart: true
+                });
             PressedColor: =
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
@@ -1863,6 +1935,16 @@ FileManage_1 As screen:
                     colCategory,
                     Category_LV1
                 )
+            OnChange: |-
+                =ClearCollect(FileSearchStack_FM_1, []);
+                UpdateContext({
+                    fileSearchLastId: 0,
+                    fileSearchTimerStart: false
+                });
+                Reset(FileSearchTimer_FM_1);
+                UpdateContext({
+                    fileSearchTimerStart: true
+                });
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -1919,6 +2001,15 @@ FileManage_1 As screen:
                         Category_LV2
                     )
                 )
+            OnChange: |-
+                =UpdateContext({
+                    fileSearchLastId: 0,
+                    fileSearchTimerStart: false
+                });
+                Reset(FileSearchTimer_FM_1);
+                UpdateContext({
+                    fileSearchTimerStart: true
+                });
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -1956,6 +2047,7 @@ FileManage_1 As screen:
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
+            EndYear: =
             Fill: =Color.White
             Font: =Font.'Segoe UI'
             Format: ="yyyy년 mm월 dd일"
@@ -1963,10 +2055,21 @@ FileManage_1 As screen:
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            OnChange: |-
+                =ClearCollect(FileSearchStack_FM_1, []);
+                UpdateContext({
+                    fileSearchLastId: 0,
+                    fileSearchTimerStart: false
+                });
+                Reset(FileSearchTimer_FM_1);
+                UpdateContext({
+                    fileSearchTimerStart: true
+                });
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
-            Width: =180
-            X: =1446
+            StartYear: =
+            Width: =199
+            X: =1423
             Y: =148
             ZIndex: =8
 
@@ -1985,11 +2088,21 @@ FileManage_1 As screen:
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            OnChange: |-
+                =ClearCollect(FileSearchStack_FM_1, []);
+                UpdateContext({
+                    fileSearchLastId: 0,
+                    fileSearchTimerStart: false
+                });
+                Reset(FileSearchTimer_FM_1);
+                UpdateContext({
+                    fileSearchTimerStart: true
+                });
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Visible: |
                 =true
-            Width: =180
+            Width: =190
             X: =1665
             Y: =148
             ZIndex: =9
@@ -2022,7 +2135,97 @@ FileManage_1 As screen:
             Height: =33
             Text: ="기간"
             Width: =52
-            X: =1391
+            X: =1372
             Y: =148
             ZIndex: =11
+
+    PrevPageButton_FM_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =If(
+                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
+                Remove(FileSearchStack_FM_1, Last(FileSearchStack_FM_1)),
+                false
+            );
+            
+            UpdateContext({
+                fileSearchLastId: Coalesce(Last(FileSearchStack_FM_1).Value, 0)
+            });
+            
+            UpdateContext({fileSearchTimerStart: false});
+            Reset(FileSearchTimer_FM_1);
+            UpdateContext({fileSearchTimerStart: true});
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =950
+        ZIndex: =49
+
+    NextPageButton_FM_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(FileSearchResult_FM_1) >= 10, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =If(
+                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
+                Collect(FileSearchStack_FM_1, Coalesce(Last(FileSearchResult_FM_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                fileSearchLastId: Coalesce(Last(FileSearchResult_FM_1).ID, 0)
+            });
+            
+            UpdateContext({fileSearchTimerStart: false});
+            Reset(FileSearchTimer_FM_1);
+            UpdateContext({fileSearchTimerStart: true});
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1076
+        Y: =950
+        ZIndex: =50
 
