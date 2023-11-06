@@ -15,6 +15,7 @@ QALogEdit As screen:
         
         Set(DeleteCheckBox,false);
         UpdateContext({QALogEditVisible:false});
+        UpdateContext({ShowLike: false});
 
     Rectangle_QAGallery_QALogEdit As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
@@ -515,6 +516,85 @@ QALogEdit As screen:
         Y: =41
         ZIndex: =26
 
+    Button_CSV_Download_QALogEdit As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =UpdateContext({LodingPopup:true});
+            Notify("CSV 다운로드 중입니다");
+            
+            UpdateContext({output_csv:'똑실이-[Apps]질의응답CSV임시파일생성'.Run(TextInput_SearchUser_QALogEdit.Text,TextInput_SearchQuestion_QALogEdit.Text,DatePicker_SearchDateMin_QALogEdit.SelectedDate,DatePicker_SearchDateMax_QALogEdit.SelectedDate,Checkbox_LikeCheck_QALogEdit.Value, User().Email)});
+            
+            UpdateContext({download_link:output_csv.download_link});
+            
+            UpdateContext({onedrive_file_id:output_csv.onedrive_file_id});
+            
+            If(
+                IsBlank(output_csv.download_link),
+                Notify("일시적인 문제가 발생했습니다 다시 시도해주세요",NotificationType.Error),
+                Launch(download_link);
+                Notify("CSV 다운로드 완료",NotificationType.Success)
+            );
+            
+            '똑실이-[Apps]질의응답CSV임시파일삭제'.Run(onedrive_file_id);
+            
+            UpdateContext({LodingPopup:false});
+        PaddingBottom: =8
+        PaddingLeft: =46
+        PaddingRight: =16
+        PaddingTop: =8
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="CSV 다운로드"
+        Width: =165
+        X: =1572
+        Y: =41
+        ZIndex: =27
+
+    Icon_CSV_Download_QALogEdit As icon.Download:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =Color.Black
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =24
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Download
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =28
+        X: =1585
+        Y: =48
+        ZIndex: =28
+
     Background_Modal_QALogEdit As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -528,7 +608,7 @@ QALogEdit As screen:
         Visible: =QALogEditVisible
         Width: =1919
         X: =1
-        ZIndex: =27
+        ZIndex: =29
 
     Image_Refresh_QALogEdit As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -547,10 +627,10 @@ QALogEdit As screen:
         Width: =20
         X: =1776
         Y: =51
-        ZIndex: =28
+        ZIndex: =30
 
     New_Component_GNB_QALogEdit As New_Component_GNB:
-        ZIndex: =29
+        ZIndex: =31
 
     Group_QuestionPopup_QALogEdit As group:
         Height: =5
@@ -589,7 +669,7 @@ QALogEdit As screen:
             Width: =634
             X: =700
             Y: =255
-            ZIndex: =40
+            ZIndex: =42
 
         Gallery_QuestionPopup_QALogEdit As gallery.galleryVertical:
             BorderColor: |-
@@ -599,7 +679,7 @@ QALogEdit As screen:
             Fill: |-
                 =ColorValue("#FFFFFF")
             Height: =605
-            Items: =Filter(똑실이_QA_table, ID= CheckedID,Answer)
+            Items: =Filter(똑실이_QA_table, ID= CheckedID)
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =566
@@ -607,7 +687,7 @@ QALogEdit As screen:
             Width: =583
             X: =725
             Y: =318
-            ZIndex: =41
+            ZIndex: =43
 
             Label_QuestionPopup_QALogEdit As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -644,7 +724,7 @@ QALogEdit As screen:
             Width: =213
             X: =730
             Y: =260
-            ZIndex: =42
+            ZIndex: =44
 
         Icon_QuestionPopupClose_QALogEdit As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -660,7 +740,7 @@ QALogEdit As screen:
             Width: =21
             X: =1289
             Y: =282
-            ZIndex: =43
+            ZIndex: =45
 
     Group_DeleteQA_QALogEdit As group:
         Height: =5
@@ -701,7 +781,7 @@ QALogEdit As screen:
             Width: =600
             X: =810
             Y: =419
-            ZIndex: =30
+            ZIndex: =32
 
         Button_OKDeleteQA_QALogEdit As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -741,7 +821,7 @@ QALogEdit As screen:
             Width: =50
             X: =1277
             Y: =523
-            ZIndex: =31
+            ZIndex: =33
 
         Button_CancleDeleteQA_QALogEdit As button:
             BorderColor: |-
@@ -784,7 +864,7 @@ QALogEdit As screen:
             Width: =50
             X: =1335
             Y: =523
-            ZIndex: =32
+            ZIndex: =34
 
         Label_DeleteQA_QALogEdit As label:
             Align: =Align.Center
@@ -804,7 +884,7 @@ QALogEdit As screen:
             Width: =193
             X: =827
             Y: =440
-            ZIndex: =33
+            ZIndex: =35
 
         Label_DeleteQASub_QALogEdit As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -822,7 +902,7 @@ QALogEdit As screen:
             Width: =562
             X: =829
             Y: =481
-            ZIndex: =34
+            ZIndex: =36
 
         Image_DeleteQAExit_QALogEdit As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -844,7 +924,7 @@ QALogEdit As screen:
             Width: =20
             X: =1367
             Y: =443
-            ZIndex: =35
+            ZIndex: =37
 
     Group_QALogGalleryHeader_QALogEdit As group:
         Height: =5
@@ -1017,7 +1097,7 @@ QALogEdit As screen:
             Width: =634
             X: =700
             Y: =269
-            ZIndex: =36
+            ZIndex: =38
 
         Gallery_AnswerPopup_QALogEdit As gallery.galleryVertical:
             BorderColor: |-
@@ -1027,7 +1107,7 @@ QALogEdit As screen:
             Fill: |-
                 =ColorValue("#FFFFFF")
             Height: =599
-            Items: =Filter(똑실이_QA_table, ID= CheckedID,Answer)
+            Items: =Filter(똑실이_QA_table, ID= CheckedID)
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =566
@@ -1035,7 +1115,7 @@ QALogEdit As screen:
             Width: =584
             X: =729
             Y: =332
-            ZIndex: =37
+            ZIndex: =39
 
             Label_AnswerPopup_QALogEdit As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1072,7 +1152,7 @@ QALogEdit As screen:
             Width: =213
             X: =725
             Y: =274
-            ZIndex: =38
+            ZIndex: =40
 
         Icon_AnswerPopup_QALogEdit As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -1088,7 +1168,7 @@ QALogEdit As screen:
             Width: =21
             X: =1300
             Y: =280
-            ZIndex: =39
+            ZIndex: =41
 
     Group_SherchQAGallery_QALogEdit As group:
         Height: =5
