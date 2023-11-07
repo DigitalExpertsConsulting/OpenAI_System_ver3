@@ -3,19 +3,27 @@ FileManage_1 As screen:
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |
-        =ClearCollect(FileSearchStack_FM_1, []);
-        
-        UpdateContext({
-            fileSearchLastId: Int(0)
+        =UpdateContext({
+            locLoadingSpinner: true,
+            fileSearchTimerStart: false
         });
         
         Concurrent(
-            UpdateContext({ ModalVisible: false }),
-            UpdateContext({ LogModalVisible: false }),
-            UpdateContext({ DelModalVisible: false }),
-            UpdateContext({ locLoadingSpinner: true }), // 로딩 스피너 활성화
-            Set(delPopUp_File,false),
-            Set(FileUploadLoding,false),
+            ClearCollect(FileSearchStack_FM_1, []),
+            ClearCollect(FileSearchResult_FM_1, [])
+        );
+        
+        Concurrent(
+            UpdateContext({
+                ModalVisible: false,
+                LogModalVisible: false,
+                DelModalVisible: false
+            }),
+            Set(delPopUp_File, false),
+            Set(FileUploadLoding, false),
+            Reset(TextInput_SearchFileName_FM_1),
+            Reset(DatePicker_SearchDateMin_FM_1),
+            Reset(DatePicker_SearchDateMax_FM_1),
             Reset(Dropdown_SearchCategoryLV1_FM_1), // 카테고리1 드롭박스 리셋
             Reset(Dropdown_SearchCategoryLV2_FM_1), // 카테고리2 드롭박스 리셋
             Reset(Gallery_FileList_FM_1) // 갤러리 드롭박스 리셋
@@ -61,7 +69,7 @@ FileManage_1 As screen:
             )
         );
         
-        UpdateContext({ locLoadingSpinner: false }) // 로딩 스피너 비활성화
+        Select(ResetFileSearchButton_FM_1);
 
     Button_AddButton_FM_1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -240,6 +248,7 @@ FileManage_1 As screen:
                 =ColorValue("#FFFFFF")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
             Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Lighter
             Height: =35
             HoverBorderColor: |
                 =Switch(
@@ -267,8 +276,12 @@ FileManage_1 As screen:
                     "삭제중",ColorValue("#FDF6F6"),
                     "생성완료",ColorValue("#F1FAF1")
                 )
-            OnSelect: |
-                =Patch(
+            OnSelect: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                
+                Patch(
                     똑실이_FileUpload_table,
                     LookUp(똑실이_FileUpload_table, ID = ThisItem.ID),
                     {
@@ -287,9 +300,11 @@ FileManage_1 As screen:
                         file_id: ThisItem.ID, 
                         filename: ThisItem.File_Name
                     }
-                )
+                );
                 
                 //'똑실이-파일인덱스생성'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
+                
+                Select(Button_Refresh_FM_1);
             PaddingLeft: =30
             PressedBorderColor: |
                 =Switch(
@@ -758,7 +773,11 @@ FileManage_1 As screen:
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =UpdateContext({fileSearchTimerStart: false});
+            =UpdateContext({
+                locLoadingSpinner: true,
+                fileSearchTimerStart: false
+            });
+            
             Reset(FileSearchTimer_FM_1);
             UpdateContext({fileSearchTimerStart: true});
         PaddingLeft: =30
@@ -1317,72 +1336,62 @@ FileManage_1 As screen:
                 =ColorValue("#115EA3")
             OnSelect: |+
                 =If(
-                    Dropdown_LV1Category_FileUpload_FM_1.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM_1.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
-                    Notify("할당된 카테고리가 없습니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
+                    Dropdown_LV1Category_FileUpload_FM_1.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM_1.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
+                    Error("할당된 카테고리가 없습니다.");
                 );
                 
                 
                 If(IsEmpty(DataCardValue_Attachment_FileUpload_FM_1.Attachments),
-                    Notify("첨부 파일 등록은 필수입니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
+                    Error("첨부 파일 등록은 필수입니다.");
                 );
                 
                 If(
                     Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM_1.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM_1.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
-                
-                Notify("동일한 파일이 이미 존재합니다.",NotificationType.Error),
-                If(
-                    !ErrorFM,
-                    UpdateContext({
-                        FileUploadResult: 
-                        ""
-                    });
-                
-                
-                    UpdateContext({
-                        FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
-                            Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
-                            Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
-                            {
-                                file: {
-                                    name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
-                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
-                                }
-                            }
-                        ).filename
-                    });
-                
-                    Patch(
-                        똑실이_FileUpload_table,
-                        {
-                            제목: Concatenate(
-                                Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
-                                "-",
-                                First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name
-                            ),
-                            Upload_Date: Now(),
-                            Category_LV1: Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
-                            Category_LV2: Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
-                            File_Name: FileUploadResult,
-                            File_Type: Upper(
-                                Last(
-                                    Split(
-                                        First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
-                                        "."
-                                    )
-                                ).Value
-                            ),
-                            FileNameNoExtension : gblFileNameNoExtension
-                            ,
-                            //Index_Status: "not_indexed"
-                            Index_Status:"uploading"
-                        }
-                    );
-                )
+                    Error("동일한 파일이 이미 존재합니다.");
                 );
                 
-                Refresh(똑실이_FileUpload_table);
                 
-                UpdateContext({ModalVisible: false });
+                UpdateContext({
+                    FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
+                        Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
+                        Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                        {
+                            file: {
+                                name: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                                contentBytes: First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Value
+                            }
+                        }
+                    ).filename
+                });
+                
+                Patch(
+                    똑실이_FileUpload_table,
+                    {
+                        제목: Concatenate(
+                            Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                            "-",
+                            First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name
+                        ),
+                        Upload_Date: Now(),
+                        Category_LV1: Dropdown_LV1Category_FileUpload_FM_1.Selected.Value,
+                        Category_LV2: Dropdown_LV2Category_FileUpload_FM_1.Selected.Value,
+                        File_Name: FileUploadResult,
+                        File_Type: Upper(
+                            Last(
+                                Split(
+                                    First(DataCardValue_Attachment_FileUpload_FM_1.Attachments).Name,
+                                    "."
+                                )
+                            ).Value
+                        ),
+                        FileNameNoExtension : gblFileNameNoExtension,
+                        //Index_Status: "not_indexed"
+                        Index_Status: "uploading"
+                    }
+                );
+                
+                UpdateContext({ModalVisible: false});
+                Select(ResetFileSearchButton_FM_1);
                 
                 ResetForm(Form_FileUpload_FM_1);
                 
@@ -1500,7 +1509,10 @@ FileManage_1 As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                
                 Patch(
                     똑실이_Index_Remove,
                     {
@@ -1534,6 +1546,8 @@ FileManage_1 As screen:
                 
                 Set(delPopUp_File,false);
                 UpdateContext({DelModalVisible : false});
+                
+                Select(Button_Refresh_FM_1);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1655,38 +1669,6 @@ FileManage_1 As screen:
             Y: =443
             ZIndex: =41
 
-    Background_Modal_PAUpload_FM_1 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =FileUploadLoding
-        Width: =1620
-        X: =300
-        ZIndex: =43
-
-    Image_PALoding_FM_1 As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =FileUploadLoding
-        X: =957
-        Y: =454
-        ZIndex: =44
-
     Image_LoadingSpinner_FM_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -1705,7 +1687,6 @@ FileManage_1 As screen:
         ZIndex: =45
 
     FileSearchTimer_FM_1 As timer:
-        AutoStart: =true
         BorderColor: =RGBA(105, 121, 126, 1)
         BorderStyle: =BorderStyle.None
         DisabledBorderColor: =RGBA(244, 244, 244, 1)
@@ -1719,12 +1700,7 @@ FileManage_1 As screen:
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnTimerStart: |+
             =UpdateContext({
-                locLoadingSpinner: true,
-                fileSearchLoading: true 
-            });
-            
-            UpdateContext({
-                fileSearchResponse: '[DEV]-똑실이-[Apps]파일검색'.Run({
+                fileSearchResponse: '똑실이-[Apps]파일검색'.Run({
                     // 파일명
                     text: TextInput_SearchFileName_FM_1.Text,
                     // StartDate
@@ -1757,8 +1733,7 @@ FileManage_1 As screen:
             );
             
             UpdateContext({ 
-                locLoadingSpinner: false,
-                FileSearchLoading: false
+                locLoadingSpinner: false
             });
             
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1766,8 +1741,9 @@ FileManage_1 As screen:
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Repeat: =true
         Start: =fileSearchTimerStart
-        X: =1167
-        Y: =35
+        Visible: =false
+        X: =1175
+        Y: =42
         ZIndex: =46
 
     ClearStartDateButton_FM_1 As icon.Cancel:
@@ -1850,15 +1826,10 @@ FileManage_1 As screen:
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
             OnChange: |-
-                =ClearCollect(FileSearchStack_FM_1, []);
-                UpdateContext({
-                    fileSearchLastId: 0,
-                    fileSearchTimerStart: false
+                =UpdateContext({
+                    locLoadingSpinner: true
                 });
-                Reset(FileSearchTimer_FM_1);
-                UpdateContext({
-                    fileSearchTimerStart: true
-                });
+                Select(ResetFileSearchButton_FM_1);
             PressedColor: =
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
@@ -1936,15 +1907,10 @@ FileManage_1 As screen:
                     Category_LV1
                 )
             OnChange: |-
-                =ClearCollect(FileSearchStack_FM_1, []);
-                UpdateContext({
-                    fileSearchLastId: 0,
-                    fileSearchTimerStart: false
+                =UpdateContext({
+                    locLoadingSpinner: true
                 });
-                Reset(FileSearchTimer_FM_1);
-                UpdateContext({
-                    fileSearchTimerStart: true
-                });
+                Select(ResetFileSearchButton_FM_1);
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2003,13 +1969,9 @@ FileManage_1 As screen:
                 )
             OnChange: |-
                 =UpdateContext({
-                    fileSearchLastId: 0,
-                    fileSearchTimerStart: false
+                    locLoadingSpinner: true
                 });
-                Reset(FileSearchTimer_FM_1);
-                UpdateContext({
-                    fileSearchTimerStart: true
-                });
+                Select(ResetFileSearchButton_FM_1);
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2056,15 +2018,10 @@ FileManage_1 As screen:
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
             OnChange: |-
-                =ClearCollect(FileSearchStack_FM_1, []);
-                UpdateContext({
-                    fileSearchLastId: 0,
-                    fileSearchTimerStart: false
+                =UpdateContext({
+                    locLoadingSpinner: true
                 });
-                Reset(FileSearchTimer_FM_1);
-                UpdateContext({
-                    fileSearchTimerStart: true
-                });
+                Select(ResetFileSearchButton_FM_1);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             StartYear: =
@@ -2089,15 +2046,10 @@ FileManage_1 As screen:
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
             OnChange: |-
-                =ClearCollect(FileSearchStack_FM_1, []);
-                UpdateContext({
-                    fileSearchLastId: 0,
-                    fileSearchTimerStart: false
+                =UpdateContext({
+                    locLoadingSpinner: true
                 });
-                Reset(FileSearchTimer_FM_1);
-                UpdateContext({
-                    fileSearchTimerStart: true
-                });
+                Select(ResetFileSearchButton_FM_1);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Visible: |
@@ -2140,21 +2092,24 @@ FileManage_1 As screen:
             ZIndex: =11
 
     PrevPageButton_FM_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0, DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
         Fill: |-
-            =ColorValue("#0F6CBD")
+            =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverColor: |-
+            =ColorValue("#242424")
         HoverFill: |-
-            =ColorValue("#115EA3")
+            =ColorValue("#F5F5F5")
         OnSelect: |-
             =If(
                 Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
@@ -2166,13 +2121,15 @@ FileManage_1 As screen:
                 fileSearchLastId: Coalesce(Last(FileSearchStack_FM_1).Value, 0)
             });
             
-            UpdateContext({fileSearchTimerStart: false});
-            Reset(FileSearchTimer_FM_1);
-            UpdateContext({fileSearchTimerStart: true});
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(Button_Refresh_FM_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedColor: =Color.Black
         PressedFill: |-
-            =ColorValue("#0C3B5E")
+            =ColorValue("#E0E0E0")
         RadiusBottomLeft: =4
         RadiusBottomRight: =4
         RadiusTopLeft: =4
@@ -2185,21 +2142,24 @@ FileManage_1 As screen:
         ZIndex: =49
 
     NextPageButton_FM_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(CountRows(FileSearchResult_FM_1) >= 10, DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(CountRows(FileSearchResult_FM_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
         Fill: |-
-            =ColorValue("#0F6CBD")
+            =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         FocusedBorderThickness: =2
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverColor: |-
+            =ColorValue("#242424")
         HoverFill: |-
-            =ColorValue("#115EA3")
+            =ColorValue("#F5F5F5")
         OnSelect: |-
             =If(
                 Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
@@ -2211,13 +2171,11 @@ FileManage_1 As screen:
                 fileSearchLastId: Coalesce(Last(FileSearchResult_FM_1).ID, 0)
             });
             
-            UpdateContext({fileSearchTimerStart: false});
-            Reset(FileSearchTimer_FM_1);
-            UpdateContext({fileSearchTimerStart: true});
+            Select(Button_Refresh_FM_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedColor: =Color.Black
         PressedFill: |-
-            =ColorValue("#0C3B5E")
+            =ColorValue("#E0E0E0")
         RadiusBottomLeft: =4
         RadiusBottomRight: =4
         RadiusTopLeft: =4
@@ -2228,4 +2186,76 @@ FileManage_1 As screen:
         X: =1076
         Y: =950
         ZIndex: =50
+
+    ResetFileSearchButton_FM_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =Concurrent(
+                ClearCollect(FileSearchStack_FM_1, []),
+                ClearCollect(FileSearchResult_FM_1, [])
+            );
+            
+            UpdateContext({
+                fileSearchLastId: 0,
+                fileSearchTimerStart: false
+            });
+            
+            Reset(FileSearchTimer_FM_1);
+            
+            UpdateContext({
+                fileSearchTimerStart: true
+            });
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="ResetFileSearch"
+        Visible: =false
+        Width: =192
+        X: =1372
+        Y: =42
+        ZIndex: =52
+
+    "'NoDataLabel_FM_1' As label":
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =43
+        Size: =13
+        Text: ="검색된 파일이 없습니다."
+        Visible: =(CountRows(FileSearchResult_FM_1) = 0) && (locLoadingSpinner = false)
+        Width: =298
+        X: =932
+        Y: =308
+        ZIndex: =53
 
