@@ -1,6 +1,7 @@
 Agent_DeliveredContent As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: =
+    OnVisible: |-
+        =UpdateContext({AgentDataEditPopup:false}); // 팝업 false
 
     Label_ContentsMain_Agent_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -84,7 +85,7 @@ Agent_DeliveredContent As screen:
             Y: =126
             ZIndex: =5
 
-    Background_Popup_AFM_1 As rectangle:
+    Background_Popup_Agent_Delivered As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -99,7 +100,7 @@ Agent_DeliveredContent As screen:
                 Category_LV1
             )
         PressedFill: =
-        Visible: =AgentDataEdit
+        Visible: =AgentDataEditPopup
         Width: =1920
         ZIndex: =12
 
@@ -127,8 +128,9 @@ Agent_DeliveredContent As screen:
         RadiusTopRight: =8
         Size: =15
         Text: =""
+        Visible: =AgentDataEditPopup
         Width: =800
-        X: =618
+        X: =628
         Y: =348
         ZIndex: =13
 
@@ -177,6 +179,45 @@ Agent_DeliveredContent As screen:
             X: =873
             Y: =135
             ZIndex: =7
+
+    Label_Agent_Function_Edit As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Size: =20
+        Text: ="Agent Data"
+        Visible: =AgentDataEditPopup
+        Width: =160
+        X: =655
+        Y: =370
+        ZIndex: =14
+
+    Icon_Agent_function_Edit_Close As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =40
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =Exit
+        OnSelect: |-
+            =UpdateContext({AgentDataEditPopup:false})
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =AgentDataEditPopup
+        Width: =40
+        X: =1370
+        Y: =370
+        ZIndex: =15
 
     Group_Agent_Category As group:
         Height: =5
@@ -380,13 +421,8 @@ Agent_DeliveredContent As screen:
                 HoverBorderColor: =RGBA(189, 189, 189, 1)
                 HoverColor: =//RGBA(36, 36, 36, 1)
                 HoverFill: =//ColorFade(RGBA(105, 121, 126, 1), -10%)
-                OnSelect: |-
-                    =Concurrent(
-                        Set(gblSelectedAgentFunctionItemID,ThisItem.ID), //선택한 Agent 기능 ID값 gblSelectedAgentFunctionItemID 변수에 할당
-                        Set(gblSelectedAgentFunctionItemType,ThisItem.Type), //선택한 Agent 기능 Type값 gblSelectedAgentFunctionItemType 변수에 할당
-                        Set(gblSelectedAgentFunctionItemFuction_ID,ThisItem.Function_ID) //선택한 Agent 기능 Fuction_ID값 gblSelectedAgentFunctionItemFuction_ID 변수에 할당
-                    );
-                    Navigate('AgentFunctionEditData (AFED)_1')
+                OnSelect: |
+                    =UpdateContext({AgentDataEditPopup:true})
                 PaddingBottom: =8
                 PaddingLeft: =8
                 PaddingRight: =8
