@@ -3,11 +3,13 @@ Gpt_DeliveredContent As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
         =UpdateContext(
-            {SelectedDefault:Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1)}
-        
+            {
+                GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
+            }
         );
         
-        UpdateContext({SelectedTopContent:""});
+        //UpdateContext({SelectedTopContent:""});
+        UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
 
     Label_ContentsMain_GPT_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -302,7 +304,7 @@ Gpt_DeliveredContent As screen:
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Text: =If(IsBlank(ThisItem.History),"내역이 없습니다.",ThisItem.History)
+                Text: =If(IsBlank(ThisItem.History),"-",ThisItem.History)
                 Width: =950
                 Wrap: =false
                 X: =20
@@ -350,17 +352,4 @@ Gpt_DeliveredContent As screen:
         X: =889
         Y: =225
         ZIndex: =18
-
-    ButtonCanvas1 As 버튼:
-        DisplayMode: =DisplayMode.Edit
-        Height: =32
-        OnSelect: |-
-            =UpdateContext(
-                {SelectedDefault:Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1)}
-            
-            );
-        Width: =96
-        X: =1018
-        Y: =0
-        ZIndex: =19
 
