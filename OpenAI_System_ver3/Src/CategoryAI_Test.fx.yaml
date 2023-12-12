@@ -268,6 +268,7 @@ CategoryAI_Test As screen:
         OnSelect: |-
             =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
             //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
+        Selectable: =false
         ShowScrollbar: =false
         TemplatePadding: =0
         TemplateSize: =If(!IsBlank(testV),CountRows(Gallery_Main_CategoryMenu_1.AllItems) * 64,71)
@@ -364,15 +365,19 @@ CategoryAI_Test As screen:
         Gallery_Sub_CategoryMenu_1 As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =71
+            Height: =CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10
             Items: |
                 =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
+            Selectable: =false
             ShowScrollbar: =false
             TemplateSize: =80
-            Visible: =If(ThisItem.Value=testV,true,false)
+            Visible: |-
+                =//If(ThisItem.Value=testV,true,false)
+                true
             Width: =1490
+            Y: =63
             ZIndex: =4
 
             Button_SubGalleryBody_CategoryMenu_1 As button:
