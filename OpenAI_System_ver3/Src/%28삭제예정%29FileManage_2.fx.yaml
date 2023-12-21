@@ -33,14 +33,15 @@
         
         ClearCollect(
             colCategory,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0"},
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1"},
             SortByColumns(
                 ForAll(
                     Table(ParseJSON(categoryList)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID)
                     }
                 ),
                 "Category_LV1",
@@ -2351,11 +2352,13 @@
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Height: =461
+        Height: =574
         Size: =13
         Text: |-
             ="[삭제예정] 확인용" & Char(10) & Char(10) &
             
+            // 카테고리 이름으로 하던거
+            /*
             Substitute(
                 Concatenate(
                     Concat(
@@ -2367,8 +2370,20 @@
                 ),"?delete_point",""
             )
             //Category_LV1 eq '']}'
-        Width: =1539
-        X: =126
-        Y: =211
+            */
+            
+            Substitute(
+                Concatenate(
+                    Concat(
+                        Distinct
+                        (
+                            colCategory, ID
+                        ), Value & "?"
+                    ),"delete_point"
+                ),"?delete_point",""
+            )
+        Width: =1671
+        X: =249
+        Y: =88
         ZIndex: =50
 
