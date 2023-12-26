@@ -460,8 +460,28 @@ FileManage_2 As screen:
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             DisplayMode: |-
-                =DisplayMode.Edit
+                =//DisplayMode.Edit
+                
                 /*
+                
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    "슈퍼사용자",
+                    If(
+                        Office365사용자.MyProfile().Mail = LookUp(
+                            똑실이_FileUpload_table,
+                            ID = 2174).'만든 사람'.Email,
+                        "가능",
+                        "불가능"
+                    )
+                )
+                
+                */
+                
+                
                 If(
                     Office365사용자.MyProfile().Mail in LookUp(
                         똑실이_SuperAdmin_table,
@@ -469,12 +489,11 @@ FileManage_2 As screen:
                     ).SuperUsers.Email,
                     DisplayMode.Edit,
                     If(
-                        Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email,
+                        Office365사용자.MyProfile().Mail = LookUp(똑실이_FileUpload_table,ID = ThisItem.ID).'만든 사람'.Email,
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
                 )
-                */
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
             Height: =35
@@ -564,6 +583,11 @@ FileManage_2 As screen:
             RadiusBottomRight: =10
             RadiusTopLeft: =10
             RadiusTopRight: =10
+            Tooltip: |-
+                =If(
+                    Self.DisplayMode = DisplayMode.Disabled,
+                    "삭제할 수 있는 권한이 없습니다"
+                )
             Transparency: =If(Image_Delete_Gallery_FileList_FM_2.DisplayMode = DisplayMode.Disabled, 0.5,0)
             Width: =35
             X: =1464
@@ -2364,39 +2388,4 @@ FileManage_2 As screen:
         X: =932
         Y: =308
         ZIndex: =49
-
-    "'(삭제예정)_test_1' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Height: =124
-        Size: =13
-        Text: |-
-            ="[삭제예정] 확인용" & Char(10) & Char(10) & Office365사용자.MyProfile().Id & Char(10)  & Char(10) &
-            
-            If(
-                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                // LV1=전체 LV2=전체 일경우
-                Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
-                // 카테고리LV1만 선택한 경우
-                If(
-                    Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
-                    // 카테고리LV2만 선택한 경우
-                    If(
-                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                        Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV2 = Text(Dropdown_SearchCategoryLV2_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
-                        // LV1, LV2 둘다 선택한 경우
-                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value & "/" & Dropdown_SearchCategoryLV2_FM_3.Selected.Value
-                    )
-                )
-            )
-        Width: =694
-        X: =614
-        ZIndex: =50
 
