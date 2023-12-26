@@ -1884,7 +1884,25 @@
             
             
             UpdateContext({
-                fileSearchResponse: '[DEV]똑실이-[Apps]파일검색'.Run(Substitute(Concatenate(Concat(Distinct(colCategory,Category_LV1LV2),Value&"?"),"delete_point"),"?delete_point",""),{
+                fileSearchResponse: '[DEV]똑실이-[Apps]파일검색'.Run(
+                    If(
+                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV2 = Text(Dropdown_SearchCategoryLV2_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value & "/" & Dropdown_SearchCategoryLV2_FM_3.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
                     // 파일명
                     text: TextInput_SearchFileName_FM_2.Text,
                     // StartDate
@@ -2425,7 +2443,7 @@
             If(
                 Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
                 // LV1=전체 LV2=전체 일경우
-                Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
                 // 카테고리LV1만 선택한 경우
                 If(
                     Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
