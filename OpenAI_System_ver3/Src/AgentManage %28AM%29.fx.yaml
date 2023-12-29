@@ -868,10 +868,19 @@
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =Distinct(
+                =/*Distinct(
                     colAgentManage.Category_LV1,
                     Category_LV1
-                )
+                )*/
+                
+                Distinct(
+                        SortByColumns(
+                            colAgentManage.Category_LV1,
+                            "Category_LV1",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV1
+                    )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -906,18 +915,26 @@
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
+            Items: |
                 =If(
                     Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     Distinct(
+                        SortByColumns(
                         colAgentManage,
+                        "Category_LV2",
+                        SortOrder.Ascending
+                        ),
                         Category_LV2
                     )
                     ,
                     Distinct(
+                        SortByColumns(
                         Filter(
                             colAgentManage,
                             Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
                         ),
                         Category_LV2
                     )
@@ -993,24 +1010,37 @@
                     Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     // 둘다 전체 일때
                     Distinct(
+                        SortByColumns(
                         colAgentManageType,
+                        "Type",
+                        SortOrder.Ascending
+                        ),
                         Type
                     ),
+                
                     // CategoryLv1만 선택됬을때
                     If(
                         Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                         Distinct(
+                            SortByColumns(
                             Filter(
                                 colAgentManageType,
                                 Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            "Type",
+                            SortOrder.Ascending
                             ),
                             Type
                         ),
                         // CategoryLv2만 선택됬을때
                         Distinct(
+                            SortByColumns(
                             Filter(
                                 colAgentManageType,
                                 Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value || Category_LV2 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            "Type",
+                            SortOrder.Ascending
                             ),
                             Type
                         )
