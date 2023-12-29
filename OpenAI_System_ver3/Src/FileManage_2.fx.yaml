@@ -2187,18 +2187,18 @@ FileManage_2 As screen:
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =Distinct(
-                    SortByColumns(
                     colCategory,
-                    "Category_LV1",
-                    SortOrder.Ascending
-                    ),
                     Category_LV1
                 )
-            OnChange: |-
+            OnChange: |+
                 =UpdateContext({
                     locLoadingSpinner: true
                 });
                 Select(ResetFileSearchButton_FM_2);
+                Select(Button1);
+                
+                
+            OnSelect: =
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -2235,9 +2235,29 @@ FileManage_2 As screen:
                 =If(
                     Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     Distinct(
+                        newcolCategory
+                        Category_LV2
+                    )
+                    ,
+                    Distinct(
+                        SortByColumns(
+                            Filter(
+                                newcolCategory,
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                            ),
+                            //"LV2Order",
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV2
+                    )
+                )
+                
+                /*If(
+                    Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    Distinct(
                         SortByColumns(
                             colCategory,
-                            //"LV2Order",
                             "Category_LV2",
                             SortOrder.Ascending
                         ),
@@ -2256,7 +2276,7 @@ FileManage_2 As screen:
                         ),
                         Category_LV2
                     )
-                )
+                )*/
             OnChange: |-
                 =UpdateContext({
                     locLoadingSpinner: true
@@ -2273,7 +2293,8 @@ FileManage_2 As screen:
             Size: =13
             Width: =240
             X: =Label_SearchCategoryArrow_FM_3.X + Label_SearchCategoryArrow_FM_3.Width
-            Y: =148
+            Y: |
+                =148
             ZIndex: =6
 
         Label_SearchCategoryArrow_FM_3 As label:
@@ -2399,4 +2420,44 @@ FileManage_2 As screen:
         X: =932
         Y: =308
         ZIndex: =49
+
+    Button1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                newcolCategory,
+            
+                First(colCategory),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colCategory,CountRows(colCategory)-1),
+                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value = Category_LV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        X: =876
+        Y: =47
+        ZIndex: =50
 
