@@ -31,6 +31,7 @@ FileManage_2 As screen:
         
         Set(categoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
         
+        // 검색 핕터에 적용되는 Category
         ClearCollect(
             colCategory,
             {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
@@ -65,6 +66,8 @@ FileManage_2 As screen:
                 )
         );
         
+        
+        // 파일추가 파업에 적용되는 Category
         ClearCollect(
             colCategorySelect,
             {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
@@ -82,6 +85,19 @@ FileManage_2 As screen:
                 "Category_LV2",
                 SortOrder.Ascending
             )
+        );
+        
+        
+        ClearCollect(
+            colCategorySelect_LV2,
+        
+            First(colCategorySelect),
+            
+            SortByColumns(
+                    LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
         );
         
         Select(ResetFileSearchButton_FM_2);
@@ -1248,6 +1264,12 @@ FileManage_2 As screen:
                             ),
                             Category_LV1
                         )
+                    OnChange: |
+                        =If(
+                            Dropdown_LV1Category_FileUpload_FM_2.Selected.Value=DEFAULT_SELECT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1All_FileUpload_FM_2),
+                            Select(Button_SelectLV1_FileUpload_FM_2)
+                        )
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -1281,7 +1303,13 @@ FileManage_2 As screen:
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
-                        =If(
+                        =
+                        Distinct(
+                                colCategorySelect_LV2,
+                                Category_LV2
+                        )
+                        /*
+                        If(
                             Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
                             [DEFAULT_SELECT_CATEGORY_VALUE],
                             Distinct(
@@ -1297,6 +1325,7 @@ FileManage_2 As screen:
                                 Category_LV2
                             )
                         )
+                        */
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -2211,8 +2240,8 @@ FileManage_2 As screen:
                 
                 If(
                     Dropdown_SearchCategoryLV1_FM_3.Selected.Value=DEFAULT_CATEGORY_VALUE,
-                    Select(Button2),
-                    Select(Button1)
+                    Select(Button_SelectLV1All_FM_2),
+                    Select(Button_SelectLV1_FM_2)
                 )
                 
                 
@@ -2426,7 +2455,7 @@ FileManage_2 As screen:
         Y: =308
         ZIndex: =49
 
-    Button1 As button:
+    Button_SelectLV1_FM_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2461,12 +2490,14 @@ FileManage_2 As screen:
         RadiusTopLeft: =0
         RadiusTopRight: =0
         Size: =15
-        Text: ="버튼"
-        X: =876
-        Y: =47
+        Text: |-
+            ="LV2:LV1(선택)"
+        Visible: =false
+        X: =735
+        Y: =42
         ZIndex: =50
 
-    Button2 As button:
+    Button_SelectLV1All_FM_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -2480,7 +2511,7 @@ FileManage_2 As screen:
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnSelect: |-
             =ClearCollect(
-                newcolCategory,
+                colCategory_LV2,
             
                 First(colCategory),
                 
@@ -2498,8 +2529,91 @@ FileManage_2 As screen:
         RadiusTopLeft: =0
         RadiusTopRight: =0
         Size: =15
-        Text: ="버튼"
-        X: =667
-        Y: =47
+        Text: |-
+            ="LV2:LV1(전체)"
+        Visible: =false
+        X: =558
+        Y: =43
         ZIndex: =51
+
+    Button_SelectLV1All_FileUpload_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategorySelect_LV2,
+            
+                First(colCategorySelect),
+                
+                SortByColumns(
+                        LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(전체)"
+        Visible: =false
+        X: =949
+        Y: =42
+        ZIndex: =52
+
+    Button_SelectLV1_FileUpload_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategorySelect_LV2,
+            
+                First(colCategorySelect),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                            Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = Category_LV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(선택)"
+        Visible: =false
+        X: =1146
+        Y: =42
+        ZIndex: =53
 

@@ -39,6 +39,19 @@
             )
         );
         
+        
+        ClearCollect(
+            colAgentManage_LV2,
+        
+            First(colAgentManage),
+            
+            SortByColumns(
+                    LastN(colAgentManage,CountRows(colAgentManage)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
         // 4. 기본 Type 컬렉션 설정
         ClearCollect(
             colAgentManageType,
@@ -54,6 +67,18 @@
                     }        
                 )
             )
+        );
+        
+        ClearCollect(
+            colAgentManageType_Type,
+        
+            First(colAgentManageType),
+            
+            SortByColumns(
+                    LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                    "Type",
+                    SortOrder.Ascending
+                )
         );
         
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
@@ -254,7 +279,7 @@
         Visible: =locPopupBackground
         Width: =1620
         X: =300
-        ZIndex: =38
+        ZIndex: =37
 
     Background_LoadingSpinner_AM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -269,7 +294,7 @@
         Visible: =locLoadingSpinnerBackground
         Width: =1620
         X: =300
-        ZIndex: =45
+        ZIndex: =44
 
     Image_LoadingSpinner_AM As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -286,7 +311,88 @@
         Visible: =locLoadingSpinner
         X: =957
         Y: =454
+        ZIndex: =45
+
+    Button_SelectLV1All_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colAgentManage_LV2,
+            
+                First(colAgentManage),
+                
+                SortByColumns(
+                        LastN(colAgentManage,CountRows(colAgentManage)-1),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(전체)"
+        Visible: =false
+        X: =581
+        Y: =43
         ZIndex: =46
+
+    Button_SelectLV1_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colAgentManage_LV2,
+            
+                First(colAgentManage),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colAgentManage,CountRows(colAgentManage)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = Category_LV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(선택)"
+        Visible: =false
+        X: =758
+        Y: =42
+        ZIndex: =47
 
     Popup_ServerUpload_AM As group:
         Height: =5
@@ -309,7 +415,7 @@
             Width: =986
             X: =529
             Y: =143
-            ZIndex: =39
+            ZIndex: =38
 
         Button_PopupServerUpload_Close_AM As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -336,7 +442,7 @@
             Width: =52
             X: =1447
             Y: =169
-            ZIndex: =40
+            ZIndex: =39
 
         Label_PopupServerUpload_Title_AM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -355,7 +461,7 @@
             Width: =645
             X: =609
             Y: =180
-            ZIndex: =41
+            ZIndex: =40
 
         Button_PopupServerUpload_Submit_AM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -437,7 +543,7 @@
             Width: =100
             X: =1221
             Y: =813
-            ZIndex: =42
+            ZIndex: =41
 
         Button_PopupServerUpload_Cancel_AM As button:
             BorderColor: |-
@@ -483,7 +589,7 @@
             Width: =100
             X: =1333
             Y: =813
-            ZIndex: =43
+            ZIndex: =42
 
         Label_PopupServerUpload_json_AM As label:
             BorderColor: |-
@@ -506,7 +612,179 @@
             Width: =823
             X: =609
             Y: =240
-            ZIndex: =44
+            ZIndex: =43
+
+    Button_SelectLV1AllLV2All_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |+
+            =ClearCollect(
+                colAgentManageType_Type,
+            
+                First(colAgentManageType),
+                
+                SortByColumns(
+                        LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                        "Type",
+                        SortOrder.Ascending
+                    )
+            )
+            
+            
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="Type:LV1(전체)/LV2(전체)"
+        Visible: =false
+        X: =969
+        Y: =42
+        ZIndex: =50
+
+    Button_SelectLV1LV2All_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colAgentManageType_Type,
+            
+                First(colAgentManageType),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = Category_LV1
+                        ),
+                        "Type",
+                        SortOrder.Ascending
+                    )
+            );
+            
+            
+            
+                        
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="Type:LV1(선택)/LV2(전체)"
+        Visible: =false
+        X: =1175
+        Y: =42
+        ZIndex: =51
+
+    Button_SelectLV1AllLV2_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |+
+            =ClearCollect(
+                colAgentManageType_Type,
+            
+                First(colAgentManageType),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                            Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = Category_LV2
+                        ),
+                        "Type",
+                        SortOrder.Ascending
+                    )
+            )
+            
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="Type:LV1(전체)/LV2(선택)"
+        Visible: =false
+        X: =1370
+        Y: =42
+        ZIndex: =52
+
+    Button_SelectLV1LV2_FM_3 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |
+            =ClearCollect(
+                colAgentManageType_Type,
+            
+                First(colAgentManageType),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = Category_LV1 && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = Category_LV2
+                        ),
+                        "Type",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="Type:LV1(선택)/LV2(선택)"
+        Visible: =false
+        X: =1380
+        Y: =112
+        ZIndex: =53
 
     AgentFunction_AM As group:
         Height: =5
@@ -867,12 +1145,19 @@
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =/*Distinct(
+            Items: |
+                =Distinct(
+                    colAgentManage,
+                    Category_LV1
+                )
+                
+                
+                /*Distinct(
                     colAgentManage.Category_LV1,
                     Category_LV1
                 )*/
                 
+                /*
                 Distinct(
                         SortByColumns(
                             colAgentManage.Category_LV1,
@@ -881,6 +1166,37 @@
                         ),
                         Category_LV1
                     )
+                */
+            OnChange: |-
+                =//LV2를 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    Select(Button_SelectLV1All_FM_3),
+                    Select(Button_SelectLV1_FM_3)
+                );
+                
+                
+                //Type을 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Select(Button_SelectLV1AllLV2All_FM_3),
+                   
+                
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                       Select(Button_SelectLV1LV2All_FM_3),
+                        // CategoryLv2만 선택됬을때
+                        If(
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1AllLV2_FM_3),
+                            // CategoryLv1, CategoryLv2 선택됬을때
+                            Select(Button_SelectLV1LV2_FM_3)
+                       )
+                       
+                    )
+                )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -893,7 +1209,8 @@
             Tooltip: ="카테고리 LV1을 선택해주세요"
             Width: =240
             X: =870
-            Y: =702
+            Y: |
+                =702
             ZIndex: =16
 
         Dropdown_GalleryFilter_CategoryLV2_AM As dropdown:
@@ -915,8 +1232,15 @@
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |
-                =If(
+            Items: |-
+                =Distinct(
+                    colAgentManage_LV2,
+                    Category_LV2
+                )
+                
+                
+                /*
+                If(
                     Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     Distinct(
                         SortByColumns(
@@ -939,6 +1263,29 @@
                         Category_LV2
                     )
                 )
+                */
+            OnChange: |-
+                =//Type을 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Select(Button_SelectLV1AllLV2All_FM_3),
+                   
+                
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                       Select(Button_SelectLV1LV2All_FM_3),
+                        // CategoryLv2만 선택됬을때
+                        If(
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1AllLV2_FM_3),
+                            // CategoryLv1, CategoryLv2 선택됬을때    
+                            Select(Button_SelectLV1LV2_FM_3)
+                        )
+                       
+                    )
+                )
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -950,8 +1297,9 @@
             Size: =13
             Tooltip: ="카테고리 LV2을 선택해주세요"
             Width: =240
-            X: =1167
-            Y: =702
+            X: =1158
+            Y: |
+                =702
             ZIndex: =17
 
         "'Label_GalleryFilter_>_AM' As label":
@@ -1006,7 +1354,14 @@
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =If(
+                =
+                Distinct(
+                    colAgentManageType_Type,
+                    Type
+                )
+                
+                /*
+                If(
                     Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     // 둘다 전체 일때
                     Distinct(
@@ -1046,6 +1401,7 @@
                         )
                     )
                 )
+                */
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
