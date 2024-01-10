@@ -28,7 +28,21 @@
             UpdateContext({tokenVisible:false})
         );
         
-        // Category_LV1 목록 가져오기
+        // 검색 필터에 적용되는 Category_LV1 목록 가져오기
+        ClearCollect(
+            colCategoryLV1,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1)
+                    }
+                ),
+            "Category_LV1",
+            SortOrder.Ascending
+            )
+        );
 
     Button_Refresh_TokenMenu_1 As button:
         BorderColor: |-
