@@ -2,7 +2,7 @@
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |+
+    OnVisible: |-
         =// 로딩 이미지 및 타이머 초기화
         UpdateContext({
             locLoadingSpinner: true,
@@ -30,7 +30,7 @@
         
         // 검색 필터에 적용되는 Category_LV1 목록 가져오기
         ClearCollect(
-            colCategoryLV1Test,
+            colCategoryLV1,
             {Category_LV1: DEFAULT_CATEGORY_VALUE},
             SortByColumns(
                 ForAll(
@@ -44,6 +44,9 @@
             )
         );
         
+        Select(FileSearchTimer_TokenMenu_1);
+        
+        UpdateContext({locLoadingSpinner:false});
 
     Button_Refresh_TokenMenu_1 As button:
         BorderColor: |-
@@ -132,7 +135,7 @@
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
-        Items: =DropDownSample
+        Items: =colCategoryLV1
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -561,6 +564,159 @@
         X: =795
         Y: =23
         ZIndex: =35
+
+    ResetFileSearchButton_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =Concurrent(
+                UpdateContext({tokenSearchStack_FM_1: []}),
+                UpdateContext({tokenSearchResult_FM_1: []})
+            );
+            
+            UpdateContext({
+                tokenSearchLastId: 0,
+                tokenSearchTimerStart: false
+            });
+            
+            Reset(FileSearchTimer_TokenMenu_1);
+            
+            UpdateContext({
+                tokenSearchTimerStart: true
+            });
+            
+            /*
+            // 토큰 검색 Stack 변수 초기화
+            Concurrent(
+                UpdateContext({tokenSearchStack_FM_1: []}),
+                UpdateContext({tokenSearchResult_FM_1: []})
+            );
+            
+            // 기타 초기화작업
+            Concurrent(
+                Refresh(똑실이_Token_table);,
+                UpdateContext({tokenCheckedID:Blank()});,
+                UpdateContext({tokenAnswerPopup:false});,
+                UpdateContext({tokenQuestionPopup:false});,
+                Reset(TextInput_SearchQuestion_TokenMenu_1);,
+                Reset(DatePicker_SearchDateMin_TokenMenu_1);,
+                Reset(DatePicker_SearchDateMax_TokenMenu_1);,
+                Reset(Dropdown_SearchCategory_TokenMenu_1);,
+                UpdateContext({tokenVisible:false})
+            );
+            */
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="ResetFileSearch"
+        Width: =192
+        X: =1372
+        Y: =42
+        ZIndex: =36
+
+    FileSearchTimer_TokenMenu_1 As timer:
+        BorderColor: =RGBA(105, 121, 126, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(244, 244, 244, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Duration: =5000
+        Fill: =RGBA(105, 121, 126, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnTimerStart: |+
+            =
+            
+            
+            UpdateContext({
+                fileSearchResponse: '똑실이-[Apps]파일검색_V2'.Run(
+                    If(
+                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV2 = Text(Dropdown_SearchCategoryLV2_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value & "/" & Dropdown_SearchCategoryLV2_FM_3.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
+                    // 파일명
+                    text: TextInput_SearchFileName_FM_2.Text,
+                    // StartDate
+                    text_1: Text(DatePicker_SearchDateMin_FM_2.SelectedDate, "yyyy-mm-dd"),
+                    // EndDate
+                    text_2: Text(DatePicker_SearchDateMax_FM_2.SelectedDate, "yyyy-mm-dd"),
+                    // Category_LV1
+                    text_3: If(Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE, "", Dropdown_SearchCategoryLV1_FM_3.Selected.Value),
+                    // Category LV2
+                    text_4: If(Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE, "", Dropdown_SearchCategoryLV2_FM_3.Selected.Value),
+                    // 스킵 ID
+                    number: Coalesce(tokenSearchLastId, 0)
+                }).result_json
+            });
+            
+            ClearCollect(
+                FileSearchResult_FM_1,
+                ForAll(
+                    Table(ParseJSON(fileSearchResponse)),
+                    {
+                        ID: Int(ThisRecord.Value.ID),
+                        File_Name: Text(ThisRecord.Value.File_Name),
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                        Index_Status: Text(ThisRecord.Value.Index_Status),
+                        Index_Log: Text(ThisRecord.Value.Index_Log)
+                    }
+                )
+            );
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Repeat: =true
+        Start: =tokenSearchTimerStart
+        X: =1195
+        Y: =62
+        ZIndex: =37
 
     Group_QuestionPopup_TokenMenu_1 As group:
         Height: =5
