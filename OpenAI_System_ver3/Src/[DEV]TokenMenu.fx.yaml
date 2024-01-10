@@ -11,8 +11,8 @@
         
         // 토큰 검색 Stack 변수 초기화
         Concurrent(
-            UpdateContext({tokenSearchStack_FM_1: []}),
-            UpdateContext({tokenSearchResult_FM_1: []})
+            UpdateContext({tokenSearchStack_1: []}),
+            UpdateContext({tokenSearchResult_1: []})
         );
         
         // 기타 초기화작업
@@ -44,7 +44,7 @@
             )
         );
         
-        Select(FileSearchTimer_TokenMenu_1);
+        Select(ResetFileSearchButton_TokenMenu_1);
         
         UpdateContext({locLoadingSpinner:false});
 
@@ -586,8 +586,8 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =Concurrent(
-                UpdateContext({tokenSearchStack_FM_1: []}),
-                UpdateContext({tokenSearchResult_FM_1: []})
+                UpdateContext({tokenSearchStack_1: []}),
+                UpdateContext({tokenSearchResult_1: []})
             );
             
             UpdateContext({
@@ -604,8 +604,8 @@
             /*
             // 토큰 검색 Stack 변수 초기화
             Concurrent(
-                UpdateContext({tokenSearchStack_FM_1: []}),
-                UpdateContext({tokenSearchResult_FM_1: []})
+                UpdateContext({tokenSearchStack_1: []}),
+                UpdateContext({tokenSearchResult_1: []})
             );
             
             // 기타 초기화작업
@@ -655,7 +655,7 @@
             
             
             UpdateContext({
-                fileSearchResponse: '똑실이-[Apps]파일검색_V2'.Run(
+                tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
                     If(
                         Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
                         // LV1=전체 LV2=전체 일경우
@@ -689,10 +689,11 @@
                 }).result_json
             });
             
+            /*
             ClearCollect(
                 FileSearchResult_FM_1,
                 ForAll(
-                    Table(ParseJSON(fileSearchResponse)),
+                    Table(ParseJSON(tokenSearchResponse)),
                     {
                         ID: Int(ThisRecord.Value.ID),
                         File_Name: Text(ThisRecord.Value.File_Name),
@@ -703,6 +704,25 @@
                         Index_Log: Text(ThisRecord.Value.Index_Log)
                     }
                 )
+            );
+            */
+            
+            UpdateContext(
+                {
+                    tokenSearchResult_1:
+                    ForAll(
+                        Table(ParseJSON(tokenSearchResponse)),
+                        {
+                            ID: Int(ThisRecord.Value.ID),
+                            File_Name: Text(ThisRecord.Value.File_Name),
+                            Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                            Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                            Index_Status: Text(ThisRecord.Value.Index_Status),
+                            Index_Log: Text(ThisRecord.Value.Index_Log)
+                        }
+                    )
+                }
             );
             
             UpdateContext({ 
