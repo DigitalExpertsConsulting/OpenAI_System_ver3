@@ -2,17 +2,35 @@
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
-        =Concurrent(
+    OnVisible: |+
+        =// 로딩 이미지 및 타이머 초기화
+        UpdateContext({
+            locLoadingSpinner: true,
+            tokenSearchTimerStart: false
+        });
+        
+        // 토큰 검색 Stack 변수 초기화
+        Concurrent(
+            UpdateContext({tokenSearchStack_FM_1: []}),
+            UpdateContext({tokenSearchResult_FM_1: []})
+        );
+        
+        // 기타 초기화작업
+        Concurrent(
             Refresh(똑실이_Token_table);,
-            Set(CheckedID, Blank());,
-            Set(TokenAnswerPopup,false);
-            Set(TokenQuestionPopup,false);
+            UpdateContext({TokenCheckedID:Blank()});,
+            UpdateContext({TokenAnswerPopup:false});,
+            UpdateContext({TokenQuestionPopup:false});,
             Reset(TextInput_SearchQuestion_TokenMenu_1);,
             Reset(DatePicker_SearchDateMin_TokenMenu_1);,
             Reset(DatePicker_SearchDateMax_TokenMenu_1);,
+            Reset(Dropdown_SearchCategory_TokenMenu_1);,
             UpdateContext({TokenVisible:false})
         );
+        
+        // 카테고리 목록 가져오기
+        
+        
 
     Button_Refresh_TokenMenu_1 As button:
         BorderColor: |-
@@ -150,7 +168,8 @@
             )
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
-        OnSelect: =Set(CheckedID, ThisItem.ID);
+        OnSelect: |-
+            =UpdateContext({TokenCheckedID: ThisItem.ID});
         ShowScrollbar: =false
         TemplatePadding: =0
         TemplateSize: =65
@@ -470,6 +489,23 @@
             Y: =256
             ZIndex: =20
 
+    Image_LoadingSpinner_TokenMenu_1 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =977
+        Y: =474
+        ZIndex: =34
+
     Group_QuestionPopup_TokenMenu_1 As group:
         Height: =5
         Width: =5
@@ -517,7 +553,7 @@
             Fill: |-
                 =ColorValue("#FFFFFF")
             Height: =616
-            Items: =Filter(똑실이_Token_table, ID= CheckedID)
+            Items: =Filter(똑실이_Token_table, ID= TokenCheckedID)
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =566
@@ -572,7 +608,7 @@
             Icon: =Icon.Cancel
             OnSelect: |-
                 =Set(TokenQuestionPopup,false);
-                Set(CheckedID, Blank());
+                UpdateContext({TokenCheckedID:Blank()});
                 UpdateContext({TokenVisible: false});
             Visible: =TokenQuestionPopup
             Width: =21
@@ -627,7 +663,7 @@
             Fill: |-
                 =ColorValue("#FFFFFF")
             Height: =609
-            Items: =Filter(똑실이_Token_table, ID= CheckedID)
+            Items: =Filter(똑실이_Token_table, ID= TokenCheckedID)
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =566
@@ -681,7 +717,7 @@
             Icon: =Icon.Cancel
             OnSelect: |-
                 =Set(TokenAnswerPopup,false);
-                Set(CheckedID, Blank());
+                UpdateContext({TokenCheckedID:Blank()});
                 UpdateContext({TokenVisible: false});
             Visible: =TokenAnswerPopup
             Width: =21
