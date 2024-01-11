@@ -657,33 +657,20 @@
             UpdateContext({
                 tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
                     If(
-                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // LV1=전체 LV2=전체 일경우
-                        Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
-                        // 카테고리LV1만 선택한 경우
-                        If(
-                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                            Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
-                            // 카테고리LV2만 선택한 경우
-                            If(
-                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                                Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV2 = Text(Dropdown_SearchCategoryLV2_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
-                                // LV1, LV2 둘다 선택한 경우
-                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value & "/" & Dropdown_SearchCategoryLV2_FM_3.Selected.Value
-                            )
-                        )
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1 = DEFAULT_CATEGORY_VALUE,
+                        // LV1카테고리가 전체인 경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryLV1,CountRows(colCategoryLV1)-1), Category_LV1 & "?"),"delete_point"),"?delete_point",""),
+                        // LV1카테고리가 전체가 아닌경우 (선택한 경우)
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1
+            
                     )
                     ,{
                     // 파일명
-                    text: TextInput_SearchFileName_FM_2.Text,
+                    text: TextInput_SearchQuestion_TokenMenu_1.Text,
                     // StartDate
-                    text_1: Text(DatePicker_SearchDateMin_FM_2.SelectedDate, "yyyy-mm-dd"),
+                    text_1: Text(DatePicker_SearchDateMin_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
                     // EndDate
-                    text_2: Text(DatePicker_SearchDateMax_FM_2.SelectedDate, "yyyy-mm-dd"),
-                    // Category_LV1
-                    text_3: If(Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE, "", Dropdown_SearchCategoryLV1_FM_3.Selected.Value),
-                    // Category LV2
-                    text_4: If(Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE, "", Dropdown_SearchCategoryLV2_FM_3.Selected.Value),
+                    text_2: Text(DatePicker_SearchDateMax_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
                     // 스킵 ID
                     number: Coalesce(tokenSearchLastId, 0)
                 }).result_json
@@ -737,6 +724,32 @@
         X: =1195
         Y: =62
         ZIndex: =37
+
+    "'(삭제예정)카테고리확인용' As label":
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =521
+        Size: =13
+        Text: |-
+            ="(삭제예정)" & Char(10) &
+            If(
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1 = DEFAULT_CATEGORY_VALUE,
+                        // LV1카테고리가 전체인 경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryLV1,CountRows(colCategoryLV1)-1), Category_LV1 & "?"),"delete_point"),"?delete_point",""),
+                        // LV1카테고리가 전체가 아닌경우 (선택한 경우)
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1
+            
+            )
+        Width: =1227
+        X: =278
+        Y: =204
+        ZIndex: =38
 
     Group_QuestionPopup_TokenMenu_1 As group:
         Height: =5
