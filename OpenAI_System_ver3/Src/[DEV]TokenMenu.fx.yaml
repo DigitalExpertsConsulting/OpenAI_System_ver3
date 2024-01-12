@@ -11,8 +11,8 @@
         
         // 토큰 검색 Stack 변수 초기화
         Concurrent(
-            UpdateContext({tokenSearchStack_1: []}),
-            UpdateContext({tokenSearchResult_1: []})
+            ClearCollect(tokenSearchStack_1, []),
+            ClearCollect(tokenSearchResult_1, [])
         );
         
         // 기타 초기화작업
@@ -586,8 +586,8 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =Concurrent(
-                UpdateContext({tokenSearchStack_1: []}),
-                UpdateContext({tokenSearchResult_1: []})
+                ClearCollect(tokenSearchStack_1, []),
+                ClearCollect(tokenSearchResult_1, [])
             );
             
             UpdateContext({
@@ -604,8 +604,8 @@
             /*
             // 토큰 검색 Stack 변수 초기화
             Concurrent(
-                UpdateContext({tokenSearchStack_1: []}),
-                UpdateContext({tokenSearchResult_1: []})
+                ClearCollect(tokenSearchStack_1, []),
+                ClearCollect(tokenSearchResult_1, [])
             );
             
             // 기타 초기화작업
@@ -694,22 +694,20 @@
             );
             */
             
-            UpdateContext(
-                {
-                    tokenSearchResult_1:
-                    ForAll(
-                        Table(ParseJSON(tokenSearchResponse)),
-                        {
-                            ID: Int(ThisRecord.Value.ID),
-                            File_Name: Text(ThisRecord.Value.File_Name),
-                            Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                            Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
-                            Index_Status: Text(ThisRecord.Value.Index_Status),
-                            Index_Log: Text(ThisRecord.Value.Index_Log)
-                        }
-                    )
-                }
+            ClearCollect(
+                tokenSearchResult_1,
+                ForAll(
+                    Table(ParseJSON(tokenSearchResponse)),
+                    {
+                        ID: Int(ThisRecord.Value.ID),
+                        File_Name: Text(ThisRecord.Value.File_Name),
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                        Index_Status: Text(ThisRecord.Value.Index_Status),
+                        Index_Log: Text(ThisRecord.Value.Index_Log)
+                    }
+                )
             );
             
             UpdateContext({ 
@@ -792,6 +790,102 @@
         X: =815
         Y: =43
         ZIndex: =39
+
+    PrevPageButton_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
+                Remove(tokenSearchStack_1, Last(tokenSearchStack_1)),
+                false
+            );
+            
+            UpdateContext({
+                tokenSearchLastId: Coalesce(Last(tokenSearchStack_1).Value, 0)
+            });
+            
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(ResetFileSearchButton_TokenMenu_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =950
+        ZIndex: =40
+
+    NextPageButton_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(FileSearchResult_FM_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
+                Collect(FileSearchStack_FM_1, Coalesce(Last(FileSearchResult_FM_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                fileSearchLastId: Coalesce(Last(FileSearchResult_FM_1).ID, 0)
+            });
+            
+            Select(Button_Refresh_FM_2);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1076
+        Y: =950
+        ZIndex: =41
 
     Group_QuestionPopup_TokenMenu_1 As group:
         Height: =5
