@@ -798,7 +798,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(Count(tokenSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
         Fill: |-
             =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -817,9 +817,11 @@
                 false
             );
             
+            
             UpdateContext({
                 tokenSearchLastId: Coalesce(Last(tokenSearchStack_1).Value, 0)
             });
+            
             
             UpdateContext({
                 locLoadingSpinner: true
@@ -838,7 +840,7 @@
         Text: ="< 이전 페이지"
         Width: =121
         X: =906
-        Y: =950
+        Y: =929
         ZIndex: =40
 
     NextPageButton_TokenMenu_1 As button:
@@ -862,16 +864,16 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =If(
-                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
-                Collect(FileSearchStack_FM_1, Coalesce(Last(FileSearchResult_FM_1).ID, 0)),
+                Last(tokenSearchResult_1).ID <> fileSearchLastId,
+                Collect(FileSearchStack_FM_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
                 false
             );
             
             UpdateContext({
-                fileSearchLastId: Coalesce(Last(FileSearchResult_FM_1).ID, 0)
+                fileSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
             });
             
-            Select(Button_Refresh_FM_2);
+            Select(ResetFileSearchButton_TokenMenu_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
         PressedFill: |-
