@@ -67,7 +67,14 @@
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(똑실이_Token_table)
+        OnSelect: |-
+            =UpdateContext({
+                locLoadingSpinner: true,
+                tokenSearchTimerStart: false
+            });
+            
+            Reset(FileSearchTimer_TokenMenu_1);
+            UpdateContext({tokenSearchTimerStart: true});
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -136,6 +143,11 @@
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: =colCategoryLV1
+        OnChange: |-
+            =UpdateContext({
+                locLoadingSpinner: true
+            });
+            Select(ResetFileSearchButton_TokenMenu_1);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -806,7 +818,7 @@
                 locLoadingSpinner: true
             });
             
-            Select(ResetFileSearchButton_TokenMenu_1);
+            Select(Button_Refresh_TokenMenu_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
         PressedFill: |-
@@ -844,6 +856,7 @@
         OnSelect: |-
             =If(
                 Last(tokenSearchResult_1).ID <> tokenSearchLastId,
+                Notify("tlfgod");
                 Collect(tokenSearchStack_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
                 false
             );
@@ -852,7 +865,7 @@
                 tokenSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
             });
             
-            Select(ResetFileSearchButton_TokenMenu_1);
+            Select(Button_Refresh_TokenMenu_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
         PressedFill: |-
@@ -1174,7 +1187,7 @@
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
-            DefaultDate: =Today() - 7
+            DefaultDate: =
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1185,6 +1198,11 @@
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_TokenMenu_1);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Width: =180
@@ -1196,6 +1214,7 @@
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
+            DefaultDate: =
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1206,6 +1225,11 @@
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_TokenMenu_1);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Visible: |
@@ -1244,6 +1268,11 @@
             HoverBorderColor: =RGBA(0, 0, 0, 1)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_TokenMenu_1);
             PressedColor: =
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
@@ -1276,6 +1305,7 @@
             OnSelect: |-
                 =Concurrent(
                 Reset(TextInput_SearchQuestion_TokenMenu_1);,
+                Reset(Dropdown_SearchCategory_TokenMenu_1);,
                 Reset(DatePicker_SearchDateMin_TokenMenu_1);,
                 Reset(DatePicker_SearchDateMax_TokenMenu_1);
                 );
