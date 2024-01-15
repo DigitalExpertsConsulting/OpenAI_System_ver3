@@ -368,6 +368,104 @@
     New_Component_GNB_TokenMenu_1 As New_Component_GNB:
         ZIndex: =23
 
+    PrevPageButton_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(tokenSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
+                Remove(tokenSearchStack_1, Last(tokenSearchStack_1)),
+                false
+            );
+            
+            
+            UpdateContext({
+                tokenSearchLastId: Coalesce(Last(tokenSearchStack_1).Value, 0)
+            });
+            
+            
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(Button_Refresh_TokenMenu_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =950
+        ZIndex: =24
+
+    NextPageButton_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(tokenSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
+                Collect(tokenSearchStack_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                tokenSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
+            });
+            
+            Select(Button_Refresh_TokenMenu_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1076
+        Y: =950
+        ZIndex: =25
+
     Background_Modal_TokenMenu_1 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -381,7 +479,7 @@
         Visible: =tokenVisible
         Width: =1620
         X: =300
-        ZIndex: =24
+        ZIndex: =26
 
     Image_Refresh_TokenMenu_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -400,7 +498,7 @@
         Width: =20
         X: =1776
         Y: =53
-        ZIndex: =25
+        ZIndex: =27
 
     Group_TokenGalleryHeader_TokenMenu_1 As group:
         Height: =5
@@ -535,7 +633,7 @@
         Visible: =locLoadingSpinner
         X: =977
         Y: =474
-        ZIndex: =34
+        ZIndex: =36
 
     ResetFileSearchButton_TokenMenu_1 As button:
         BorderColor: |-
@@ -605,10 +703,11 @@
         RadiusTopRight: =4
         Size: =11
         Text: ="ResetFileSearch"
+        Visible: =false
         Width: =192
         X: =1372
         Y: =42
-        ZIndex: =36
+        ZIndex: =37
 
     FileSearchTimer_TokenMenu_1 As timer:
         BorderColor: =RGBA(105, 121, 126, 1)
@@ -694,107 +793,70 @@
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Repeat: =true
         Start: =tokenSearchTimerStart
+        Visible: =false
         X: =1195
         Y: =62
-        ZIndex: =37
+        ZIndex: =38
 
-    PrevPageButton_TokenMenu_1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        Color: =RGBA(0, 0, 0, 1)
+    NoDataLabel_TokenMenu_1 As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Count(tokenSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
+        FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
+        Height: =43
+        Size: =13
+        Text: ="검색된 파일이 없습니다."
+        Visible: =(CountRows(tokenSearchResult_1) = 0) && (locLoadingSpinner = false)
+        Width: =298
+        X: =897
+        Y: =306
+        ZIndex: =39
+
+    ClearEndDateButton_TokenMenu_1 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =If(
-                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
-                Remove(tokenSearchStack_1, Last(tokenSearchStack_1)),
-                false
-            );
-            
-            
-            UpdateContext({
-                tokenSearchLastId: Coalesce(Last(tokenSearchStack_1).Value, 0)
-            });
-            
-            
-            UpdateContext({
-                locLoadingSpinner: true
-            });
-            
-            Select(Button_Refresh_TokenMenu_1);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="< 이전 페이지"
-        Width: =121
-        X: =906
-        Y: =950
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMax_TokenMenu_1);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1590
+        Y: =152
         ZIndex: =40
 
-    NextPageButton_TokenMenu_1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        Color: =RGBA(0, 0, 0, 1)
+    ClearStartDateButton_TokenMenu_1 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(CountRows(tokenSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =If(
-                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
-                Notify("tlfgod");
-                Collect(tokenSearchStack_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
-                false
-            );
-            
-            UpdateContext({
-                tokenSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
-            });
-            
-            Select(Button_Refresh_TokenMenu_1);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="다음 페이지 >"
-        Width: =128
-        X: =1076
-        Y: =950
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMin_TokenMenu_1);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1370
+        Y: =152
         ZIndex: =41
 
     Group_QuestionPopup_TokenMenu_1 As group:
@@ -834,7 +896,7 @@
             Width: =634
             X: =700
             Y: =244
-            ZIndex: =26
+            ZIndex: =28
 
         Gallery_QuestionPopup_TokenMenu_1 As gallery.galleryVertical:
             BorderColor: |-
@@ -852,7 +914,7 @@
             Width: =583
             X: =725
             Y: =308
-            ZIndex: =27
+            ZIndex: =29
 
             Label_QuestionPopup_TokenMenu_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -889,7 +951,7 @@
             Width: =213
             X: =730
             Y: =258
-            ZIndex: =28
+            ZIndex: =30
 
         Icon_QuestionPopupClose_TokenMenu_1 As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -905,68 +967,7 @@
             Width: =21
             X: =1289
             Y: =272
-            ZIndex: =29
-
-    NoDataLabel_TokenMenu_1 As label:
-        Align: =Align.Center
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Height: =43
-        Size: =13
-        Text: ="검색된 파일이 없습니다."
-        Visible: =(CountRows(tokenSearchResult_1) = 0) && (locLoadingSpinner = false)
-        Width: =298
-        X: =897
-        Y: =306
-        ZIndex: =43
-
-    ClearEndDateButton_TokenMenu_1 As icon.Cancel:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(105, 121, 126, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(220, 220, 220, 1)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =22
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Icon: =Icon.Cancel
-        OnSelect: =Reset(DatePicker_SearchDateMax_TokenMenu_1);
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =22
-        X: =1590
-        Y: =152
-        ZIndex: =44
-
-    ClearStartDateButton_TokenMenu_1 As icon.Cancel:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(105, 121, 126, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(220, 220, 220, 1)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =22
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Icon: =Icon.Cancel
-        OnSelect: =Reset(DatePicker_SearchDateMin_TokenMenu_1);
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =22
-        X: =1370
-        Y: =152
-        ZIndex: =45
+            ZIndex: =31
 
     Group_AnswerPopup_TokenMenu_1 As group:
         Height: =5
@@ -1005,7 +1006,7 @@
             Width: =634
             X: =700
             Y: =258
-            ZIndex: =30
+            ZIndex: =32
 
         Gallery_AnswerPopup_TokenMenu_1 As gallery.galleryVertical:
             BorderColor: |-
@@ -1023,7 +1024,7 @@
             Width: =583
             X: =725
             Y: =322
-            ZIndex: =31
+            ZIndex: =33
 
             Label_AnswerPopup_TokenMenu_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1059,7 +1060,7 @@
             Width: =213
             X: =730
             Y: =277
-            ZIndex: =32
+            ZIndex: =34
 
         Icon_AnswerPopup_TokenMenu_1 As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -1075,7 +1076,7 @@
             Width: =21
             X: =1289
             Y: =285
-            ZIndex: =33
+            ZIndex: =35
 
     Group_SherchQAGallery_TokenMenu_1 As group:
         Height: =5
