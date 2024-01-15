@@ -1,0 +1,539 @@
+AIGraph_DEV_1 As screen:
+    Fill: =ColorValue(CSS_COMMON.colors.bg2)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnHidden: =Set(gblStartPage,"AIGraph_DEV")
+    OnVisible: |-
+        =//============================== << 화면 최초 접속 시 >> ==============================
+        // 1. 로딩 이미지 활성화
+        Concurrent(
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:true})
+        ); // 로딩 스피너 배경 이미지 비활성 );
+            
+        // 2. 초기화
+        Concurrent(
+            Refresh(똑실이_Token_table),       // DB REFRESH
+            UpdateContext({locPopupBackground:false}),  // 팝업 배경 이미지 비활성화
+            Set(DatePickerSetting, false),
+            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"])
+        //    Set(gblSelectedAgentFunctionItemID,0) // gblSelectedAgentFunctionItemID 변수 초기화
+        );
+        
+        /*
+        // 3. 할당된 권한 불러오기
+        ClearCollect(
+            colAgentManage,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE},
+            ForAll(
+                Table(ParseJSON('똑실이-[Apps]Agent사용자카테고리목록'.Run(User().Email).output_category)),
+                {
+                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                }
+            )
+        );
+        
+        ClearCollect(
+            colAgentManage_LV2,
+        
+            First(colAgentManage),
+            
+            SortByColumns(
+                    LastN(colAgentManage,CountRows(colAgentManage)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        */
+        /*
+        // 4. Agent 기능 추가 시의 카테고리 권한 불러오기
+        
+        ClearCollect(
+            colCategorySelect,
+            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        */
+        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
+        
+        Concurrent(
+        /*
+            Reset(TextInput_GalleryFilter_Name_AFM),  // 기능명 InputText 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_CategoryLV1_AFM),  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_CategoryLV2_AFM),  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_Type_AFM),  // 유형 Dropbox 리셋(Agent 기능 필터)
+            Reset(Gallery_AgentFunction_AFM), // 겔러리 리셋
+            Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM), 
+            Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM),
+            Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM),
+            Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM),
+            Reset(TextInput_PopupAgentFunctionAdd_Name_AFM),
+            Reset(TextInput_PopupAgentFunctionAdd_Description_AFM),
+            Reset(TextInput_PopupAgentFunctionAdd_Config_AFM),// Agent 기능 추가 입력 컨트롤 리셋
+            */
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성
+           
+        );
+
+    Component_GNB_AIGraph_DEV_1 As New_Component_GNB:
+
+    Label_AIGraphMain_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: =First(똑실이_ChatbotText_table).BotName & " 사용 분석"
+        Width: =691
+        X: =343
+        Y: =23
+        ZIndex: =2
+
+    Label_GalleryFilter_Category_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="카테고리"
+        Width: =90
+        X: =343
+        Y: =150
+        ZIndex: =3
+
+    Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1 As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =1
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =DEFAULT_SELECT_CATEGORY_VALUE
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =28
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =/*
+            Distinct(
+                colAgentManage,
+                Category_LV1
+            )*/
+            Distinct(
+                SortByColumns(
+                똑실이_Token_table,
+                "Category_LV1",
+                SortOrder.Ascending
+                ),
+                Category_LV1
+            )
+        OnChange: =
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Tooltip: ="카테고리 LV1을 선택해주세요"
+        Width: =240
+        X: =446
+        Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
+        ZIndex: =4
+
+    Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1 As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =1
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =DEFAULT_SELECT_CATEGORY_VALUE
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =28
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =If(
+                Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                Distinct(
+                    SortByColumns(
+                    똑실이_Token_table,
+                    "Category_LV2",
+                    SortOrder.Ascending
+                    ),
+                    Category_LV2
+                ),
+                Distinct(
+                    SortByColumns(
+                    Filter(
+                        똑실이_Token_table,
+                        Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                    ),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                    ),
+                    Category_LV2
+                )
+            )
+        OnChange: =
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Tooltip: ="카테고리 LV2을 선택해주세요"
+        Width: =240
+        X: =743
+        Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
+        ZIndex: =5
+
+    "'Label_GalleryFilter_>_AIGraph_DEV_1' As label":
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 18, 107, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Font: =Font.'Segoe UI'
+        PaddingLeft: =0
+        PaddingRight: =0
+        Text: =">"
+        Width: =43
+        X: =695
+        Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y-6
+        ZIndex: =6
+
+    Label_DatePicker_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Height
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="기본 설정"
+        Width: =90
+        X: =1050
+        Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
+        ZIndex: =7
+
+    "'Label_DatePicker_>_AIGraph_DEV_1' As label":
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 18, 107, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Font: =Font.'Segoe UI'
+        Height: =39
+        PaddingLeft: =0
+        PaddingRight: =0
+        Text: =">"
+        Visible: =DatePickerSetting
+        Width: =40
+        X: =1520
+        Y: ='Label_GalleryFilter_>_AIGraph_DEV_1'.Y
+        ZIndex: =10
+
+    DatePicker_FirstDate_AIGraph_DEV_1 As datepicker:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        CalendarHeaderFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Color: =RGBA(51, 51, 51, 1)
+        DefaultDate: =DateAdd(Today(),-1,TimeUnit.Months)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Height
+        HoverDateFill: =RGBA(200, 200, 200, 1)
+        IconBackground: =RGBA(105, 121, 126, 1)
+        PaddingTop: =5
+        Reset: |
+            =If(Self.Visible=true, true, false)
+        SelectedDateFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        StartYear: =Year(Today())-1
+        Visible: =DatePickerSetting
+        Width: |
+            =200
+        X: =1320
+        Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
+        ZIndex: =11
+
+    DatePicker_LastDate_AIGraph_DEV_1 As datepicker:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        CalendarHeaderFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Height
+        HoverDateFill: =RGBA(200, 200, 200, 1)
+        IconBackground: =RGBA(105, 121, 126, 1)
+        PaddingTop: =5
+        Reset: |
+            =If(Self.Visible=true, true, false)
+        SelectedDateFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Visible: =DatePickerSetting
+        Width: |
+            =200
+        X: =1560
+        Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
+        ZIndex: =12
+
+    Toggle_AIGraph_DEV_1 As toggleSwitch:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        FalseFill: =RGBA(102, 102, 102, 1)
+        FalseHoverFill: =RGBA(33, 33, 33, 1)
+        FalseText: =
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        HandleFill: =RGBA(255, 255, 255, 1)
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        OnChange: =If(DatePickerSetting<>true, Set(DatePickerSetting,true), Set(DatePickerSetting, false));
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =13
+        TrueFill: =RGBA(105, 121, 126, 1)
+        TrueHoverFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        TrueText: =
+        Width: =60
+        X: =1140
+        Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y+1
+        ZIndex: =13
+
+    Label_DateFilter_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Height
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="사용자 지정"
+        Width: =100
+        X: =1205
+        Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
+        ZIndex: =14
+
+    Label_AIGraph_DEV_TESTLABEL As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =DatePickerSetting
+        X: =1770
+        ZIndex: =15
+
+    Dropdown_DatePicker_AIGraph_DEV_1 As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =DatePicker_FirstDate_AIGraph_DEV_1.Height
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: =["최근 1개월", "최근 1분기", "최근 1반기", "최근 1년"]
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Reset: =If(Self.Visible=true, true, false)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Visible: =!DatePicker_FirstDate_AIGraph_DEV_1.Visible
+        Width: =DatePicker_FirstDate_AIGraph_DEV_1.Width
+        X: =DatePicker_FirstDate_AIGraph_DEV_1.X
+        Y: =DatePicker_FirstDate_AIGraph_DEV_1.Y
+        ZIndex: =16
+
+    CompositeLineChart_AIGraph_DEV_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =17
+
+        Title_AIGraph_DEV_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =24
+            Text: =AppsBIAxis.Value & " 추이"
+            Width: =400
+            X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
+            Y: =275
+            ZIndex: =18
+
+        LineChart_AIGraph_DEV_1 As lineChart:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =675
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =[RGBA(49, 130, 93, 1),RGBA(48,166,103, 1), RGBA(94,193,108,1), RGBA(246,199,144,1), RGBA(247,199,114,1), RGBA(247,180,91,1), RGBA(246,143,100,1), RGBA(212,96,104,1), RGBA(148, 110, 176, 1), RGBA(118, 154, 204, 1), RGBA(96, 197, 234, 1)]
+            Items: =LineChartSample
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =15
+            Width: =1177
+            X: =343
+            Y: =340
+            ZIndex: =19
+
+        Legend_AIGraph_DEV_1 As legend:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(220, 220, 220, 1)
+            Font: =Font.'Segoe UI'
+            Height: =80
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =LineChart_AIGraph_DEV_1.ItemColorSet
+            Items: =LineChart_AIGraph_DEV_1.SeriesLabels
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =24
+            Width: =320
+            X: =1500
+            Y: =275
+            ZIndex: =20
+
+    Radio_ChartView_AIGraph_DEV_1 As 라디오.pcfdataset:
+        DefaultSelectedItems: =First(AxisPickingList)
+        DisplayMode: =DisplayMode.Edit
+        Font: =Font.'Open Sans'
+        FontColor: =RGBA(0, 0, 0, 1)
+        FontSize: =20
+        FontWeight: =FontWeight.Normal
+        Height: |
+            =50
+        Items: |-
+            =If(
+                gblStartPage = "AIGraph_DEV",
+                [],
+                AxisPickingList
+            )
+        Layout: ='RadioGroupCanvas.Layout'.Horizontal
+        OnChange: =Set(AppsBIAxis, Self.Selected)
+        OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
+        Required: =true 
+        Width: =537
+        X: =480
+        Y: =200
+        ZIndex: =21
+
+        Value1 As pcfDataField.textualColumn:
+            FieldDisplayName: ="Value"
+            FieldName: ="Value"
+            FieldType: ="s"
+            FieldVariantName: ="textualColumn"
+            Order: =1
+            ZIndex: =1
+
+    Label_RadioFilter_Category_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =28
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="비교방식 선택"
+        Width: =125
+        X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
+        Y: =208
+        ZIndex: =22
+
