@@ -172,7 +172,7 @@
         DelayItemLoading: =true
         Height: =640
         Items: |-
-            =Filter(
+            =/*Filter(
                 SortByColumns(
                     똑실이_Token_table,
                     "ID",
@@ -181,7 +181,9 @@
                 (IsBlank(TextInput_SearchQuestion_TokenMenu_1.Text) || TextInput_SearchQuestion_TokenMenu_1.Text in Token_Question) &&
                 (Token_Date >= DatePicker_SearchDateMin_TokenMenu_1.SelectedDate) &&
                 (Token_Date <= DatePicker_SearchDateMax_TokenMenu_1.SelectedDate)
-            )
+            )*/
+            
+            tokenSearchResult_1
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -699,13 +701,15 @@
                 ForAll(
                     Table(ParseJSON(tokenSearchResponse)),
                     {
-                        ID: Int(ThisRecord.Value.ID),
-                        File_Name: Text(ThisRecord.Value.File_Name),
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
-                        Index_Status: Text(ThisRecord.Value.Index_Status),
-                        Index_Log: Text(ThisRecord.Value.Index_Log)
+                        Token_Question: Text(ThisRecord.Value.Token_Question),
+                        Token_Answer: Text(ThisRecord.Value.Token_Answer),
+                        Token_Date: Text(ThisRecord.Value.Token_Date),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        ID: Int(ThisRecord.Value.ID)
                     }
                 )
             );
@@ -838,13 +842,13 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =If(
-                Last(tokenSearchResult_1).ID <> fileSearchLastId,
+                Last(tokenSearchResult_1).ID <> tokenSearchLastId,
                 Collect(tokenSearchStack_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
                 false
             );
             
             UpdateContext({
-                fileSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
+                tokenSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
             });
             
             Select(ResetFileSearchButton_TokenMenu_1);
