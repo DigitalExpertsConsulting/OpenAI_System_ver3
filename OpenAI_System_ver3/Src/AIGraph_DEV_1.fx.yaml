@@ -3,7 +3,7 @@ AIGraph_DEV_1 As screen:
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnHidden: =Set(gblStartPage,"AIGraph_DEV")
-    OnVisible: |-
+    OnVisible: |+
         =//============================== << 화면 최초 접속 시 >> ==============================
         // 1. 로딩 이미지 활성화
         Concurrent(
@@ -18,6 +18,34 @@ AIGraph_DEV_1 As screen:
             Set(DatePickerSetting, false),
             Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"])
         //    Set(gblSelectedAgentFunctionItemID,0) // gblSelectedAgentFunctionItemID 변수 초기화
+        );
+        
+        // 3. AIGraph에 사용할 컬렉션 초기화
+        Concurrent(
+            ClearCollect(
+                AIGraphTokenTable,
+                AddColumns(
+                    GroupBy(똑실이_Token_table, "Token_Date", "Group"),
+                    "Input Token",
+                    Sum(Group, Token_Input)/1000,
+                    "Output Token",
+                    Sum(Group, Token_Output)/1000,
+                    "Total Token",
+                    Sum(Group, Token_Total)/1000
+                )
+            ),
+            ClearCollect(
+                AIGraphGptVersionTable,
+                AddColumns(
+                    GroupBy(똑실이_Token_table, "Token_Date", "Group"),
+                    "Input Token",
+                    Sum(Group, Token_Input)/1000,
+                    "Output Token",
+                    Sum(Group, Token_Output)/1000,
+                    "Total Token",
+                    Sum(Group, Token_Total)/1000
+                )
+            )
         );
         
         /*
@@ -68,7 +96,7 @@ AIGraph_DEV_1 As screen:
             )
         );
         */
-        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
+        //============================== << 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
         Concurrent(
         /*
@@ -85,12 +113,38 @@ AIGraph_DEV_1 As screen:
             Reset(TextInput_PopupAgentFunctionAdd_Description_AFM),
             Reset(TextInput_PopupAgentFunctionAdd_Config_AFM),// Agent 기능 추가 입력 컨트롤 리셋
             */
+            Reset(DatePicker_FirstDate_AIGraph_DEV_1),
+            Reset(DatePicker_LastDate_AIGraph_DEV_1),
+            Reset(Radio_ChartView_AIGraph_DEV_1),
+            Reset(Toggle_AIGraph_DEV_1),
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성
            
         );
+        
+        Concurrent(
+            Set(AIGraphAxis, First(AxisPickingList)),
+            Set(AppsBIAxis, Radio_ChartView_AIGraph_DEV_1.Selected)
+        );
+        
+
+    Label_For_TEST_AIGraph_DEV_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =AppsBIAxis.Value
+        Visible: =false
+        X: =1770
+        ZIndex: =1
 
     Component_GNB_AIGraph_DEV_1 As New_Component_GNB:
+        ZIndex: =2
 
     Label_AIGraphMain_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -107,7 +161,7 @@ AIGraph_DEV_1 As screen:
         Width: =691
         X: =343
         Y: =23
-        ZIndex: =2
+        ZIndex: =3
 
     Label_GalleryFilter_Category_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -128,7 +182,7 @@ AIGraph_DEV_1 As screen:
         Width: =90
         X: =343
         Y: =150
-        ZIndex: =3
+        ZIndex: =4
 
     Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -177,7 +231,7 @@ AIGraph_DEV_1 As screen:
         Width: =240
         X: =446
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
-        ZIndex: =4
+        ZIndex: =5
 
     Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -235,7 +289,7 @@ AIGraph_DEV_1 As screen:
         Width: =240
         X: =743
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
-        ZIndex: =5
+        ZIndex: =6
 
     "'Label_GalleryFilter_>_AIGraph_DEV_1' As label":
         Align: =Align.Center
@@ -249,7 +303,7 @@ AIGraph_DEV_1 As screen:
         Width: =43
         X: =695
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y-6
-        ZIndex: =6
+        ZIndex: =7
 
     Label_DatePicker_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -270,7 +324,7 @@ AIGraph_DEV_1 As screen:
         Width: =90
         X: =1050
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =7
+        ZIndex: =8
 
     "'Label_DatePicker_>_AIGraph_DEV_1' As label":
         Align: =Align.Center
@@ -286,7 +340,7 @@ AIGraph_DEV_1 As screen:
         Width: =40
         X: =1520
         Y: ='Label_GalleryFilter_>_AIGraph_DEV_1'.Y
-        ZIndex: =10
+        ZIndex: =9
 
     DatePicker_FirstDate_AIGraph_DEV_1 As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -311,7 +365,7 @@ AIGraph_DEV_1 As screen:
             =200
         X: =1320
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =11
+        ZIndex: =10
 
     DatePicker_LastDate_AIGraph_DEV_1 As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -334,7 +388,7 @@ AIGraph_DEV_1 As screen:
             =200
         X: =1560
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =12
+        ZIndex: =11
 
     Toggle_AIGraph_DEV_1 As toggleSwitch:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -348,7 +402,9 @@ AIGraph_DEV_1 As screen:
         Font: =Font.'Segoe UI'
         HandleFill: =RGBA(255, 255, 255, 1)
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        OnChange: =If(DatePickerSetting<>true, Set(DatePickerSetting,true), Set(DatePickerSetting, false));
+        OnChange: =//If(DatePickerSetting<>true, Set(DatePickerSetting,true), Set(DatePickerSetting, false));
+        OnCheck: =Set(DatePickerSetting,true)
+        OnUncheck: =Set(DatePickerSetting,false)
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         Size: =13
         TrueFill: =RGBA(105, 121, 126, 1)
@@ -357,7 +413,7 @@ AIGraph_DEV_1 As screen:
         Width: =60
         X: =1140
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y+1
-        ZIndex: =13
+        ZIndex: =12
 
     Label_DateFilter_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -378,21 +434,7 @@ AIGraph_DEV_1 As screen:
         Width: =100
         X: =1205
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =14
-
-    Label_AIGraph_DEV_TESTLABEL As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =DatePickerSetting
-        X: =1770
-        ZIndex: =15
+        ZIndex: =13
 
     Dropdown_DatePicker_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -422,67 +464,48 @@ AIGraph_DEV_1 As screen:
         Reset: =If(Self.Visible=true, true, false)
         SelectionFill: =RGBA(105, 121, 126, 1)
         Size: =13
-        Visible: =!DatePicker_FirstDate_AIGraph_DEV_1.Visible
+        Visible: =!DatePickerSetting
         Width: =DatePicker_FirstDate_AIGraph_DEV_1.Width
         X: =DatePicker_FirstDate_AIGraph_DEV_1.X
         Y: =DatePicker_FirstDate_AIGraph_DEV_1.Y
-        ZIndex: =16
+        ZIndex: =14
 
-    CompositeLineChart_AIGraph_DEV_1 As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =17
-
-        Title_AIGraph_DEV_1 As label:
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            Size: =24
-            Text: =AppsBIAxis.Value & " 추이"
-            Width: =400
-            X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
-            Y: =275
-            ZIndex: =18
-
-        LineChart_AIGraph_DEV_1 As lineChart:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            Font: =Font.'Segoe UI'
-            Height: =675
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =[RGBA(49, 130, 93, 1),RGBA(48,166,103, 1), RGBA(94,193,108,1), RGBA(246,199,144,1), RGBA(247,199,114,1), RGBA(247,180,91,1), RGBA(246,143,100,1), RGBA(212,96,104,1), RGBA(148, 110, 176, 1), RGBA(118, 154, 204, 1), RGBA(96, 197, 234, 1)]
-            Items: =LineChartSample
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =15
-            Width: =1177
-            X: =343
-            Y: =340
-            ZIndex: =19
-
-        Legend_AIGraph_DEV_1 As legend:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(220, 220, 220, 1)
-            Font: =Font.'Segoe UI'
-            Height: =80
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =LineChart_AIGraph_DEV_1.ItemColorSet
-            Items: =LineChart_AIGraph_DEV_1.SeriesLabels
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =24
-            Width: =320
-            X: =1500
-            Y: =275
-            ZIndex: =20
+    LineChart_Default_AIGraph_DEV_1 As lineChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Font: =Font.'Segoe UI'
+        Height: =675
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =Filter(
+                AIGraphTokenTable,
+                (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+            )
+        Markers: =false
+        NumberOfSeries: |-
+            =If(
+                AppsBIAxis.Value = "토큰 사용량",
+                3,
+                4
+            )
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                DatePickerSetting = true,
+                false,
+                true
+            )
+        Width: =1177
+        X: =343
+        XLabelAngle: =90
+        Y: =340
+        ZIndex: =15
 
     Radio_ChartView_AIGraph_DEV_1 As 라디오.pcfdataset:
         DefaultSelectedItems: =First(AxisPickingList)
@@ -493,14 +516,11 @@ AIGraph_DEV_1 As screen:
         FontWeight: =FontWeight.Normal
         Height: |
             =50
-        Items: |-
-            =If(
-                gblStartPage = "AIGraph_DEV",
-                [],
-                AxisPickingList
-            )
+        Items: =AxisPickingList
         Layout: ='RadioGroupCanvas.Layout'.Horizontal
-        OnChange: =Set(AppsBIAxis, Self.Selected)
+        OnChange: |-
+            =Set(AppsBIAxis, Self.Selected);
+            Select(Button_Table_Filtering_AIGraph_DEV_1);
         OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
         Required: =true 
         Width: =537
@@ -508,7 +528,7 @@ AIGraph_DEV_1 As screen:
         Y: =200
         ZIndex: =21
 
-        Value1 As pcfDataField.textualColumn:
+        Radio_Value_AIGraph_DEV_1 As pcfDataField.textualColumn:
             FieldDisplayName: ="Value"
             FieldName: ="Value"
             FieldType: ="s"
@@ -536,4 +556,240 @@ AIGraph_DEV_1 As screen:
         X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
         Y: =208
         ZIndex: =22
+
+    Button_Table_Filtering_AIGraph_DEV_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        Visible: =false
+        X: =756
+        ZIndex: =23
+
+    Group_LineChart_UserCustom_AIGraph_DEV_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =26
+
+        LineChart_UserCustom_AIGraph_DEV_1_1 As lineChart:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =LineChart_Default_AIGraph_DEV_1.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+            Items: |-
+                =If(
+                    AppsBIAxis.Value = "토큰 사용량",
+                    Filter(
+                        AIGraphTokenTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    ),
+                    Filter(
+                        AIGraphGptVersionTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    )
+                )
+                /*
+                Filter(
+                    AIGraphTokenTable,
+                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                )*/
+            Markers: =false
+            NumberOfSeries: |-
+                =If(
+                    AppsBIAxis.Value = "토큰 사용량",
+                    3,
+                    1
+                )
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =15
+            Visible: |-
+                =If(
+                    DatePickerSetting = true,
+                    true,
+                    false
+                )
+            Width: =LineChart_Default_AIGraph_DEV_1.Width
+            X: =LineChart_Default_AIGraph_DEV_1.X
+            XLabelAngle: =90
+            Y: =LineChart_Default_AIGraph_DEV_1.Y
+            ZIndex: =16
+
+        LineChart_UserCustom_AIGraph_DEV_1_2 As lineChart:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =LineChart_Default_AIGraph_DEV_1.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+            Items: |-
+                =If(
+                    AppsBIAxis.Value = "토큰 사용량",
+                    Filter(
+                        AIGraphTokenTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    ),
+                    Filter(
+                        AIGraphGptVersionTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    )
+                )
+                /*
+                Filter(
+                    AIGraphTokenTable,
+                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                )*/
+            Markers: =false
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =15
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    true,
+                    false
+                )
+            Width: =LineChart_Default_AIGraph_DEV_1.Width
+            X: =LineChart_Default_AIGraph_DEV_1.X
+            XLabelAngle: =90
+            Y: =LineChart_Default_AIGraph_DEV_1.Y
+            ZIndex: =17
+
+        LineChart_UserCustom_AIGraph_DEV_1_3 As lineChart:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =LineChart_Default_AIGraph_DEV_1.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+            Items: |-
+                =If(
+                    AppsBIAxis.Value = "토큰 사용량",
+                    Filter(
+                        AIGraphTokenTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    ),
+                    Filter(
+                        AIGraphGptVersionTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    )
+                )
+                /*
+                Filter(
+                    AIGraphTokenTable,
+                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                )*/
+            Markers: =false
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =15
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    true,
+                    false
+                )
+            Width: =LineChart_Default_AIGraph_DEV_1.Width
+            X: =LineChart_Default_AIGraph_DEV_1.X
+            XLabelAngle: =90
+            Y: =LineChart_Default_AIGraph_DEV_1.Y
+            ZIndex: =18
+
+        LineChart_UserCustom_AIGraph_DEV_1_4 As lineChart:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =LineChart_Default_AIGraph_DEV_1.Height
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+            Items: |-
+                =If(
+                    AppsBIAxis.Value = "토큰 사용량",
+                    Filter(
+                        AIGraphTokenTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    ),
+                    Filter(
+                        AIGraphGptVersionTable,
+                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                    )
+                )
+                /*
+                Filter(
+                    AIGraphTokenTable,
+                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
+                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                )*/
+            Markers: =false
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            Size: =15
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    true,
+                    false
+                )
+            Width: =LineChart_Default_AIGraph_DEV_1.Width
+            X: =LineChart_Default_AIGraph_DEV_1.X
+            XLabelAngle: =90
+            Y: =LineChart_Default_AIGraph_DEV_1.Y
+            ZIndex: =19
+
+        Title_UserCustom_AIGraph_DEV_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Title_AIGraph_DEV_1.Height
+            Size: =24
+            Text: |-
+                =/*If(
+                    Not(AppsBIAxis.Value = "토큰 사용량"),
+                    AppsBIAxis.Value & " 별 "
+                ) & "기간 내 토큰 사용량 추이"
+                */
+                "토큰 사용량 추이"
+            Width: =Title_AIGraph_DEV_1.Width
+            X: =Title_AIGraph_DEV_1.X
+            Y: =Title_AIGraph_DEV_1.Y
+            ZIndex: =20
 
