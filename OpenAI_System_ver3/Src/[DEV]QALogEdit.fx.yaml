@@ -1642,7 +1642,8 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnTimerStart: |+
-            =UpdateContext({
+            =
+            UpdateContext({
                 qaLogSearchResponse: '[DEV]똑실이-[Apps]QALog검색'.Run(
                     // 카테고리
                     If(
@@ -1655,6 +1656,8 @@
                     ),
                     // 작성자
                     Text(TextInput_SearchUser_QALogEdit_1),
+                    // 좋아요 체크확인
+                    Checkbox_LikeCheck_QALogEdit_1.Value,
                     {
                         // 질문
                         text: TextInput_SearchQuestion_QALogEdit_1.Text,
@@ -1718,4 +1721,102 @@
         X: =883
         Y: =320
         ZIndex: =52
+
+    PrevPageButton_QALogEdit_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(tokenSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(qaLogSearchResult_1).ID <> tokenSearchLastId,
+                Remove(qaLogSearchStack_1, Last(qaLogSearchStack_1)),
+                false
+            );
+            
+            
+            UpdateContext({
+                tokenSearchLastId: Coalesce(Last(qaLogSearchStack_1).Value, 0)
+            });
+            
+            
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(ResetFileSearchButton_QALogEdit_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =950
+        ZIndex: =53
+
+    NextPageButton_QALogEdit_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(tokenSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(qaLogSearchResult_1).ID <> tokenSearchLastId,
+                Collect(qaLogSearchStack_1, Coalesce(Last(qaLogSearchResult_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                tokenSearchLastId: Coalesce(Last(qaLogSearchResult_1).ID, 0)
+            });
+            
+            Select(ResetFileSearchButton_QALogEdit_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1083
+        Y: =950
+        ZIndex: =54
 
