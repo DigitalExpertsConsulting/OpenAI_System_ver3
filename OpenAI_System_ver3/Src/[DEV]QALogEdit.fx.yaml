@@ -153,7 +153,7 @@
     "Gallery_QAGallery_QALogEdit_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(0, 18, 107, 1)
         DelayItemLoading: =true
-        Height: =718
+        Height: =653
         Items: =qaLogSearchResult_1
         Layout: =Layout.Vertical
         OnSelect: |-
@@ -1680,7 +1680,6 @@
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         Question: Text(ThisRecord.Value.Question),
                         Answer: Text(ThisRecord.Value.Answer),
-                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
                         Date: Text(DateAdd(ThisRecord.Value.Date, -TimeZoneOffset(), TimeUnit.Minutes), "yyyy-mm-dd"),
                         Name: Text(ThisRecord.Value.Name),
                         LikeCount: Text(ThisRecord.Value.LikeCount),
@@ -1729,7 +1728,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Count(tokenSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(Count(qaLogSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
         Fill: |-
             =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -1743,14 +1742,14 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =If(
-                Last(qaLogSearchResult_1).ID <> tokenSearchLastId,
+                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
                 Remove(qaLogSearchStack_1, Last(qaLogSearchStack_1)),
                 false
             );
             
             
             UpdateContext({
-                tokenSearchLastId: Coalesce(Last(qaLogSearchStack_1).Value, 0)
+                qaLogSearchLastId: Coalesce(Last(qaLogSearchStack_1).Value, 0)
             });
             
             
@@ -1758,7 +1757,7 @@
                 locLoadingSpinner: true
             });
             
-            Select(ResetFileSearchButton_QALogEdit_1);
+            Select(FileSearchTimer_QALogEdit_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
         PressedFill: |-
@@ -1771,7 +1770,7 @@
         Text: ="< 이전 페이지"
         Width: =121
         X: =906
-        Y: =950
+        Y: =964
         ZIndex: =53
 
     NextPageButton_QALogEdit_1 As button:
@@ -1781,7 +1780,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(CountRows(tokenSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(CountRows(qaLogSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
         Fill: |-
             =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -1794,17 +1793,21 @@
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =If(
-                Last(qaLogSearchResult_1).ID <> tokenSearchLastId,
+            =UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            If(
+                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
                 Collect(qaLogSearchStack_1, Coalesce(Last(qaLogSearchResult_1).ID, 0)),
                 false
             );
             
             UpdateContext({
-                tokenSearchLastId: Coalesce(Last(qaLogSearchResult_1).ID, 0)
+                qaLogSearchLastId: Coalesce(Last(qaLogSearchResult_1).ID, 0)
             });
             
-            Select(ResetFileSearchButton_QALogEdit_1);
+            Select(FileSearchTimer_QALogEdit_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
         PressedFill: |-
@@ -1817,6 +1820,6 @@
         Text: ="다음 페이지 >"
         Width: =128
         X: =1083
-        Y: =950
+        Y: =964
         ZIndex: =54
 
