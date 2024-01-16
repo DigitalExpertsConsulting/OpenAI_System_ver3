@@ -1639,11 +1639,8 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnTimerStart: |+
-            =
-            
-            
-            UpdateContext({
-                tokenSearchResponse: '[DEV]똑실이-[Apps]QALog검색'.Run(
+            =UpdateContext({
+                qaLogSearchResponse: '[DEV]똑실이-[Apps]QALog검색'.Run(
                     // 카테고리
                     If(
                         Dropdown_SearchCategory_QALogEdit_1.Selected.Category_LV1 = DEFAULT_CATEGORY_VALUE,
@@ -1668,40 +1665,20 @@
                     ).result_json
             });
             
-            
-            
-            /*
             ClearCollect(
-                FileSearchResult_FM_1,
+                qaLogSearchResult_1,
                 ForAll(
-                    Table(ParseJSON(tokenSearchResponse)),
-                    {
-                        ID: Int(ThisRecord.Value.ID),
-                        File_Name: Text(ThisRecord.Value.File_Name),
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
-                        Index_Status: Text(ThisRecord.Value.Index_Status),
-                        Index_Log: Text(ThisRecord.Value.Index_Log)
-                    }
-                )
-            );
-            */
-            
-            ClearCollect(
-                tokenSearchResult_1,
-                ForAll(
-                    Table(ParseJSON(tokenSearchResponse)),
+                    Table(ParseJSON(qaLogSearchResponse)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        Token_Question: Text(ThisRecord.Value.Token_Question),
-                        Token_Answer: Text(ThisRecord.Value.Token_Answer),
+                        Question: Text(ThisRecord.Value.Question),
+                        Answer: Text(ThisRecord.Value.Answer),
                         //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
-                        Token_Date: Text(DateAdd(ThisRecord.Value.Token_Date, -TimeZoneOffset(), TimeUnit.Minutes), "yyyy-mm-dd"),
-                        Token_Input: Text(ThisRecord.Value.Token_Input),
-                        Token_Output: Text(ThisRecord.Value.Token_Output),
-                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        Date: Text(DateAdd(ThisRecord.Value.Date, -TimeZoneOffset(), TimeUnit.Minutes), "yyyy-mm-dd"),
+                        Name: Text(ThisRecord.Value.Name),
+                        LikeCount: Text(ThisRecord.Value.LikeCount),
+                        HateCount: Text(ThisRecord.Value.HateCount),
                         ID: Int(ThisRecord.Value.ID)
                     }
                 )
