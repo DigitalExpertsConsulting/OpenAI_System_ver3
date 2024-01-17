@@ -598,7 +598,33 @@
             =UpdateContext({LodingPopup:true});
             Notify("CSV 다운로드 중입니다");
             
-            UpdateContext({output_csv:'똑실이-[Apps]질의응답CSV임시파일생성'.Run(TextInput_SearchUser_QALogEdit_1.Text,TextInput_SearchQuestion_QALogEdit_1.Text,DatePicker_SearchDateMin_QALogEdit_1.SelectedDate,DatePicker_SearchDateMax_QALogEdit_1.SelectedDate,Checkbox_LikeCheck_QALogEdit_1.Value, User().Email)});
+            UpdateContext(
+                {
+                    output_csv:
+                    '[DEV]똑실이-[Apps]질의응답CSV임시파일생성_V2'.Run(
+                    // 작성자 검색
+                    TextInput_SearchUser_QALogEdit_1.Text,
+                    // 질문 검색
+                    TextInput_SearchQuestion_QALogEdit_1.Text,
+                    // start 날짜
+                    DatePicker_SearchDateMin_QALogEdit_1.SelectedDate,
+                    // end 날짜
+                    DatePicker_SearchDateMax_QALogEdit_1.SelectedDate,
+                    // 좋아요 체크
+                    Checkbox_LikeCheck_QALogEdit_1.Value,
+                    // 이메일
+                    User().Email,
+                    // 카테고리
+                    If(
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1 = DEFAULT_CATEGORY_VALUE,
+                        // LV1카테고리가 전체인 경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryLV1,CountRows(colCategoryLV1)-1), Category_LV1 & "?"),"delete_point"),"?delete_point",""),
+                        // LV1카테고리가 전체가 아닌경우 (선택한 경우)
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1
+                    )
+                    )
+                }
+            );
             
             UpdateContext({download_link:output_csv.download_link});
             
@@ -1360,7 +1386,7 @@
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
-            DefaultDate: =
+            DefaultDate: ="2024-01-10"
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1387,7 +1413,7 @@
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
-            DefaultDate: =
+            DefaultDate: ="2024-01-17"
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1407,8 +1433,8 @@
             Size: =12
             Visible: |
                 =true
-            Width: =180
-            X: =1495
+            Width: =192
+            X: =1485
             Y: =147
             ZIndex: =5
 
@@ -1558,9 +1584,17 @@
             Height: =40
             HoverColor: =RGBA(0, 18, 107, 1)
             OnCheck: |-
-                =UpdateContext({showLike: true})
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_QALogEdit_1);
+                UpdateContext({showLike: true});
             OnUncheck: |-
-                =UpdateContext({showLike: false})
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_QALogEdit_1);
+                UpdateContext({showLike: false});
             PaddingBottom: =5
             PressedBorderColor: |-
                 =ColorValue("#0F6CBD")
@@ -1688,6 +1722,7 @@
                     }
                 )
             );
+            
             
             UpdateContext({ 
                 locLoadingSpinner: false
@@ -1837,4 +1872,19 @@
         X: =884
         Y: =87
         ZIndex: =55
+
+    "'[삭제예정]Label_QALogEdit_3' As label":
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: ="[삭제예정]텍스트"
+        X: =904
+        Y: =107
+        ZIndex: =56
 
