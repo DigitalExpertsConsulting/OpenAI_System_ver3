@@ -3,7 +3,7 @@
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnHidden: =
-    OnVisible: |-
+    OnVisible: |+
         =// 초기화
         Concurrent(
             Refresh(똑실이_ChatbotText_table), //DB REFRESH
@@ -22,8 +22,6 @@
         UpdateContext({previewText:welComeText});
         
         
-        ClearCollect( ChatBotModel,  {Text: "GPT-3.5", Value: "chat"},
-            {Text: "GPT-4", Value: "chat_gpt4"} )
 
     Label_ScreenTitle_CM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -36,7 +34,7 @@
         FontWeight: =FontWeight.Bold
         Height: =64
         Size: =30
-        Text: ="ChatBot 메시지 관리"
+        Text: ="ChatBot Settings"
         Width: =691
         X: =343
         Y: =23
@@ -112,7 +110,7 @@
         DisplayMode: =DisplayMode.View
         Fill: =RGBA(255, 255, 255, 1)
         FocusedBorderThickness: =4
-        Height: =600
+        Height: =545
         HoverFill: =RGBA(255, 255, 255, 1)
         PressedFill: =RGBA(255, 255, 255, 1)
         Width: =551
@@ -126,7 +124,7 @@
         DisabledFill: =RGBA(166, 166, 166, 1)
         Fill: =previewSelectBackgroundColor
         FocusedBorderThickness: =4
-        Height: =480
+        Height: =430
         HoverFill: =
         PressedFill: =
         Width: =509
@@ -849,6 +847,20 @@
         Y: =224
         ZIndex: =46
 
+    Separator_ChotBotOptionBackground_CM As rectangle:
+        BorderColor: =RGBA(112, 112, 112, 1)
+        DisabledFill: =RGBA(255, 255, 255, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =4
+        Height: =366
+        HoverFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(255, 255, 255, 1)
+        Width: =551
+        X: =353
+        Y: =671
+        ZIndex: =47
+
     Modal_Edit_CM As group:
         Height: =5
         Width: =5
@@ -1202,20 +1214,6 @@
             Y: =826
             ZIndex: =45
 
-    Separator_ChotBotOptionBackground_CM As rectangle:
-        BorderColor: =RGBA(112, 112, 112, 1)
-        DisabledFill: =RGBA(255, 255, 255, 1)
-        DisplayMode: =DisplayMode.View
-        Fill: =RGBA(255, 255, 255, 1)
-        FocusedBorderThickness: =4
-        Height: =311
-        HoverFill: =RGBA(255, 255, 255, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
-        Width: =551
-        X: =353
-        Y: =728
-        ZIndex: =47
-
     Separator_ChatBotOptionUnderline_CM As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         Fill: |-
@@ -1224,7 +1222,7 @@
         Height: =2
         Width: =500
         X: =378
-        Y: =798
+        Y: =743
         ZIndex: =48
 
     Label_ChatBotOption_CM As label:
@@ -1241,7 +1239,7 @@
         Text: ="ChatBot 옵션"
         Width: =441
         X: =378
-        Y: =742
+        Y: =687
         ZIndex: =49
 
     Separator_AllCategorySearch_CM As label:
@@ -1258,7 +1256,7 @@
         Text: ="카테고리 전체검색"
         Width: =178
         X: =378
-        Y: =818
+        Y: =763
         ZIndex: =50
 
     Label_AnswerModel_CM As label:
@@ -1275,7 +1273,7 @@
         Text: ="답변모델"
         Width: =178
         X: =378
-        Y: =876
+        Y: =863
         ZIndex: =51
 
     Dropdown_AnswerModel_CM As dropdown:
@@ -1288,16 +1286,28 @@
         ChevronHoverBackground: =RGBA(212, 212, 212, 1)
         ChevronHoverFill: =RGBA(33, 33, 33, 1)
         Color: =RGBA(51, 51, 51, 1)
-        Default: =First(ChatBotModel).Text
+        Default: ="GPT-3.5"
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Toggle_CategroySearch_CM.Checked=true,DisplayMode.Edit,DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         Height: =32
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
-        Items: =ChatBotModel.Text
+        Items: =["GPT-3.5","GPT-4"]
+        OnChange: |-
+            =/*ForAll(
+                똑실이_Category_table,
+                    Patch(
+                    똑실이_Category_table,
+                    LookUp(똑실이_Category_table,CategoryType="default"),
+                    {AnswerModel: If(Dropdown_AnswerModel_CM.SelectedText.Text="GPT-3.5","chat","chat_gpt4")}
+                )
+            )*/
+            
+            UpdateIf(똑실이_Category_table,CategoryType="default",{AnswerModel: If(Dropdown_AnswerModel_CM.SelectedText.Value="GPT-3.5","chat","chat_gpt4")})
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -1309,7 +1319,7 @@
         Size: =13
         Width: =204
         X: =673
-        Y: =875
+        Y: =862
         ZIndex: =53
 
     TextInput_NoteBackground_CM As text:
@@ -1338,7 +1348,7 @@
         RadiusTopRight: =0
         Width: =498
         X: =378
-        Y: =918
+        Y: =912
         ZIndex: =54
 
     Label_Note_CM As label:
@@ -1360,7 +1370,7 @@
         VerticalAlign: =VerticalAlign.Top
         Width: =477
         X: =395
-        Y: =951
+        Y: =945
         ZIndex: =55
 
     Label_NoteText_CM As label:
@@ -1375,10 +1385,10 @@
         FontWeight: =FontWeight.Bold
         Height: =23
         Size: =12
-        Text: ="작성 유의사항"
+        Text: ="카테고리 전체검색이란?"
         Width: =111
         X: =414
-        Y: =928
+        Y: =922
         ZIndex: =56
 
     Icon_Note_CM As icon.Information:
@@ -1398,19 +1408,88 @@
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
         X: =391
-        Y: =931
+        Y: =925
         ZIndex: =57
 
-    Toggle_CM_1 As 토글:
+    Toggle_CategroySearch_CM As 토글:
         BasePaletteColor: =
         DisplayMode: =DisplayMode.Edit
         FontColor: =
         Height: =35
         Label: =
         OnCheck: =false
+        OnSelect: |-
+            =Patch(
+                똑실이_ChatbotText_table,
+                First(똑실이_ChatbotText_table),
+                {UseDefaultCategory: Toggle_CategroySearch_CM.Checked}
+            )
         OnUncheck: =false
         Width: =110
         X: =831
-        Y: =813
+        Y: =763
         ZIndex: =63
+
+    Label_language_CM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =30
+        Size: =12
+        Text: ="언어"
+        Width: =178
+        X: =378
+        Y: =815
+        ZIndex: =64
+
+    Dropdown_language_CM As dropdown:
+        BorderColor: |-
+            =ColorValue("#BDBDBD")
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        Default: ="한국어"
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Toggle_CategroySearch_CM.Checked=true,DisplayMode.Edit,DisplayMode.Disabled)
+        Font: =Font.'Segoe UI'
+        Height: =32
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: =["한국어", "English", "日本語"]
+        OnChange: |-
+            =/*ForAll(
+                똑실이_Category_table,
+                    Patch(
+                    똑실이_Category_table,
+                    LookUp(똑실이_Category_table,CategoryType="default"),
+                    {AnswerModel: If(Dropdown_AnswerModel_CM.SelectedText.Text="GPT-3.5","chat","chat_gpt4")}
+                )
+            )*/
+            
+            UpdateIf(똑실이_Category_table,CategoryType="default",{AnswerModel: Switch(Dropdown_language_CM.Selected.Value,"한국어","ko","English","en","日本語","ja")})
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Width: =204
+        X: =673
+        Y: =814
+        ZIndex: =65
 
