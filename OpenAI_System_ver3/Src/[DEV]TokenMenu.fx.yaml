@@ -34,9 +34,11 @@
             {Category_LV1: DEFAULT_CATEGORY_VALUE},
             SortByColumns(
                 ForAll(
-                    Table(ParseJSON('[DEV]똑실이-[Apps]일반관리자카테고리LV1목록'.Run(User().Email).output_category)),
+                    Table(ParseJSON('[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).output_category)),
                     {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1)
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        LV1Order: Int(ThisRecord.Value.LV1Order),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
             "Category_LV1",
@@ -143,7 +145,11 @@
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
-        Items: =colCategoryLV1
+        Items: |-
+            =Distinct(
+                colCategoryLV1,
+                Category_LV1
+            )
         OnChange: |-
             =UpdateContext({
                 locLoadingSpinner: true
