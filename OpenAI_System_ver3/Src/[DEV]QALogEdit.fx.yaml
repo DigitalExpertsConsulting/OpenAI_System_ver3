@@ -602,7 +602,26 @@
                 {
                     output_csv:
                     '[DEV]똑실이-[Apps]질의응답CSV임시파일생성_V2'.Run(
-                    TextInput_SearchUser_QALogEdit_1.Text,TextInput_SearchQuestion_QALogEdit_1.Text,DatePicker_SearchDateMin_QALogEdit_1.SelectedDate,DatePicker_SearchDateMax_QALogEdit_1.SelectedDate,Checkbox_LikeCheck_QALogEdit_1.Value, User().Email
+                    // 작성자 검색
+                    TextInput_SearchUser_QALogEdit_1.Text,
+                    // 질문 검색
+                    TextInput_SearchQuestion_QALogEdit_1.Text,
+                    // start 날짜
+                    DatePicker_SearchDateMin_QALogEdit_1.SelectedDate,
+                    // end 날짜
+                    DatePicker_SearchDateMax_QALogEdit_1.SelectedDate,
+                    // 좋아요 체크
+                    Checkbox_LikeCheck_QALogEdit_1.Value,
+                    // 이메일
+                    User().Email,
+                    // 카테고리
+                    If(
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1 = DEFAULT_CATEGORY_VALUE,
+                        // LV1카테고리가 전체인 경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryLV1,CountRows(colCategoryLV1)-1), Category_LV1 & "?"),"delete_point"),"?delete_point",""),
+                        // LV1카테고리가 전체가 아닌경우 (선택한 경우)
+                        Dropdown_SearchCategory_TokenMenu_1.Selected.Category_LV1
+                    )
                     )
                 }
             );
