@@ -32,7 +32,8 @@ CategoryMenu_Namsoo As screen:
                 "Teams",
                 "FileCount",
                 "DocumentLanguage",
-                "Author"
+                "Author",
+                "CategoryType" //이거맞나
             )
         );
         Clear(delCate);
@@ -47,6 +48,15 @@ CategoryMenu_Namsoo As screen:
                     displayName: Text(ThisRecord.Value.displayName),
                     securityEnabled: Text(ThisRecord.Value.securityEnabled)
                 }
+            )
+        );
+        
+        ClearCollect( //이거맞나
+            CategoryManagerTable,
+            ShowColumns(
+                Category_Manager_table,
+                "LV1Order",
+                "CategoryType"
             )
         );
 
@@ -407,6 +417,58 @@ CategoryMenu_Namsoo As screen:
         Y: =133
         ZIndex: =9
 
+        Label_CountMainMenu_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |-
+                =ColorValue("#0F6CBD")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: =CountRows(Distinct(CategoryTable,Category_LV1))
+            Width: =61
+            X: =44
+            Y: =80
+            ZIndex: =1
+
+        Label_CountMainTitle_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =17
+            Text: ="메인 카테고리"
+            Width: =158
+            X: =40
+            Y: =40
+            ZIndex: =2
+
+        Label_CountMain_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =23
+            Size: =15
+            Text: ="개"
+            Width: =28
+            X: =93
+            Y: =92
+            ZIndex: =3
+
     Container_CountSub_CategoryMenu_Namsoo As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
@@ -420,6 +482,58 @@ CategoryMenu_Namsoo As screen:
         Y: =133
         ZIndex: =10
 
+        Label_CountSub2_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |-
+                =ColorValue("#0F6CBD")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: =CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order)))
+            Width: =61
+            X: =44
+            Y: =80
+            ZIndex: =1
+
+        Label_CountSubMain_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =17
+            Text: ="서브 카테고리"
+            Width: =160
+            X: =40
+            Y: =40
+            ZIndex: =2
+
+        Label_CountSub_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =23
+            Size: =15
+            Text: ="개"
+            Width: =28
+            X: =94
+            Y: =92
+            ZIndex: =3
+
     Container_NoUser_CategoryMenu_Namsoo As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.Bold
         Fill: =RGBA(255, 255, 255, 1)
@@ -432,6 +546,79 @@ CategoryMenu_Namsoo As screen:
         X: =938
         Y: =133
         ZIndex: =11
+
+        Label_NoUserCount_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: |-
+                =ColorValue("#0F6CBD")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =//CountIf(CategoryTable,(IsEmpty(Users) || IsBlank(Users))&& (TeamName="" || TeamName=Blank()))  & " / " & CountRows(CategoryTable) 
+                // && (TeamName="" || TeamName=Blank())
+                CountRows(Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
+            Width: =53
+            X: =44
+            Y: =80
+            ZIndex: =1
+
+        Label_NoUserMain_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Size: =17
+            Text: ="인원 미할당"
+            X: =40
+            Y: =40
+            ZIndex: =2
+
+        Image_NoUser_CategoryMenu_1 As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =30
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =UserListPopup
+            OnSelect: =Set(CategoryPopup,true);
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =30
+            X: =235
+            Y: =45
+            ZIndex: =3
+
+        Label_NoUser_CategoryMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =23
+            Size: =15
+            Text: ="/ " & CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order))) & "개"
+            Width: =105
+            X: =85
+            Y: =92
+            ZIndex: =4
 
     Label_CategoryList_CategoryMenu_Namsoo As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3903,7 +4090,7 @@ CategoryMenu_Namsoo As screen:
         Height: =44
         Text: ="버튼"
         Width: =134
-        X: =1358
-        Y: =104
+        X: =1544
+        Y: =146
         ZIndex: =122
 
