@@ -165,9 +165,27 @@ Gpt_DeliveredContent_TEST As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
             Height: =796
-            Items: |+
+            Items: |
                 =ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
                 
+                /*
+                Filter(
+                    ForAll(
+                        Distinct(
+                            SortByColumns(
+                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
+                            ), 
+                            Category_LV1
+                        ), 
+                        {Result: ThisRecord.Value}
+                    ),
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email,
+                        true,
+                        If(Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email).Users.Email, true)
+                    )
+                )
+                */
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
@@ -261,15 +279,42 @@ Gpt_DeliveredContent_TEST As screen:
             DelayItemLoading: =true
             Height: =796
             Items: |-
-                =/*SortByColumns(
+                =SortByColumns(
                     Filter(
                         똑실이_Category_table,
                         Category_LV1 = SelectedTopContent
                     ),
                     "LV2Order",
                     SortOrder.Ascending
-                )*/
+                )
                 
+                /*
+                Filter(
+                    SortByColumns(
+                        똑실이_Category_table,
+                        "ID",
+                        SortOrder.Ascending
+                    ),
+                    "LV2Order",
+                    Category_LV1 = SelectedTopContent &&
+                    (
+                        !IsBlank(
+                            Filter(
+                                Office365그룹.ListGroupMembers(
+                                    Mid(
+                                        ThisRecord.Category_LV1,
+                                        If("c:0o.c|federateddirectoryclaimprovider|" in ThisRecord.Category_LV1, 40, 15)
+                                    )
+                                ).value,
+                                ThisRecord.mail in Teams || ThisRecord.mail in Users
+                            )
+                        )
+                    )
+                )
+                */
+                
+                
+                /*
                 If(
                     Office365사용자.MyProfile().Mail in LookUp(
                         똑실이_SuperAdmin_table,
@@ -289,7 +334,7 @@ Gpt_DeliveredContent_TEST As screen:
                     SortOrder.Ascending
                 )
                     )
-                )
+                )*/
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
