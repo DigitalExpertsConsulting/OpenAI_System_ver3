@@ -3870,6 +3870,85 @@ CategoryMenu_Namsoo As screen:
         Y: =529
         ZIndex: =120
 
+    Button_SaveAddCategory_Lv2CategoryMenu_Namsoo As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =32
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =Set(CategoryVal2, Split(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text, ""));
+            Set(CategoryVal3, Split(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text, ""));
+            If(
+                TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text = "" || TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text = "",
+                Notify(
+                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
+                    NotificationType.Error,
+                    0
+                ),
+            
+            If(
+                CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0 || CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,
+                Notify(
+                    Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                    NotificationType.Error,
+                    0
+                ),
+                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text)),
+            
+                 Notify(
+                    "중복된 카테고리명입니다",
+                    NotificationType.Error,
+                    0
+                ),
+                Collect(
+                    똑실이_Category_table,
+                    {
+                        제목: ".",
+                        Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text),
+                        //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
+                        Category_LV2: Trim(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text),
+                        //ID: Last(똑실이_Category_table).ID + 1,
+                        LV1Order: Last(똑실이_Category_table).LV1Order + 1,
+                        LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text)),Last(똑실이_Category_table).LV2Order+1,1),
+                        //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
+                        DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_CategoryMenu.Selected.Value,"한국어","ko","English","en","日本語","ja")
+                    }
+                );
+                Notify(
+                    "저장하였습니다.",
+                    NotificationType.Success,
+                    0
+                ); Refresh(똑실이_Category_table);
+                UpdateContext({AddLv2Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo);Reset(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo);
+                    Reset(RadioToggle_AddDocumentLanguage_Lv2CategoryMenu_Namsoo);
+            
+            );););
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="확인"
+        Visible: =AddLv2Category_Namsoo
+        Width: =49
+        X: =1294
+        Y: =650
+        ZIndex: =121
+
     Group_CategorySettingModal_CategoryMenu_Namsoo As group:
         Height: =5
         Width: =5
@@ -4003,85 +4082,6 @@ CategoryMenu_Namsoo As screen:
             X: =751
             Y: =423
             ZIndex: =79
-
-    Button_SaveAddCategory_Lv2CategoryMenu_Namsoo As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Bold
-        Height: =32
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =Set(CategoryVal2, Split(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text, ""));
-            Set(CategoryVal3, Split(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text, ""));
-            If(
-                TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text = "" || TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text = "",
-                Notify(
-                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
-                    NotificationType.Error,
-                    0
-                ),
-            
-            If(
-                CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0 || CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,
-                Notify(
-                    Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
-                    NotificationType.Error,
-                    0
-                ),
-                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text)),
-            
-                 Notify(
-                    "중복된 카테고리명입니다",
-                    NotificationType.Error,
-                    0
-                ),
-                Collect(
-                    똑실이_Category_table,
-                    {
-                        제목: ".",
-                        Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text),
-                        //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
-                        Category_LV2: Trim(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo.Text),
-                        //ID: Last(똑실이_Category_table).ID + 1,
-                        LV1Order: Last(똑실이_Category_table).LV1Order + 1,
-                        LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo.Text)),Last(똑실이_Category_table).LV2Order+1,1),
-                        //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
-                        DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_CategoryMenu.Selected.Value,"한국어","ko","English","en","日本語","ja")
-                    }
-                );
-                Notify(
-                    "저장하였습니다.",
-                    NotificationType.Success,
-                    0
-                ); Refresh(똑실이_Category_table);
-                UpdateContext({AddLv2Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Namsoo);Reset(TextInput_AddMainCategoryNameSub_CategoryMenu_Namsoo);
-                    Reset(RadioToggle_AddDocumentLanguage_Lv2CategoryMenu_Namsoo);
-            
-            );););
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="확인"
-        Visible: =AddLv2Category_Namsoo
-        Width: =49
-        X: =1294
-        Y: =650
-        ZIndex: =121
 
     Button_CancleAddCategory_Lv2CategoryMenu_Namsoo As button:
         BorderColor: |-
