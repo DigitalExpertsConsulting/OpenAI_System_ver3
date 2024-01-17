@@ -1,15 +1,51 @@
 Gpt_DeliveredContent_TEST As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =UpdateContext(
             {
                 GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
             }
         );
         
+        /*
+        ClearCollect(
+            colGPTMyTable,
+            ShowColumns(똑실이_Category_table, "Category_LV1",
+                "Category_LV2",
+                "LV1Order",
+                "LV2Order",
+                "Users",
+                "Teams"
+            )
+        );
+        
+        ClearCollect(
+            colGPTMyMailTB,
+            Office365사용자.MyProfile().Mail);
+            
+        
+        
+        UpdateContext(
+            {
+                GptSelectedDefault: First(
+                    Filter(
+                        Distinct(
+                            SortByColumns(
+                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
+                            ),
+                            Category_LV1
+                        ),
+                        colGPTMyMailTB = 똑실이_Category_table.Users
+                    )
+                )
+            }
+        );
+        */
+        
         //UpdateContext({SelectedTopContent:""});
         UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
+        
 
     Label_ContentsMain_GPT_DeliveredContent_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -166,7 +202,7 @@ Gpt_DeliveredContent_TEST As screen:
             DelayItemLoading: =true
             Height: =796
             Items: |
-                =ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
+                =//ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
                 
                 /*
                 Filter(
@@ -186,6 +222,19 @@ Gpt_DeliveredContent_TEST As screen:
                     )
                 )
                 */
+                
+                ForAll(
+                    Filter(
+                        Distinct(
+                            SortByColumns(
+                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
+                            ), 
+                            Category_LV1
+                        ),
+                        Office365사용자.MyProfile().Mail in gblUsersEmail
+                    ),
+                    {Result: ThisRecord.Value}
+                )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
