@@ -223,17 +223,17 @@ Gpt_DeliveredContent_TEST As screen:
                 )
                 */
                 
+                // 정렬 후 중복값 제거, 권한이 있는 사용자만 콘텐츠 보이기 (LV2에서 권한 찾기 --- 수정할것)
                 ForAll(
                     Filter(
                         Distinct(
                             SortByColumns(
-                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
+                                똑실이_Category_table, "LV2Order", SortOrder.Ascending
                             ), 
                             Category_LV1
                         ),
-                        Office365사용자.MyProfile().Mail in gblUsersEmail
-                    ),
-                    {Result: ThisRecord.Value}
+                        If(Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email).Users.Email, true)
+                    ),{Result: ThisRecord.Value}
                 )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
