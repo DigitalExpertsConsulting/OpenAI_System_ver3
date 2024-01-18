@@ -1,7 +1,7 @@
 Gpt_DeliveredContent_TEST As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |+
+    OnVisible: |-
         =UpdateContext(
             {
                 GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
@@ -10,14 +10,33 @@ Gpt_DeliveredContent_TEST As screen:
         
         
         //UpdateContext({SelectedTopContent:""}); //??
-        UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
-        
-        UpdateContext({AccountAuthorityUsers : Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table, Category_LV2 = ThisRecord.Category_LV2).Users.Email});
+        //UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
         
         
         
+        Set(gblcategoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
         
         
+        ClearCollect(
+            colCategoryGPT,
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON(gblcategoryList)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        Histroy: Text(ThisRecord.Value.History)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
 
     Label_ContentsMain_GPT_DeliveredContent_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -176,43 +195,18 @@ Gpt_DeliveredContent_TEST As screen:
                 =DisplayMode.Edit
             Height: =796
             Items: |-
-                =ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table, Office365사용자.MyProfile().Mail in Users.Email), "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
-                
-                /*
-                Filter(
-                    ForAll(
-                        Distinct(
-                            SortByColumns(
-                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
-                            ), 
-                            Category_LV1
-                        ), 
-                        {Result: ThisRecord.Value}
+                =//ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email),"LV1Order",SortOrder.Ascending),Category_LV1),{Result:ThisRecord.Value})
+                ForAll(
+                    Distinct(
+                        SortByColumns(
+                            colCategoryGPT,
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV1
                     ),
-                    If(
-                        Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email,
-                        true,
-                        If(Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email).Users.Email, true)
-                    )
+                    {Result: ThisRecord.Value}
                 )
-                */
-                
-                
-                // 정렬 후 중복값 제거, 권한이 있는 사용자만 콘텐츠 보이기 (LV2에서 권한 찾기 --- 수정할것)
-                /*
-                If(
-                    Office365사용자.MyProfile().Mail in LookUp(
-                        똑실이_SuperAdmin_table,
-                        Office365사용자.MyProfile().Mail in SuperUsers.Email
-                    ).SuperUsers.Email,
-                    If(
-                        Office365사용자.MyProfile().Mail in LookUp(
-                            똑실이_Category_table, 
-                            Category_LV2 = ThisRecord.Category_LV2).Users.Email,
-                        ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
-                    )
-                )
-                */
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
@@ -308,7 +302,7 @@ Gpt_DeliveredContent_TEST As screen:
             Items: |-
                 =SortByColumns(
                     Filter(
-                        똑실이_Category_table,
+                        colCategoryGPT,
                         Category_LV1 = SelectedTopContent
                     ),
                     "LV2Order",
@@ -398,7 +392,7 @@ Gpt_DeliveredContent_TEST As screen:
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Text: =If(IsBlank(ThisItem.History),"-",ThisItem.History)
+                Text: =If(IsBlank(ThisItem.Histroy), "-", ThisItem.Histroy)
                 Width: =950
                 Wrap: =false
                 X: =20
