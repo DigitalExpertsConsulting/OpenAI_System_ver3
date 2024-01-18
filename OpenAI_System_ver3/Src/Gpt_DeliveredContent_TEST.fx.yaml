@@ -8,43 +8,15 @@ Gpt_DeliveredContent_TEST As screen:
             }
         );
         
-        /*
-        ClearCollect(
-            colGPTMyTable,
-            ShowColumns(똑실이_Category_table, "Category_LV1",
-                "Category_LV2",
-                "LV1Order",
-                "LV2Order",
-                "Users",
-                "Teams"
-            )
-        );
         
-        ClearCollect(
-            colGPTMyMailTB,
-            Office365사용자.MyProfile().Mail);
-            
-        
-        
-        UpdateContext(
-            {
-                GptSelectedDefault: First(
-                    Filter(
-                        Distinct(
-                            SortByColumns(
-                                똑실이_Category_table, "LV1Order", SortOrder.Ascending
-                            ),
-                            Category_LV1
-                        ),
-                        colGPTMyMailTB = 똑실이_Category_table.Users
-                    )
-                )
-            }
-        );
-        */
-        
-        //UpdateContext({SelectedTopContent:""});
+        //UpdateContext({SelectedTopContent:""}); //??
         UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
+        
+        UpdateContext({AccountAuthorityUsers : Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table, Category_LV2 = ThisRecord.Category_LV2).Users.Email});
+        
+        
+        
+        
         
 
     Label_ContentsMain_GPT_DeliveredContent_1 As label:
@@ -200,9 +172,11 @@ Gpt_DeliveredContent_TEST As screen:
         Gallery_Top_Content_1 As gallery.galleryVertical:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
+            DisplayMode: |
+                =DisplayMode.Edit
             Height: =796
-            Items: |
-                =//ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
+            Items: |-
+                =ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table, Office365사용자.MyProfile().Mail in Users.Email), "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
                 
                 /*
                 Filter(
@@ -223,18 +197,22 @@ Gpt_DeliveredContent_TEST As screen:
                 )
                 */
                 
+                
                 // 정렬 후 중복값 제거, 권한이 있는 사용자만 콘텐츠 보이기 (LV2에서 권한 찾기 --- 수정할것)
-                ForAll(
-                    Filter(
-                        Distinct(
-                            SortByColumns(
-                                똑실이_Category_table, "LV2Order", SortOrder.Ascending
-                            ), 
-                            Category_LV1
-                        ),
-                        If(Office365사용자.MyProfile().Mail in LookUp(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email).Users.Email, true)
-                    ),{Result: ThisRecord.Value}
+                /*
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(
+                            똑실이_Category_table, 
+                            Category_LV2 = ThisRecord.Category_LV2).Users.Email,
+                        ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
+                    )
                 )
+                */
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
