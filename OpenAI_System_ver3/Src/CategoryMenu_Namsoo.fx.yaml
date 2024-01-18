@@ -536,7 +536,7 @@ CategoryMenu_Namsoo As screen:
                 
                 
                 Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in 'Folder path' && IsFolder= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
@@ -1019,7 +1019,7 @@ CategoryMenu_Namsoo As screen:
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
                     =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
-                    If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.'Created By'.Email ,DisplayMode.Edit,
                     DisplayMode.Disabled))
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
@@ -1045,7 +1045,7 @@ CategoryMenu_Namsoo As screen:
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    If(CountRows(Filter(똑실이_문서, 'Folder path'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
@@ -1200,7 +1200,7 @@ CategoryMenu_Namsoo As screen:
                 =Collect(
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         Category_LV1: ThisItem.Value,
                         Category_LV2: "",
                         //ID: Last(똑실이_Category_table).ID + 1,
@@ -3484,7 +3484,7 @@ CategoryMenu_Namsoo As screen:
                 Collect(
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
                         Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
@@ -3912,7 +3912,7 @@ CategoryMenu_Namsoo As screen:
             If(
                 TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text = "",
                 Notify(
-                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
+                    "메인 카테고리 이름을 지정하지 않았습니다.",
                     NotificationType.Error,
                     0
                 ),
@@ -3924,7 +3924,7 @@ CategoryMenu_Namsoo As screen:
                     NotificationType.Error,
                     0
                 ),
-                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu_Lv1PopUp.Text)),
+                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),
             
                  Notify(
                     "중복된 카테고리명입니다",
@@ -3934,13 +3934,12 @@ CategoryMenu_Namsoo As screen:
                 Collect(
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text),
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
-                        Category_LV2: Trim(TextInput_AddMainCategoryNameSub_CategoryMenu_Lv1PopUp.Text),
                         //ID: Last(똑실이_Category_table).ID + 1,
                         LV1Order: Last(똑실이_Category_table).LV1Order + 1,
-                        LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1),
+                        //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1),
                         //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
                         DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_CategoryMenu.Selected.Value,"한국어","ko","English","en","日本語","ja")
                     }
@@ -3950,7 +3949,7 @@ CategoryMenu_Namsoo As screen:
                     NotificationType.Success,
                     0
                 ); Refresh(똑실이_Category_table);
-                UpdateContext({AddLv1Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp);Reset(TextInput_AddMainCategoryNameSub_CategoryMenu_Lv1PopUp);
+                UpdateContext({AddLv1Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp);
                     Reset(RadioToggle_AddDocumentLanguage_CategoryMenu_Lv1PopUp);
             
             );););
@@ -4132,8 +4131,8 @@ CategoryMenu_Namsoo As screen:
         Height: =44
         Text: ="버튼"
         Width: =134
-        X: =1719
-        Y: =235
+        X: =1728
+        Y: =129
         ZIndex: =94
 
     Button_Border2_CategoryMenu_Namsoo As button:
