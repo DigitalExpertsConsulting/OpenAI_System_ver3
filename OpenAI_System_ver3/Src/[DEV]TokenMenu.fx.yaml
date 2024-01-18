@@ -1100,7 +1100,7 @@
             Height: =33
             Text: ="질문"
             Width: =52
-            X: =360
+            X: =370
             Y: =147
             ZIndex: =10
 
@@ -1140,9 +1140,27 @@
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =Distinct(
+                =/*
+                Distinct(
                     colCategoryAdmin,
                     Category_LV2
+                )
+                */
+                If(
+                    Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 카테고리 LV1 이 전체로 선택되어 있을경우
+                    Distinct(
+                        colCategoryAdmin,
+                        Category_LV2
+                    ),
+                    // 카테고리 LV1 이 전체가 아닌 다른걸로 선택되어 있을경우
+                    Distinct(
+                        Filter(
+                            colCategoryAdmin,
+                            Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value
+                        ),
+                        Category_LV2
+                    )
                 )
             OnChange: |-
                 =UpdateContext({
