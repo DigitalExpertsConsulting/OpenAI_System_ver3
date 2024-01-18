@@ -15,8 +15,10 @@ CategoryMenu_Namsoo As screen:
         UpdateContext({AddLv2Category_Namsoo: false}), //추가
         UpdateContext({HisVi:false}),
         Set(CategoryPopup, false);
+        
         Set(PA_CategoryLv2_User_List, '[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categories); //이거맞나 //PA 불러옴 //Lv2 불러오기
         Set(PA_CategoryLv1_User_List, '[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).all_categorylv1); //이거맞나 //PA 불러옴 //Lv1
+         //이거맞나
         );
         
         ClearCollect(
@@ -54,12 +56,17 @@ CategoryMenu_Namsoo As screen:
         );
         
         ClearCollect(
-            Category_Lv2_List,
-            ShowColumns(
-                PA_CategoryLv2_User_List,
-                "" //이거맞나
+            Category_ALL_Lv_List,
+            ForAll(
+                Table(ParseJSON(PA_CategoryLv2_User_List)),
+                {
+                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                }
             )
         );
+        
+        
         
         
         /*
@@ -478,7 +485,10 @@ CategoryMenu_Namsoo As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
-        Items: =Distinct(똑실이_Category_table,Category_LV1)
+        Items: |+
+            =Distinct(Category_ALL_Lv_List,Category_LV1)
+            
+            
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -4144,8 +4154,8 @@ CategoryMenu_Namsoo As screen:
         Height: =44
         Text: ="버튼"
         Width: =134
-        X: =1719
-        Y: =187
+        X: =1722
+        Y: =128
         ZIndex: =94
 
     Button_Border2_CategoryMenu_Namsoo As button:
