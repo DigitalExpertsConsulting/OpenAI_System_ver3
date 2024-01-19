@@ -67,18 +67,16 @@ CategoryMenu_Namsoo As screen:
         );
         
         
-        
-        
-        /*
         ClearCollect( //이거맞나
             CategoryManagerTable,
             ShowColumns(
                 똑실이_Category_Manager_table,
                 "LV1Order",
-                "CategoryType"
+                "CategoryType",
+                "Category_LV1"
             )
             
-        );*/
+        );
 
     Button_newLv1Category_CategoryMenu_Namsoo As button:
         BorderColor: |-
@@ -101,9 +99,9 @@ CategoryMenu_Namsoo As screen:
         OnSelect: |-
             =UpdateContext({AddLv1Category_Namsoo:true});
             ClearCollect(
-                CategoryLV1List,
+                Category_Manager_LV1List,
                 //{Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
+                Sort(Distinct(똑실이_Category_Manager_table, Category_LV1),Value)
                
             );
             
@@ -183,9 +181,9 @@ CategoryMenu_Namsoo As screen:
         OnSelect: |-
             =UpdateContext({AddLv2Category_Namsoo:true});
             ClearCollect(
-                CategoryLV1List,
+                CategoryLV1List_Manager, //이거맞나 //Category Manager table 불러와서 Lv1 카테고리만 출력
                 {Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
+                Sort(Distinct(똑실이_Category_Manager_table, Category_LV1),Value)
                
             );
             
@@ -3945,7 +3943,7 @@ CategoryMenu_Namsoo As screen:
                     NotificationType.Error,
                     0
                 ),
-                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),
+                If(!IsBlank(LookUp(똑실이_Category_Manager_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),
             
                  Notify(
                     "중복된 카테고리명입니다",
@@ -3953,14 +3951,14 @@ CategoryMenu_Namsoo As screen:
                     0
                 ),
                 Collect(
-                    똑실이_Category_table,
+                    똑실이_Category_Manager_table,
                     {
                         제목: ".",
                         Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text),
                         Category_LV2: "",
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
-                        //ID: Last(똑실이_Category_table).ID + 1,
-                        LV1Order:Last(똑실이_Category_table).ID + 1, //
+                        //ID: Last(똑실이_Category_Manager_table).ID + 1,
+                        LV1Order:Last(똑실이_Category_Manager_table).ID + 1, //
                         //LV1Order: Last(똑실이_Category_table).LV1Order + 1,
                         //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1),
                         //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
@@ -3971,7 +3969,7 @@ CategoryMenu_Namsoo As screen:
                     "저장하였습니다.",
                     NotificationType.Success,
                     0
-                ); Refresh(똑실이_Category_table);
+                ); Refresh(똑실이_Category_Manager_table);
                 UpdateContext({AddLv1Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp);
                     Reset(RadioToggle_AddDocumentLanguage_CategoryMenu_Lv1PopUp);
             
@@ -4154,8 +4152,8 @@ CategoryMenu_Namsoo As screen:
         Height: =44
         Text: ="버튼"
         Width: =134
-        X: =1722
-        Y: =128
+        X: =1719
+        Y: =173
         ZIndex: =94
 
     Button_Border2_CategoryMenu_Namsoo As button:
