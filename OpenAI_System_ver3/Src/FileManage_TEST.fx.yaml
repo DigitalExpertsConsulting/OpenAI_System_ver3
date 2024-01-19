@@ -44,7 +44,8 @@ FileManage_TEST As screen:
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         LV2Order: Text(ThisRecord.Value.LV2Order),
                         ID: Text(ThisRecord.Value.ID),
-                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2)
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -78,7 +79,8 @@ FileManage_TEST As screen:
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -493,7 +495,7 @@ FileManage_TEST As screen:
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             DisplayMode: |-
-                =//DisplayMode.Edit
+                =DisplayMode.Edit
                 
                 /*
                 
@@ -532,7 +534,7 @@ FileManage_TEST As screen:
                 
                 
                 // 삭제 권한 할당(슈퍼관리자 삭제 가능, LV2 카테고리 할당된 사용자 삭제 가능)
-                If(
+                /*If(
                     Office365사용자.MyProfile().Mail in LookUp(
                         똑실이_SuperAdmin_table,
                         Office365사용자.MyProfile().Mail in SuperUsers.Email
@@ -544,7 +546,7 @@ FileManage_TEST As screen:
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
-                )
+                )*/
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
             Height: =35
@@ -645,7 +647,7 @@ FileManage_TEST As screen:
             Y: =11
             ZIndex: =9
 
-        "'Image_IndexLog_FM_3' As image":
+        Image_IndexLog_FM_3 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1280,7 +1282,7 @@ FileManage_TEST As screen:
                     Items: |-
                         =Distinct(
                             SortByColumns(
-                            colCategorySelect,
+                            Filter(colCategorySelect,CategoryType = Blank()),
                             "Category_LV1",
                             SortOrder.Ascending
                             ),
@@ -1328,7 +1330,7 @@ FileManage_TEST As screen:
                     Items: |-
                         =
                         Distinct(
-                                colCategorySelect_LV2,
+                                Filter(colCategorySelect_LV2,CategoryType = Blank()),
                                 Category_LV2
                         )
                         /*
@@ -2433,8 +2435,9 @@ FileManage_TEST As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =Distinct(
-                    colCategory,
+                =// AIWorker 카테고리 필터링 후 LV1 중복값 제거
+                Distinct(
+                    Filter(colCategory,CategoryType = Blank()),
                     Category_LV1
                 )
             OnChange: |+
@@ -2490,7 +2493,7 @@ FileManage_TEST As screen:
             Items: |-
                 =
                 Distinct(
-                        colCategory_LV2,
+                        Filter(colCategory_LV2,CategoryType = Blank()),
                         Category_LV2
                 )
                 
