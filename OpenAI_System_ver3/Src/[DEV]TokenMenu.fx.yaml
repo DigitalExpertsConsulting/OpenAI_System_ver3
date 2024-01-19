@@ -901,6 +901,40 @@
         Y: =306
         ZIndex: =43
 
+    Label4 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =338
+        Size: =13
+        Text: |-
+            =If(
+                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV1 = Text(Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV2 = Text(Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value & "/" & Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value
+                            )
+                        )
+                    )
+        Width: =838
+        X: =496
+        Y: =408
+        ZIndex: =44
+
     Group_SherchQAGallery_TokenMenu_1 As group:
         Height: =5
         Width: =5
