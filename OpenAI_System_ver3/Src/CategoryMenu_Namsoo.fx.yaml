@@ -16,11 +16,12 @@ CategoryMenu_Namsoo As screen:
         UpdateContext({HisVi:false}),
         Set(CategoryPopup, false);
         
-        Set(PA_CategoryLv2_User_List, '[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categories); //이거맞나 //PA 불러옴 //Lv2 불러오기
-        Set(PA_CategoryLv1_User_List, '[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categorylv1); //이거맞나 //PA 불러옴 //Lv1
-         //이거맞나
+        Set(PA_Result,'[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
+        Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
+        Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
         );
         
+        /*
         ClearCollect(
             CategoryTable,
             ShowColumns(
@@ -40,6 +41,7 @@ CategoryMenu_Namsoo As screen:
                 "CategoryType" //이거맞나
             )
         );
+        */
         Clear(delCate);
         
         ClearCollect(
@@ -55,30 +57,41 @@ CategoryMenu_Namsoo As screen:
             )
         );
         
-        ClearCollect(
+        ClearCollect( //이거맞나 //[PA]Category_Table의 Output에서 필요한 출력값 저장
             Category_ALL_Lv_List,
             ForAll(
                 Table(ParseJSON(PA_CategoryLv2_User_List)),
                 {
                     Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                    Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                    Title: Text(ThisRecord.Value.Title),
+                    LV1Order: Text(ThisRecord.Value.LV1Order),
+                    LV2Order: Text(ThisRecord.Value.LV2Order),
+                    Users: Text(ThisRecord.Value.Users),
+                    ID: Text(ThisRecord.Value.ID),
+                    History: Text(ThisRecord.Value.History),
+                    Teams: Text(ThisRecord.Value.Teams),
+                    FileCount: Text(ThisRecord.Value.FileCount),
+                    DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage),
+                    Author: Text(ThisRecord.Value.Author),
+                    CategoryType: Text(ThisRecord.Value.CategoryType)
                 }
             )
         );
         
         
-        
-        
-        /*
-        ClearCollect( //이거맞나
-            CategoryManagerTable,
-            ShowColumns(
-                똑실이_Category_Manager_table,
-                "LV1Order",
-                "CategoryType"
+        ClearCollect( //이거맞나 //[PA]Category_Manager_Table의 Output에서 필요한 출력값 저장
+            Category_OnlyLv1_List,
+            ForAll(
+                Table(ParseJSON(PA_CategoryLv1_User_List)),
+                {
+                LV1Order: Text(ThisRecord.Value.LV1Order),
+                CategoryType:Text(ThisRecord.Value.CategoryType),
+                Category_LV1: Text(ThisRecord.Value.Category_LV1)
+                }
             )
             
-        );*/
+        );
 
     Button_newLv1Category_CategoryMenu_Namsoo As button:
         BorderColor: |-
@@ -100,12 +113,14 @@ CategoryMenu_Namsoo As screen:
             =ColorValue("#115EA3")
         OnSelect: |-
             =UpdateContext({AddLv1Category_Namsoo:true});
-            ClearCollect(
-                CategoryLV1List,
+            
+            /*ClearCollect(
+                CategoryOnlyLv1List_Main,
                 //{Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
+                Sort(Distinct(Category_OnlyLv1_List, Category_LV1),Value)
                
             );
+            */
             
             /*
             Collect(
@@ -183,9 +198,9 @@ CategoryMenu_Namsoo As screen:
         OnSelect: |-
             =UpdateContext({AddLv2Category_Namsoo:true});
             ClearCollect(
-                CategoryLV1List,
+                CategoryOnlyLv1List_Sub, //이거맞나 
                 {Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
+                Sort(Distinct(Category_OnlyLv1_List, Category_LV1),Value)
                
             );
             
@@ -261,9 +276,35 @@ CategoryMenu_Namsoo As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =Refresh(똑실이_Category_table);
+        OnSelect: |
+            =Refresh(똑실이_Category_table); //이거맞나 // //원본:Refresh(똑실이_Category_table);
             
+            
+            //이거맞나
+            
+            ClearCollect(
+                Category_ALL_Lv_List,
+                ForAll(
+                    Table(ParseJSON(PA_CategoryLv2_User_List)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Title: Text(ThisRecord.Value.Title),
+                        LV1Order: Text(ThisRecord.Value.LV1Order),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        Users: Text(ThisRecord.Value.Users),
+                        ID: Text(ThisRecord.Value.ID),
+                        History: Text(ThisRecord.Value.History),
+                        Teams: Text(ThisRecord.Value.Teams),
+                        FileCount: Text(ThisRecord.Value.FileCount),
+                        DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage),
+                        Author: Text(ThisRecord.Value.Author),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                )
+            );
+            
+            /*
             ClearCollect(
                 CategoryTable,
                 ShowColumns(
@@ -280,7 +321,7 @@ CategoryMenu_Namsoo As screen:
                     "FileCount",
                     "DocumentLanguage"
                 )
-            );
+            ); */
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -489,6 +530,7 @@ CategoryMenu_Namsoo As screen:
             =Distinct(Category_ALL_Lv_List,Category_LV1)
             
             
+            
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -557,7 +599,7 @@ CategoryMenu_Namsoo As screen:
                 
                 
                 Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in 'Folder path' && IsFolder= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
@@ -1040,7 +1082,7 @@ CategoryMenu_Namsoo As screen:
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
                     =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
-                    If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.'Created By'.Email ,DisplayMode.Edit,
                     DisplayMode.Disabled))
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
@@ -1066,7 +1108,7 @@ CategoryMenu_Namsoo As screen:
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    If(CountRows(Filter(똑실이_문서, 'Folder path'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
@@ -1221,7 +1263,7 @@ CategoryMenu_Namsoo As screen:
                 =Collect(
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         Category_LV1: ThisItem.Value,
                         Category_LV2: "",
                         //ID: Last(똑실이_Category_table).ID + 1,
@@ -3493,7 +3535,7 @@ CategoryMenu_Namsoo As screen:
                     0
                 ),
             
-                If(!IsBlank(LookUp(똑실이_Category_table, Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_Lv2PopUp.Text)),
+                If(!IsBlank(LookUp(Category_ALL_Lv_List, Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_Lv2PopUp.Text)),
                 //If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu_Lv2PopUp.Text)),
                 //이거맞나 //위에꺼 Lv1 생성이라서 안넣었음
             
@@ -3502,10 +3544,10 @@ CategoryMenu_Namsoo As screen:
                     NotificationType.Error,
                     0
                 ),
-                Collect(
+                Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
                         Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
@@ -3513,6 +3555,7 @@ CategoryMenu_Namsoo As screen:
                         //ID: Last(똑실이_Category_table).ID + 1,
                         //LV1Order: Last(똑실이_Category_table).LV1Order + 1, //이거맞나 //이거 Lv1 카운트 늘리는거잖아, Lv2 카테고리 추가하는데 필요없지
                         //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1), //이거맞나 //아래로 바꿈
+                        LV1Order: Last(똑실이_Category_table).ID + 1, //이거 맞나 //좀더고민
                         LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),
                         //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
                         DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_CategoryMenu.Selected.Value,"한국어","ko","English","en","日本語","ja")
@@ -3732,7 +3775,7 @@ CategoryMenu_Namsoo As screen:
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: |-
             =ColorValue("#FFFFFF")
-        Items: =CategoryLV1List.Value
+        Items: =CategoryOnlyLv1List_Sub.Value //이거맞나
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -3945,7 +3988,7 @@ CategoryMenu_Namsoo As screen:
                     NotificationType.Error,
                     0
                 ),
-                If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),
+                If(!IsBlank(LookUp(똑실이_Category_Manager_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),
             
                  Notify(
                     "중복된 카테고리명입니다",
@@ -3953,14 +3996,14 @@ CategoryMenu_Namsoo As screen:
                     0
                 ),
                 Collect(
-                    똑실이_Category_table,
+                    똑실이_Category_Manager_table,
                     {
                         제목: ".",
                         Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text),
                         Category_LV2: "",
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
-                        //ID: Last(똑실이_Category_table).ID + 1,
-                        LV1Order:Last(똑실이_Category_table).ID + 1, //
+                        //ID: Last(똑실이_Category_Manager_table).ID + 1,
+                        LV1Order:Last(똑실이_Category_Manager_table).ID + 1, //
                         //LV1Order: Last(똑실이_Category_table).LV1Order + 1,
                         //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1),
                         //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
@@ -3971,7 +4014,7 @@ CategoryMenu_Namsoo As screen:
                     "저장하였습니다.",
                     NotificationType.Success,
                     0
-                ); Refresh(똑실이_Category_table);
+                ); Refresh(똑실이_Category_Manager_table);
                 UpdateContext({AddLv1Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp);
                     Reset(RadioToggle_AddDocumentLanguage_CategoryMenu_Lv1PopUp);
             
@@ -4154,8 +4197,8 @@ CategoryMenu_Namsoo As screen:
         Height: =44
         Text: ="버튼"
         Width: =134
-        X: =1722
-        Y: =128
+        X: =1719
+        Y: =165
         ZIndex: =94
 
     Button_Border2_CategoryMenu_Namsoo As button:

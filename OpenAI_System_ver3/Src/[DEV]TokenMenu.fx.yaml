@@ -28,7 +28,7 @@
             UpdateContext({tokenVisible:false})
         );
         
-        // 검색 필터에 적용되는 Category_LV1 목록 가져오기
+        // 검색 필터에 적용되는 Category 목록 가져오기
         ClearCollect(
             colCategoryAdmin,
             {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
@@ -37,7 +37,8 @@
                     Table(ParseJSON('[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categories)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2)
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2)
                     }
                 ),
             "Category_LV1",
@@ -139,7 +140,7 @@
         Height: =33
         Text: ="카테고리"
         Width: =85
-        X: =730
+        X: =402
         Y: =147
         ZIndex: =17
 
@@ -667,6 +668,7 @@
         RadiusTopRight: =4
         Size: =11
         Text: ="ResetFileSearch"
+        Visible: =false
         Width: =192
         X: =1372
         Y: =42
@@ -691,12 +693,21 @@
             UpdateContext({
                 tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
                     If(
-                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // LV1카테고리가 전체인 경우
-                        Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1 & "?"),"delete_point"),"?delete_point",""),
-                        // LV1카테고리가 전체가 아닌경우 (선택한 경우)
-                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value
-            
+                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV1 = Text(Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV2 = Text(Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value & "/" & Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value
+                            )
+                        )
                     )
                     ,{
                     // 파일명
@@ -756,6 +767,7 @@
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Repeat: =true
         Start: =tokenSearchTimerStart
+        Visible: =false
         X: =1195
         Y: =62
         ZIndex: =42
@@ -882,40 +894,12 @@
         Font: =Font.'Segoe UI'
         Height: =43
         Size: =13
-        Text: ="검색된 파일이 없습니다."
+        Text: ="검색된 토큰이 없습니다."
         Visible: =(CountRows(tokenSearchResult_1) = 0) && (locLoadingSpinner = false)
         Width: =298
         X: =897
         Y: =306
         ZIndex: =43
-
-    "'[삭제예정]Label_TokenMenuEdit_4' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: ="[삭제예정]텍스트"
-        X: =785
-        ZIndex: =44
-
-    "'[삭제예정]Label_TokenMenuEdit_5' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: ="[삭제예정]텍스트"
-        X: =924
-        ZIndex: =45
 
     Group_SherchQAGallery_TokenMenu_1 As group:
         Height: =5
@@ -962,7 +946,7 @@
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Width: =190
-            X: =1364
+            X: =1412
             Y: =Label_Questionlabel_TokenMenu_1.Y
             ZIndex: =5
 
@@ -991,7 +975,7 @@
             Visible: |
                 =true
             Width: =190
-            X: =1583
+            X: =1631
             Y: =147
             ZIndex: =6
 
@@ -1006,7 +990,7 @@
             PaddingRight: =0
             Text: ="~"
             Width: =43
-            X: =1547
+            X: =1595
             Y: =139
             ZIndex: =7
 
@@ -1036,52 +1020,9 @@
             RadiusTopRight: =0
             Size: =12
             Width: =300
-            X: =423
+            X: =1047
             Y: =148
             ZIndex: =8
-
-        Button_SerchRefresh_TokenMenu_1 As button:
-            BorderColor: =RGBA(230, 230, 230, 1)
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: |-
-                =ColorValue("#B3B3B3")
-            FocusedBorderThickness: =2
-            FontWeight: =FontWeight.Semibold
-            Height: =32
-            HoverBorderColor: |-
-                =ColorValue("#C7C7C7")
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =Concurrent(
-                Reset(TextInput_SearchQuestion_TokenMenu_1);,
-                Reset(Dropdown_SearchCategoryLv1_TokenMenu_1);,
-                Reset(DatePicker_SearchDateMin_TokenMenu_1);,
-                Reset(DatePicker_SearchDateMax_TokenMenu_1);
-                );
-            PressedBorderColor: |-
-                =ColorValue("#B3B3B3")
-            PressedColor: =RGBA(0, 0, 0, 1)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =12
-            Text: ="초기화"
-            Width: =68
-            X: =1790
-            Y: |-
-                =//Label_Questionlabel_TokenMenu.Y
-                148
-            ZIndex: =9
 
         Label_Questionlabel_TokenMenu_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1096,7 +1037,7 @@
             Height: =33
             Text: ="질문"
             Width: =52
-            X: =370
+            X: =994
             Y: =147
             ZIndex: =10
 
@@ -1113,7 +1054,7 @@
             Height: =33
             Text: ="기간"
             Width: =52
-            X: =1309
+            X: =1355
             Y: =147
             ZIndex: =11
 
@@ -1173,7 +1114,7 @@
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =12
             Width: =220
-            X: =1078
+            X: =758
             Y: =147
             ZIndex: =12
 
@@ -1194,7 +1135,7 @@
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Width: =22
-            X: =1723
+            X: =1771
             Y: =152
             ZIndex: =13
 
@@ -1215,7 +1156,7 @@
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Width: =22
-            X: =1503
+            X: =1551
             Y: =152
             ZIndex: =14
 
@@ -1257,7 +1198,7 @@
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =12
             Width: =220
-            X: =817
+            X: =497
             Y: =147
             ZIndex: =15
 
@@ -1272,24 +1213,9 @@
             PaddingRight: =0
             Text: =">"
             Width: =43
-            X: =1036
+            X: =716
             Y: =138
             ZIndex: =16
-
-    "'[삭제예정]Label_TokenMenuEdit_6' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: ="[삭제예정]텍스트"
-        X: =944
-        Y: =20
-        ZIndex: =46
 
     Group_AnswerPopup_TokenMenu_1 As group:
         Height: =5
