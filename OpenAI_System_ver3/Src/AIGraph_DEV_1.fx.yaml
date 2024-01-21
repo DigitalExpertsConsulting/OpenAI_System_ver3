@@ -16,9 +16,27 @@ AIGraph_DEV_1 As screen:
             Refresh(똑실이_Token_table),       // DB REFRESH
             UpdateContext({locPopupBackground:false}),  // 팝업 배경 이미지 비활성화
             Set(DatePickerSetting, false),
-            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"])
-        //    Set(gblSelectedAgentFunctionItemID,0) // gblSelectedAgentFunctionItemID 변수 초기화
+            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"]);
+            
+            ClearCollect(
+                colCategoryAdmin,
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
+                SortByColumns(
+                    ForAll(
+                        Table(ParseJSON('[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categories)),
+                        {
+                            Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                            Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2)
+                        }
+                    ),
+                "Category_LV1",
+                SortOrder.Ascending
+                )
+            );
         );
+        
+        
         
         // 3. AIGraph에 사용할 컬렉션 초기화
         Concurrent(
@@ -204,17 +222,8 @@ AIGraph_DEV_1 As screen:
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
-            =/*
-            Distinct(
-                colAgentManage,
-                Category_LV1
-            )*/
-            Distinct(
-                SortByColumns(
-                똑실이_Token_table,
-                "Category_LV1",
-                SortOrder.Ascending
-                ),
+            =Distinct(
+                colCategoryAdmin,
                 Category_LV1
             )
         OnChange: =
@@ -255,22 +264,16 @@ AIGraph_DEV_1 As screen:
         Items: |-
             =If(
                 Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                // 카테고리 LV1 이 전체로 선택되어 있을경우
                 Distinct(
-                    SortByColumns(
-                    똑실이_Token_table,
-                    "Category_LV2",
-                    SortOrder.Ascending
-                    ),
+                    colCategoryAdmin,
                     Category_LV2
                 ),
+                // 카테고리 LV1 이 전체가 아닌 다른걸로 선택되어 있을경우
                 Distinct(
-                    SortByColumns(
                     Filter(
-                        똑실이_Token_table,
-                        Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
-                    ),
-                    "Category_LV2",
-                    SortOrder.Ascending
+                        colCategoryAdmin,
+                        Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value
                     ),
                     Category_LV2
                 )
