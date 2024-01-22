@@ -33,6 +33,7 @@
             Reset(TextInput_SearchUser_QALogEdit_1);,
             Reset(TextInput_SearchQuestion_QALogEdit_1);,
             Reset(Dropdown_SearchCategoryLv1_QALogEdit_1);,
+            Reset(Dropdown_SearchCategoryLv2_QALogEdit_1);,
             UpdateContext({showLike: false});,
             Reset(DatePicker_SearchDateMax_QALogEdit_1);,
             Reset(DatePicker_SearchDateMin_QALogEdit_1);
@@ -97,6 +98,108 @@
         Y: =23
         ZIndex: =2
 
+    PrevPageButton_QALogEdit_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(qaLogSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
+                Remove(qaLogSearchStack_1, Last(qaLogSearchStack_1)),
+                false
+            );
+            
+            
+            UpdateContext({
+                qaLogSearchLastId: Coalesce(Last(qaLogSearchStack_1).Value, 0)
+            });
+            
+            
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(FileSearchTimer_QALogEdit_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =964
+        ZIndex: =20
+
+    NextPageButton_QALogEdit_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(qaLogSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            If(
+                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
+                Collect(qaLogSearchStack_1, Coalesce(Last(qaLogSearchResult_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                qaLogSearchLastId: Coalesce(Last(qaLogSearchResult_1).ID, 0)
+            });
+            
+            Select(FileSearchTimer_QALogEdit_1);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1083
+        Y: =964
+        ZIndex: =21
+
     "Gallery_QAGallery_QALogEdit_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(0, 18, 107, 1)
         DelayItemLoading: =true
@@ -111,7 +214,7 @@
         Width: =1526
         X: =334
         Y: =304
-        ZIndex: =21
+        ZIndex: =22
 
         Separator_QAGalleryBody_QALogEdit_1 As rectangle:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -461,7 +564,7 @@
         Width: =1460
         X: =392
         Y: =312
-        ZIndex: =29
+        ZIndex: =30
 
     Image_CheckBoxHeader_QALogEdit_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -481,7 +584,7 @@
         Width: =30
         X: =392
         Y: =269
-        ZIndex: =30
+        ZIndex: =31
 
     Button_Refresh_QALogEdit_1 As button:
         BorderColor: |-
@@ -520,7 +623,7 @@
         Width: =121
         X: =1759
         Y: =41
-        ZIndex: =31
+        ZIndex: =32
 
     Button_CSV_Download_QALogEdit_1 As button:
         BorderColor: |-
@@ -615,7 +718,7 @@
         Width: =165
         X: =1572
         Y: =41
-        ZIndex: =32
+        ZIndex: =33
 
     Icon_CSV_Download_QALogEdit_1 As icon.Download:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -635,7 +738,7 @@
         Width: =28
         X: =1585
         Y: =48
-        ZIndex: =33
+        ZIndex: =34
 
     Background_Modal_QALogEdit_1 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -650,7 +753,7 @@
         Visible: =qaLogEditVisible
         Width: =1919
         X: =1
-        ZIndex: =34
+        ZIndex: =35
 
     Image_Refresh_QALogEdit_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -669,10 +772,10 @@
         Width: =20
         X: =1776
         Y: =51
-        ZIndex: =35
+        ZIndex: =36
 
     New_Component_GNB_QALogEdit_1 As New_Component_GNB:
-        ZIndex: =36
+        ZIndex: =37
 
     Group_QuestionPopup_QALogEdit_1 As group:
         Height: =5
@@ -711,7 +814,7 @@
             Width: =634
             X: =700
             Y: =255
-            ZIndex: =47
+            ZIndex: =48
 
         Gallery_QuestionPopup_QALogEdit_1 As gallery.galleryVertical:
             BorderColor: |-
@@ -729,7 +832,7 @@
             Width: =583
             X: =725
             Y: =318
-            ZIndex: =48
+            ZIndex: =49
 
             Label_QuestionPopup_QALogEdit_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -766,7 +869,7 @@
             Width: =213
             X: =730
             Y: =260
-            ZIndex: =49
+            ZIndex: =50
 
         Icon_QuestionPopupClose_QALogEdit_1 As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -782,7 +885,7 @@
             Width: =21
             X: =1289
             Y: =282
-            ZIndex: =50
+            ZIndex: =51
 
     Group_DeleteQA_QALogEdit_1 As group:
         Height: =5
@@ -823,7 +926,7 @@
             Width: =600
             X: =810
             Y: =419
-            ZIndex: =37
+            ZIndex: =38
 
         Button_OKDeleteQA_QALogEdit_1 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -863,7 +966,7 @@
             Width: =50
             X: =1277
             Y: =523
-            ZIndex: =38
+            ZIndex: =39
 
         Button_CancleDeleteQA_QALogEdit_1 As button:
             BorderColor: |-
@@ -906,7 +1009,7 @@
             Width: =50
             X: =1335
             Y: =523
-            ZIndex: =39
+            ZIndex: =40
 
         Label_DeleteQA_QALogEdit_1 As label:
             Align: =Align.Center
@@ -926,7 +1029,7 @@
             Width: =193
             X: =827
             Y: =440
-            ZIndex: =40
+            ZIndex: =41
 
         Label_DeleteQASub_QALogEdit_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -944,7 +1047,7 @@
             Width: =562
             X: =829
             Y: =481
-            ZIndex: =41
+            ZIndex: =42
 
         Image_DeleteQAExit_QALogEdit_1 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -966,7 +1069,7 @@
             Width: =20
             X: =1367
             Y: =443
-            ZIndex: =42
+            ZIndex: =43
 
     Group_QALogGalleryHeader_QALogEdit_1 As group:
         Height: =5
@@ -988,7 +1091,7 @@
             Width: =85
             X: =610
             Y: =268
-            ZIndex: =22
+            ZIndex: =23
 
         Label_Answer_QALogEdit_1 As label:
             BorderStyle: =BorderStyle.None
@@ -1004,7 +1107,7 @@
             Width: =85
             X: =900
             Y: =Label_Question_QALogEdit_1.Y
-            ZIndex: =23
+            ZIndex: =24
 
         Label_Date_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1020,7 +1123,7 @@
             Width: =85
             X: =1369
             Y: =Label_Question_QALogEdit_1.Y
-            ZIndex: =24
+            ZIndex: =25
 
         Label_Name_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1036,7 +1139,7 @@
             Width: =85
             X: =1487
             Y: =Label_Question_QALogEdit_1.Y
-            ZIndex: =25
+            ZIndex: =26
 
         Label_Like_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1052,7 +1155,7 @@
             Width: =85
             X: =1600
             Y: =Label_Question_QALogEdit_1.Y
-            ZIndex: =26
+            ZIndex: =27
 
         Label_Hate_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1068,7 +1171,7 @@
             Width: =85
             X: =1695
             Y: =Label_Question_QALogEdit_1.Y
-            ZIndex: =27
+            ZIndex: =28
 
         Label_Category_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1084,7 +1187,7 @@
             Width: =100
             X: =390
             Y: =268
-            ZIndex: =28
+            ZIndex: =29
 
     Group_AnswerPopup_QALogEdit_1 As group:
         Height: =5
@@ -1123,7 +1226,7 @@
             Width: =634
             X: =700
             Y: =269
-            ZIndex: =43
+            ZIndex: =44
 
         Gallery_AnswerPopup_QALogEdit_1 As gallery.galleryVertical:
             BorderColor: |-
@@ -1141,7 +1244,7 @@
             Width: =584
             X: =729
             Y: =332
-            ZIndex: =44
+            ZIndex: =45
 
             Label_AnswerPopup_QALogEdit_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -1178,7 +1281,7 @@
             Width: =213
             X: =725
             Y: =274
-            ZIndex: =45
+            ZIndex: =46
 
         Icon_AnswerPopup_QALogEdit_1 As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
@@ -1195,7 +1298,7 @@
             Width: =21
             X: =1300
             Y: =280
-            ZIndex: =46
+            ZIndex: =47
 
     Image_LoadingSpinner_QALogEdit_1 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1212,7 +1315,7 @@
         Visible: =locLoadingSpinner
         X: =977
         Y: =474
-        ZIndex: =51
+        ZIndex: =52
 
     ResetFileSearchButton_QALogEdit_1 As button:
         BorderColor: |-
@@ -1286,7 +1389,7 @@
         Width: =192
         X: =1372
         Y: =42
-        ZIndex: =54
+        ZIndex: =53
 
     FileSearchTimer_QALogEdit_1 As timer:
         BorderColor: =RGBA(105, 121, 126, 1)
@@ -1308,7 +1411,7 @@
                     If(
                         Dropdown_SearchCategoryLv1_QALogEdit_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_QALogEdit_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
                         // LV1=전체 LV2=전체 일경우
-                        Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
                         // 카테고리LV1만 선택한 경우
                         If(
                             Dropdown_SearchCategoryLv1_QALogEdit_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_QALogEdit_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
@@ -1370,7 +1473,7 @@
         Visible: =false
         X: =1195
         Y: =62
-        ZIndex: =55
+        ZIndex: =54
 
     NoDataLabel_QALogEdit_1 As label:
         Align: =Align.Center
@@ -1389,109 +1492,7 @@
         Width: =298
         X: =883
         Y: =320
-        ZIndex: =56
-
-    PrevPageButton_QALogEdit_1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Count(qaLogSearchStack_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =If(
-                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
-                Remove(qaLogSearchStack_1, Last(qaLogSearchStack_1)),
-                false
-            );
-            
-            
-            UpdateContext({
-                qaLogSearchLastId: Coalesce(Last(qaLogSearchStack_1).Value, 0)
-            });
-            
-            
-            UpdateContext({
-                locLoadingSpinner: true
-            });
-            
-            Select(FileSearchTimer_QALogEdit_1);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="< 이전 페이지"
-        Width: =121
-        X: =906
-        Y: =964
-        ZIndex: =57
-
-    NextPageButton_QALogEdit_1 As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(CountRows(qaLogSearchResult_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =UpdateContext({
-                locLoadingSpinner: true
-            });
-            
-            If(
-                Last(qaLogSearchResult_1).ID <> qaLogSearchLastId,
-                Collect(qaLogSearchStack_1, Coalesce(Last(qaLogSearchResult_1).ID, 0)),
-                false
-            );
-            
-            UpdateContext({
-                qaLogSearchLastId: Coalesce(Last(qaLogSearchResult_1).ID, 0)
-            });
-            
-            Select(FileSearchTimer_QALogEdit_1);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="다음 페이지 >"
-        Width: =128
-        X: =1083
-        Y: =964
-        ZIndex: =58
+        ZIndex: =55
 
     Group_SherchQAGallery_QALogEdit_1 As group:
         Height: =5
@@ -1657,7 +1658,7 @@
             Width: =89
             X: =1763
             Y: =147
-            ZIndex: =10
+            ZIndex: =9
 
         Checkbox_LikeCheck_QALogEdit_1 As checkbox:
             BorderColor: =
@@ -1696,7 +1697,7 @@
             Width: =40
             X: =1732
             Y: =141
-            ZIndex: =11
+            ZIndex: =10
 
         Label_UserName_QALogEdit_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1717,7 +1718,7 @@
             Width: =67
             X: =838
             Y: =147
-            ZIndex: =12
+            ZIndex: =11
 
         Label_Questionlabel_QALogEdit_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1734,7 +1735,7 @@
             Width: =52
             X: =1069
             Y: =147
-            ZIndex: =13
+            ZIndex: =12
 
         Label_Datelabel_QALogEdit_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1751,7 +1752,7 @@
             Width: =52
             X: =1285
             Y: =147
-            ZIndex: =14
+            ZIndex: =13
 
         Dropdown_SearchCategoryLv2_QALogEdit_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1811,7 +1812,7 @@
             Width: =170
             X: =665
             Y: =147
-            ZIndex: =15
+            ZIndex: =14
 
         Label_SearchCategoryArrow_QALogEdit_1 As label:
             Align: =Align.Center
@@ -1826,7 +1827,7 @@
             Width: =43
             X: =630
             Y: =138
-            ZIndex: =16
+            ZIndex: =15
 
         ClearEndDateButton_QALogEdit_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1847,7 +1848,7 @@
             Width: =22
             X: =1675
             Y: =152
-            ZIndex: =17
+            ZIndex: =16
 
         ClearStartDateButton_QALogEdit_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1868,7 +1869,7 @@
             Width: =22
             X: =1466
             Y: =152
-            ZIndex: =18
+            ZIndex: =17
 
         Dropdown_SearchCategoryLv1_QALogEdit_1 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1910,7 +1911,7 @@
             Width: =170
             X: =467
             Y: =147
-            ZIndex: =19
+            ZIndex: =18
 
         Label_SearchCategory_QALogEdit_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1927,5 +1928,5 @@
             Width: =85
             X: =374
             Y: =147
-            ZIndex: =20
+            ZIndex: =19
 
