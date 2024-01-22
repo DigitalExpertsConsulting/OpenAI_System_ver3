@@ -25,10 +25,11 @@
             Reset(DatePicker_SearchDateMin_TokenMenu_1);,
             Reset(DatePicker_SearchDateMax_TokenMenu_1);,
             Reset(Dropdown_SearchCategoryLv1_TokenMenu_1);,
+            Reset(Dropdown_SearchCategoryLv2_TokenMenu_1);,
             UpdateContext({tokenVisible:false})
         );
         
-        // 검색 필터에 적용되는 Category 목록 가져오기
+        // 검색 필터에 적용되는 Category 전체 목록 가져오기
         ClearCollect(
             colCategoryAdmin,
             {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
@@ -43,6 +44,17 @@
                 ),
             "Category_LV1",
             SortOrder.Ascending
+            )
+        );
+        
+        // 검색 필터에 적용되는 CategoryLV2 목록 가져오기 (정렬 조건이 달라야함)
+        ClearCollect(
+            colCategoryLv2Admin,
+            First(colCategoryAdmin),
+            SortByColumns(
+                LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                "Category_LV2",
+                SortOrder.Ascending
             )
         );
         
@@ -1087,13 +1099,13 @@
                     Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     // 카테고리 LV1 이 전체로 선택되어 있을경우
                     Distinct(
-                        colCategoryAdmin,
+                        colCategoryLv2Admin,
                         Category_LV2
                     ),
                     // 카테고리 LV1 이 전체가 아닌 다른걸로 선택되어 있을경우
                     Distinct(
                         Filter(
-                            colCategoryAdmin,
+                            colCategoryLv2Admin,
                             Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value
                         ),
                         Category_LV2

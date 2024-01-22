@@ -8,8 +8,36 @@ Gpt_DeliveredContent As screen:
             }
         );
         
-        //UpdateContext({SelectedTopContent:""});
-        UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
+        
+        //UpdateContext({SelectedTopContent:""}); //??
+        //UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
+        
+        
+        // GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
+        Set(gblcategoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
+        
+        
+        ClearCollect(
+            colCategoryGPT,
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON(gblcategoryList)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        Histroy: Text(ThisRecord.Value.History),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
 
     Label_ContentsMain_GPT_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -166,7 +194,22 @@ Gpt_DeliveredContent As screen:
             DelayItemLoading: =true
             Height: =796
             Items: |-
-                =ForAll(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1), {Result: ThisRecord.Value})
+                =//ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email),"LV1Order",SortOrder.Ascending),Category_LV1),{Result:ThisRecord.Value})
+                
+                // colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
+                ForAll(
+                    Distinct(
+                        SortByColumns(
+                            Filter(Filter(colCategoryGPT,
+                            CategoryType = Blank()),
+                            Category_LV1),
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
+                        Category_LV1
+                    ),
+                    {Result: ThisRecord.Value}
+                )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
@@ -261,12 +304,60 @@ Gpt_DeliveredContent As screen:
             Items: |-
                 =SortByColumns(
                     Filter(
+                        colCategoryGPT,
+                        Category_LV1 = SelectedTopContent
+                    ),
+                    "LV2Order",
+                    SortOrder.Ascending
+                )
+                
+                /*
+                Filter(
+                    SortByColumns(
+                        똑실이_Category_table,
+                        "ID",
+                        SortOrder.Ascending
+                    ),
+                    "LV2Order",
+                    Category_LV1 = SelectedTopContent &&
+                    (
+                        !IsBlank(
+                            Filter(
+                                Office365그룹.ListGroupMembers(
+                                    Mid(
+                                        ThisRecord.Category_LV1,
+                                        If("c:0o.c|federateddirectoryclaimprovider|" in ThisRecord.Category_LV1, 40, 15)
+                                    )
+                                ).value,
+                                ThisRecord.mail in Teams || ThisRecord.mail in Users
+                            )
+                        )
+                    )
+                )
+                */
+                
+                
+                /*
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    If(
+                        Office365사용자.MyProfile().Mail in LookUp(
+                            똑실이_Category_table, 
+                            Category_LV2 = Text(ThisRecord.Category_LV2)
+                        ).Users.Email,
+                        SortByColumns(
+                    Filter(
                         똑실이_Category_table,
                         Category_LV1 = SelectedTopContent
                     ),
                     "LV2Order",
                     SortOrder.Ascending
-                ) 
+                )
+                    )
+                )*/
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
@@ -304,7 +395,7 @@ Gpt_DeliveredContent As screen:
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Text: =If(IsBlank(ThisItem.History),"-",ThisItem.History)
+                Text: =If(IsBlank(ThisItem.Histroy), "-", ThisItem.Histroy)
                 Width: =950
                 Wrap: =false
                 X: =20
