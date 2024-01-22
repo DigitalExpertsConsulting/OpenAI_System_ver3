@@ -88,7 +88,9 @@ CategoryMenu_Namsoo As screen:
                 {
                 LV1Order: Text(ThisRecord.Value.LV1Order),
                 CategoryType:Text(ThisRecord.Value.CategoryType),
-                Category_LV1: Text(ThisRecord.Value.Category_LV1)
+                Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                Users:Text(ThisRecord.Value.Users), //Table 형식으로 바꿈 //이거맞나
+                Teams:Text(ThisRecord.Value.Teams) //Table 형식으로 바꿈 //이거맞나
                 }
             )
             
@@ -542,7 +544,9 @@ CategoryMenu_Namsoo As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
-        Items: =Distinct(Category_ALL_Lv_List,Category_LV1)
+        Items: |-
+            =Distinct(Category_OnlyLv1_List,Category_LV1) //이거맞나 //진짜 //Category_Manager_Table에 없는 카테고리도 조회
+            //Distinct(Category_ALL_Lv_List,Category_LV1) //이거맞나 //진짜 //Category_Manager_Table에 없는 카테고리도 조회
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -646,7 +650,8 @@ CategoryMenu_Namsoo As screen:
             Fill: =RGBA(255, 255, 255, 1)
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
             Items: |
-                =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+                =SortByColumns(Filter(Category_ALL_Lv_List, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+                //SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -852,7 +857,7 @@ CategoryMenu_Namsoo As screen:
                 Overflow: =Overflow.Scroll
                 PaddingLeft: =10
                 Size: =12
-                Text: |-
+                Text: |
                     =If(
                         CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
                         "팀을 할당해 주세요",
@@ -881,7 +886,8 @@ CategoryMenu_Namsoo As screen:
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeamCheck
                 OnSelect: |-
-                    =UpdateContext({AddPopUpID: ThisItem.ID});
+                    =//UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                    UpdateContext({AddLv1PopUpID: true});
                     Set(AddPopUpBackground,true);
                     ClearCollect(viewTeamName, ThisItem.Teams);
                     UpdateContext({ lookTeamVi:true })
@@ -1166,7 +1172,8 @@ CategoryMenu_Namsoo As screen:
                 Image: =Remarks
                 OnSelect: |-
                     =UpdateContext({HisVi:true});
-                    UpdateContext({AddPopUpID: ThisItem.ID});
+                    //UpdateContext({AddPopUpID: ThisItem.ID});
+                    UpdateContext({AddLv1PopUpID: true});
                     UpdateContext({RemarksPopVi: true});
                 PaddingBottom: =3
                 PaddingLeft: =3
@@ -1512,6 +1519,7 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =229
             X: =331
             Y: =29
@@ -1533,9 +1541,10 @@ CategoryMenu_Namsoo As screen:
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =UpdateContext({AddPopUpID: ThisItem.ID});
-                Set(AddPopUpBackground,true);
-                ClearCollect(viewTeamName, ThisItem.Teams);
+                =//UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                UpdateContext({AddLv1PopUpID: true});
+                Set(AddLv1PopUpBackground,true);
+                //ClearCollect(viewTeamName, ThisItem.Teams);
                 UpdateContext({ lookTeamVi:true })
             PaddingBottom: =3
             PaddingLeft: =3
@@ -1549,6 +1558,7 @@ CategoryMenu_Namsoo As screen:
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =565
             Y: =26
@@ -1573,7 +1583,8 @@ CategoryMenu_Namsoo As screen:
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
                 UpdateContext({AddTeamPopUpVi: true});
-                UpdateContext({AddPopUpID: ThisItem.ID});
+                //UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                UpdateContext({AddLv1PopUpID: true});
                 ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID= ThisItem.ID).Teams);
                 ClearCollect(
                     Groups,
@@ -1601,6 +1612,7 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Transparency: =
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =600
             Y: =26
@@ -1655,6 +1667,7 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =203
             X: =653
             Y: =26
@@ -1676,7 +1689,8 @@ CategoryMenu_Namsoo As screen:
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =UpdateContext({AddPopUpID: ThisItem.ID});
+                =//UpdateContext({AddPopUpID: ThisItem.ID});
+                UpdateContext({AddLv1PopUpID: true});
                 Set(AddPopUpBackground,true);
                 ClearCollect(addUserName, ThisItem.Users);
                 UpdateContext({lookUserVi:true});
@@ -1692,6 +1706,7 @@ CategoryMenu_Namsoo As screen:
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =868
             Y: =26
@@ -1732,6 +1747,7 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Transparency: =
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =911
             Y: =28
@@ -1789,6 +1805,7 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =293
             X: =949
             Y: =28
@@ -1825,6 +1842,7 @@ CategoryMenu_Namsoo As screen:
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =1255
             Y: =31
@@ -1901,7 +1919,7 @@ CategoryMenu_Namsoo As screen:
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
+            Text: =LookUp(CategoryTable,ID = AddLv1PopUpID).Category_LV1 //이거맞나
             Width: =300
             X: =9
             Y: =25
@@ -1989,7 +2007,9 @@ CategoryMenu_Namsoo As screen:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: =RGBA(51, 51, 51, 1)
-            Default: =LookUp(CategoryTable,ID=AddPopUpID).History
+            Default: |-
+                =//LookUp(CategoryTable,ID=AddPopUpID).History
+                LookUp(CategoryTable,ID=AddLv1PopUpID).History
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
