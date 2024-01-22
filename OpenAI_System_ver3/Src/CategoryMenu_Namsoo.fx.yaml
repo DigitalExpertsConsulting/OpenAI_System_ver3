@@ -3,7 +3,7 @@ CategoryMenu_Namsoo As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -89,14 +89,17 @@ CategoryMenu_Namsoo As screen:
                 LV1Order: Text(ThisRecord.Value.LV1Order),
                 CategoryType:Text(ThisRecord.Value.CategoryType),
                 Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                Users:Text(ThisRecord.Value.Users), //이거맞나
-                Teams:Text(ThisRecord.Value.Teams), //이거맞나
+                Users:Table(ThisRecord.Value.Users), //이거맞나 //테이블로 가져와봄
+                Teams:Table(ThisRecord.Value.Teams), //이거맞나 //테이블로 가져와봄
                 ID:Text(ThisRecord.Value.ID),
                 History:Text(ThisRecord.Value.History)
                 }
             )
             
         );
+        
+        Set(Lv1_Teams, ShowColumns(Category_OnlyLv1_List, "Teams")) //이거맞나
+        
 
     Button_newLv1Category_CategoryMenu_Namsoo As button:
         BorderColor: |-
@@ -1434,8 +1437,8 @@ CategoryMenu_Namsoo As screen:
             RadiusTopLeft: =10
             RadiusTopRight: =10
             Width: =400
-            X: =53
-            Y: =20
+            X: =45
+            Y: =24
             ZIndex: =8
 
         Button_ShowSubgallery_CategoryMenu_2 As button:
@@ -1465,8 +1468,8 @@ CategoryMenu_Namsoo As screen:
             Text: =""
             Visible: =If(TextInput_Main_LV1_CategoryMenu_2.DisplayMode = DisplayMode.View, true,false)
             Width: =1374
-            X: =45
-            Y: =20
+            X: =52
+            Y: =23
             ZIndex: =9
 
         Label_ComplateTeamName_CategoryLv1Menu_2 As label:
@@ -1485,12 +1488,14 @@ CategoryMenu_Namsoo As screen:
             Size: =12
             Text: |-
                 =If(
-                    CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
+                    CountRows(Lv1_add_Teams.DisplayName) = 0 || IsBlank(Lv1_add_Teams.DisplayName),
                     "팀을 할당해 주세요",
-                    CountRows(ThisItem.Teams) > 1,
-                    First(ThisItem.Teams).DisplayName & " 외" & " " &  CountRows(ThisItem.Teams) - 1,
-                    First(ThisItem.Teams).DisplayName
+                    CountRows(Lv1_add_Teams.DisplayName) > 1,
+                    First(Lv1_add_Teams.DisplayName).DisplayName & " 외" & " " &  CountRows(Lv1_add_Teams.DisplayName) - 1,
+                    First(Lv1_add_Teams.DisplayName).DisplayName
                 )
+                
+                //왜 //이거맞나
             Width: =229
             X: =331
             Y: =24
