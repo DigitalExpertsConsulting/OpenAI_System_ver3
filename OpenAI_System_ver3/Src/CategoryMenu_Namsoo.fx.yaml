@@ -90,7 +90,8 @@ CategoryMenu_Namsoo As screen:
                 CategoryType:Text(ThisRecord.Value.CategoryType),
                 Category_LV1: Text(ThisRecord.Value.Category_LV1),
                 Users:Text(ThisRecord.Value.Users), //Table 형식으로 바꿈 //이거맞나
-                Teams:Text(ThisRecord.Value.Teams) //Table 형식으로 바꿈 //이거맞나
+                Teams:Text(ThisRecord.Value.Teams), //Table 형식으로 바꿈 //이거맞나
+                ID:Text(ThisRecord.Value.ID)
                 }
             )
             
@@ -615,7 +616,7 @@ CategoryMenu_Namsoo As screen:
                 
                 
                 Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in 'Folder path' && IsFolder= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
@@ -650,8 +651,8 @@ CategoryMenu_Namsoo As screen:
             Fill: =RGBA(255, 255, 255, 1)
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
             Items: |
-                =SortByColumns(Filter(Category_ALL_Lv_List, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
-                //SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+                =//SortByColumns(Filter(Category_ALL_Lv_List, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending) //이거맞나 //원본데이터 가져옴
+                SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -1127,7 +1128,7 @@ CategoryMenu_Namsoo As screen:
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    If(CountRows(Filter(똑실이_문서, 'Folder path'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
@@ -1283,7 +1284,7 @@ CategoryMenu_Namsoo As screen:
                 =Collect(
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         Category_LV1: ThisItem.Value,
                         Category_LV2: "",
                         //ID: Last(똑실이_Category_table).ID + 1,
@@ -3947,7 +3948,7 @@ CategoryMenu_Namsoo As screen:
                 Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용
                     똑실이_Category_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
                         Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
@@ -4401,7 +4402,7 @@ CategoryMenu_Namsoo As screen:
                 Collect(
                     똑실이_Category_Manager_table,
                     {
-                        제목: ".",
+                        Title: ".",
                         Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text),
                         LV1Order:Last(똑실이_Category_Manager_table).ID + 1
                     }
