@@ -43,7 +43,8 @@ FileManage_2 As screen:
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         LV2Order: Text(ThisRecord.Value.LV2Order),
                         ID: Text(ThisRecord.Value.ID),
-                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2)
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -77,7 +78,8 @@ FileManage_2 As screen:
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -325,7 +327,7 @@ FileManage_2 As screen:
                 Patch(
                     똑실이_Index_Generate,
                     {
-                        Title : " ",
+                        제목 : " ",
                         LV1_Category: ThisItem.Category_LV1, 
                         LV2_Category: ThisItem.Category_LV2,
                         file_id: ThisItem.ID, 
@@ -489,7 +491,7 @@ FileManage_2 As screen:
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             DisplayMode: |-
-                =//DisplayMode.Edit
+                =DisplayMode.Edit
                 
                 /*
                 
@@ -508,7 +510,7 @@ FileManage_2 As screen:
                     )
                 )
                 
-                */
+                
                 
                 
                 If(
@@ -518,11 +520,13 @@ FileManage_2 As screen:
                     ).SuperUsers.Email,
                     DisplayMode.Edit,
                     If(
-                        Office365사용자.MyProfile().Mail = LookUp(똑실이_FileUpload_table,ID = ThisItem.ID).'Created By'.Email,
+                        Office365사용자.MyProfile().Mail = LookUp(똑실이_FileUpload_table,ID = ThisItem.ID).'만든 사람'.Email,
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
                 )
+                
+                */
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
             Height: =35
@@ -1258,7 +1262,7 @@ FileManage_2 As screen:
                     Items: |-
                         =Distinct(
                             SortByColumns(
-                            colCategorySelect,
+                            Filter(colCategorySelect,CategoryType = Blank()),
                             "Category_LV1",
                             SortOrder.Ascending
                             ),
@@ -1306,7 +1310,7 @@ FileManage_2 As screen:
                     Items: |-
                         =
                         Distinct(
-                                colCategorySelect_LV2,
+                                Filter(colCategorySelect_LV2,CategoryType = Blank()),
                                 Category_LV2
                         )
                         /*
@@ -1544,7 +1548,7 @@ FileManage_2 As screen:
                             Patch(
                                 똑실이_FileUpload_table,
                                 {
-                                    Title : FileUploadResult,
+                                    제목 : FileUploadResult,
                                     Upload_Date: Now(),
                                     Category_LV1: Dropdown_LV1Category_FileUpload_FM_2.Selected.Value,
                                     Category_LV2: Dropdown_LV2Category_FileUpload_FM_2.Selected.Value,
@@ -1769,7 +1773,7 @@ FileManage_2 As screen:
                 Patch(
                     똑실이_Index_Remove,
                     {
-                        Title: LV2_Category&"-"&filename,
+                        제목: LV2_Category&"-"&filename,
                         LV1_Category: LV1_Category, 
                         LV2_Category: LV2_Category,
                         filename: filename,
@@ -2225,8 +2229,9 @@ FileManage_2 As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =Distinct(
-                    colCategory,
+                =// AIWorker 카테고리 필터링 후 LV1 중복값 제거
+                Distinct(
+                    Filter(colCategory,CategoryType = Blank()),
                     Category_LV1
                 )
             OnChange: |+
@@ -2280,7 +2285,7 @@ FileManage_2 As screen:
             Items: |-
                 =
                 Distinct(
-                        colCategory_LV2,
+                        Filter(colCategory_LV2,CategoryType = Blank()),
                         Category_LV2
                 )
                 
