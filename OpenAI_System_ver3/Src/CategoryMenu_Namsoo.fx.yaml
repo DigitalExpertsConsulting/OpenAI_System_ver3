@@ -59,6 +59,7 @@ CategoryMenu_Namsoo As screen:
         
         ClearCollect( //이거맞나 //[PA]Category_Table의 Output에서 필요한 출력값 저장
             Category_ALL_Lv_List,
+            //{Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE}, //이거맞나
             ForAll(
                 Table(ParseJSON(PA_CategoryLv2_User_List)),
                 {
@@ -76,8 +77,7 @@ CategoryMenu_Namsoo As screen:
                     Author: Text(ThisRecord.Value.Author),
                     CategoryType: Text(ThisRecord.Value.CategoryType)
                 }
-            ),
-            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE}
+            )
         );
         
         
@@ -200,11 +200,15 @@ CategoryMenu_Namsoo As screen:
             =UpdateContext({AddLv2Category_Namsoo:true});
             ClearCollect(
                 CategoryOnlyLv1List_Sub, //이거맞나 
-                {Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(Category_OnlyLv1_List, Category_LV1),Value)
+                {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE}, //이거맞나 {Value: "직접입력"}
+                Distinct(
+                    ForAll(
+                            Table(ParseJSON(PA_CategoryLv2_User_List)),
+                                {Category_LV1: Text(ThisRecord.Value.Category_LV1)})
+                        , Category_LV1)
                
             );
-            
+            //이게맞나 //진짜
             /*
             Collect(
                 똑실이_Category_table,
@@ -353,8 +357,8 @@ CategoryMenu_Namsoo As screen:
         Size: =30
         Text: ="카테고리 관리"
         Width: =393
-        X: =343
-        Y: =23
+        X: =339
+        Y: =35
         ZIndex: =6
 
     Button_CategoryMenuSAVEPatch_CategoryMenu_Namsoo As button:
@@ -3771,7 +3775,8 @@ CategoryMenu_Namsoo As screen:
         HoverFill: |-
             =ColorValue("#FFFFFF")
         Items: |+
-            =Distinct(Category_ALL_Lv_List,Category_LV1) //이거맞나
+            =Distinct(CategoryOnlyLv1List_Sub, Category_LV1)
+            //Distinct(Category_ALL_Lv_List, Category_LV1) //이거맞나
             
         PaddingBottom: =5
         PaddingLeft: =12
