@@ -1,0 +1,107 @@
+"'(수정완료)FileManage_TEST' As screen":
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |
+        =UpdateContext({
+            locLoadingSpinner: true,
+            fileSearchTimerStart: false
+        });
+        
+        Concurrent(
+            ClearCollect(FileSearchStack_FM_1, []),
+            ClearCollect(FileSearchResult_FM_1, [])
+        );
+        
+        Concurrent(
+            UpdateContext({
+                ModalVisible: false,
+                LogModalVisible: false,
+                DelModalVisible: false
+            }),
+            Set(delPopUp_File, false),
+            Set(FileUploadLoding, false),
+            Reset(TextInput_SearchFileName_FM_3),
+            Reset(DatePicker_SearchDateMin_FM_3),
+            Reset(DatePicker_SearchDateMax_FM_3),
+            Reset(Dropdown_SearchCategoryLV1_FM_4), // 카테고리1 드롭박스 리셋
+            Reset(Dropdown_SearchCategoryLV2_FM_4), // 카테고리2 드롭박스 리셋
+            Reset(Gallery_FileList_FM_3) // 갤러리 드롭박스 리셋
+        );
+        
+        Set(categoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
+        
+        // 검색 핕터에 적용되는 Category
+        
+        ClearCollect(
+            colCategory,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON(categoryList)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        
+        
+        ClearCollect(
+            colCategory_LV2,
+        
+            First(colCategory),
+            
+            SortByColumns(
+                    LastN(colCategory,CountRows(colCategory)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
+        
+        // 파일추가 팝업에 적용되는 Category
+        ClearCollect(
+            colCategorySelect,
+            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON(categoryList)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending,
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        
+        
+        ClearCollect(
+            colCategorySelect_LV2,
+        
+            First(colCategorySelect),
+            
+            SortByColumns(
+                    LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
+        Select(ResetFileSearchButton_FM_3);
+

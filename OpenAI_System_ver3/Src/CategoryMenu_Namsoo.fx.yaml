@@ -59,7 +59,7 @@ CategoryMenu_Namsoo As screen:
         
         ClearCollect( //이거맞나 //[PA]Category_Table의 Output에서 필요한 출력값 저장
             Category_ALL_Lv_List,
-            {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
+            //{Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE}, //이거맞나
             ForAll(
                 Table(ParseJSON(PA_CategoryLv2_User_List)),
                 {
@@ -88,7 +88,9 @@ CategoryMenu_Namsoo As screen:
                 {
                 LV1Order: Text(ThisRecord.Value.LV1Order),
                 CategoryType:Text(ThisRecord.Value.CategoryType),
-                Category_LV1: Text(ThisRecord.Value.Category_LV1)
+                Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                Users:Text(ThisRecord.Value.Users), //Table 형식으로 바꿈 //이거맞나
+                Teams:Text(ThisRecord.Value.Teams) //Table 형식으로 바꿈 //이거맞나
                 }
             )
             
@@ -199,12 +201,27 @@ CategoryMenu_Namsoo As screen:
         OnSelect: |-
             =UpdateContext({AddLv2Category_Namsoo:true});
             ClearCollect(
-                CategoryOnlyLv1List_Sub, //이거맞나 
-                {Value: "-----------"}, //이거맞나 {Value: "직접입력"}
-                Sort(Distinct(Category_OnlyLv1_List, Category_LV1),Value)
-               
-            );
+                CategoryOnlyLv1List_Sub, //이거맞나 //콜렉션을 더 추가해버림 ㅠㅠ
+                {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE}, //이거맞나 {Value: "직접입력"}
+                    ForAll(
+                        Table(ParseJSON(PA_CategoryLv2_User_List)),
+                            {Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                            Title: Text(ThisRecord.Value.Title),
+                            LV1Order: Text(ThisRecord.Value.LV1Order),
+                            LV2Order: Text(ThisRecord.Value.LV2Order),
+                            Users: Text(ThisRecord.Value.Users),
+                            ID: Text(ThisRecord.Value.ID),
+                            History: Text(ThisRecord.Value.History),
+                            Teams: Text(ThisRecord.Value.Teams),
+                            FileCount: Text(ThisRecord.Value.FileCount),
+                            DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage),
+                            Author: Text(ThisRecord.Value.Author),
+                            CategoryType: Text(ThisRecord.Value.CategoryType)}
+                    )
             
+            );
+            //이게맞나 //진짜
             /*
             Collect(
                 똑실이_Category_table,
@@ -353,8 +370,8 @@ CategoryMenu_Namsoo As screen:
         Size: =30
         Text: ="카테고리 관리"
         Width: =393
-        X: =343
-        Y: =23
+        X: =339
+        Y: =35
         ZIndex: =6
 
     Button_CategoryMenuSAVEPatch_CategoryMenu_Namsoo As button:
@@ -527,12 +544,9 @@ CategoryMenu_Namsoo As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
-        Items: |+
-            =Filter(Distinct(Category_ALL_Lv_List,Category_LV1), Not DEFAULT_SELECT_CATEGORY_VALUE)
-            //Distinct(Category_ALL_Lv_List,Category_LV1)
-            
-            
-            
+        Items: |-
+            =Distinct(Category_OnlyLv1_List,Category_LV1) //이거맞나 //진짜 //Category_Manager_Table에 없는 카테고리도 조회
+            //Distinct(Category_ALL_Lv_List,Category_LV1) //이거맞나 //진짜 //Category_Manager_Table에 없는 카테고리도 조회
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -601,7 +615,7 @@ CategoryMenu_Namsoo As screen:
                 
                 
                 Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in 'Folder path' && IsFolder= false ))
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
@@ -636,7 +650,8 @@ CategoryMenu_Namsoo As screen:
             Fill: =RGBA(255, 255, 255, 1)
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
             Items: |
-                =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+                =SortByColumns(Filter(Category_ALL_Lv_List, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+                //SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
@@ -842,7 +857,7 @@ CategoryMenu_Namsoo As screen:
                 Overflow: =Overflow.Scroll
                 PaddingLeft: =10
                 Size: =12
-                Text: |-
+                Text: |
                     =If(
                         CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
                         "팀을 할당해 주세요",
@@ -871,7 +886,8 @@ CategoryMenu_Namsoo As screen:
                     =ColorValue("#F5F5F5")
                 Image: =Icon_AddTeamCheck
                 OnSelect: |-
-                    =UpdateContext({AddPopUpID: ThisItem.ID});
+                    =//UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                    UpdateContext({AddLv1PopUpID: true});
                     Set(AddPopUpBackground,true);
                     ClearCollect(viewTeamName, ThisItem.Teams);
                     UpdateContext({ lookTeamVi:true })
@@ -1085,7 +1101,7 @@ CategoryMenu_Namsoo As screen:
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
                     =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
-                    If(Office365사용자.MyProfile().Mail in ThisItem.'Created By'.Email ,DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
                     DisplayMode.Disabled))
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
@@ -1111,7 +1127,7 @@ CategoryMenu_Namsoo As screen:
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, 'Folder path'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
@@ -1156,7 +1172,8 @@ CategoryMenu_Namsoo As screen:
                 Image: =Remarks
                 OnSelect: |-
                     =UpdateContext({HisVi:true});
-                    UpdateContext({ AddPopUpID: ThisItem.ID });
+                    //UpdateContext({AddPopUpID: ThisItem.ID});
+                    UpdateContext({AddLv1PopUpID: true});
                     UpdateContext({RemarksPopVi: true});
                 PaddingBottom: =3
                 PaddingLeft: =3
@@ -1266,7 +1283,7 @@ CategoryMenu_Namsoo As screen:
                 =Collect(
                     똑실이_Category_table,
                     {
-                        Title: ".",
+                        제목: ".",
                         Category_LV1: ThisItem.Value,
                         Category_LV2: "",
                         //ID: Last(똑실이_Category_table).ID + 1,
@@ -1450,6 +1467,387 @@ CategoryMenu_Namsoo As screen:
             Y: =20
             ZIndex: =9
 
+        Label_ComplateTeamName_CategoryLv1Menu_2 As label:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            OnSelect: =
+            Overflow: =Overflow.Scroll
+            PaddingLeft: =10
+            Size: =12
+            Text: |-
+                =If(
+                    CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
+                    "팀을 할당해 주세요",
+                    CountRows(ThisItem.Teams) > 1,
+                    First(ThisItem.Teams).DisplayName & " 외" & " " &  CountRows(ThisItem.Teams) - 1,
+                    First(ThisItem.Teams).DisplayName
+                )
+            Width: =229
+            X: =331
+            Y: =24
+            ZIndex: =10
+
+        TextInput_TeamList_CategoryMenu_2 As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =Color.White
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnSelect: =
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =229
+            X: =331
+            Y: =29
+            ZIndex: =11
+
+        Image_TeamSerch_CategoryLv1Menu_2 As image:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Icon_AddTeamCheck
+            OnSelect: |-
+                =//UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                UpdateContext({AddLv1PopUpID: true});
+                Set(AddLv1PopUpBackground,true);
+                //ClearCollect(viewTeamName, ThisItem.Teams);
+                UpdateContext({ lookTeamVi:true })
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =32
+            X: =565
+            Y: =26
+            ZIndex: =12
+
+        Image_Addteam_CategoryLv1Menu_2 As image:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Icon_AddTeam
+            OnSelect: |-
+                =Set(AddPopUpBackground,true);
+                UpdateContext({AddTeamPopUpVi: true});
+                //UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
+                UpdateContext({AddLv1PopUpID: true});
+                ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID= ThisItem.ID).Teams);
+                ClearCollect(
+                    Groups,
+                    ForAll(
+                        Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
+                        {
+                            id: ThisRecord.Value.id,
+                            mail: Text(ThisRecord.Value.mail),
+                            displayName: Text(ThisRecord.Value.displayName),
+                            securityEnabled: Text(ThisRecord.Value.securityEnabled),
+                            is365: Text(ThisRecord.Value.is365)
+                        }
+                    )
+                )
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Transparency: =
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =32
+            X: =600
+            Y: =26
+            ZIndex: =13
+
+        Label_ComplateUsersName_CategoryLv1Menu_2 As label:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            OnSelect: =
+            PaddingLeft: =10
+            Size: =12
+            Text: |-
+                =If(CountRows(ThisItem.Users) = 0 || IsBlank(ThisItem.Users),
+                "인원을 할당해 주세요", CountRows(ThisItem.Users) > 1,
+                First(ThisItem.Users).DisplayName & " 외" & CountRows(ThisItem.Users)-1 & " 명",
+                First(ThisItem.Users).DisplayName)
+            Width: =190
+            Wrap: =false
+            X: =660
+            Y: =29
+            ZIndex: =14
+
+        TextInput_UserList_CategoryLv1Menu_2 As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =Color.White
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnSelect: =
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =203
+            X: =653
+            Y: =26
+            ZIndex: =15
+
+        Icon_ComplateUserList_CategoryLv1Menu_2 As image:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Icon_AddTeamCheck
+            OnSelect: |-
+                =//UpdateContext({AddPopUpID: ThisItem.ID});
+                UpdateContext({AddLv1PopUpID: true});
+                Set(AddPopUpBackground,true);
+                ClearCollect(addUserName, ThisItem.Users);
+                UpdateContext({lookUserVi:true});
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =32
+            X: =868
+            Y: =26
+            ZIndex: =16
+
+        Icon_AddUserButton_CategoryLv1Menu_2 As image:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Icon_AddTeam
+            OnSelect: |-
+                =UpdateContext({ AddPopUp:true });
+                Set(AddPopUpBackground,true);
+                UpdateContext({ PopUpMenu: "User" });
+                UpdateContext({ AddPopUpID: ThisItem.ID });
+                Collect(AddCollect, LookUp(똑실이_Category_table, ID= ThisItem.ID).Users);
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Transparency: =
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =32
+            X: =911
+            Y: =28
+            ZIndex: =17
+
+        Label_History_CategoryLv1Menu_2 As label:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            OnSelect: =
+            PaddingLeft: =10
+            Size: =11
+            Text: |-
+                =If(
+                    ThisItem.History = Blank(),
+                    "우측 버튼을 눌러 내역을 입력하세요.",
+                    ThisItem.History
+                )
+            Tooltip: =Self.Text
+            VerticalAlign: =VerticalAlign.Top
+            Width: =282
+            Wrap: =false
+            X: =955
+            Y: =29
+            ZIndex: =18
+
+        TextInput_History_CategoryLv1Menu_2 As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =""
+            DisabledBorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =Color.White
+            DisplayMode: =DisplayMode.Disabled
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnSelect: =
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =13
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =293
+            X: =949
+            Y: =28
+            ZIndex: =19
+
+        Image_CategroyRemarks_CategoryLv1Menu_2 As image:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderThickness: =4
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Remarks
+            OnSelect: |-
+                =UpdateContext({HisVi:true});
+                UpdateContext({AddPopUpID: ThisItem.ID});
+                UpdateContext({RemarksPopVi: true});
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
+            Width: =32
+            X: =1255
+            Y: =31
+            ZIndex: =20
+
     Background_Modal_CategoryMenu_2 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -1521,7 +1919,7 @@ CategoryMenu_Namsoo As screen:
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
+            Text: =LookUp(CategoryTable,ID = AddLv1PopUpID).Category_LV1 //이거맞나
             Width: =300
             X: =9
             Y: =25
@@ -1609,7 +2007,9 @@ CategoryMenu_Namsoo As screen:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: =RGBA(51, 51, 51, 1)
-            Default: =LookUp(CategoryTable,ID=AddPopUpID).History
+            Default: |-
+                =//LookUp(CategoryTable,ID=AddPopUpID).History
+                LookUp(CategoryTable,ID=AddLv1PopUpID).History
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -3547,7 +3947,7 @@ CategoryMenu_Namsoo As screen:
                 Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용
                     똑실이_Category_table,
                     {
-                        Title: ".",
+                        제목: ".",
                         //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
                         Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
@@ -3765,7 +4165,7 @@ CategoryMenu_Namsoo As screen:
         ChevronHoverBackground: =RGBA(212, 212, 212, 1)
         ChevronHoverFill: =RGBA(33, 33, 33, 1)
         Color: =RGBA(51, 51, 51, 1)
-        Default: =
+        Default: =DEFAULT_SELECT_CATEGORY_VALUE
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
@@ -3776,7 +4176,8 @@ CategoryMenu_Namsoo As screen:
         HoverFill: |-
             =ColorValue("#FFFFFF")
         Items: |+
-            =Distinct(Category_ALL_Lv_List,Category_LV1) //이거맞나
+            =Distinct(CategoryOnlyLv1List_Sub, Category_LV1)
+            //Distinct(Category_ALL_Lv_List, Category_LV1) //이거맞나
             
         PaddingBottom: =5
         PaddingLeft: =12
@@ -4000,7 +4401,7 @@ CategoryMenu_Namsoo As screen:
                 Collect(
                     똑실이_Category_Manager_table,
                     {
-                        Title: ".",
+                        제목: ".",
                         Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp.Text),
                         LV1Order:Last(똑실이_Category_Manager_table).ID + 1
                     }
