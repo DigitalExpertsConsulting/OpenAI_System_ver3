@@ -21,7 +21,7 @@ AIGraph_DEV_1 As screen:
             UpdateContext({locPopupBackground:false}),  // 팝업 배경 이미지 비활성화
         
             Set(DatePickerSetting, false),
-            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"]);
+            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"]); // 
             
             ClearCollect(
                 colCategoryAdmin,
@@ -249,12 +249,40 @@ AIGraph_DEV_1 As screen:
                                     Sum(Group, Token_Total)
                                 )
                             )
+                        ),
+                        ClearCollect(
+                            AIGraphTokenYearlyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphTokenMonthlyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
                         )
                     )
                 )
             );
-            
-            
             
             
             UpdateContext({ 
@@ -270,7 +298,7 @@ AIGraph_DEV_1 As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        X: =1088
+        X: =1097
         ZIndex: =1
 
     Label_For_TEST_AIGraph_DEV_1 As label:
@@ -676,7 +704,7 @@ AIGraph_DEV_1 As screen:
         X: =343
         XLabelAngle: =90
         Y: =340
-        ZIndex: =19
+        ZIndex: =18
 
     LineChart_Default_AIGraph_DEV_1_1_2 As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -807,79 +835,13 @@ AIGraph_DEV_1 As screen:
         X: =LineChart_Default_AIGraph_DEV_1_1_1.X
         XLabelAngle: =90
         Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
-        ZIndex: =20
-
-    LineChart_Default_AIGraph_DEV_1_2_2 As lineChart:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        Font: =Font.'Segoe UI'
-        Height: |
-            =LineChart_Default_AIGraph_DEV_1_1_1.Height
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
-        Items: |-
-            =If(
-                DatePickerSetting = false,
-                If(
-                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년",
-                    Filter(
-                        AIGraphTokenYearlyUsage,
-                        (
-                            YearMonth >= 
-                            If(
-                                DatePickerSetting = false,
-                                Switch(
-                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                        "최근 1개월",
-                                    DateAdd(Today(),-1,TimeUnit.Months),
-                                        "최근 3개월",
-                                    DateAdd(Today(),-3,TimeUnit.Months)
-                                ),
-                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
-                            )
-                        ) &&
-                        (
-                            YearMonth <= 
-                                If(
-                                DatePickerSetting = false,
-                                DateAdd(Today(),-0,TimeUnit.Months),
-                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                            )
-                        ),YearMonth_ <> Blank(),Token_Model <> Blank()
-                    )
-                )
-            )
-        Markers: =false
-        NumberOfSeries: |-
-            =If(
-                AppsBIAxis.Value = "토큰 사용량",
-                3,
-                4
-            )
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        Size: =15
-        Visible: |-
-            =If(
-                DatePickerSetting = false And LineChart_Default_AIGraph_DEV_1_2_1_1.Visible = false And AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: |
-            =LineChart_Default_AIGraph_DEV_1_1_1.Width
-        X: |
-            =LineChart_Default_AIGraph_DEV_1_1_1.X
-        XLabelAngle: =90
-        Y: |
-            =LineChart_Default_AIGraph_DEV_1_1_1.Y
-        ZIndex: =21
+        ZIndex: =19
 
     LineChart_Default_AIGraph_DEV_1_2_1_1 As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
+        Color: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
@@ -918,16 +880,10 @@ AIGraph_DEV_1 As screen:
                 )
             )
         Markers: =false
-        NumberOfSeries: |-
-            =If(
-                AppsBIAxis.Value = "토큰 사용량",
-                3,
-                4
-            )
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         Size: =15
         Visible: |-
-            =If(
+            =/*If(
                 DatePickerSetting = false And 
                 AppsBIAxis.Value = "GPT 버전" And 
                 If(
@@ -941,12 +897,14 @@ AIGraph_DEV_1 As screen:
                     false
                 ),
                 false
-            )
+            )*/
+            false
         Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
         X: =LineChart_Default_AIGraph_DEV_1_1_1.X
         XLabelAngle: =90
         Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
         YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
+        YAxisMin: =0
         ZIndex: =22
 
     LineChart_Default_AIGraph_DEV_1_2_1_2 As lineChart:
@@ -994,16 +952,10 @@ AIGraph_DEV_1 As screen:
                 )
             )
         Markers: =false
-        NumberOfSeries: |-
-            =If(
-                AppsBIAxis.Value = "토큰 사용량",
-                3,
-                4
-            )
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         Size: =15
         Visible: |-
-            =If(
+            =/*If(
                 DatePickerSetting = false And 
                 AppsBIAxis.Value = "GPT 버전" And 
                 If(
@@ -1017,7 +969,8 @@ AIGraph_DEV_1 As screen:
                     false
                 ),
                 false
-            )
+            )*/
+            false
         Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
         X: =LineChart_Default_AIGraph_DEV_1_1_1.X
         XLabelAngle: =90
@@ -1078,6 +1031,7 @@ AIGraph_DEV_1 As screen:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
+        Color: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
@@ -1119,16 +1073,10 @@ AIGraph_DEV_1 As screen:
                 )
             )
         Markers: =false
-        NumberOfSeries: |-
-            =If(
-                AppsBIAxis.Value = "토큰 사용량",
-                3,
-                4
-            )
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         Size: =15
         Visible: |-
-            =If(
+            =/*If(
                 DatePickerSetting = false And 
                 AppsBIAxis.Value = "GPT 버전" And 
                 If(
@@ -1142,11 +1090,543 @@ AIGraph_DEV_1 As screen:
                     false
                 ),
                 false
-            )
+            )*/
+            false
         Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
         X: =LineChart_Default_AIGraph_DEV_1_1_1.X
         XLabelAngle: =90
         Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
         YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
         ZIndex: =24
+
+    LineChart_Default_AIGraph_DEV_1_2_1_0 As lineChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height + 10
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =If(
+                DatePickerSetting = false,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    Filter(
+                        AIGraphTokenMonthlyAxsis,
+                        (
+                            Token_Date >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ) &&
+                        (
+                            Token_Date <= 
+                                If(
+                                    DatePickerSetting = false,
+                                    DateAdd(Today(),-0,TimeUnit.Hours),
+                                    DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                )
+                            )
+                        )
+                )
+            )
+        Markers: =false
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =/*If(
+                DatePickerSetting = false And 
+                AppsBIAxis.Value = "GPT 버전" And 
+                If(
+                    !IsError(Index(chatBotVersionList,1).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                ),
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    true,
+                    false
+                ),
+                false
+            )*/
+            false
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        XLabelAngle: =90
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
+        ZIndex: =25
+
+    BarChart_AIGraph_DEV_GPTV_1 As gallery.galleryHorizontal:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
+        Items: =AIGraphTokenMonthlyXAxis
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =20 * CountRows(chatBotVersionList)
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        ZIndex: =27
+
+        Date_BarChart_AIGraph_DEV_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =150
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =ThisItem.Token_Date
+            Width: =20
+            X: =Parent.TemplateWidth/2 - Self.Width/2
+            Y: =Parent.Height - Self.Height
+            ZIndex: =1
+
+        TokenTotal_BarChart_AIGraph_DEV_1 As circle:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(105, 121, 126, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            Height: =8
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Width: =8
+            X: =Parent.TemplateWidth/2 - Self.Width/2
+            Y: |-
+                =//Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - 
+                (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                    (
+                        Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date,
+                            Token_Total
+                        )
+                    ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+            ZIndex: =2
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,1).Value),
+                                    Index(chatBotVersionList,1).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,1).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                )
+            Width: =8
+            X: =6
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =3
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_2 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,2).Value),
+                                    Index(chatBotVersionList,2).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,2).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_1.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_1.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =4
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_3 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,3).Value),
+                                    Index(chatBotVersionList,3).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,3).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_2.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_2.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =5
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_4 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,4).Value),
+                                    Index(chatBotVersionList,4).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,4).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_3.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_3.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =6
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_5 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,5).Value),
+                                    Index(chatBotVersionList,5).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,5).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_4.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_4.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =7
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_6 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,6).Value),
+                                    Index(chatBotVersionList,6).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,6).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_5.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_5.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =8
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_7 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,7).Value),
+                                    Index(chatBotVersionList,7).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,7).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_6.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_6.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =9
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_8 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,8).Value),
+                                    Index(chatBotVersionList,8).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,8).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_2.X*7 + Bar_BarChart_AIGraph_DEV_GPTV_1_7.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =10
+
+        Bar_BarChart_AIGraph_DEV_GPTV_1_9 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderThickness: =4
+            Height: |-
+                =If(
+                    IsBlank(
+                        LookUp(
+                            AIGraphTokenMonthlyUsage,
+                            Token_Date=ThisItem.Token_Date &&
+                            Token_Model=If(
+                                    !IsError(Index(chatBotVersionList,9).Value),
+                                    Index(chatBotVersionList,9).Value
+                                ),
+                            Token_Total
+                        )
+                    ),
+                    0,
+                    (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height) - (
+                        (
+                            Max(AIGraphTokenMonthlyUsage,Token_Total) - 
+                            LookUp(
+                                AIGraphTokenMonthlyUsage,
+                                Token_Date=ThisItem.Token_Date,
+                                Token_Total
+                            )
+                        ) / Max(AIGraphTokenMonthlyUsage,Token_Total)
+                    ) * (Parent.Height - Date_BarChart_AIGraph_DEV_1.Height)
+                )
+            HoverFill: =RGBA(105, 121, 126, 1)
+            OnSelect: =Select(Parent)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,9).Value),
+                    true,
+                    false
+                )
+            Width: =8
+            X: =Bar_BarChart_AIGraph_DEV_GPTV_1_8.X*2 + Bar_BarChart_AIGraph_DEV_GPTV_1_8.Width
+            Y: =Parent.Height - Date_BarChart_AIGraph_DEV_1.Height - Self.Height
+            ZIndex: =11
 
