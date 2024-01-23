@@ -7,7 +7,7 @@ AIGraph_DEV_1 As screen:
             Set(gblStartPage,"AIGraph_DEV"),
             Clear(AIGraphToken)
         )
-    OnVisible: |+
+    OnVisible: |
         =//============================== << 화면 최초 접속 시 >> ==============================
         // 1. 로딩 이미지 활성화
         Concurrent(
@@ -20,7 +20,6 @@ AIGraph_DEV_1 As screen:
             Refresh(똑실이_Token_table),       // DB REFRESH
             UpdateContext({locPopupBackground:false}),  // 팝업 배경 이미지 비활성화
         
-            Select(Button_Table_Filtering_AIGraph_DEV_1_1),
             Set(DatePickerSetting, false),
             Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"]);
             
@@ -42,34 +41,6 @@ AIGraph_DEV_1 As screen:
             );
         );
         
-        // 3. AIGraph에 사용할 컬렉션 초기화
-        Concurrent(
-            ClearCollect(
-                AIGraphTokenTable,
-                AddColumns(
-                    GroupBy(똑실이_Token_table, "Token_Date", "Group"),
-                    "Input Token",
-                    Sum(Group, Token_Input)/1000,
-                    "Output Token",
-                    Sum(Group, Token_Output)/1000,
-                    "Total Token",
-                    Sum(Group, Token_Total)/1000
-                )
-            ),
-            ClearCollect(
-                AIGraphGptVersionTable,
-                AddColumns(
-                    GroupBy(똑실이_Token_table, "Token_Date", "Group"),
-                    "Input Token",
-                    Sum(Group, Token_Input)/1000,
-                    "Output Token",
-                    Sum(Group, Token_Output)/1000,
-                    "Total Token",
-                    Sum(Group, Token_Total)/1000
-                )
-            )
-        );
-        
         //============================== << 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         Concurrent(
             Reset(Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1),
@@ -89,7 +60,218 @@ AIGraph_DEV_1 As screen:
             Set(AIGraphAxis, First(AxisPickingList)),
             Set(AppsBIAxis, Radio_ChartView_AIGraph_DEV_1.Selected)
         );
-        
+
+    Button_Table_Filtering_AIGraph_DEV_1_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |+
+            =Concurrent(
+                Set(AIGraphStartDate,
+                    Text(If(
+                            DatePickerSetting = false,
+                            Switch(
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                "최근 1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                "최근 3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                "최근 1년", DateAdd(Today(),-1,TimeUnit.Years),
+                                "최근 3년", DateAdd(Today(),-3,TimeUnit.Years)
+                            ), DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                        ), "yyyy-mm-dd"
+                    )
+                ),
+                Set(AIGraphEndDate,
+                    Text(If(
+                        DatePickerSetting = false,
+                        DateAdd(Today(),-0,TimeUnit.Months),
+                        DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                    ), "yyyy-mm-dd"))
+            );
+            
+            UpdateContext({AIGraphResponse: '[DEV]똑실이-[Apps]AIGraph토큰사용성분석'.Run(
+                    If(
+                        // LV1=전체 LV2=전체 일경우
+                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE && 
+                        Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        "/" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        If(
+                            // 카테고리LV1만 선택한 경우
+                            Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && 
+                            Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(
+                                    LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                    Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value
+                                ), Category_LV1LV2 & "?"
+                            ),"delete_point"), "?delete_point", ""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE && 
+                                Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(
+                                        LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                        Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value
+                                    ), Category_LV1LV2 & "?"
+                                ), "delete_point"), "?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value & "/" & Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
+                    // StartDate
+                    text_2: AIGraphStartDate,
+                    // EndDate
+                    text_3: AIGraphEndDate
+                }).result_json
+            });
+            
+            ClearCollect(
+                AIGraphToken,
+                ForAll(
+                    Table(ParseJSON(AIGraphResponse)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
+                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        Token_Model: Text(ThisRecord.Value.AnswerModel),
+                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
+                        ID: Int(ThisRecord.Value.ID)
+                    }
+                )
+            );
+            
+            
+            
+            ClearCollect(
+                chatBotVersionList,
+                Filter(Distinct(
+                    AIGraphToken,
+                    Token_Model
+                ), Value <> Blank())
+            );
+            
+            ClearCollect(
+                AIGraphAddColYM,
+                AddColumns(
+                    AIGraphToken,
+                    "YearMonth",
+                    Year(Token_Date)*100 + Month(Token_Date),
+                    "YearMonth_",
+                    Text(Year(Token_Date)) & "년 " & Text(Month(Token_Date)) &"월"
+                )
+            );
+            
+            If(
+                AppsBIAxis.Value = "토큰 사용량",
+            
+                Concurrent(
+                    ClearCollect(
+                        AIGraphTokenYearlyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or 
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                "Token_Input",
+                                Sum(Group, Token_Input),
+                                "Token_Output",
+                                Sum(Group, Token_Output),
+                                "Token_Total",
+                                Sum(Group, Token_Total)
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphTokenMonthlyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or 
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
+                                "Token_Input",
+                                Sum(Group, Token_Input),
+                                "Token_Output",
+                                Sum(Group, Token_Output),
+                                "Token_Total",
+                                Sum(Group, Token_Total)
+                            )
+                        )
+                    )
+                ),
+                If(
+                    AppsBIAxis.Value = "GPT 버전",
+            
+                    Concurrent(
+                        ClearCollect(
+                            AIGraphTokenYearlyUsage,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Token_Model", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphTokenMonthlyUsage,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Token_Date", "Token_Model", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            
+            
+            
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        X: =1088
+        ZIndex: =1
 
     Label_For_TEST_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -101,12 +283,18 @@ AIGraph_DEV_1 As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         Size: =13
-        Text: =CountRows(AIGraphTokenYearlyUsage) + CountRows(AIGraphTokenMonthlyUsage)
-        X: =1770
-        ZIndex: =1
+        Text: |-
+            =//CountRows(AIGraphTokenYearlyUsage) + CountRows(AIGraphTokenMonthlyUsage)
+            If(
+                !IsError(Index(chatBotVersionList,3).Value),
+                Index(chatBotVersionList,3).Value
+            )
+        X: =1760
+        Y: =145
+        ZIndex: =2
 
     Component_GNB_AIGraph_DEV_1 As New_Component_GNB:
-        ZIndex: =2
+        ZIndex: =3
 
     Label_AIGraphMain_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -123,7 +311,7 @@ AIGraph_DEV_1 As screen:
         Width: =691
         X: =343
         Y: =23
-        ZIndex: =3
+        ZIndex: =4
 
     Label_GalleryFilter_Category_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -144,7 +332,7 @@ AIGraph_DEV_1 As screen:
         Width: =90
         X: =343
         Y: =150
-        ZIndex: =4
+        ZIndex: =5
 
     Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -184,7 +372,7 @@ AIGraph_DEV_1 As screen:
         Width: =240
         X: =446
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
-        ZIndex: =5
+        ZIndex: =6
 
     Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -236,7 +424,7 @@ AIGraph_DEV_1 As screen:
         Width: =240
         X: =743
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y
-        ZIndex: =6
+        ZIndex: =7
 
     "'Label_GalleryFilter_>_AIGraph_DEV_1' As label":
         Align: =Align.Center
@@ -250,7 +438,7 @@ AIGraph_DEV_1 As screen:
         Width: =43
         X: =695
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y-6
-        ZIndex: =7
+        ZIndex: =8
 
     Label_DatePicker_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -271,7 +459,7 @@ AIGraph_DEV_1 As screen:
         Width: =90
         X: =1050
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =8
+        ZIndex: =9
 
     "'Label_DatePicker_>_AIGraph_DEV_1' As label":
         Align: =Align.Center
@@ -287,7 +475,7 @@ AIGraph_DEV_1 As screen:
         Width: =40
         X: =1520
         Y: ='Label_GalleryFilter_>_AIGraph_DEV_1'.Y
-        ZIndex: =9
+        ZIndex: =10
 
     DatePicker_FirstDate_AIGraph_DEV_1 As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -312,7 +500,7 @@ AIGraph_DEV_1 As screen:
             =200
         X: =1320
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =10
+        ZIndex: =11
 
     DatePicker_LastDate_AIGraph_DEV_1 As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -335,7 +523,7 @@ AIGraph_DEV_1 As screen:
             =200
         X: =1560
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =11
+        ZIndex: =12
 
     Toggle_AIGraph_DEV_1 As toggleSwitch:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -364,7 +552,7 @@ AIGraph_DEV_1 As screen:
         Width: =60
         X: =1140
         Y: =Label_GalleryFilter_Category_AIGraph_DEV_1.Y+1
-        ZIndex: =12
+        ZIndex: =13
 
     Label_DateFilter_AIGraph_DEV_1 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -385,7 +573,7 @@ AIGraph_DEV_1 As screen:
         Width: =100
         X: =1205
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Y
-        ZIndex: =13
+        ZIndex: =14
 
     Dropdown_DatePicker_AIGraph_DEV_1 As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -421,9 +609,26 @@ AIGraph_DEV_1 As screen:
         Width: =DatePicker_FirstDate_AIGraph_DEV_1.Width
         X: =DatePicker_FirstDate_AIGraph_DEV_1.X
         Y: =DatePicker_FirstDate_AIGraph_DEV_1.Y
-        ZIndex: =14
+        ZIndex: =15
 
-    LineChart_Default_AIGraph_DEV_1_1 As lineChart:
+    Title_UserCustom_AIGraph_DEV_1 As label:
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FontWeight: =FontWeight.Semibold
+        Size: =24
+        Text: |-
+            =/*If(
+                Not(AppsBIAxis.Value = "토큰 사용량"),
+                AppsBIAxis.Value & " 별 "
+            ) & "기간 내 토큰 사용량 추이"
+            */
+            "토큰 사용량 추이"
+        Width: =600
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y - Self.Height*1.5
+        ZIndex: =18
+
+    LineChart_Default_AIGraph_DEV_1_1_1 As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -438,104 +643,33 @@ AIGraph_DEV_1 As screen:
                 DatePickerSetting = false,
                 If(
                     Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
-                    SortByColumns(
-                        Filter(
-                            AIGraphTokenUsage,
-                            (
-                                Token_Date >= 
-                                If(
-                                    DatePickerSetting = false,
-                                    Switch(
-                                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                            "최근 1개월",
-                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                            "최근 3개월",
-                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                    ),
-                                    DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
-                                )
-                            ) &&
+                    Filter(
+                        AIGraphTokenMonthlyUsage,
                         (
-                            Token_Date <= 
-                                If(
-                                    DatePickerSetting = false,
-                                    DateAdd(Today(),-0,TimeUnit.Months),
-                                    DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                )
+                            Token_Date >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
                             )
-                        ),
-                        "Token_Date",SortOrder.Ascending
-                    )
-                )
-            )
-            /*
-            ClearCollect(
-                AIGraphTokenUsage,
-                If(
-                    DatePickerSetting = false &&
-                    (
-                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or 
-                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년"
-                    ),
-                    AddColumns(
-                        GroupBy(AIGraphAddColYM, "YearMonth", "Group"),
-                        "Token_Input",
-                        Sum(Group, Token_Input),
-                        "Token_Output",
-                        Sum(Group, Token_Output),
-                        "Token_Total",
-                        Sum(Group, Token_Total)
-                    ),
-                    If(
-                        DatePickerSetting = false &&
-                        (
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or 
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월"
-                        ),
-                        AddColumns(
-                            GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
-                            "Token_Input",
-                            Sum(Group, Token_Input),
-                            "Token_Output",
-                            Sum(Group, Token_Output),
-                            "Token_Total",
-                            Sum(Group, Token_Total)
-                        )
-                    )
-                )
-            );
-            SortByColumns(
-                Filter(
-                    AIGraphTokenUsage,
-                    (
-                        Token_Date >= 
-                        If(
-                            DatePickerSetting = false,
-                            Switch(
-                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                    "최근 1개월",
-                                DateAdd(Today(),-1,TimeUnit.Months),
-                                    "최근 3개월",
-                                DateAdd(Today(),-3,TimeUnit.Months),
-                                    "최근 1년",
-                                DateAdd(Today(),-1,TimeUnit.Years),
-                                    "최근 3년",
-                                DateAdd(Today(),-3,TimeUnit.Years)
-                            ),
-                            DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
-                        )
-                    ) &&
+                        ) &&
                     (
                         Token_Date <= 
                             If(
-                            DatePickerSetting = false,
-                            DateAdd(Today(),-0,TimeUnit.Months),
-                            DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
                         )
                     )
-                ),
-                "Token_Date",SortOrder.Ascending
-            )*/
+                )
+            )
         Markers: =false
         NumberOfSeries: |-
             =If(
@@ -547,7 +681,7 @@ AIGraph_DEV_1 As screen:
         Size: =15
         Visible: |-
             =If(
-                DatePickerSetting = false,
+                DatePickerSetting = false And AppsBIAxis.Value = "토큰 사용량",
                 If(
                     Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
                     true,
@@ -559,16 +693,16 @@ AIGraph_DEV_1 As screen:
         X: =343
         XLabelAngle: =90
         Y: =340
-        ZIndex: =15
+        ZIndex: =19
 
-    LineChart_Default_AIGraph_DEV_1_2 As lineChart:
+    LineChart_Default_AIGraph_DEV_1_1_2 As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Font: =Font.'Segoe UI'
-        Height: =LineChart_Default_AIGraph_DEV_1_1.Height
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
         Items: |-
@@ -576,33 +710,30 @@ AIGraph_DEV_1 As screen:
                 DatePickerSetting = false,
                 If(
                     Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년",
-                    SortByColumns(
-                        Filter(
-                            AIGraphTokenYearlyUsage,
-                            (
-                                YearMonth >= 
-                                If(
-                                    DatePickerSetting = false,
-                                    Switch(
-                                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                            "최근 1개월",
-                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                            "최근 3개월",
-                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                    ),
-                                    DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
-                                )
-                            ) &&
-                            (
-                                YearMonth <= 
-                                    If(
-                                    DatePickerSetting = false,
-                                    DateAdd(Today(),-0,TimeUnit.Months),
-                                    DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                )
+                    Filter(
+                        AIGraphTokenYearlyUsage,
+                        (
+                            YearMonth >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
                             )
-                        ),
-                        "YearMonth_",SortOrder.Ascending
+                        ) &&
+                        (
+                            YearMonth <= 
+                                If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ),YearMonth_ <> Blank()
                     )
                 )
             )
@@ -685,459 +816,362 @@ AIGraph_DEV_1 As screen:
         Size: =15
         Visible: |-
             =If(
-                DatePickerSetting = false And LineChart_Default_AIGraph_DEV_1_1.Visible = false,
+                DatePickerSetting = false And LineChart_Default_AIGraph_DEV_1_1_1.Visible = false And AppsBIAxis.Value = "토큰 사용량",
                 true,
                 false
             )
-        Width: =LineChart_Default_AIGraph_DEV_1_1.Width
-        X: =LineChart_Default_AIGraph_DEV_1_1.X
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
         XLabelAngle: =90
-        Y: =LineChart_Default_AIGraph_DEV_1_1.Y
-        ZIndex: =16
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        ZIndex: =20
 
-    Radio_ChartView_AIGraph_DEV_1 As 라디오.pcfdataset:
-        DefaultSelectedItems: =First(AxisPickingList)
-        DisplayMode: =DisplayMode.Edit
-        Font: =Font.'Open Sans'
-        FontColor: =RGBA(0, 0, 0, 1)
-        FontSize: =20
-        FontWeight: =FontWeight.Normal
-        Height: |
-            =50
-        Items: =AxisPickingList
-        Layout: ='RadioGroupCanvas.Layout'.Horizontal
-        OnChange: |-
-            =Set(AppsBIAxis, Self.Selected);
-            Select(Button_Table_Filtering_AIGraph_DEV_1_1);
-        OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
-        Required: =true 
-        Width: =537
-        X: =480
-        Y: =200
-        ZIndex: =22
-
-        Radio_Value_AIGraph_DEV_1 As pcfDataField.textualColumn:
-            FieldDisplayName: ="Value"
-            FieldName: ="Value"
-            FieldType: ="s"
-            FieldVariantName: ="textualColumn"
-            Order: =1
-            ZIndex: =1
-
-    Label_RadioFilter_Category_AIGraph_DEV_1 As label:
+    LineChart_Default_AIGraph_DEV_1_2_2 As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =28
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Text: ="비교방식 선택"
-        Width: =125
-        X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
-        Y: =208
+        Height: |
+            =LineChart_Default_AIGraph_DEV_1_1_1.Height
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =If(
+                DatePickerSetting = false,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년",
+                    Filter(
+                        AIGraphTokenYearlyUsage,
+                        (
+                            YearMonth >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ) &&
+                        (
+                            YearMonth <= 
+                                If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ),YearMonth_ <> Blank(),Token_Model <> Blank()
+                    )
+                )
+            )
+        Markers: =false
+        NumberOfSeries: |-
+            =If(
+                AppsBIAxis.Value = "토큰 사용량",
+                3,
+                4
+            )
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                DatePickerSetting = false And LineChart_Default_AIGraph_DEV_1_2_1_1.Visible = false And AppsBIAxis.Value = "GPT 버전",
+                true,
+                false
+            )
+        Width: |
+            =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: |
+            =LineChart_Default_AIGraph_DEV_1_1_1.X
+        XLabelAngle: =90
+        Y: |
+            =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        ZIndex: =21
+
+    LineChart_Default_AIGraph_DEV_1_2_1_1 As lineChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =If(
+                DatePickerSetting = false,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    Filter(
+                        AIGraphTokenMonthlyUsage,
+                        (
+                            Token_Date >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ) &&
+                    (
+                        Token_Date <= 
+                            If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ),
+                        Token_Model=Index(chatBotVersionList,1).Value
+                    )
+                )
+            )
+        Markers: =false
+        NumberOfSeries: |-
+            =If(
+                AppsBIAxis.Value = "토큰 사용량",
+                3,
+                4
+            )
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                DatePickerSetting = false And 
+                AppsBIAxis.Value = "GPT 버전" And 
+                If(
+                    !IsError(Index(chatBotVersionList,1).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                ),
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    true,
+                    false
+                ),
+                false
+            )
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        XLabelAngle: =90
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
+        ZIndex: =22
+
+    LineChart_Default_AIGraph_DEV_1_2_1_2 As lineChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =If(
+                DatePickerSetting = false,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    Filter(
+                        AIGraphTokenMonthlyUsage,
+                        (
+                            Token_Date >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ) &&
+                    (
+                        Token_Date <= 
+                            If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ),
+                        Token_Model=If(
+                                        !IsError(Index(chatBotVersionList,2).Value),
+                                        Index(chatBotVersionList,2).Value
+                                    )
+                    )
+                )
+            )
+        Markers: =false
+        NumberOfSeries: |-
+            =If(
+                AppsBIAxis.Value = "토큰 사용량",
+                3,
+                4
+            )
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                DatePickerSetting = false And 
+                AppsBIAxis.Value = "GPT 버전" And 
+                If(
+                    !IsError(Index(chatBotVersionList,2).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                ),
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
+                    true,
+                    false
+                ),
+                false
+            )
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        XLabelAngle: =90
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
         ZIndex: =23
 
-    Button_Table_Filtering_AIGraph_DEV_1_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |+
-            =Concurrent(
-                Set(
-                    AIGraphStartDate,
-                    Text(
-                        If(
-                            DatePickerSetting = false,
-                            Switch(
-                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                    "최근 1개월",
-                                DateAdd(Today(),-1,TimeUnit.Months),
-                                    "최근 3개월",
-                                DateAdd(Today(),-3,TimeUnit.Months),
-                                    "최근 1년",
-                                DateAdd(Today(),-1,TimeUnit.Years),
-                                    "최근 3년",
-                                DateAdd(Today(),-3,TimeUnit.Years)
-                            ),
-                            DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
-                        ), 
-                        "yyyy-mm-dd"
-                    )
-                ),
-                Set(
-                    AIGraphEndDate,
-                    Text(
-                    If(
-                        DatePickerSetting = false,
-                        DateAdd(Today(),-0,TimeUnit.Months),
-                        DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                    ), "yyyy-mm-dd")
-                )
-            );
-            UpdateContext({
-                AIGraphResponse: '[DEV]똑실이-[Apps]AIGraph토큰사용성분석'.Run(
-                    If(
-                        // LV1=전체 LV2=전체 일경우
-                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE && 
-                        Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        "/" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
-            
-                        If(
-                            // 카테고리LV1만 선택한 경우
-                            Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && 
-                            Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                            Substitute(
-                                Concatenate(
-                                    Concat(
-                                        Filter(
-                                            LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
-                                            Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value
-                                        ), 
-                                        Category_LV1LV2 & "?"
-                                    ),"delete_point"
-                                ),
-                                "?delete_point",""
-                            ),
-                            // 카테고리LV2만 선택한 경우
-                            If(
-                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value = DEFAULT_CATEGORY_VALUE && 
-                                Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                                Substitute(
-                                    Concatenate(
-                                        Concat(
-                                            Filter(
-                                                LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
-                                                Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value
-                                            ), 
-                                            Category_LV1LV2 & "?"
-                                        ),
-                                        "delete_point"
-                                    ),
-                                    "?delete_point",""
-                                ),
-                                // LV1, LV2 둘다 선택한 경우
-                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1.Selected.Value & "/" & Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1.Selected.Value
-                            )
-                        )
-                    )
-                    ,{
-                    // StartDate
-                    text_2: AIGraphStartDate,
-                    // EndDate
-                    text_3: AIGraphEndDate
-                }).result_json
-            });
-            
-            ClearCollect(
-                AIGraphToken,
-                ForAll(
-                    Table(ParseJSON(AIGraphResponse)),
-                    {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
-                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
-                        Token_Input: Text(ThisRecord.Value.Token_Input),
-                        Token_Output: Text(ThisRecord.Value.Token_Output),
-                        Token_Total: Text(ThisRecord.Value.Token_Total),
-                        Token_Model: Text(ThisRecord.Value.AnswerModel),
-                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
-                        ID: Int(ThisRecord.Value.ID)
-                    }
-                )
-            );
-            
-            ClearCollect(
-                AIGraphAddColYM,
-                AddColumns(
-                    AIGraphToken,
-                    "YearMonth",
-                    Year(Token_Date)*100 + Month(Token_Date),
-                    "YearMonth_",
-                    Text(Year(Token_Date)) & "년 " & Text(Month(Token_Date)) &"월"
-                )
-            );
-            Concurrent(
-                ClearCollect(
-                    AIGraphTokenYearlyUsage,
-                    If(
-                        DatePickerSetting = false &&
-                        (
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1년" Or 
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3년"
-                        ),
-                        AddColumns(
-                            GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
-                            "Token_Input",
-                            Sum(Group, Token_Input),
-                            "Token_Output",
-                            Sum(Group, Token_Output),
-                            "Token_Total",
-                            Sum(Group, Token_Total)
-                        )
-                    )
-                ),
-                ClearCollect(
-                    AIGraphTokenMonthlyUsage,
-                    If(
-                        DatePickerSetting = false &&
-                        (
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or 
-                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월"
-                        ),
-                        AddColumns(
-                            GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
-                            "Token_Input",
-                            Sum(Group, Token_Input),
-                            "Token_Output",
-                            Sum(Group, Token_Output),
-                            "Token_Total",
-                            Sum(Group, Token_Total)
-                        )
-                    )
-                )
-            );
-            
-            UpdateContext({ 
-                locLoadingSpinner: false
-            });
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        Visible: =false
-        X: =756
-        ZIndex: =24
-
-    Group_LineChart_UserCustom_AIGraph_DEV_1 As group:
+    Group_RadioFilter_Category_AIGraph_DEV_1 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
-        ZIndex: =26
+        ZIndex: =23
 
-        LineChart_UserCustom_AIGraph_DEV_1_1 As lineChart:
+        Radio_ChartView_AIGraph_DEV_1 As 라디오.pcfdataset:
+            DefaultSelectedItems: =First(AxisPickingList)
+            DisplayMode: =DisplayMode.Edit
+            Font: =Font.'Open Sans'
+            FontColor: =RGBA(0, 0, 0, 1)
+            FontSize: =20
+            FontWeight: =FontWeight.Normal
+            Height: |
+                =50
+            Items: =AxisPickingList
+            Layout: ='RadioGroupCanvas.Layout'.Horizontal
+            OnChange: |-
+                =Set(AppsBIAxis, Self.Selected);
+                Select(Button_Table_Filtering_AIGraph_DEV_1_1);
+            OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
+            Required: =true 
+            Width: =537
+            X: =480
+            Y: =200
+            ZIndex: =16
+
+            Radio_Value_AIGraph_DEV_1 As pcfDataField.textualColumn:
+                FieldDisplayName: ="Value"
+                FieldName: ="Value"
+                FieldType: ="s"
+                FieldVariantName: ="textualColumn"
+                Order: =1
+                ZIndex: =1
+
+        Label_RadioFilter_Category_AIGraph_DEV_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
-            Height: =LineChart_Default_AIGraph_DEV_1_1.Height
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
-            Items: |-
-                =If(
-                    AppsBIAxis.Value = "토큰 사용량",
-                    Filter(
-                        AIGraphTokenTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    ),
-                    Filter(
-                        AIGraphGptVersionTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    )
-                )
-                /*
-                Filter(
-                    AIGraphTokenTable,
-                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                )*/
-            Markers: =false
-            NumberOfSeries: |-
-                =If(
-                    AppsBIAxis.Value = "토큰 사용량",
-                    3,
-                    1
-                )
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =15
-            Visible: |-
-                =If(
-                    DatePickerSetting = true,
-                    true,
-                    false
-                )
-            Width: =LineChart_Default_AIGraph_DEV_1_1.Width
-            X: =LineChart_Default_AIGraph_DEV_1_1.X
-            XLabelAngle: =90
-            Y: =LineChart_Default_AIGraph_DEV_1_1.Y
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="비교방식 선택"
+            Width: =125
+            X: =Label_GalleryFilter_Category_AIGraph_DEV_1.X
+            Y: =208
             ZIndex: =17
 
-        LineChart_UserCustom_AIGraph_DEV_1_2 As lineChart:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            Font: =Font.'Segoe UI'
-            Height: =LineChart_Default_AIGraph_DEV_1_1.Height
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
-            Items: |-
-                =If(
-                    AppsBIAxis.Value = "토큰 사용량",
+    LineChart_Default_AIGraph_DEV_1_2_1_3 As lineChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Height: =LineChart_Default_AIGraph_DEV_1_1_1.Height
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        Items: |-
+            =If(
+                DatePickerSetting = false,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
                     Filter(
-                        AIGraphTokenTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    ),
-                    Filter(
-                        AIGraphGptVersionTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
+                        AIGraphTokenMonthlyUsage,
+                        (
+                            Token_Date >= 
+                            If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "최근 1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "최근 3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                ),
+                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ) &&
+                    (
+                        Token_Date <= 
+                            If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                            )
+                        ),
+                        Token_Model=If(
+                                        !IsError(Index(chatBotVersionList,3).Value),
+                                        Index(chatBotVersionList,3).Value
+                                    )
                     )
                 )
-                /*
-                Filter(
-                    AIGraphTokenTable,
-                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                )*/
-            Markers: =false
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =15
-            Visible: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전",
+            )
+        Markers: =false
+        NumberOfSeries: |-
+            =If(
+                AppsBIAxis.Value = "토큰 사용량",
+                3,
+                4
+            )
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                DatePickerSetting = false And 
+                AppsBIAxis.Value = "GPT 버전" And 
+                If(
+                    !IsError(Index(chatBotVersionList,3).Value),
+                    true,//Index(chatBotVersionList,1).Value
+                    false
+                ),
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "최근 3개월",
                     true,
                     false
-                )
-            Width: =LineChart_Default_AIGraph_DEV_1_1.Width
-            X: =LineChart_Default_AIGraph_DEV_1_1.X
-            XLabelAngle: =90
-            Y: =LineChart_Default_AIGraph_DEV_1_1.Y
-            ZIndex: =18
-
-        LineChart_UserCustom_AIGraph_DEV_1_3 As lineChart:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            Font: =Font.'Segoe UI'
-            Height: =LineChart_Default_AIGraph_DEV_1_1.Height
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
-            Items: |-
-                =If(
-                    AppsBIAxis.Value = "토큰 사용량",
-                    Filter(
-                        AIGraphTokenTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    ),
-                    Filter(
-                        AIGraphGptVersionTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    )
-                )
-                /*
-                Filter(
-                    AIGraphTokenTable,
-                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                )*/
-            Markers: =false
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =15
-            Visible: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전",
-                    true,
-                    false
-                )
-            Width: =LineChart_Default_AIGraph_DEV_1_1.Width
-            X: =LineChart_Default_AIGraph_DEV_1_1.X
-            XLabelAngle: =90
-            Y: =LineChart_Default_AIGraph_DEV_1_1.Y
-            ZIndex: =19
-
-        LineChart_UserCustom_AIGraph_DEV_1_4 As lineChart:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            Font: =Font.'Segoe UI'
-            Height: =LineChart_Default_AIGraph_DEV_1_1.Height
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
-            Items: |-
-                =If(
-                    AppsBIAxis.Value = "토큰 사용량",
-                    Filter(
-                        AIGraphTokenTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    ),
-                    Filter(
-                        AIGraphGptVersionTable,
-                        (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                        (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                    )
-                )
-                /*
-                Filter(
-                    AIGraphTokenTable,
-                    (Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate) &&
-                    (Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate)
-                )*/
-            Markers: =false
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            Size: =15
-            Visible: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전",
-                    true,
-                    false
-                )
-            Width: =LineChart_Default_AIGraph_DEV_1_1.Width
-            X: =LineChart_Default_AIGraph_DEV_1_1.X
-            XLabelAngle: =90
-            Y: =LineChart_Default_AIGraph_DEV_1_1.Y
-            ZIndex: =20
-
-        Title_UserCustom_AIGraph_DEV_1 As label:
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            Size: =24
-            Text: |-
-                =/*If(
-                    Not(AppsBIAxis.Value = "토큰 사용량"),
-                    AppsBIAxis.Value & " 별 "
-                ) & "기간 내 토큰 사용량 추이"
-                */
-                "토큰 사용량 추이"
-            Width: =600
-            X: =LineChart_UserCustom_AIGraph_DEV_1_1.X
-            Y: =LineChart_UserCustom_AIGraph_DEV_1_1.Y - Self.Height*1.5
-            ZIndex: =21
+                ),
+                false
+            )
+        Width: =LineChart_Default_AIGraph_DEV_1_1_1.Width
+        X: =LineChart_Default_AIGraph_DEV_1_1_1.X
+        XLabelAngle: =90
+        Y: =LineChart_Default_AIGraph_DEV_1_1_1.Y
+        YAxisMax: =Max(AIGraphTokenMonthlyUsage,Token_Total)
+        ZIndex: =24
 
