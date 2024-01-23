@@ -2,26 +2,12 @@ Gpt_DeliveredContent As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
-        =UpdateContext(
-            {
-                GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
-            }
-        );
-        
-        
-        //UpdateContext({SelectedTopContent:""}); //??
-        //UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
-        
-        
-        // GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
-        Set(gblcategoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
-        
-        
+        =// GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
         ClearCollect(
             colCategoryGPT,
             SortByColumns(
                 ForAll(
-                    Table(ParseJSON(gblcategoryList)),
+                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
@@ -33,11 +19,11 @@ Gpt_DeliveredContent As screen:
                     }
                 ),
                 "Category_LV1",
-                SortOrder.Ascending,
-                "Category_LV2",
                 SortOrder.Ascending
             )
         );
+        
+        UpdateContext({SelectedTopContent:First(colCategoryGPT).Category_LV1});
 
     Label_ContentsMain_GPT_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
