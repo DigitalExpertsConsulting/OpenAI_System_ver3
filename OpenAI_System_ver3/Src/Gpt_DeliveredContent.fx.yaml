@@ -2,26 +2,12 @@ Gpt_DeliveredContent As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
-        =UpdateContext(
-            {
-                GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
-            }
-        );
-        
-        
-        //UpdateContext({SelectedTopContent:""}); //??
-        //UpdateContext({SelectedTopContent:GptSelectedDefault.Value});
-        
-        
-        // GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
-        Set(gblcategoryList, '똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category);
-        
-        
+        =// GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
         ClearCollect(
             colCategoryGPT,
             SortByColumns(
                 ForAll(
-                    Table(ParseJSON(gblcategoryList)),
+                    Table(ParseJSON('똑실이-[Apps]사용자카테고리목록'.Run(User().Email).output_category)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
@@ -33,10 +19,20 @@ Gpt_DeliveredContent As screen:
                     }
                 ),
                 "Category_LV1",
-                SortOrder.Ascending,
-                "Category_LV2",
                 SortOrder.Ascending
             )
+        );
+        
+        UpdateContext(
+                    {
+                        GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
+                    }
+                );
+                
+        UpdateContext(
+            {
+                SelectedTopContent:First(colCategoryGPT).Category_LV1
+            }
         );
 
     Label_ContentsMain_GPT_DeliveredContent As label:
@@ -193,18 +189,34 @@ Gpt_DeliveredContent As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
             Height: =796
-            Items: |-
-                =//ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email),"LV1Order",SortOrder.Ascending),Category_LV1),{Result:ThisRecord.Value})
+            Items: |
+                =// colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
                 
-                // colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
+                /*
                 ForAll(
                     Distinct(
                         SortByColumns(
-                            Filter(Filter(colCategoryGPT,
-                            CategoryType = Blank()),
-                            Category_LV1),
-                            "LV2Order",
-                            SortOrder.Ascending
+                            Filter(
+                                Filter(
+                                    colCategoryGPT,
+                                    CategoryType = Blank()
+                                ),
+                                    Category_LV1
+                                ),
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV1
+                        ),
+                    {Result: ThisRecord.Value}
+                )
+                */
+                
+                ForAll(
+                    Distinct(
+                        Filter(
+                            colCategoryGPT,
+                            CategoryType = Blank()
                         ),
                         Category_LV1
                     ),
@@ -305,9 +317,9 @@ Gpt_DeliveredContent As screen:
                 =SortByColumns(
                     Filter(
                         colCategoryGPT,
-                        Category_LV1 = SelectedTopContent
+                        Category_LV1 = SelectedTopContent && CategoryType = Blank()
                     ),
-                    "LV2Order",
+                    "Category_LV2",
                     SortOrder.Ascending
                 )
                 
