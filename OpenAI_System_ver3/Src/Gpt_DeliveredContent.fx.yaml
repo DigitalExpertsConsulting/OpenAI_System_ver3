@@ -23,7 +23,17 @@ Gpt_DeliveredContent As screen:
             )
         );
         
-        UpdateContext({SelectedTopContent:First(colCategoryGPT).Category_LV1});
+        UpdateContext(
+                    {
+                        GptSelectedDefault:First(Distinct(SortByColumns(똑실이_Category_table, "LV1Order", SortOrder.Ascending), Category_LV1))
+                    }
+                );
+                
+        UpdateContext(
+            {
+                SelectedTopContent:First(colCategoryGPT).Category_LV1
+            }
+        );
 
     Label_ContentsMain_GPT_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -179,18 +189,34 @@ Gpt_DeliveredContent As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
             Height: =796
-            Items: |-
-                =//ForAll(Distinct(SortByColumns(Filter(똑실이_Category_table,Office365사용자.MyProfile().Mail in Users.Email),"LV1Order",SortOrder.Ascending),Category_LV1),{Result:ThisRecord.Value})
+            Items: |
+                =// colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
                 
-                // colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
+                /*
                 ForAll(
                     Distinct(
                         SortByColumns(
-                            Filter(Filter(colCategoryGPT,
-                            CategoryType = Blank()),
-                            Category_LV1),
-                            "LV2Order",
-                            SortOrder.Ascending
+                            Filter(
+                                Filter(
+                                    colCategoryGPT,
+                                    CategoryType = Blank()
+                                ),
+                                    Category_LV1
+                                ),
+                                "LV2Order",
+                                SortOrder.Ascending
+                            ),
+                            Category_LV1
+                        ),
+                    {Result: ThisRecord.Value}
+                )
+                */
+                
+                ForAll(
+                    Distinct(
+                        Filter(
+                            colCategoryGPT,
+                            CategoryType = Blank()
                         ),
                         Category_LV1
                     ),
@@ -293,7 +319,7 @@ Gpt_DeliveredContent As screen:
                         colCategoryGPT,
                         Category_LV1 = SelectedTopContent
                     ),
-                    "LV2Order",
+                    "Category_LV2",
                     SortOrder.Ascending
                 )
                 
