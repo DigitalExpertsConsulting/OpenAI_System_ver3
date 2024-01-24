@@ -1,16 +1,824 @@
 "'[Backup]TokenMenu' As screen":
-    Fill: =RGBA(245, 245, 245, 1)
-    LoadingSpinner: =LoadingSpinner.Data
-    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+  Fill: =RGBA(245, 245, 245, 1)
+  LoadingSpinner: =LoadingSpinner.Data
+  LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+  OnVisible: |-
+    =Concurrent(
+    Refresh(똑실이_Token_table);,
+    Set(CheckedID, Blank());,
+    Set(TokenAnswerPopup,false);
+    Set(TokenQuestionPopup,false);
+    Reset(TextInput_SearchQuestion_TokenMenu);,
+    Reset(DatePicker_SearchDateMin_TokenMenu);,
+    Reset(DatePicker_SearchDateMax_TokenMenu);,
+    UpdateContext({TokenVisible:false})
+    );
+
+  Button_Refresh_TokenMenu As button:
+    BorderColor: |-
+      =ColorValue("#D1D1D1")
+    BorderThickness: =1
+    Color: =RGBA(0, 0, 0, 1)
+    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+    DisabledColor: =RGBA(166, 166, 166, 1)
+    DisabledFill: =RGBA(244, 244, 244, 1)
+    Fill: |-
+      =ColorValue("#FFFFFF")
+    FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+    FocusedBorderThickness: =2
+    FontWeight: =FontWeight.Semibold
+    HoverBorderColor: |-
+      =ColorValue("#C7C7C7")
+    HoverColor: |-
+      =ColorValue("#242424")
+    HoverFill: |-
+      =ColorValue("#F5F5F5")
+    OnSelect: =Refresh(똑실이_Token_table)
+    PaddingLeft: =30
+    PressedBorderColor: |-
+      =ColorValue("#B3B3B3")
+    PressedColor: =Color.Black
+    PressedFill: |-
+      =ColorValue("#E0E0E0")
+    RadiusBottomLeft: =4
+    RadiusBottomRight: =4
+    RadiusTopLeft: =4
+    RadiusTopRight: =4
+    Size: =11
+    Text: ="새로고침"
+    Width: =121
+    X: =1759
+    Y: =41
+    ZIndex: =1
+
+  Rectangle_TokenGallery_TokenMenu As rectangle:
+    BorderColor: =RGBA(0, 0, 0, 1)
+    BorderStyle: =BorderStyle.None
+    BorderThickness: =2
+    DisabledFill: =RGBA(0, 0, 0, 0)
+    DisplayMode: =DisplayMode.View
+    Fill: =RGBA(255, 255, 255, 1)
+    FocusedBorderThickness: =4
+    Height: =820
+    HoverFill: =RGBA(255, 255, 255, 1)
+    PressedFill: =RGBA(255, 255, 255, 1)
+    Width: =1540
+    X: =340
+    Y: =220
+    ZIndex: =2
+
+  Label_TokenMenuTitle_TokenMenu As label:
+    BorderColor: =RGBA(0, 0, 0, 0)
+    BorderStyle: =BorderStyle.None
+    BorderThickness: =2
+    Color: =RGBA(51, 51, 51, 1)
+    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+    DisabledColor: =RGBA(166, 166, 166, 1)
+    FocusedBorderThickness: =4
+    FontWeight: =FontWeight.Bold
+    Height: =64
+    Size: =32
+    Text: ="[Backup] 토큰 관리"
+    Width: =691
+    X: =343
+    Y: =23
+    ZIndex: =3
+
+  ? "Gallery_TokenGallery_TokenMenu As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'"
+  : BorderColor: =RGBA(0, 18, 107, 1)
+    DelayItemLoading: =true
+    Height: =718
+    Items: |-
+      =Filter(
+          SortByColumns(
+              똑실이_Token_table,
+              "ID",
+              SortOrder.Descending
+          ),
+          (IsBlank(TextInput_SearchQuestion_TokenMenu.Text) || TextInput_SearchQuestion_TokenMenu.Text in Token_Question) &&
+          (Token_Date >= DatePicker_SearchDateMin_TokenMenu.SelectedDate) &&
+          (Token_Date <= DatePicker_SearchDateMax_TokenMenu.SelectedDate)
+      )
+    Layout: =Layout.Vertical
+    LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+    OnSelect: =Set(CheckedID, ThisItem.ID);
+    ShowScrollbar: =false
+    TemplatePadding: =0
+    TemplateSize: =65
+    Width: =1526
+    X: =343
+    Y: =291
+    ZIndex: =19
+
+    Separator_TokenGalleryBody_TokenMenu As rectangle:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      Fill: =RGBA(219, 219, 219, 1)
+      Height: =1
+      OnSelect: =Select(Parent)
+      Width: =1477
+      X: =38
+      Y: =64
+      ZIndex: =7
+
+    Label_TokenGalleryQusetion_TokenMenu As label:
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =//If(Label_QAGalleryQusetion_QALog.Text in BadWords_table.field_1,Color.Red,
+        RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: |-
+        =Select(Parent);
+        Set(TokenQuestionPopup , true);
+        UpdateContext({TokenVisible: true});
+      PaddingBottom: =10
+      PaddingLeft: =15
+      PaddingRight: =23
+      PaddingTop: =15
+      Size: =12
+      Text: =ThisItem.Token_Question
+      Tooltip: =ThisItem.Token_Question
+      VerticalAlign: =VerticalAlign.Top
+      Width: =320
+      Wrap: =false
+      X: =247
+      Y: =11
+      ZIndex: =8
+
+    Label_TokenGalleryAnswer_TokenMenu As label:
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: |-
+        =Set(TokenAnswerPopup , true);
+        Select(Parent);
+        UpdateContext({TokenVisible: true});
+      PaddingLeft: =15
+      PaddingTop: =25
+      Size: =12
+      Text: =ThisItem.Token_Answer
+      Tooltip: =ThisItem.Token_Answer
+      VerticalAlign: =VerticalAlign.Top
+      Width: =555
+      Wrap: =false
+      X: =545
+      ZIndex: =9
+
+    Label_TokenGalleryDate_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: =Select(Parent)
+      Size: =12
+      Text: =ThisItem.Token_Date
+      Width: =98
+      X: =1111
+      Y: =11
+      ZIndex: =10
+
+    Label_TokenGalleryName_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: =Select(Parent)
+      Size: =12
+      Text: |
+        =ThisItem.Token_Input
+      Width: =Label_Name_QALog.Width
+      X: =1240
+      Y: =11
+      ZIndex: =11
+
+    Label_TokenGalleryCopyCount_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: =Select(Parent)
+      Size: =12
+      Text: =ThisItem.Token_Output
+      Width: =51
+      X: =1353
+      Y: =11
+      ZIndex: =14
+
+    Label_TokenGalleryLikeCount_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Height: =45
+      OnSelect: =Select(Parent)
+      Size: =12
+      Text: =ThisItem.Token_Total
+      Width: =58
+      X: =1447
+      Y: =11
+      ZIndex: =15
+
+    Label_TokenGalleryCategory_TokenMenu As label:
+      BorderColor: =RGBA(0, 0, 0, 0)
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =2
+      Color: =RGBA(51, 51, 51, 1)
+      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      FocusedBorderThickness: =4
+      Font: =Font.'Segoe UI'
+      OnSelect: =Select(Parent)
+      PaddingBottom: =10
+      PaddingTop: =18
+      Size: =13
+      Text: |-
+        =If(!IsBlank(ThisItem.Category_LV1),
+            Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+            ""
+        )
+      Tooltip: |-
+        =If(!IsBlank(ThisItem.Category_LV1),
+            Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+            ""
+        )
+      Width: =210
+      Wrap: =false
+      X: =53
+      Y: =11
+      ZIndex: =16
+
+  Separator_TokenGalleryMain_TokenMenu As rectangle:
+    BorderColor: =RGBA(0, 0, 0, 1)
+    Fill: =RGBA(230, 230, 230, 1)
+    Height: =1
+    Width: =1477
+    X: =382
+    Y: =300
+    ZIndex: =20
+
+  New_Component_GNB_TokenMenu As New_Component_GNB:
+    ZIndex: =21
+
+  Background_Modal_TokenMenu As rectangle:
+    BorderColor: =RGBA(0, 0, 0, 0)
+    BorderStyle: =BorderStyle.None
+    BorderThickness: =2
+    DisabledFill: =
+    Fill: =RGBA(0, 0, 0, 0.2)
+    FocusedBorderThickness: =4
+    Height: =1080
+    HoverFill: =
+    PressedFill: =
+    Visible: =TokenVisible
+    Width: =1620
+    X: =300
+    ZIndex: =22
+
+  Image_Refresh_TokenMenu As image:
+    BorderColor: =RGBA(0, 0, 0, 0)
+    BorderStyle: =BorderStyle.None
+    BorderThickness: =2
+    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+    DisabledFill: =RGBA(0, 0, 0, 0)
+    FocusedBorderThickness: =4
+    Height: =20
+    HoverBorderColor: =RGBA(0, 0, 0, 0)
+    HoverFill: =RGBA(0, 0, 0, 0)
+    Image: =TokenMenuRefresh
+    OnSelect: =Select(Button_Refresh_TokenMenu)
+    PressedBorderColor: =RGBA(0, 0, 0, 0)
+    PressedFill: =RGBA(0, 0, 0, 0)
+    Width: =20
+    X: =1776
+    Y: =53
+    ZIndex: =23
+
+  Group_TokenGalleryHeader_TokenMenu As group:
+    Height: =5
+    Width: =5
+    X: =40
+    Y: =40
+    ZIndex: =32
+
+    Label_CopyCount_TokenMenu As label:
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      PaddingLeft: =15
+      Text: ="OUT"
+      Width: =85
+      X: =1688
+      Y: =256
+      ZIndex: =12
+
+    Label_Question_TokenMenu As label:
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      Text: ="질문"
+      Width: =60
+      X: =600
+      Y: =256
+      ZIndex: =13
+
+    Label_Category_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      Text: ="카테고리"
+      Width: =95
+      X: =390
+      Y: =256
+      ZIndex: =14
+
+    Label_Answer_TokenMenu As label:
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      PaddingLeft: =15
+      Text: ="답변"
+      Width: =85
+      X: =890
+      Y: =256
+      ZIndex: =15
+
+    Label_Date_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      Text: ="작성일"
+      Width: =85
+      X: =1461
+      Y: =256
+      ZIndex: =16
+
+    Label_Name_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      Text: ="IN"
+      Width: =85
+      X: =1580
+      Y: =256
+      ZIndex: =17
+
+    Label_Like_TokenMenu As label:
+      Align: =Align.Center
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =1
+      Color: |-
+        =ColorValue("#BDBDBD")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =32
+      Text: ="TOTAL"
+      Width: =85
+      X: =1778
+      Y: =256
+      ZIndex: =18
+
+  Group_QuestionPopup_TokenMenu As group:
+    Height: =5
+    Width: =5
+    X: =40
+    Y: =40
+    ZIndex: =42
+
+    Button_QuestionPopup_TokenMenu As button:
+      BorderColor: =RGBA(230, 230, 230, 1)
+      BorderThickness: =1
+      DisabledBorderColor: |-
+        =ColorValue("#D1D1D1")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: |-
+        =ColorValue("#FFFFFF")
+      DisplayMode: =DisplayMode.Disabled
+      Fill: =RGBA(105, 121, 126, 1)
+      FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Semibold
+      Height: =707
+      HoverBorderColor: =RGBA(0, 0, 0, 0)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+      PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+      PressedColor: =RGBA(255, 255, 255, 1)
+      PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+      RadiusBottomLeft: =8
+      RadiusBottomRight: =8
+      RadiusTopLeft: =8
+      RadiusTopRight: =8
+      Size: =15
+      Text: =""
+      Visible: =TokenQuestionPopup
+      Width: =634
+      X: =700
+      Y: =244
+      ZIndex: =24
+
+    Gallery_QuestionPopup_TokenMenu As gallery.galleryVertical:
+      BorderColor: |-
+        =ColorValue("#D1D1D1")
+      BorderThickness: =1
+      DelayItemLoading: =true
+      Fill: |-
+        =ColorValue("#FFFFFF")
+      Height: =616
+      Items: =Filter(똑실이_Token_table, ID= CheckedID)
+      Layout: =Layout.Vertical
+      LoadingSpinner: =LoadingSpinner.Data
+      TemplateSize: =566
+      Visible: =TokenQuestionPopup
+      Width: =583
+      X: =725
+      Y: =308
+      ZIndex: =25
+
+      Label_QuestionPopup_TokenMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =534
+        OnSelect: =Select(Parent)
+        Overflow: =Overflow.Scroll
+        Size: =13
+        Text: =ThisItem.Token_Question
+        Width: =517
+        X: =12
+        Y: =15
+        ZIndex: =1
+
+    Label_QuestionPopupTitle_TokenMenu As label:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      FontWeight: =FontWeight.Bold
+      Height: =45
+      PaddingBottom: =0
+      PaddingLeft: =0
+      PaddingRight: =0
+      PaddingTop: =0
+      Size: =16
+      Text: ="질문"
+      Visible: =TokenQuestionPopup
+      Width: =213
+      X: =730
+      Y: =258
+      ZIndex: =26
+
+    Icon_QuestionPopupClose_TokenMenu As icon.Cancel:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(244, 244, 244, 1)
+      Height: =20
+      Icon: =Icon.Cancel
+      OnSelect: |-
+        =Set(TokenQuestionPopup,false);
+        Set(CheckedID, Blank());
+        UpdateContext({TokenVisible: false});
+      Visible: =TokenQuestionPopup
+      Width: =21
+      X: =1289
+      Y: =272
+      ZIndex: =27
+
+  Group_AnswerPopup_TokenMenu As group:
+    Height: =5
+    Width: =5
+    X: =20
+    Y: =20
+    ZIndex: =47
+
+    Button_AnswerPopup_TokenMenu As button:
+      BorderColor: =RGBA(230, 230, 230, 1)
+      BorderThickness: =1
+      DisabledBorderColor: |-
+        =ColorValue("#D1D1D1")
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: |-
+        =ColorValue("#FFFFFF")
+      DisplayMode: =DisplayMode.Disabled
+      Fill: =RGBA(105, 121, 126, 1)
+      FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Semibold
+      Height: =699
+      HoverBorderColor: =RGBA(0, 0, 0, 0)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+      PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+      PressedColor: =RGBA(255, 255, 255, 1)
+      PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+      RadiusBottomLeft: =8
+      RadiusBottomRight: =8
+      RadiusTopLeft: =8
+      RadiusTopRight: =8
+      Size: =15
+      Text: =""
+      Visible: =TokenAnswerPopup
+      Width: =634
+      X: =700
+      Y: =258
+      ZIndex: =28
+
+    Gallery_AnswerPopup_TokenMenu As gallery.galleryVertical:
+      BorderColor: |-
+        =ColorValue("#D1D1D1")
+      BorderThickness: =1
+      DelayItemLoading: =true
+      Fill: |-
+        =ColorValue("#FFFFFF")
+      Height: =609
+      Items: =Filter(똑실이_Token_table, ID= CheckedID)
+      Layout: =Layout.Vertical
+      LoadingSpinner: =LoadingSpinner.Data
+      TemplateSize: =566
+      Visible: =TokenAnswerPopup
+      Width: =583
+      X: =725
+      Y: =322
+      ZIndex: =29
+
+      Label_AnswerPopup_TokenMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =534
+        OnSelect: =Select(Parent)
+        Overflow: =Overflow.Scroll
+        Size: =13
+        Text: =ThisItem.Token_Answer
+        Width: =517
+        X: =12
+        Y: =15
+        ZIndex: =1
+
+    Label_AnswerPopupTitle_TokenMenu As label:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      FontWeight: =FontWeight.Bold
+      PaddingBottom: =0
+      PaddingLeft: =0
+      PaddingRight: =0
+      PaddingTop: =0
+      Size: =16
+      Text: ="답변"
+      Visible: =TokenAnswerPopup
+      Width: =213
+      X: =730
+      Y: =277
+      ZIndex: =30
+
+    Icon_AnswerPopup_TokenMenu As icon.Cancel:
+      BorderColor: =RGBA(0, 18, 107, 1)
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(244, 244, 244, 1)
+      Height: =21
+      Icon: =Icon.Cancel
+      OnSelect: |-
+        =Set(TokenAnswerPopup,false);
+        Set(CheckedID, Blank());
+        UpdateContext({TokenVisible: false});
+      Visible: =TokenAnswerPopup
+      Width: =21
+      X: =1289
+      Y: =285
+      ZIndex: =31
+
+  Group_SherchQAGallery_TokenMenu As group:
+    Height: =5
+    Width: =5
+    X: =-300
+    Y: =-84
+    ZIndex: =61
+
+    Rectangle_QAGallerySherch_TokenMenu As rectangle:
+      BorderColor: =RGBA(0, 0, 0, 0)
+      BorderThickness: =2
+      DisabledFill: =RGBA(255, 255, 255, 1)
+      DisplayMode: =DisplayMode.View
+      Fill: =RGBA(255, 255, 255, 1)
+      FocusedBorderThickness: =4
+      Height: =80
+      HoverFill: =RGBA(255, 255, 255, 1)
+      PressedFill: =RGBA(255, 255, 255, 1)
+      Width: =1540
+      X: =340
+      Y: =124
+      ZIndex: =4
+
+    DatePicker_SearchDateMin_TokenMenu As datepicker:
+      BorderColor: =RGBA(221, 221, 221, 1)
+      CalendarHeaderFill: =RGBA(56, 96, 178, 1)
+      Color: =RGBA(0, 0, 0, 1)
+      DefaultDate: =Today() - 7
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: =RGBA(244, 244, 244, 1)
+      Fill: =Color.White
+      Font: =Font.'Segoe UI'
+      Format: ="yyyy년 mm월 dd일"
+      Height: =32
+      HoverDateFill: =RGBA(186, 202, 226, 1)
+      IconBackground: =RGBA(0,0,0,0)
+      IconFill: =RGBA(51,51,51,1)
+      SelectedDateFill: =RGBA(56, 96, 178, 1)
+      Size: =12
+      Width: =180
+      X: =825
+      Y: =Label_Questionlabel_TokenMenu.Y
+      ZIndex: =5
+
+    DatePicker_SearchDateMax_TokenMenu As datepicker:
+      BorderColor: =RGBA(221, 221, 221, 1)
+      CalendarHeaderFill: =RGBA(56, 96, 178, 1)
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: =RGBA(244, 244, 244, 1)
+      Fill: =Color.White
+      Font: =Font.'Segoe UI'
+      Format: ="yyyy년 mm월 dd일"
+      Height: =32
+      HoverDateFill: =RGBA(186, 202, 226, 1)
+      IconBackground: =RGBA(0,0,0,0)
+      IconFill: =RGBA(51,51,51,1)
+      SelectedDateFill: =RGBA(56, 96, 178, 1)
+      Size: =12
+      Visible: |
+        =true
+      Width: =180
+      X: =1044
+      Y: =147
+      ZIndex: =6
+
+    Label_SearchDate_TokenMenu As label:
+      Align: =Align.Center
+      BorderColor: =RGBA(0, 18, 107, 1)
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      Font: =Font.'Segoe UI'
+      Height: =47
+      PaddingLeft: =0
+      PaddingRight: =0
+      Text: ="~"
+      Width: =43
+      X: =1001
+      Y: =139
+      ZIndex: =7
+
+    TextInput_SearchQuestion_TokenMenu As text:
+      BorderColor: =RGBA(230, 230, 230, 1)
+      BorderThickness: =2
+      Color: =RGBA(0, 0, 0, 1)
+      Default: =""
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: =RGBA(244, 244, 244, 1)
+      FocusedBorderThickness: =2
+      Height: =32
+      HintText: ="내용을 입력하세요."
+      HoverBorderColor: =RGBA(0, 0, 0, 1)
+      HoverColor: =RGBA(0, 0, 0, 1)
+      HoverFill: =RGBA(255, 255, 255, 1)
+      PressedColor: =
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      Size: =12
+      Width: =300
+      X: =437
+      Y: =148
+      ZIndex: =8
+
+    Button_SerchRefresh_TokenMenu As button:
+      BorderColor: =RGBA(230, 230, 230, 1)
+      BorderThickness: =1
+      Color: =RGBA(0, 0, 0, 1)
+      DisabledBorderColor: =RGBA(166, 166, 166, 1)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      DisabledFill: =RGBA(244, 244, 244, 1)
+      Fill: =RGBA(255, 255, 255, 1)
+      FocusedBorderColor: |-
+        =ColorValue("#B3B3B3")
+      FocusedBorderThickness: =2
+      FontWeight: =FontWeight.Semibold
+      Height: =32
+      HoverBorderColor: |-
+        =ColorValue("#C7C7C7")
+      HoverColor: =RGBA(0, 0, 0, 1)
+      HoverFill: |-
+        =ColorValue("#F5F5F5")
+      OnSelect: |-
         =Concurrent(
-        Refresh(똑실이_Token_table);,
-        Set(CheckedID, Blank());,
-        Set(TokenAnswerPopup,false);
-        Set(TokenQuestionPopup,false);
         Reset(TextInput_SearchQuestion_TokenMenu);,
         Reset(DatePicker_SearchDateMin_TokenMenu);,
-        Reset(DatePicker_SearchDateMax_TokenMenu);,
-        UpdateContext({TokenVisible:false})
+        Reset(DatePicker_SearchDateMax_TokenMenu);
         );
+      PressedBorderColor: |-
+        =ColorValue("#B3B3B3")
+      PressedColor: =RGBA(0, 0, 0, 1)
+      PressedFill: |-
+        =ColorValue("#E0E0E0")
+      RadiusBottomLeft: =4
+      RadiusBottomRight: =4
+      RadiusTopLeft: =4
+      RadiusTopRight: =4
+      Size: =12
+      Text: ="초기화"
+      Width: =68
+      X: =1790
+      Y: |-
+        =//Label_Questionlabel_TokenMenu.Y
+        148
+      ZIndex: =9
 
+    Label_Questionlabel_TokenMenu As label:
+      BorderColor: =RGBA(0, 0, 0, 0)
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =2
+      Color: =RGBA(51, 51, 51, 1)
+      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      FocusedBorderThickness: =4
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Semibold
+      Height: =33
+      Text: ="질문"
+      Width: =52
+      X: =374
+      Y: =147
+      ZIndex: =10
+
+    Label_Datelabel_TokenMenu As label:
+      BorderColor: =RGBA(0, 0, 0, 0)
+      BorderStyle: =BorderStyle.None
+      BorderThickness: =2
+      Color: =RGBA(51, 51, 51, 1)
+      DisabledBorderColor: =RGBA(0, 0, 0, 0)
+      DisabledColor: =RGBA(166, 166, 166, 1)
+      FocusedBorderThickness: =4
+      Font: =Font.'Segoe UI'
+      FontWeight: =FontWeight.Semibold
+      Height: =33
+      Text: ="기간"
+      Width: =52
+      X: =770
+      Y: =147
+      ZIndex: =11
