@@ -322,14 +322,7 @@ AIGraph_DEV_1 As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         Size: =13
-        Text: |-
-            =CountRows(If(
-                AppsBIAxis.Value = "GPT 버전" And Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
-                If(
-                    !IsBlank(AIGraphTokenDailyUsage),
-                    AIGraphTokenDailyXAxis
-                )
-            ))
+        Text: =Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
         X: =1770
         Y: =1040
         ZIndex: =2
@@ -739,25 +732,17 @@ AIGraph_DEV_1 As screen:
                         AIGraphTokenMonthlyUsage,
                         (
                             YearMonth >= 
-                            If(
-                                DatePickerSetting = false,
-                                Switch(
-                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                        "6개월",
-                                    DateAdd(Today(),-6,TimeUnit.Months),
-                                        "1년",
-                                    DateAdd(Today(),-12,TimeUnit.Months)
-                                ),
-                                DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                            Switch(
+                                Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                    "6개월",
+                                Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                    "1년",
+                                Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
                             )
                         ) &&
                         (
                             YearMonth <= 
-                                If(
-                                DatePickerSetting = false,
-                                DateAdd(Today(),-0,TimeUnit.Months),
-                                DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                            )
+                                DateAdd(Today(),-0,TimeUnit.Months)
                         ),YearMonth_ <> Blank()
                     )
                 )
@@ -842,13 +827,15 @@ AIGraph_DEV_1 As screen:
                 If(
                     !IsBlank(AIGraphTokenDailyUsage),
                     AIGraphTokenDailyXAxis
-                )
+                ),
+                Blank()
             )
         LoadingSpinner: =LoadingSpinner.Data
+        ShowNavigation: =true
         TemplatePadding: =0
         TemplateSize: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsBlank(AIGraphTokenDailyUsage),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphTokenDailyUsage)),
                 If(
                     CountRows(
                         If(
@@ -931,8 +918,8 @@ AIGraph_DEV_1 As screen:
                                 )
                             ) / Max(AIGraphTokenDailyUsage,Token_Total)
                         ) * (Parent.Height - DateLabel_BarChart_Daily_AIGraph_DEV_GPTv_1.Height)
-                    ),
-                    If(
+                    ), Blank()
+                /*    If(
                         Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
                         (Parent.Height - DateLabel_BarChart_Daily_AIGraph_DEV_GPTv_1.Height) - (
                             (
@@ -944,13 +931,18 @@ AIGraph_DEV_1 As screen:
                                 )
                             ) / Max(AIGraphTokenDailyUsage,Token_Total)
                         ) * (Parent.Height - DateLabel_BarChart_Daily_AIGraph_DEV_GPTv_1.Height)
-                    )
+                    )*/
                 )
             HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
             PressedFill: =RGBA(105, 121, 126, 1)
             Width: =Parent.TemplateWidth - Self.X*2
-            X: =Parent.TemplateWidth/10/CountRows(chatBotVersionList)
+            X: |-
+                =If(
+                    !IsError(Parent.TemplateWidth/10/CountRows(chatBotVersionList)),
+                    Parent.TemplateWidth/10/CountRows(chatBotVersionList),
+                    0
+                )
             Y: =Parent.Height - DateLabel_BarChart_Daily_AIGraph_DEV_GPTv_1.Height - Self.Height
             ZIndex: =2
 
@@ -997,7 +989,12 @@ AIGraph_DEV_1 As screen:
             Width: |-
                 =//30/CountRows(chatBotVersionList)
                 (Parent.TemplateWidth - Self.X*2*CountRows(chatBotVersionList))/CountRows(chatBotVersionList)
-            X: =Parent.TemplateWidth/10/CountRows(chatBotVersionList)
+            X: |-
+                =If(
+                    !IsError(Parent.TemplateWidth/10/CountRows(chatBotVersionList)),
+                    Parent.TemplateWidth/10/CountRows(chatBotVersionList),
+                    0
+                )
             Y: =Parent.Height - DateLabel_BarChart_Daily_AIGraph_DEV_GPTv_1.Height - Self.Height
             ZIndex: =3
 
