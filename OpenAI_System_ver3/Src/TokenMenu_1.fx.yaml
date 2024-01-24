@@ -8,13 +8,13 @@ TokenMenu_1 As screen:
             locLoadingSpinner: true,
             tokenSearchTimerStart: false
         });
-
+        
         // 토큰 검색 Stack 변수 초기화
         Concurrent(
             ClearCollect(tokenSearchStack_1, []),
             ClearCollect(tokenSearchResult_1, [])
         );
-
+        
         // 기타 초기화작업
         Concurrent(
             Refresh(똑실이_Token_table);,
@@ -28,7 +28,7 @@ TokenMenu_1 As screen:
             Reset(Dropdown_SearchCategoryLv2_TokenMenu_1);,
             UpdateContext({tokenVisible:false})
         );
-
+        
         // 검색 필터에 적용되는 Category 전체 목록 가져오기
         ClearCollect(
             colCategoryAdmin,
@@ -47,7 +47,7 @@ TokenMenu_1 As screen:
             SortOrder.Ascending
             )
         );
-
+        
         // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (default, 빈칸만)
         ClearCollect(
             colCategoryAdmin,
@@ -56,7 +56,7 @@ TokenMenu_1 As screen:
                 CategoryType = "default" || CategoryType = Blank()
             )
         );
-
+        
         // 검색 필터에 적용되는 CategoryLV2 목록 가져오기 (정렬 조건이 달라야함)
         ClearCollect(
             colCategoryLv2Admin,
@@ -67,9 +67,9 @@ TokenMenu_1 As screen:
                 SortOrder.Ascending
             )
         );
-
+        
         Select(ResetFileSearchButton_TokenMenu_1);
-
+        
         UpdateContext({locLoadingSpinner:false});
 
     Button_Refresh_TokenMenu_1 As button:
@@ -96,7 +96,7 @@ TokenMenu_1 As screen:
                 locLoadingSpinner: true,
                 tokenSearchTimerStart: false
             });
-
+            
             Reset(FileSearchTimer_TokenMenu_1);
             UpdateContext({tokenSearchTimerStart: true});
         PaddingLeft: =30
@@ -166,182 +166,182 @@ TokenMenu_1 As screen:
         Y: =147
         ZIndex: =17
 
-    ? "Gallery_TokenGallery_TokenMenu_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'"
-    : BorderColor: =RGBA(0, 18, 107, 1)
-      DelayItemLoading: =true
-      Height: =640
-      Items: |-
-          =/*Filter(
-              SortByColumns(
-                  똑실이_Token_table,
-                  "ID",
-                  SortOrder.Descending
-              ),
-              (IsBlank(TextInput_SearchQuestion_TokenMenu_1.Text) || TextInput_SearchQuestion_TokenMenu_1.Text in Token_Question) &&
-              (Token_Date >= DatePicker_SearchDateMin_TokenMenu_1.SelectedDate) &&
-              (Token_Date <= DatePicker_SearchDateMax_TokenMenu_1.SelectedDate)
-          )*/
+    "Gallery_TokenGallery_TokenMenu_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        BorderColor: =RGBA(0, 18, 107, 1)
+        DelayItemLoading: =true
+        Height: =640
+        Items: |-
+            =/*Filter(
+                SortByColumns(
+                    똑실이_Token_table,
+                    "ID",
+                    SortOrder.Descending
+                ),
+                (IsBlank(TextInput_SearchQuestion_TokenMenu_1.Text) || TextInput_SearchQuestion_TokenMenu_1.Text in Token_Question) &&
+                (Token_Date >= DatePicker_SearchDateMin_TokenMenu_1.SelectedDate) &&
+                (Token_Date <= DatePicker_SearchDateMax_TokenMenu_1.SelectedDate)
+            )*/
+            
+            tokenSearchResult_1
+        Layout: =Layout.Vertical
+        LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+        OnSelect: |-
+            =//false
+            UpdateContext({tokenCheckedID: ThisItem.ID});
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =65
+        Width: =1526
+        X: =343
+        Y: =291
+        ZIndex: =25
 
-          tokenSearchResult_1
-      Layout: =Layout.Vertical
-      LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
-      OnSelect: |-
-          =//false
-          UpdateContext({tokenCheckedID: ThisItem.ID});
-      ShowScrollbar: =false
-      TemplatePadding: =0
-      TemplateSize: =65
-      Width: =1526
-      X: =343
-      Y: =291
-      ZIndex: =25
+        Separator_TokenGalleryBody_TokenMenu_1 As rectangle:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(219, 219, 219, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =1477
+            X: =38
+            Y: =64
+            ZIndex: =7
 
-      Separator_TokenGalleryBody_TokenMenu_1 As rectangle:
-          BorderColor: =RGBA(0, 18, 107, 1)
-          Fill: =RGBA(219, 219, 219, 1)
-          Height: =1
-          OnSelect: =Select(Parent)
-          Width: =1477
-          X: =38
-          Y: =64
-          ZIndex: =7
+        Label_TokenGalleryQusetion_TokenMenu_1 As label:
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: |-
+                =//If(Label_QAGalleryQusetion_QALog.Text in BadWords_table.field_1,Color.Red,
+                RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: |-
+                =Select(Parent);
+                UpdateContext({tokenQuestionPopup: true});
+                UpdateContext({tokenVisible: true});
+            PaddingBottom: =10
+            PaddingLeft: =15
+            PaddingRight: =23
+            PaddingTop: =15
+            Size: =12
+            Text: =ThisItem.Token_Question
+            Tooltip: =ThisItem.Token_Question
+            VerticalAlign: =VerticalAlign.Top
+            Width: =320
+            Wrap: =false
+            X: =247
+            Y: =11
+            ZIndex: =8
 
-      Label_TokenGalleryQusetion_TokenMenu_1 As label:
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: |-
-              =//If(Label_QAGalleryQusetion_QALog.Text in BadWords_table.field_1,Color.Red,
-              RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: |-
-              =Select(Parent);
-              UpdateContext({tokenQuestionPopup: true});
-              UpdateContext({tokenVisible: true});
-          PaddingBottom: =10
-          PaddingLeft: =15
-          PaddingRight: =23
-          PaddingTop: =15
-          Size: =12
-          Text: =ThisItem.Token_Question
-          Tooltip: =ThisItem.Token_Question
-          VerticalAlign: =VerticalAlign.Top
-          Width: =320
-          Wrap: =false
-          X: =247
-          Y: =11
-          ZIndex: =8
+        Label_TokenGalleryAnswer_TokenMenu_1 As label:
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: |-
+                =UpdateContext({tokenAnswerPopup: true});
+                Select(Parent);
+                UpdateContext({tokenVisible: true});
+            PaddingLeft: =15
+            PaddingTop: =25
+            Size: =12
+            Text: =ThisItem.Token_Answer
+            Tooltip: =ThisItem.Token_Answer
+            VerticalAlign: =VerticalAlign.Top
+            Width: =555
+            Wrap: =false
+            X: =545
+            ZIndex: =9
 
-      Label_TokenGalleryAnswer_TokenMenu_1 As label:
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: =RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: |-
-              =UpdateContext({tokenAnswerPopup: true});
-              Select(Parent);
-              UpdateContext({tokenVisible: true});
-          PaddingLeft: =15
-          PaddingTop: =25
-          Size: =12
-          Text: =ThisItem.Token_Answer
-          Tooltip: =ThisItem.Token_Answer
-          VerticalAlign: =VerticalAlign.Top
-          Width: =555
-          Wrap: =false
-          X: =545
-          ZIndex: =9
+        Label_TokenGalleryDate_TokenMenu_1 As label:
+            Align: =Align.Center
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: =Select(Parent)
+            Size: =12
+            Text: =ThisItem.Token_Date
+            Width: =98
+            X: =1111
+            Y: =11
+            ZIndex: =10
 
-      Label_TokenGalleryDate_TokenMenu_1 As label:
-          Align: =Align.Center
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: =RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: =Select(Parent)
-          Size: =12
-          Text: =ThisItem.Token_Date
-          Width: =98
-          X: =1111
-          Y: =11
-          ZIndex: =10
+        Label_TokenGalleryName_TokenMenu_1 As label:
+            Align: =Align.Center
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: =Select(Parent)
+            Size: =12
+            Text: |
+                =ThisItem.Token_Input
+            Width: =Label_Name_QALog.Width
+            X: =1240
+            Y: =11
+            ZIndex: =11
 
-      Label_TokenGalleryName_TokenMenu_1 As label:
-          Align: =Align.Center
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: =RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: =Select(Parent)
-          Size: =12
-          Text: |
-              =ThisItem.Token_Input
-          Width: =Label_Name_QALog.Width
-          X: =1240
-          Y: =11
-          ZIndex: =11
+        Label_TokenGalleryCopyCount_TokenMenu_1 As label:
+            Align: =Align.Center
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: =Select(Parent)
+            Size: =12
+            Text: =ThisItem.Token_Output
+            Width: =51
+            X: =1353
+            Y: =11
+            ZIndex: =14
 
-      Label_TokenGalleryCopyCount_TokenMenu_1 As label:
-          Align: =Align.Center
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: =RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: =Select(Parent)
-          Size: =12
-          Text: =ThisItem.Token_Output
-          Width: =51
-          X: =1353
-          Y: =11
-          ZIndex: =14
+        Label_TokenGalleryLikeCount_TokenMenu_1 As label:
+            Align: =Align.Center
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Height: =45
+            OnSelect: =Select(Parent)
+            Size: =12
+            Text: =ThisItem.Token_Total
+            Width: =58
+            X: =1447
+            Y: =11
+            ZIndex: =15
 
-      Label_TokenGalleryLikeCount_TokenMenu_1 As label:
-          Align: =Align.Center
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =1
-          Color: =RGBA(0, 0, 0, 1)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          Height: =45
-          OnSelect: =Select(Parent)
-          Size: =12
-          Text: =ThisItem.Token_Total
-          Width: =58
-          X: =1447
-          Y: =11
-          ZIndex: =15
-
-      Label_TokenGalleryCategory_TokenMenu_1 As label:
-          BorderColor: =RGBA(0, 0, 0, 0)
-          BorderStyle: =BorderStyle.None
-          BorderThickness: =2
-          Color: =RGBA(51, 51, 51, 1)
-          DisabledBorderColor: =RGBA(0, 0, 0, 0)
-          DisabledColor: =RGBA(166, 166, 166, 1)
-          FocusedBorderThickness: =4
-          Font: =Font.'Segoe UI'
-          OnSelect: =Select(Parent);
-          PaddingBottom: =10
-          PaddingTop: =18
-          Size: =13
-          Text: |-
-              =If(!IsBlank(ThisItem.Category_LV1),
-                  Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
-                  ""
-              )
-          Tooltip: |-
-              =If(!IsBlank(ThisItem.Category_LV1),
-                  Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
-                  ""
-              )
-          Width: =210
-          Wrap: =false
-          X: =53
-          Y: =11
-          ZIndex: =16
+        Label_TokenGalleryCategory_TokenMenu_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent);
+            PaddingBottom: =10
+            PaddingTop: =18
+            Size: =13
+            Text: |-
+                =If(!IsBlank(ThisItem.Category_LV1),
+                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+                    ""
+                )
+            Tooltip: |-
+                =If(!IsBlank(ThisItem.Category_LV1),
+                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+                    ""
+                )
+            Width: =210
+            Wrap: =false
+            X: =53
+            Y: =11
+            ZIndex: =16
 
     Separator_TokenGalleryMain_TokenMenu_1 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
@@ -380,17 +380,17 @@ TokenMenu_1 As screen:
                 Remove(tokenSearchStack_1, Last(tokenSearchStack_1)),
                 false
             );
-
-
+            
+            
             UpdateContext({
                 tokenSearchLastId: Coalesce(Last(tokenSearchStack_1).Value, 0)
             });
-
-
+            
+            
             UpdateContext({
                 locLoadingSpinner: true
             });
-
+            
             Select(Button_Refresh_TokenMenu_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
@@ -432,11 +432,11 @@ TokenMenu_1 As screen:
                 Collect(tokenSearchStack_1, Coalesce(Last(tokenSearchResult_1).ID, 0)),
                 false
             );
-
+            
             UpdateContext({
                 tokenSearchLastId: Coalesce(Last(tokenSearchResult_1).ID, 0)
             });
-
+            
             Select(Button_Refresh_TokenMenu_1);
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =Color.Black
@@ -646,25 +646,25 @@ TokenMenu_1 As screen:
                 ClearCollect(tokenSearchStack_1, []),
                 ClearCollect(tokenSearchResult_1, [])
             );
-
+            
             UpdateContext({
                 tokenSearchLastId: 0,
                 tokenSearchTimerStart: false
             });
-
+            
             Reset(FileSearchTimer_TokenMenu_1);
-
+            
             UpdateContext({
                 tokenSearchTimerStart: true
             });
-
+            
             /*
             // 토큰 검색 Stack 변수 초기화
             Concurrent(
                 ClearCollect(tokenSearchStack_1, []),
                 ClearCollect(tokenSearchResult_1, [])
             );
-
+            
             // 기타 초기화작업
             Concurrent(
                 Refresh(똑실이_Token_table);,
@@ -710,8 +710,8 @@ TokenMenu_1 As screen:
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnTimerStart: |+
             =
-
-
+            
+            
             UpdateContext({
                 tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
                     If(
@@ -742,7 +742,7 @@ TokenMenu_1 As screen:
                     number: Coalesce(tokenSearchLastId, 0)
                 }).result_json
             });
-
+            
             /*
             ClearCollect(
                 FileSearchResult_FM_1,
@@ -760,7 +760,7 @@ TokenMenu_1 As screen:
                 )
             );
             */
-
+            
             ClearCollect(
                 tokenSearchResult_1,
                 ForAll(
@@ -779,11 +779,11 @@ TokenMenu_1 As screen:
                     }
                 )
             );
-
+            
             UpdateContext({ 
                 locLoadingSpinner: false
             });
-
+            
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1347,3 +1347,4 @@ TokenMenu_1 As screen:
             X: =1289
             Y: =285
             ZIndex: =39
+
