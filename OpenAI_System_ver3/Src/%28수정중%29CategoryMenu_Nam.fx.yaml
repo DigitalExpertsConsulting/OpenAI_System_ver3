@@ -1419,12 +1419,15 @@
             PaddingLeft: =10
             Size: =12
             Text: |
-                =If(
-                    CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) = 0 || IsBlank(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams),
+                =With({ Teams_Search : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams},
+                
+                If(
+                    CountRows(Teams_Search) = 0 || IsBlank(Teams_Search),
                     "팀을 할당해 주세요",
-                    CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) > 1,
-                    First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName & " 외" & " " &  CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) - 1,
-                    First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName
+                    CountRows(Teams_Search) > 1,
+                    First(Teams_Search).DisplayName & " 외" & " " &  CountRows(Teams_Search) - 1,
+                    First(Teams_Search).DisplayName
+                )
                 )
                 //LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams//확인필요
                 
@@ -1578,12 +1581,14 @@
             OnSelect: =
             PaddingLeft: =10
             Size: =12
-            Text: |-
-                =If(CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) = 0 || IsBlank(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users),
-                "인원을 할당해 주세요", CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) > 1,
-                First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName & " 외" & CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users)-1 & " 명",
-                First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName)
-                //LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams //확인필요
+            Text: |
+                =With({Users_Search: LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
+                
+                If(CountRows(Users_Search) = 0 || IsBlank(Users_Search),
+                "인원을 할당해 주세요", CountRows(Users_Search) > 1,
+                First(Users_Search).DisplayName & " 외" & CountRows(Users_Search)-1 & " 명",
+                First(Users_Search).DisplayName)
+                )
             Width: =190
             Wrap: =false
             X: =660
@@ -4918,7 +4923,9 @@
         ZIndex: =90
 
     Sub_add_Popup As 버튼:
+        BasePaletteColor: =
         DisplayMode: =DisplayMode.Edit
+        FontColor: =
         Height: =32
         Width: =96
         X: =948
