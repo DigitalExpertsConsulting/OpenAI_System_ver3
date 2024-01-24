@@ -3,6 +3,7 @@ Gpt_DeliveredContent As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |-
         =Reset(Gallery_Top_Content);
+        UpdateContext({locLoadingSpinner: true});
         
         // GPT 제공 컨텐츠 화면 조회(카테고리 목록 조회)
         ClearCollect(
@@ -38,6 +39,8 @@ Gpt_DeliveredContent As screen:
                 SelectedTopContent:First(colCategoryGPT).Category_LV1
             }
         );
+        
+        UpdateContext({locLoadingSpinner: false});
 
     Label_ContentsMain_GPT_DeliveredContent As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -193,7 +196,7 @@ Gpt_DeliveredContent As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
             Height: =796
-            Items: |
+            Items: |-
                 =// colCategoryGPT([PA에서 받은값 컬렉션]에서 LV2Order 추출, 정렬 후 중복값 제거
                 
                 /*
@@ -216,16 +219,14 @@ Gpt_DeliveredContent As screen:
                 )
                 */
                 
-                ForAll(
+                
                     Distinct(
                         Filter(
                             colCategoryGPT,
                             CategoryType = Blank()
                         ),
                         Category_LV1
-                    ),
-                    {Result: ThisRecord.Value}
-                )
+                    )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
@@ -242,7 +243,7 @@ Gpt_DeliveredContent As screen:
                 BorderColor: |-
                     =//RGBA(189, 189, 189, 1)
                     If(
-                        SelectedTopContent = Text(ThisItem.Result),
+                        SelectedTopContent = Text(ThisItem.Value),
                         RGBA(15, 108, 189, 1),
                         RGBA(189, 189, 189, 1)
                     )
@@ -254,7 +255,7 @@ Gpt_DeliveredContent As screen:
                 Fill: |-
                     =//RGBA(255, 255, 255, 1)
                     If(
-                        SelectedTopContent = Text(ThisItem.Result),
+                        SelectedTopContent = Text(ThisItem.Value),
                         RGBA(235, 243, 252, 1),
                         RGBA(255, 255, 255, 1)
                     )
@@ -263,7 +264,7 @@ Gpt_DeliveredContent As screen:
                 Font: =Font.'Segoe UI'
                 FontWeight: |-
                     =If(
-                        SelectedTopContent = Text(ThisItem.Result),
+                        SelectedTopContent = Text(ThisItem.Value),
                         FontWeight.Semibold,
                         FontWeight.Normal
                     )
@@ -274,7 +275,7 @@ Gpt_DeliveredContent As screen:
                 OnSelect: |-
                     =//Select(Parent)
                     UpdateContext(
-                        {SelectedTopContent:ThisItem.Result}
+                        {SelectedTopContent:ThisItem.Value}
                     );
                 PaddingLeft: =15
                 PressedBorderColor: =//RGBA(15, 108, 189, 1)
@@ -285,11 +286,28 @@ Gpt_DeliveredContent As screen:
                 RadiusTopLeft: =8
                 RadiusTopRight: =8
                 Size: =15
-                Text: =Text(ThisItem.Result)
+                Text: =ThisItem.Value
                 Width: =444
                 X: =20
                 Y: =20
                 ZIndex: =1
+
+    Image_LoadingSpinner_FM_3 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =977
+        Y: =474
+        ZIndex: =17
 
     Group_Sub_Content As group:
         Height: =5
