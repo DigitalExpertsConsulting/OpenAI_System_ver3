@@ -1,0 +1,74 @@
+TokenMenu_1 As screen:
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =// 로딩 이미지 및 타이머 초기화
+        UpdateContext({
+            locLoadingSpinner: true,
+            tokenSearchTimerStart: false
+        });
+        
+        // 토큰 검색 Stack 변수 초기화
+        Concurrent(
+            ClearCollect(tokenSearchStack_1, []),
+            ClearCollect(tokenSearchResult_1, [])
+        );
+        
+        // 기타 초기화작업
+        Concurrent(
+            Refresh(똑실이_Token_table);,
+            UpdateContext({tokenCheckedID:Blank()});,
+            UpdateContext({tokenAnswerPopup:false});,
+            UpdateContext({tokenQuestionPopup:false});,
+            Reset(TextInput_SearchQuestion_TokenMenu_1);,
+            Reset(DatePicker_SearchDateMin_TokenMenu_1);,
+            Reset(DatePicker_SearchDateMax_TokenMenu_1);,
+            Reset(Dropdown_SearchCategoryLv1_TokenMenu_1);,
+            Reset(Dropdown_SearchCategoryLv2_TokenMenu_1);,
+            UpdateContext({tokenVisible:false})
+        );
+        
+        // 검색 필터에 적용되는 Category 전체 목록 가져오기
+        ClearCollect(
+            colCategoryAdmin,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: Blank(), CategoryType: Blank()},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email).assigned_categories)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2)
+                    }
+                ),
+            "Category_LV1",
+            SortOrder.Ascending
+            )
+        );
+        
+        // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (default, 빈칸만)
+        ClearCollect(
+            colCategoryAdmin,
+            Filter(
+                colCategoryAdmin,
+                CategoryType = "default" || CategoryType = Blank()
+            )
+        );
+        
+        // 검색 필터에 적용되는 CategoryLV2 목록 가져오기 (정렬 조건이 달라야함)
+        ClearCollect(
+            colCategoryLv2Admin,
+            First(colCategoryAdmin),
+            SortByColumns(
+                LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                "Category_LV2",
+                SortOrder.Ascending
+            )
+        );
+        
+        Select(ResetFileSearchButton_TokenMenu_1);
+        
+        UpdateContext({locLoadingSpinner:false});
+
