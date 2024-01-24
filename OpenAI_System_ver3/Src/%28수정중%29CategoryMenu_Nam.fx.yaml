@@ -554,6 +554,7 @@
         Items: |-
             =//AssignedCategoryManagerTable
             Distinct(AssignedCategoryManagerTable,Category_LV1)
+            //SortByColumns(Filter(AssignedCategoryManagerTable, ), "LV1Order", SortOrder.Ascending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -1266,6 +1267,40 @@
                 Y: =23
                 ZIndex: =23
 
+        Button_ShowSubgallery_CategoryMenu_3 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(0,0,0,0)
+            Fill: =RGBA(0,0,0,0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =38
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(0,0,0,0)
+            OnSelect: |-
+                =/* 
+                If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+                */
+                //확인필요
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(0,0,0,0)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Visible: =If(TextInput_Main_LV1_CategoryMenu_3.DisplayMode = DisplayMode.View, true,false)
+            Width: =1374
+            X: =45
+            Y: =20
+            ZIndex: =5
+
         TextInput_Main_LV1_CategoryMenu_3 As text:
             BorderColor: |-
                 =If( TextInput_Main_LV1_CategoryMenu_3.Text ="",
@@ -1336,41 +1371,7 @@
             Width: =400
             X: =53
             Y: =20
-            ZIndex: =8
-
-        Button_ShowSubgallery_CategoryMenu_3 As button:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(0,0,0,0)
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =38
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(0,0,0,0)
-            OnSelect: |-
-                =/* 
-                If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
-                */
-                //확인필요
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(0,0,0,0)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =15
-            Text: =""
-            Visible: =If(TextInput_Main_LV1_CategoryMenu_3.DisplayMode = DisplayMode.View, true,false)
-            Width: =1374
-            X: =45
-            Y: =20
-            ZIndex: =9
+            ZIndex: =6
 
         TextInput_TeamList_CategoryMenu_4 As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1401,7 +1402,7 @@
             Width: =229
             X: =331
             Y: =24
-            ZIndex: =10
+            ZIndex: =7
 
         Label_ComplateTeamName_CategoryLv1Menu_3 As label:
             BorderColor: |-
@@ -1419,16 +1420,26 @@
             Size: =12
             Text: |
                 =If(
+                    CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) = 0 || IsBlank(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams),
+                    "팀을 할당해 주세요",
+                    CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) > 1,
+                    First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName & " 외" & " " &  CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) - 1,
+                    First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName
+                )
+                //LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams//확인필요
+                
+                /*If(
                     CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
                     "팀을 할당해 주세요",
                     CountRows(ThisItem.Teams) > 1,
                     First(ThisItem.Teams).DisplayName & " 외" & " " &  CountRows(ThisItem.Teams) - 1,
                     First(ThisItem.Teams).DisplayName
                 )
+                */
             Width: =229
-            X: =331
-            Y: =24
-            ZIndex: =11
+            X: =325
+            Y: =30
+            ZIndex: =8
 
         Image_TeamSerch_CategoryLv1Menu_3 As image:
             BorderColor: |-
@@ -1446,8 +1457,7 @@
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =//UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
-                UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                =UpdateContext({AddLv1PopUpID: ThisIrem.ID});
                 Set(AddLv1PopUpBackground,true);
                 //ClearCollect(viewTeamName, ThisItem.Teams);
                 UpdateContext({ lookLv1TeamVi:true })
@@ -1467,7 +1477,7 @@
             Width: =32
             X: =565
             Y: =21
-            ZIndex: =12
+            ZIndex: =9
 
         Image_Addteam_CategoryLv1Menu_3 As image:
             BorderColor: |-
@@ -1521,7 +1531,7 @@
             Width: =32
             X: =600
             Y: =21
-            ZIndex: =13
+            ZIndex: =10
 
         TextInput_UserList_CategoryLv1Menu_3 As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1553,7 +1563,7 @@
             Width: =203
             X: =653
             Y: =21
-            ZIndex: =14
+            ZIndex: =11
 
         Label_ComplateUsersName_CategoryLv1Menu_3 As label:
             BorderColor: |-
@@ -1569,15 +1579,16 @@
             PaddingLeft: =10
             Size: =12
             Text: |-
-                =If(CountRows(ThisItem.Users) = 0 || IsBlank(ThisItem.Users),
-                "인원을 할당해 주세요", CountRows(ThisItem.Users) > 1,
-                First(ThisItem.Users).DisplayName & " 외" & CountRows(ThisItem.Users)-1 & " 명",
-                First(ThisItem.Users).DisplayName)
+                =If(CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) = 0 || IsBlank(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users),
+                "인원을 할당해 주세요", CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) > 1,
+                First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName & " 외" & CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users)-1 & " 명",
+                First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName)
+                //LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams //확인필요
             Width: =190
             Wrap: =false
             X: =660
             Y: =20
-            ZIndex: =15
+            ZIndex: =12
 
         Icon_ComplateUserList_CategoryLv1Menu_3 As image:
             BorderColor: |-
@@ -1616,7 +1627,7 @@
             Width: =32
             X: =868
             Y: =21
-            ZIndex: =16
+            ZIndex: =13
 
         Icon_AddUserButton_CategoryLv1Menu_3 As image:
             BorderColor: |-
@@ -1658,7 +1669,7 @@
             Width: =32
             X: =904
             Y: =21
-            ZIndex: =17
+            ZIndex: =14
 
     Background_Modal_CategoryMenu_3 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
