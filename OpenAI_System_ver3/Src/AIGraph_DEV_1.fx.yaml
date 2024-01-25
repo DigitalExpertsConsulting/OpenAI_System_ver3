@@ -424,6 +424,7 @@ AIGraph_DEV_1 As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =1023
         ZIndex: =1
 
@@ -438,6 +439,7 @@ AIGraph_DEV_1 As screen:
         Font: =Font.'Segoe UI'
         Size: =13
         Text: =CountRows(chatBotVersionList)
+        Visible: =false
         X: =1770
         Y: =1040
         ZIndex: =2
@@ -1438,6 +1440,7 @@ AIGraph_DEV_1 As screen:
 
     BarChart_Daily_Default_AIGraph_DEV_GPTv As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
+        BorderStyle: =BorderStyle.None
         DelayItemLoading: =true
         Height: =LineChart_Default_Daily_AIGraph_DEV_1.Height
         Items: |-
@@ -1519,7 +1522,7 @@ AIGraph_DEV_1 As screen:
             DisabledColor: =RGBA(166, 166, 166, 1)
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
-            Height: =160
+            Height: =165
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingRight: =0
@@ -2784,61 +2787,61 @@ AIGraph_DEV_1 As screen:
         FontWeight: =FontWeight.Semibold
         Size: =20
         Text: |-
-            =    If(
-                    DatePickerSetting = false,
-                    If(
-                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
-                        Sum(
-                            Filter(
-                                AIGraphTokenDailyUsage,
-                                (
-                                    Token_Date >= Switch(
-                                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                            "1개월",
-                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                            "3개월",
-                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                    )
-                                ) && (
-                                    Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                )
-                            ), Token_Input
-                        )/100,
-                    If(
-                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
-                        Sum(
-                            Filter(
-                                AIGraphTokenMonthlyUsage,
-                                (
-                                    YearMonth >= 
-                                    Switch(
-                                        Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
-                                            "6개월",
-                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                            "1년",
-                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                    )
-                                ) &&
-                                (
-                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                                ),
-                                YearMonth_ <> Blank()
-                            ), Token_Input
-                        )/100
-                    )),
+            =If(
+                DatePickerSetting = false,
                 If(
-                    DatePickerSetting = true,
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
                     Sum(
                         Filter(
-                            AIGraphTokenDailyUsage_Custom,
+                            AIGraphTokenDailyUsage,
                             (
-                                Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                Token_Date >= Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "1개월",
+                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                        "3개월",
+                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                )
                             ) && (
-                                Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
                             )
-                        ),Token_Input
+                        ), Token_Input
+                    )/100,
+                If(
+                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                    Sum(
+                        Filter(
+                            AIGraphTokenMonthlyUsage,
+                            (
+                                YearMonth >= 
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                        "6개월",
+                                    Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                        "1년",
+                                    Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                )
+                            ) &&
+                            (
+                                YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                            ),
+                            YearMonth_ <> Blank()
+                        ), Token_Input
                     )/100
-                ))
+                )),
+            If(
+                DatePickerSetting = true,
+                Sum(
+                    Filter(
+                        AIGraphTokenDailyUsage_Custom,
+                        (
+                            Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                        ) && (
+                            Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                        )
+                    ),Token_Input
+                )/100
+            ))
         Visible: =false
         Width: =200
         X: =Label_Token_Input_AIGraph_DEV_1.X + Label_Token_Input_AIGraph_DEV_1.Width
@@ -3117,7 +3120,14 @@ AIGraph_DEV_1 As screen:
             PaddingRight: =0
             PaddingTop: =0
             Size: =20
-            Text: =ThisItem.Value
+            Text: |-
+                =Upper(
+                    If(
+                        IsBlank(Substitute(Substitute(ThisItem.Value, "chat", ""), "_", "")),
+                        "gpt3.5",
+                        Substitute(Substitute(ThisItem.Value, "chat", ""), "_", "")
+                    )
+                )
             Width: =200
             X: =Color_GPTv_Total_AIGraph_DEV_1.Width + 10
             Y: =5
@@ -3259,7 +3269,7 @@ AIGraph_DEV_1 As screen:
         Width: =200
         X: =Color_GPTv_Total_AIGraph_DEV_0.X + Color_GPTv_Total_AIGraph_DEV_0.Width + 10
         Y: |
-            =340
+            =275
         ZIndex: =39
 
     Value_GPTv_Total_AIGraph_DEV_0 As label:
@@ -3292,6 +3302,141 @@ AIGraph_DEV_1 As screen:
         Font: =Font.'Segoe UI'
         Height: =PieChart_Token_Usage_AIGraph_DEV_1.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
+        ItemColorSet: =[AIGraph_Col1, AIGraph_Col2, AIGraph_Col3, AIGraph_Col4, AIGraph_Col5, AIGraph_Col6, AIGraph_Col7, AIGraph_Col8, AIGraph_Col9]
+        Items: |-
+            =[
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%"),
+                Text(
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text) / (
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_2'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_3'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_4'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_5'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_6'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_7'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_8'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_9'.Text) +
+                    Int('[Hidden]Value_GPTv_Total_AIGraph_DEV_10'.Text)
+                ) * 100, "##.0#%")
+            ]
+        LabelPosition: =LabelPosition.Inside
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        Size: =15
+        Visible: |-
+            =If(
+                AppsBIAxis.Value = "GPT 버전",
+                true,
+                false
+            )
+        Width: =PieChart_Token_Usage_AIGraph_DEV_1.Width
+        X: =PieChart_Token_Usage_AIGraph_DEV_1.X
+        Y: =PieChart_Token_Usage_AIGraph_DEV_1.Y
+        ZIndex: =42
+
+    PieChart_Token_Usage_AIGraph_DEV_1 As pieChart:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Font: =Font.'Segoe UI'
+        Height: =500
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
         Items: |-
             =[
@@ -3319,12 +3464,758 @@ AIGraph_DEV_1 As screen:
         Size: =15
         Visible: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전",
+                AppsBIAxis.Value = "토큰 사용량",
                 true,
                 false
             )
-        Width: =PieChart_Token_Usage_AIGraph_DEV_1.Width
-        X: =PieChart_Token_Usage_AIGraph_DEV_1.X
+        Width: =500
+        X: =1425
+        Y: =575
+        ZIndex: =43
+
+    Label_PieChart_AIGraph_DEV_1 As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Semibold
+        Height: =Label_GPTv_Total_AIGraph_DEV_0.Height
+        Size: =20
+        Text: =First(똑실이_ChatbotText_table).BotName & " 사용 분석"
+        Width: |
+            =250
+        X: =PieChart_Token_Usage_AIGraph_DEV_1.X + PieChart_Token_Usage_AIGraph_DEV_1.Width/2 - Self.Width/2
         Y: =PieChart_Token_Usage_AIGraph_DEV_1.Y
-        ZIndex: =42
+        ZIndex: =44
+
+    "'[Hidden]Group_Value_GPTv_Total_AIGraph_DEV_1' As group":
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =54
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_2' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,1).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,1).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,1).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,1).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =45
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_3' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,2).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,2).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,2).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,2).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =46
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_4' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,3).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,3).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,3).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,3).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =47
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_5' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,4).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,4).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,4).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,4).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =48
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_6' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,5).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,5).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,5).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,5).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =49
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_7' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,6).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,6).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,6).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,6).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =50
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_8' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,7).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,7).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,7).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,7).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =51
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_9' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,8).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,8).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,8).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,8).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =52
+
+        "'[Hidden]Value_GPTv_Total_AIGraph_DEV_10' As label":
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            FontWeight: =FontWeight.Semibold
+            Size: =20
+            Text: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,9).Value),
+                    If(
+                        DatePickerSetting = false,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "3개월",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvDailyUsage,
+                                    (
+                                        Token_Date >= Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "1개월",
+                                            DateAdd(Today(),-1,TimeUnit.Months),
+                                                "3개월",
+                                            DateAdd(Today(),-3,TimeUnit.Months)
+                                        )
+                                    ) && (
+                                        Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                    ),
+                                    Token_Model=Index(chatBotVersionList,9).Value
+                                ), Token_Total
+                            )/100,
+                        If(
+                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value = "1년",
+                            Sum(
+                                Filter(
+                                    AIGraphGPTvMonthlyUsage,
+                                    (
+                                        YearMonth >= 
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_DEV_1.SelectedText.Value,
+                                                "6개월",
+                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                "1년",
+                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                        )
+                                    ) &&
+                                    (
+                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                    ),
+                                    YearMonth_ <> Blank(),
+                                    Token_Model=Index(chatBotVersionList,9).Value
+                                ), Token_Total
+                            )/100
+                        )),
+                    If(
+                        DatePickerSetting = true,
+                        Sum(
+                            Filter(
+                                AIGraphGPTvDailyUsage_Custom,
+                                (
+                                    Token_Date >= DatePicker_FirstDate_AIGraph_DEV_1.SelectedDate
+                                ) && (
+                                    Token_Date <= DatePicker_LastDate_AIGraph_DEV_1.SelectedDate 
+                                ),
+                                Token_Model=Index(chatBotVersionList,9).Value
+                            ),Token_Total
+                        )/100
+                    )),
+                    0
+                )
+            Visible: =false
+            Width: =200
+            X: =1720
+            Y: |
+                =0
+            ZIndex: =53
 
