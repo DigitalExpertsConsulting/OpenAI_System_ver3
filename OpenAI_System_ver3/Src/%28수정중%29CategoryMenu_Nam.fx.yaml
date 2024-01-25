@@ -81,13 +81,18 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |-
+        OnSelect: |
             =UpdateContext({AddLv2Category:true});
             ClearCollect(
-                CategoryLV1List,
-                {Value: "직접입력"},
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
-               
+                CategoryOnlyLv1List_Sub, 
+                {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
+                ForAll(
+                        Table(ParseJSON(PA_CategoryLv2_User_List)),
+                            {Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                            CategoryType: Text(ThisRecord.Value.CategoryType)}
+                    )
+                
             );
         PaddingLeft: =25
         PressedBorderColor: |-
@@ -5298,7 +5303,9 @@
             =ColorValue("#FFFFFF")
         Items: |+
             =Distinct(CategoryOnlyLv1List_Sub, Category_LV1)
-            //Distinct(Category_ALL_Lv_List, Category_LV1) //이거맞나
+            
+            
+            
             
         PaddingBottom: =5
         PaddingLeft: =12
