@@ -1460,14 +1460,14 @@
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =With({Teams_Edit : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID},
+                =With({Teams_Edit_ID: Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID),
+                    Teams_Edit_TeamsInfo: LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams},
                 
-                UpdateContext({AddLv1PopUpID : Teams_Edit}) //확인필요
-                );
-                //UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                UpdateContext({AddLv1PopUpID : Teams_Edit_ID});
                 Set(AddLv1PopUpBackground,true);
-                //ClearCollect(viewTeamName, ThisItem.Teams);
+                ClearCollect(viewLv1TeamName, Teams_Edit_TeamsInfo);
                 UpdateContext({ lookLv1TeamView:true })
+                );
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1505,8 +1505,12 @@
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
                 UpdateContext({AddLv1TeamsPopUp: true});
-                UpdateContext({AddLv1PopUpID: ThisItem.ID});
-                ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID= ThisItem.ID).Teams);
+                //테스트 UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                With({Teams_add_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID)},
+                
+                UpdateContext({AddLv1PopUpID : Teams_add_ID});
+                
+                ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID = Teams_add_ID).Teams);
                 ClearCollect(
                     Groups,
                     ForAll(
@@ -1520,6 +1524,7 @@
                         }
                     )
                 )
+                );
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1614,10 +1619,16 @@
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                =//테스트 UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                With({Users_Edit_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID),
+                    Users_Edit_UsersInfo : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
+                
+                UpdateContext({AddLv1PopUpID : Users_Edit_ID});
+                
                 Set(AddPopUpBackground,true);
-                ClearCollect(addUserName, ThisItem.Users);
+                ClearCollect(addUserName, Users_Edit_UsersInfo);
                 UpdateContext({lookLv1UserView:true});
+                );
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1656,8 +1667,12 @@
                 =UpdateContext({ AddLv1UsersPopUp:true });
                 Set(AddPopUpBackground,true);
                 UpdateContext({ PopUpMenu: "User" });
-                UpdateContext({ AddLv1PopUpID: ThisItem.ID });
-                Collect(AddCollect, LookUp(똑실이_Category_table, ID= ThisItem.ID).Users);
+                
+                With({Users_add_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID)},
+                
+                UpdateContext({AddLv1PopUpID : Users_add_ID});
+                Collect(AddCollect, LookUp(똑실이_Category_table, ID= Users_add_ID).Users);
+                );
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1676,18 +1691,6 @@
             X: =904
             Y: =21
             ZIndex: =14
-
-        ButtonCanvas1 As 버튼:
-            DisplayMode: =DisplayMode.Edit
-            Height: =32
-            OnSelect: =Select(Parent)
-            Text: |-
-                =With({Teams_Edit : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID},
-                Teams_Edit)
-            Width: =96
-            X: =989
-            Y: =19
-            ZIndex: =15
 
     Background_Modal_CategoryMenu_3 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
