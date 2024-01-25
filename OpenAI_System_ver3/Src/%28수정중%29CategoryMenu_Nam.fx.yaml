@@ -4558,6 +4558,40 @@
             Y: =255
             ZIndex: =37
 
+    Button_DeleteCategory_ALL_CategoryMenu As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: |-
+            =ColorValue("#FFFFFF")
+        DisplayMode: =DisplayMode.View
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =160
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#FFFFFF")
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#FFFFFF")
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =15
+        Text: =""
+        Visible: =delPopVi
+        Width: =600
+        X: =795
+        Y: =394
+        ZIndex: =113
+
     Group_Edit_Lv1_Team_Popup As group:
         Height: =5
         Width: =5
@@ -4845,6 +4879,65 @@
             X: =1223
             Y: =315
             ZIndex: =112
+
+    Button_OKDeleteCategory_ALL_CategoryMenu As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =32
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |
+            =If(
+                delType = "Main",
+                Collect(delCate, Filter(똑실이_Category_table, Category_LV1=delMainCate));
+                ForAll(
+                    Sequence(
+                        CountRows(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = delMainCate
+                            )
+                        )
+                    ),
+                    Remove(
+                        똑실이_Category_table,
+                        LookUp(
+                            똑실이_Category_table,
+                            Category_LV1 = delMainCate
+                        )
+                    )
+                ),
+                Collect(delCate, LookUp(똑실이_Category_table, ID=AddPopUpID));
+                RemoveIf(
+                    똑실이_Category_table,
+                    ID = AddPopUpID
+                )
+            );
+            UpdateContext({delPopVi: false});
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="삭제"
+        Visible: =delPopVi
+        Width: =50
+        X: =1262
+        Y: =498
+        ZIndex: =114
 
     Group_Add_Lv1_User_Popup As group:
         Height: =5
@@ -5154,11 +5247,66 @@
             Y: =272
             ZIndex: =88
 
-    Group_Delete_Lv2Category As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
+    Button_CancleDeleteCategory_ALL_CategoryMenu As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: |-
+            =ColorValue("#242424")
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =32
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =UpdateContext({ delPopVi:false });
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: |-
+            =ColorValue("#242424")
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="취소"
+        Visible: =delPopVi
+        Width: =50
+        X: =1320
+        Y: =498
+        ZIndex: =115
+
+    Label_DeleteCategory_ALL_CategoryMenu As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =34
+        Size: =16
+        Text: ="삭제하시겠습니까?"
+        Visible: =delPopVi
+        Width: =193
+        X: =812
+        Y: =415
         ZIndex: =116
 
     Group_Add_CategoryLv2_Popup As group:
@@ -5881,4 +6029,43 @@
             X: =1456
             Y: =455
             ZIndex: =65
+
+    Label_DeleteCategorySub_ALL_CategoryMenu As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =24
+        Size: =10
+        Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
+        Visible: =delPopVi
+        Width: =562
+        X: =814
+        Y: =456
+        ZIndex: =117
+
+    Image_DeleteCategoryExit_ALL_CategoryMenu As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =20
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =Exit
+        OnSelect: |-
+            =UpdateContext({delPopVi: false});
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =delPopVi
+        Width: =20
+        X: =1352
+        Y: =418
+        ZIndex: =118
 
