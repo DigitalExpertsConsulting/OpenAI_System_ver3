@@ -560,8 +560,8 @@
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
         Items: |-
-            =//AssignedCategoryManagerTable
-            Distinct(AssignedCategoryManagerTable,Category_LV1)
+            =Distinct(AssignedCategoryManagerTable,Category_LV1)
+            //AssignedCategoryManagerTable
             //SortByColumns(Filter(AssignedCategoryManagerTable, ), "LV1Order", SortOrder.Ascending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
@@ -1426,27 +1426,17 @@
             Overflow: =Overflow.Scroll
             PaddingLeft: =10
             Size: =12
-            Text: |
+            Text: |-
                 =With({ Teams_Search : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams},
-                
-                If(
-                    CountRows(Teams_Search) = 0 || IsBlank(Teams_Search),
-                    "팀을 할당해 주세요",
-                    CountRows(Teams_Search) > 1,
-                    First(Teams_Search).DisplayName & " 외" & " " &  CountRows(Teams_Search) - 1,
-                    First(Teams_Search).DisplayName
+                                
+                    If(
+                        CountRows(Teams_Search) = 0 || IsBlank(Teams_Search),
+                        "팀을 할당해 주세요",
+                        CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) > 1,
+                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName & " 외" & " " &  CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) - 1,
+                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName
+                    )
                 )
-                )
-                //LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams//확인필요
-                
-                /*If(
-                    CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
-                    "팀을 할당해 주세요",
-                    CountRows(ThisItem.Teams) > 1,
-                    First(ThisItem.Teams).DisplayName & " 외" & " " &  CountRows(ThisItem.Teams) - 1,
-                    First(ThisItem.Teams).DisplayName
-                )
-                */
             Width: =229
             X: =331
             Y: =23
@@ -1597,13 +1587,16 @@
             OnSelect: =
             PaddingLeft: =10
             Size: =12
-            Text: |
-                =With({Users_Search: LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
-                
-                If(CountRows(Users_Search) = 0 || IsBlank(Users_Search),
-                "인원을 할당해 주세요", CountRows(Users_Search) > 1,
-                First(Users_Search).DisplayName & " 외" & CountRows(Users_Search)-1 & " 명",
-                First(Users_Search).DisplayName)
+            Text: |-
+                =With({ Users_Search : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
+                                
+                    If(
+                        CountRows(Users_Search) = 0 || IsBlank(Users_Search),
+                        "팀을 할당해 주세요",
+                        CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) > 1,
+                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName & " 외" & " " &  CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users) - 1,
+                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users).DisplayName
+                    )
                 )
             Width: =190
             Wrap: =false
