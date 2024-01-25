@@ -603,54 +603,6 @@ CategoryMenu As screen:
             Y: =31
             ZIndex: =2
 
-        Image_DeleteMainList_CategoryMenu As image:
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            DisplayMode: =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,DisplayMode.Disabled)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =35
-            HoverBorderColor: =RGBA(224, 224, 224, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            Image: =Delete
-            OnSelect: |
-                =//ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
-                
-                
-                Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
-                 > 0,
-                    Notify(
-                        "폴더에 파일이 존재합니다.",
-                        NotificationType.Error,
-                        0
-                    ),
-                    UpdateContext({delPopVi: true});
-                    UpdateContext({delType: "Main"});
-                    UpdateContext({delMainCate: ThisItem.Value});
-                    
-                )
-                //If(CountRows(Filter(똑실이_문서, '{Path}'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))
-            PaddingBottom: =05
-            PaddingLeft: =05
-            PaddingRight: =05
-            PaddingTop: =05
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Transparency: =If(Image_DeleteMainList_CategoryMenu.DisplayMode = DisplayMode.Disabled,0.5,0)
-            Width: =35
-            X: =1443
-            Y: =23
-            ZIndex: =3
-
         Gallery_Sub_CategoryMenu As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
@@ -664,7 +616,7 @@ CategoryMenu As screen:
             Visible: =If(ThisItem.Value=testV,true,false)
             Width: =1490
             Y: =If(ThisItem.IsSelected, 63,0)
-            ZIndex: =4
+            ZIndex: =3
 
             Button_SubGalleryBody_CategoryMenu As button:
                 BorderColor: |-
@@ -1265,6 +1217,53 @@ CategoryMenu As screen:
                 X: =1386
                 Y: =23
                 ZIndex: =23
+
+        Image_DeleteMainList_CategoryMenu As image:
+            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,DisplayMode.Disabled)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverBorderColor: =RGBA(224, 224, 224, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Delete
+            OnSelect: |
+                =//ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
+                Refresh(똑실이_문서);
+                
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                 > 0,
+                    Notify(
+                        "폴더에 파일이 존재합니다.",
+                        NotificationType.Error,
+                        0
+                    ),
+                    UpdateContext({delPopVi: true});
+                    UpdateContext({delType: "Main"});
+                    UpdateContext({delMainCate: ThisItem.Value});
+                    
+                )
+                //If(CountRows(Filter(똑실이_문서, '{Path}'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Transparency: =If(Image_DeleteMainList_CategoryMenu.DisplayMode = DisplayMode.Disabled,0.5,0)
+            Width: =35
+            X: =1443
+            Y: =23
+            ZIndex: =4
 
         Button_newCategory2_CategoryMenu As button:
             BorderColor: =RGBA(224, 224, 224, 1)
