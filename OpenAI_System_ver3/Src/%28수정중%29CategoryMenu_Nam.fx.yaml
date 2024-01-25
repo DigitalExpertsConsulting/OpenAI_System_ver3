@@ -81,13 +81,18 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |-
+        OnSelect: |
             =UpdateContext({AddLv2Category:true});
             ClearCollect(
-                CategoryLV1List,
-                {Value: "직접입력"},
-                Sort(Distinct(똑실이_Category_table, Category_LV1),Value)
-               
+                CategoryOnlyLv1List, 
+                {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
+                ForAll(
+                        Table(ParseJSON(PA_CategoryLv2_User_List)),
+                            {Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                            CategoryType: Text(ThisRecord.Value.CategoryType)}
+                    )
+                
             );
         PaddingLeft: =25
         PressedBorderColor: |-
@@ -623,7 +628,7 @@
                 
                 
                 Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in 'Folder path' && IsFolder= false ))
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
@@ -1106,7 +1111,7 @@
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
                     =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,
-                    If(Office365사용자.MyProfile().Mail in ThisItem.'Created By'.Email ,DisplayMode.Edit,
+                    If(Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email ,DisplayMode.Edit,
                     DisplayMode.Disabled))
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
@@ -1132,7 +1137,7 @@
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, 'Folder path'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
@@ -3800,7 +3805,7 @@
                     Collect(
                         똑실이_Category_table,
                         {
-                            Title: ".",
+                            제목: ".",
                             Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_2.Text),
                             //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
                             Category_LV2: Trim(TextInput_AddMainCategoryNameSub_CategoryMenu_2.Text),
@@ -4613,7 +4618,7 @@
                     Y: =DataCardKey_Category_LV2_CategorySettingModal_CategoryMenu_2.Y
                     ZIndex: =4
 
-    Button_newLv1Category_CategoryMenu_Namsoo_1 As button:
+    Button_newLv1Category_CategoryMenu As button:
         BorderColor: |-
             =ColorValue("#0F6CBD")
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -4833,7 +4838,7 @@
                     NotificationType.Success,
                     0
                 ); Refresh(똑실이_Category_Manager_table);
-                UpdateContext({AddLv1Category_Namsoo: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp_1);
+                UpdateContext({AddLv1Category: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp_1);
             
             
             );););
@@ -4911,7 +4916,7 @@
         Image: =Exit
         OnSelect: |-
             =Concurrent(
-            UpdateContext({AddLv1Category_Namsoo: false});,
+            UpdateContext({AddLv1Category: false});,
             Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv1PopUp_1);
             )
         PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -5123,7 +5128,7 @@
                 Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용
                     똑실이_Category_table,
                     {
-                        Title: ".",
+                        제목: ".",
                         //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
                         Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_Lv2PopUp_1.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
                         //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
@@ -5186,7 +5191,7 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =Concurrent(
-            UpdateContext({AddLv2Category_Namsoo: false});,
+            UpdateContext({AddLv2Category: false});,
             //Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp);,
             Reset(TextInput_AddMainCategoryName_CategoryMenu_Lv2PopUp_1);
             )
@@ -5221,8 +5226,7 @@
         Image: =Exit
         OnSelect: |-
             =Concurrent(
-            UpdateContext({AddLv2Category_Namsoo: false});,
-            //Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp);,
+            UpdateContext({AddLv2Category: false});,
             Reset(TextInput_AddMainCategoryName_CategoryMenu_Lv2PopUp_1);
             )
         PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -5298,8 +5302,10 @@
         HoverFill: |-
             =ColorValue("#FFFFFF")
         Items: |+
-            =Distinct(CategoryOnlyLv1List_Sub, Category_LV1)
-            //Distinct(Category_ALL_Lv_List, Category_LV1) //이거맞나
+            =Distinct(CategoryOnlyLv1List, Category_LV1)
+            
+            
+            
             
         PaddingBottom: =5
         PaddingLeft: =12
@@ -5316,4 +5322,27 @@
         X: =931
         Y: =489
         ZIndex: =104
+
+    Image_newCategory_CategoryMenu_3 As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =32
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =plus
+        OnSelect: =Select(Button_newLv1Category_CategoryMenu)
+        PaddingBottom: =3
+        PaddingLeft: =3
+        PaddingRight: =3
+        PaddingTop: =3
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =32
+        X: =1547
+        Y: =298
+        ZIndex: =105
 

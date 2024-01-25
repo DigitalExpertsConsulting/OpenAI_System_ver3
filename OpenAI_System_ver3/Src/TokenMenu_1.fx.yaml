@@ -97,7 +97,8 @@ TokenMenu_1 As screen:
                 tokenSearchTimerStart: false
             });
             
-            Reset(FileSearchTimer_TokenMenu_1);
+            //Reset(Delete_FileSearchTimer_TokenMenu_1);
+            Select(FileSearchTimer_TokenMenu_1);
             UpdateContext({tokenSearchTimerStart: true});
         PaddingLeft: =30
         PressedBorderColor: |-
@@ -184,6 +185,7 @@ TokenMenu_1 As screen:
             
             tokenSearchResult_1
         Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
             =//false
@@ -634,7 +636,7 @@ TokenMenu_1 As screen:
             =ColorValue("#FFFFFF")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         FocusedBorderThickness: =2
-        FontWeight: =FontWeight.Semibold
+        FontWeight: =FontWeight.Bold
         HoverBorderColor: |-
             =ColorValue("#C7C7C7")
         HoverColor: |-
@@ -652,7 +654,9 @@ TokenMenu_1 As screen:
                 tokenSearchTimerStart: false
             });
             
-            Reset(FileSearchTimer_TokenMenu_1);
+            //Reset(Delete_FileSearchTimer_TokenMenu_1);
+            Select(FileSearchTimer_TokenMenu_1);
+            
             
             UpdateContext({
                 tokenSearchTimerStart: true
@@ -678,7 +682,6 @@ TokenMenu_1 As screen:
                 UpdateContext({tokenVisible:false})
             );
             */
-        PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
         PressedColor: =Color.Black
@@ -689,110 +692,12 @@ TokenMenu_1 As screen:
         RadiusTopLeft: =4
         RadiusTopRight: =4
         Size: =11
-        Text: ="ResetFileSearch"
+        Text: ="ResetTokenSearch"
         Visible: =false
-        Width: =192
+        Width: =170
         X: =1372
         Y: =42
         ZIndex: =41
-
-    FileSearchTimer_TokenMenu_1 As timer:
-        BorderColor: =RGBA(105, 121, 126, 1)
-        BorderStyle: =BorderStyle.None
-        DisabledBorderColor: =RGBA(244, 244, 244, 1)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Duration: =5000
-        Fill: =RGBA(105, 121, 126, 1)
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerStart: |+
-            =
-            
-            
-            UpdateContext({
-                tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
-                    If(
-                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // LV1=전체 LV2=전체 일경우
-                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
-                        // 카테고리LV1만 선택한 경우
-                        If(
-                            Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                            Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV1 = Text(Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
-                            // 카테고리LV2만 선택한 경우
-                            If(
-                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                                Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV2 = Text(Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
-                                // LV1, LV2 둘다 선택한 경우
-                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value & "/" & Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value
-                            )
-                        )
-                    )
-                    ,{
-                    // 파일명
-                    text: TextInput_SearchQuestion_TokenMenu_1.Text,
-                    // StartDate
-                    text_1: Text(DatePicker_SearchDateMin_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
-                    // EndDate
-                    text_2: Text(DatePicker_SearchDateMax_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
-                    // 스킵 ID
-                    number: Coalesce(tokenSearchLastId, 0)
-                }).result_json
-            });
-            
-            /*
-            ClearCollect(
-                FileSearchResult_FM_1,
-                ForAll(
-                    Table(ParseJSON(tokenSearchResponse)),
-                    {
-                        ID: Int(ThisRecord.Value.ID),
-                        File_Name: Text(ThisRecord.Value.File_Name),
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
-                        Index_Status: Text(ThisRecord.Value.Index_Status),
-                        Index_Log: Text(ThisRecord.Value.Index_Log)
-                    }
-                )
-            );
-            */
-            
-            ClearCollect(
-                tokenSearchResult_1,
-                ForAll(
-                    Table(ParseJSON(tokenSearchResponse)),
-                    {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        Token_Question: Text(ThisRecord.Value.Token_Question),
-                        Token_Answer: Text(ThisRecord.Value.Token_Answer),
-                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
-                        Token_Date: Text(DateAdd(ThisRecord.Value.Token_Date, -TimeZoneOffset(), TimeUnit.Minutes), "yyyy-mm-dd"),
-                        Token_Input: Text(ThisRecord.Value.Token_Input),
-                        Token_Output: Text(ThisRecord.Value.Token_Output),
-                        Token_Total: Text(ThisRecord.Value.Token_Total),
-                        ID: Int(ThisRecord.Value.ID)
-                    }
-                )
-            );
-            
-            UpdateContext({ 
-                locLoadingSpinner: false
-            });
-            
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Repeat: =true
-        Start: =tokenSearchTimerStart
-        Visible: =false
-        X: =1195
-        Y: =62
-        ZIndex: =42
 
     Group_QuestionPopup_TokenMenu_1 As group:
         Height: =5
@@ -922,6 +827,117 @@ TokenMenu_1 As screen:
         X: =897
         Y: =306
         ZIndex: =43
+
+    FileSearchTimer_TokenMenu_1 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |+
+            =
+            
+            
+            UpdateContext({
+                tokenSearchResponse: '[DEV]똑실이-[Apps]토큰사용검색'.Run(
+                    If(
+                        Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV1 = Text(Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),Category_LV2 = Text(Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value)), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLv1_TokenMenu_1.Selected.Value & "/" & Dropdown_SearchCategoryLv2_TokenMenu_1.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
+                    // 파일명
+                    text: TextInput_SearchQuestion_TokenMenu_1.Text,
+                    // StartDate
+                    text_1: Text(DatePicker_SearchDateMin_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
+                    // EndDate
+                    text_2: Text(DatePicker_SearchDateMax_TokenMenu_1.SelectedDate, "yyyy-mm-dd"),
+                    // 스킵 ID
+                    number: Coalesce(tokenSearchLastId, 0)
+                }).result_json
+            });
+            
+            /*
+            ClearCollect(
+                FileSearchResult_FM_1,
+                ForAll(
+                    Table(ParseJSON(tokenSearchResponse)),
+                    {
+                        ID: Int(ThisRecord.Value.ID),
+                        File_Name: Text(ThisRecord.Value.File_Name),
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                        Index_Status: Text(ThisRecord.Value.Index_Status),
+                        Index_Log: Text(ThisRecord.Value.Index_Log)
+                    }
+                )
+            );
+            */
+            
+            ClearCollect(
+                tokenSearchResult_1,
+                ForAll(
+                    Table(ParseJSON(tokenSearchResponse)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Token_Question: Text(ThisRecord.Value.Token_Question),
+                        Token_Answer: Text(ThisRecord.Value.Token_Answer),
+                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
+                        Token_Date: Text(DateAdd(ThisRecord.Value.Token_Date, -TimeZoneOffset(), TimeUnit.Minutes), "yyyy-mm-dd"),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        ID: Int(ThisRecord.Value.ID)
+                    }
+                )
+            );
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="ResetTokenSearch"
+        Visible: =false
+        X: =1196
+        Y: =64
+        ZIndex: =44
 
     Group_SherchQAGallery_TokenMenu_1 As group:
         Height: =5
