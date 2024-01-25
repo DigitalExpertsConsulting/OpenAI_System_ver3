@@ -1460,7 +1460,10 @@
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =UpdateContext({AddLv1PopUpID: AssignedCategoryManagerTable.ID});
+                =With({Teams_Edit : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID},
+                
+                UpdateContext({AddLv1PopUpID : Teams_Edit}) //확인필요
+                );
                 //UpdateContext({AddLv1PopUpID: ThisItem.ID});
                 Set(AddLv1PopUpBackground,true);
                 //ClearCollect(viewTeamName, ThisItem.Teams);
@@ -1502,7 +1505,6 @@
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
                 UpdateContext({AddLv1TeamsPopUp: true});
-                //UpdateContext({AddPopUpID: ThisItem.ID}); //이거맞나
                 UpdateContext({AddLv1PopUpID: ThisItem.ID});
                 ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID= ThisItem.ID).Teams);
                 ClearCollect(
@@ -1612,8 +1614,7 @@
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =//UpdateContext({AddPopUpID: ThisItem.ID});
-                UpdateContext({AddLv1PopUpID: ThisItem.ID});
+                =UpdateContext({AddLv1PopUpID: ThisItem.ID});
                 Set(AddPopUpBackground,true);
                 ClearCollect(addUserName, ThisItem.Users);
                 UpdateContext({lookLv1UserView:true});
@@ -1655,7 +1656,6 @@
                 =UpdateContext({ AddLv1UsersPopUp:true });
                 Set(AddPopUpBackground,true);
                 UpdateContext({ PopUpMenu: "User" });
-                //UpdateContext({ Add1PopUpID: ThisItem.ID });
                 UpdateContext({ AddLv1PopUpID: ThisItem.ID });
                 Collect(AddCollect, LookUp(똑실이_Category_table, ID= ThisItem.ID).Users);
             PaddingBottom: =3
@@ -1676,6 +1676,18 @@
             X: =904
             Y: =21
             ZIndex: =14
+
+        ButtonCanvas1 As 버튼:
+            DisplayMode: =DisplayMode.Edit
+            Height: =32
+            OnSelect: =Select(Parent)
+            Text: |-
+                =With({Teams_Edit : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID},
+                Teams_Edit)
+            Width: =96
+            X: =989
+            Y: =19
+            ZIndex: =15
 
     Background_Modal_CategoryMenu_3 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1748,7 +1760,7 @@
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
+            Text: =LookUp(CategoryTable,ID=AddLv1PopUpID).Category_LV1
             Width: =300
             X: =9
             Y: =25
@@ -1802,7 +1814,7 @@
             Height: =27
             PaddingLeft: =10
             Size: =13
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV2
+            Text: =LookUp(CategoryTable,ID=AddLv1PopUpID).Category_LV2
             Width: =375
             X: =155
             Y: =99
@@ -1836,7 +1848,7 @@
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: =RGBA(51, 51, 51, 1)
-            Default: =LookUp(CategoryTable,ID=AddPopUpID).History
+            Default: =LookUp(CategoryTable,ID=AddLv1PopUpID).History
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1888,7 +1900,7 @@
                     똑실이_Category_table,
                     LookUp(
                         똑실이_Category_table,
-                        ID = AddPopUpID
+                        ID = AddLv1PopUpID
                     ),
                     {History: TextInput_HistoryBody_CategoryMenu_3.Text}
                 ); Notify("등록되었습니다.",NotificationType.Success,0);
@@ -2143,7 +2155,7 @@
                     똑실이_Category_table,
                     LookUp(
                         똑실이_Category_table,
-                        ID = AddPopUpID
+                        ID = AddLv1PopUpID
                     ),
                     {
                         Teams:viewTeamName
@@ -2463,10 +2475,10 @@
                             )
                         )
                     ),
-                    Collect(delCate, LookUp(똑실이_Category_table, ID=AddPopUpID));
+                    Collect(delCate, LookUp(똑실이_Category_table, ID=AddLv1PopUpID));
                     RemoveIf(
                         똑실이_Category_table,
-                        ID = AddPopUpID
+                        ID = AddLv1PopUpID
                     )
                 );
                 UpdateContext({delPopVi: false});
@@ -2632,13 +2644,13 @@
                     똑실이_Category_table,
                     LookUp(
                         똑실이_Category_table,
-                        ID = AddPopUpID
+                        ID = AddLv1PopUpID
                     ),
                     {
                         Teams:AddTeamName
                     } 
                 ); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({AddPopUpID: Blank()});
+                UpdateContext({AddLv1PopUpID: Blank()});
                 //Clear(AddTeamCollect);
                 Clear(AddTeamName);
                 UpdateContext({AddTeamPopUpVi: false});
@@ -2679,7 +2691,7 @@
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ AddPopUpID:Blank() });
+                =UpdateContext({ AddLv1PopUpID:Blank() });
                 Clear(AddTeamName);
                 UpdateContext({ AddTeamPopUpVi:false });
                 UpdateContext({ resetSearch:true });
@@ -2977,7 +2989,7 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table, ID=AddPopUpID), {Users:addUserName});
+                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table, ID=AddLv1PopUpID), {Users:addUserName});
                 
                 UpdateContext({lookUserVi:false});
                 UpdateContext({resetSearch: true});
@@ -3256,8 +3268,8 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({ AddPopUpID:Blank() });
+                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddLv1PopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
+                UpdateContext({ AddLv1PopUpID:Blank() });
                 Clear(AddCollect);
                 UpdateContext({AddPopUp:false});
                 UpdateContext({ resetSearch:true });
@@ -3298,7 +3310,7 @@
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ AddPopUpID:Blank() });
+                =UpdateContext({ AddLv1PopUpID:Blank() });
                 Clear(AddCollect);
                 UpdateContext({ AddPopUp:false });
                 UpdateContext({ resetSearch:true });
@@ -5462,8 +5474,8 @@
         HoverFill: |-
             =ColorValue("#115EA3")
         OnSelect: |-
-            =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
-            UpdateContext({ AddPopUpID:Blank() });
+            =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddLv1PopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
+            UpdateContext({ AddLv1PopUpID:Blank() });
             Clear(AddCollect);
             UpdateContext({AddPopUp:false});
             UpdateContext({ resetSearch:true });
@@ -5504,7 +5516,7 @@
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =UpdateContext({ AddPopUpID:Blank() });
+            =UpdateContext({ AddLv1PopUpID : Blank() });
             Clear(AddCollect);
             UpdateContext({ AddPopUp:false });
             UpdateContext({ resetSearch:true });
