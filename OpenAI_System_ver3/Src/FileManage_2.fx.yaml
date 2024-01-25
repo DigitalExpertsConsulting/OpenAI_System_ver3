@@ -119,7 +119,7 @@ FileManage_2 As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |-
+        OnSelect: |
             =Set(FileRefresh,false);
             UpdateContext({ModalVisible: true});
         PaddingLeft: =35
@@ -1522,15 +1522,31 @@ FileManage_2 As screen:
                 
                         // 세번째 if => if(if(if()))
                         If(Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM_2.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM_2.Selected.Value && FileNameNoExtension = gblFileNameNoExtension))),
-                    
+                
                             Notify("동일한 파일이 이미 존재합니다.",NotificationType.Error,0),
+                            
+                            UpdateContext({Error:"false"});
                 
                             UpdateContext({
                                FileUploadResult: 
                                ""
                             });
                 
-                            //sharepoint에 파일 저장
+                           UpdateContext({
+                                FileUploadResult: IfError( '똑실이-[Apps]파일업로드'.Run(
+                                    Dropdown_LV1Category_FileUpload_FM_2.Selected.Value,
+                                    Dropdown_LV2Category_FileUpload_FM_2.Selected.Value,
+                                    {
+                                        file: {
+                                            name: First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name,
+                                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Value
+                                        }
+                                    }
+                                ).filename,Notify("카테고리 폴더에 권한이 없습니다. 잠시 후 다시 시도해주세요.",NotificationType.Error,0); UpdateContext({Error:"true"})
+                                )
+                            });
+                
+                            /*//sharepoint에 파일 저장  <---- 기존에 있던 코드 추후에 삭제예정
                             UpdateContext({
                                 FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
                                     Dropdown_LV1Category_FileUpload_FM_2.Selected.Value,
@@ -1542,9 +1558,11 @@ FileManage_2 As screen:
                                         }
                                     }
                                 ).filename
-                            });
+                            });*/
                 
                             // FiileUpload_tabel에 파일 정보 저장
+                            If(Error="false",
+                            
                             Patch(
                                 똑실이_FileUpload_table,
                                 {
@@ -1565,6 +1583,9 @@ FileManage_2 As screen:
                                     Index_Status: If(".pdf" in FileUploadResult, "not_indexed","uploading")
                                 }
                             );
+                
+                            )
+                            
                 
                         )
                 
@@ -1663,7 +1684,7 @@ FileManage_2 As screen:
             Text: ="업로드"
             Visible: =ModalVisible
             Width: =65
-            X: =1159
+            X: =1166
             Y: =608
             ZIndex: =36
 
