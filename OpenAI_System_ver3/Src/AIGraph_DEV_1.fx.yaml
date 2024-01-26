@@ -439,6 +439,7 @@ AIGraph_DEV_1 As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =1310
         Y: =1040
         ZIndex: =1
@@ -454,6 +455,7 @@ AIGraph_DEV_1 As screen:
         Font: =Font.'Segoe UI'
         Size: =13
         Text: =CountRows(AIGraphCategoryLV1Usage)
+        Visible: =false
         X: =1144
         Y: =1040
         ZIndex: =2
@@ -3588,7 +3590,6 @@ AIGraph_DEV_1 As screen:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
-            DisabledFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
             Fill: |-
                 =IfError(
                     Index(
@@ -3617,8 +3618,6 @@ AIGraph_DEV_1 As screen:
                 )
             FocusedBorderThickness: =4
             Height: =40
-            HoverFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
-            PressedFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
             Width: |-
                 =If(
                     !IsError(1/CountRows(Filter(
@@ -4529,7 +4528,7 @@ AIGraph_DEV_1 As screen:
         Font: =Font.'Segoe UI'
         Height: =PieChart_Token_Usage_AIGraph_DEV_1.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =[RGBA(49, 130, 93, 1),RGBA(48,166,103, 1), RGBA(94,193,108,1), RGBA(246,199,144,1), RGBA(247,199,114,1), RGBA(247,180,91,1), RGBA(246,143,100,1), RGBA(212,96,104,1), RGBA(148, 110, 176, 1), RGBA(118, 154, 204, 1), RGBA(96, 197, 234, 1)]
+        ItemColorSet: =AIGraphColorLists
         Items: |-
             =Filter(
                 AIGraphCategoryLV1Usage,
@@ -4686,7 +4685,32 @@ AIGraph_DEV_1 As screen:
 
         Color_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
-            Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Fill: |-
+                =IfError(
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV1Usage,
+                                Category_LV1 <> Blank()
+                            ),
+                            Category_LV1=ThisItem.Category_LV1,
+                            Index
+                        )
+                    ).Value,
+                    Color.Black,
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV1Usage,
+                                Category_LV1 <> Blank()
+                            ),
+                            Category_LV1=ThisItem.Category_LV1,
+                            Index
+                        )
+                    ).Value
+                )
             Height: =5
             OnSelect: =Select(Parent)
             Visible: =Parent.Visible
