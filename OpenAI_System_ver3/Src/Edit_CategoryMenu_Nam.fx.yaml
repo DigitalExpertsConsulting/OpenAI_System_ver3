@@ -64,7 +64,7 @@ Edit_CategoryMenu_Nam As screen:
             ));
             Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴
                 AssignedCategoryManagerTable,
-                Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids), LV1Order)//Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids)
+                Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank()), LV1Order)
             );
         );
 
@@ -668,6 +668,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopLeft: =4
             RadiusTopRight: =4
             Transparency: =If(Image_DeleteMainList_CategoryMenu_3.DisplayMode = DisplayMode.Disabled,0.5,0)
+            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =35
             X: =1443
             Y: =23
@@ -1465,14 +1466,10 @@ Edit_CategoryMenu_Nam As screen:
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =With({Teams_Edit_ID: Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID),
-                    Teams_Edit_TeamsInfo: LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams},
-                
-                UpdateContext({AddLv1PopUpID : Teams_Edit_ID});
-                Set(AddLv1PopUpBackground,true);
-                ClearCollect(viewLv1TeamName, Teams_Edit_TeamsInfo);
+                =UpdateContext({AddPopUpID: ThisItem.ID});
+                Set(AddPopUpBackground,true);
+                ClearCollect(viewTeamName, ThisItem.Teams);
                 UpdateContext({ lookLv1TeamView:true })
-                );
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1485,7 +1482,6 @@ Edit_CategoryMenu_Nam As screen:
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
-            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =565
             Y: =21
@@ -1510,6 +1506,7 @@ Edit_CategoryMenu_Nam As screen:
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
                 UpdateContext({AddLv1TeamsPopUp: true});
+                
                 //테스트 UpdateContext({AddLv1PopUpID: ThisItem.ID});
                 With({Teams_add_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID)},
                 
@@ -1643,7 +1640,6 @@ Edit_CategoryMenu_Nam As screen:
             RadiusBottomRight: =4
             RadiusTopLeft: =4
             RadiusTopRight: =4
-            Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =32
             X: =868
             Y: =21
@@ -2788,7 +2784,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =4
             Size: =15
             Text: ="확인"
-            Visible: =lookLv1UserView
+            Visible: =lookLv1UserView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =96
             X: =1235
             Y: =837
@@ -2915,6 +2911,7 @@ Edit_CategoryMenu_Nam As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
+                Visible: =lookLv1UserView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
                 Width: =25
                 X: =485
                 Y: =20
@@ -4619,7 +4616,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =4
             Size: =15
             Text: ="확인"
-            Visible: =lookLv1TeamView
+            Visible: =lookLv1TeamView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =96
             X: =1238
             Y: =839
@@ -4745,7 +4742,7 @@ Edit_CategoryMenu_Nam As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
-                Visible: =lookLv1TeamView
+                Visible: =lookLv1TeamView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
                 Width: =25
                 X: =488
                 Y: =20
@@ -5874,24 +5871,14 @@ Edit_CategoryMenu_Nam As screen:
             Y: =455
             ZIndex: =65
 
-    ButtonCanvas1 As 버튼:
-        BasePaletteColor: =
-        DisplayMode: =DisplayMode.Edit
-        FontColor: =
-        Height: =32
-        Width: =96
-        X: =1527
-        Y: =150
-        ZIndex: =126
-
-    Group_del_CategoryLv1 As group:
+    Group_del__Category As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =126
 
-        Button_DeleteCategory_Lv1_CategoryMenu As button:
+        Button_DeleteCategory__CategoryMenu As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -5925,7 +5912,7 @@ Edit_CategoryMenu_Nam As screen:
             Y: =438
             ZIndex: =120
 
-        Button_OKDeleteCategory_Lv1_CategoryMenu As button:
+        Button_OKDeleteCategory__CategoryMenu As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -5971,7 +5958,7 @@ Edit_CategoryMenu_Nam As screen:
             Y: =542
             ZIndex: =121
 
-        Button_CancleDeleteCategory_Lv1_CategoryMenu As button:
+        Button_CancleDeleteCategory__CategoryMenu As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -6013,7 +6000,7 @@ Edit_CategoryMenu_Nam As screen:
             Y: =542
             ZIndex: =122
 
-        Label_DeleteCategory_Lv1_CategoryMenu As label:
+        Label_DeleteCategory__CategoryMenu As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -6033,7 +6020,7 @@ Edit_CategoryMenu_Nam As screen:
             Y: =459
             ZIndex: =123
 
-        Label_DeleteCategorySub_Lv1_CategoryMenu As label:
+        Label_DeleteCategorySub__CategoryMenu As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -6051,7 +6038,7 @@ Edit_CategoryMenu_Nam As screen:
             Y: =500
             ZIndex: =124
 
-        Image_DeleteCategoryExit_Lv1_CategoryMenu As image:
+        Image_DeleteCategoryExit__CategoryMenu As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
