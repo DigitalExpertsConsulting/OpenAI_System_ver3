@@ -950,7 +950,7 @@ Edit_CategoryMenu_Nam As screen:
                 OnSelect: |-
                     =Set(AddPopUpBackground,true);
                     UpdateContext({AddTeamPopUpVi: true});
-                    UpdateContext({AddLv2PopUpID: ThisItem.ID});
+                    UpdateContext({AddPopUpID: ThisItem.ID});
                     ClearCollect(AddTeamName,ThisItem.Teams);
                     ClearCollect(
                         Groups,
@@ -1507,7 +1507,7 @@ Edit_CategoryMenu_Nam As screen:
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
                 UpdateContext({AddTeamPopUpVi: true});
-                UpdateContext({AddLv2PopUpID: ThisItem.ID});
+                UpdateContext({AddPopUpID: ThisItem.ID});
                 ClearCollect(AddTeamName,ThisItem.Teams);
                 ClearCollect(
                     Groups,
@@ -3021,7 +3021,16 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
+                =If( isMainPopup,
+                
+                
+                Patch(똑실이_Category_Manager_table, LookUp(똑실이_Category_Manager_table,ID=AddPopUpID), {Users:AddCollect}),
+                
+                Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect})
+                ); 
+                
+                
+                Notify("할당되었습니다.",NotificationType.Success,0);
                 UpdateContext({ AddPopUpID:Blank() });
                 Clear(AddCollect);
                 UpdateContext({AddPopUp:false});
@@ -3329,16 +3338,29 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(
-                    똑실이_Category_table,
+                =If( isMainPopup,
+                Patch(
+                    똑실이_Category_Manager_table,
                     LookUp(
-                        똑실이_Category_table,
-                        ID = AddLv2PopUpID
+                        똑실이_Category_Manager_table,
+                        ID = AddPopUpID
                     ),
                     {
                         Teams:AddTeamName
                     } 
-                ); Notify("할당되었습니다.",NotificationType.Success,0);
+                ),
+                Patch(
+                    똑실이_Category_table,
+                    LookUp(
+                        똑실이_Category_table,
+                        ID = AddPopUpID
+                    ),
+                    {
+                        Teams:AddTeamName
+                    } 
+                )
+                );
+                 Notify("할당되었습니다.",NotificationType.Success,0);
                 UpdateContext({AddPopUpID: Blank()});
                 //Clear(AddTeamCollect);
                 Clear(AddTeamName);
@@ -4657,6 +4679,14 @@ Edit_CategoryMenu_Nam As screen:
             X: =1456
             Y: =455
             ZIndex: =65
+
+    ButtonCanvas1 As 버튼:
+        DisplayMode: =DisplayMode.Edit
+        Height: =32
+        Width: =96
+        X: =1495
+        Y: =101
+        ZIndex: =126
 
     Group_del__Category As group:
         Height: =5
