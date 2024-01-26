@@ -195,7 +195,8 @@ AIGraph_DEV_1 As screen:
             
             Concurrent(
                 ClearCollect(
-                    chatBotVersionList,
+                    AddColumns(
+                        chatBotVersionList,
                         Sort(
                             Filter(
                                 Distinct(
@@ -204,8 +205,10 @@ AIGraph_DEV_1 As screen:
                                 ), 
                                 Value <> Blank()
                             ),
-                        Value,
-                        SortOrder.Ascending
+                            Value,
+                            SortOrder.Ascending
+                        ),
+                        "Index",0
                     )
                 ),
             
@@ -404,22 +407,34 @@ AIGraph_DEV_1 As screen:
             );
             
             If(
-                AppsBIAxis.Value = "카테고리",
-                Concurrent(
-                    ForAll(
-                        Sequence(CountRows(AIGraphCategoryLV1Usage)),
-                        Patch(
-                            AIGraphCategoryLV1Usage,
-                            Index(AIGraphCategoryLV1Usage, Value),
-                            {Index: Value}
-                        )
-                    ),
-                    ForAll(
-                        Sequence(CountRows(AIGraphCategoryLV2Usage)),
-                        Patch(
-                            AIGraphCategoryLV2Usage,
-                            Index(AIGraphCategoryLV2Usage, Value),
-                            {Index: Value}
+                AppsBIAxis.Value = "GPT 버전",
+                
+                ForAll(
+                    Sequence(CountRows(chatBotVersionList)),
+                    Patch(
+                        chatBotVersionList,
+                        Index(chatBotVersionList, Value),
+                        {Index: Value}
+                    )
+                ),
+                If(
+                    AppsBIAxis.Value = "카테고리",
+                    Concurrent(
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV1Usage)),
+                            Patch(
+                                AIGraphCategoryLV1Usage,
+                                Index(AIGraphCategoryLV1Usage, Value),
+                                {Index: Value}
+                            )
+                        ),
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV2Usage)),
+                            Patch(
+                                AIGraphCategoryLV2Usage,
+                                Index(AIGraphCategoryLV2Usage, Value),
+                                {Index: Value}
+                            )
                         )
                     )
                 )
@@ -439,7 +454,6 @@ AIGraph_DEV_1 As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        Visible: =false
         X: =1310
         Y: =1040
         ZIndex: =1
@@ -1077,7 +1091,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col1
             FocusedBorderThickness: =4
             Height: |-
@@ -1101,9 +1114,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,1).Value),
@@ -1129,7 +1140,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col2
             FocusedBorderThickness: =4
             Height: |-
@@ -1153,9 +1163,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,2).Value),
@@ -1170,7 +1178,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_3 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col3
             FocusedBorderThickness: =4
             Height: |-
@@ -1194,9 +1201,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,3).Value),
@@ -1211,7 +1216,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_4 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col4
             FocusedBorderThickness: =4
             Height: |-
@@ -1235,9 +1239,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,4).Value),
@@ -1252,7 +1254,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_5 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col5
             FocusedBorderThickness: =4
             Height: |-
@@ -1276,9 +1277,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,5).Value),
@@ -1293,7 +1292,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_6 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1317,9 +1315,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,6).Value),
@@ -1334,7 +1330,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_7 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1358,9 +1353,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,7).Value),
@@ -1375,7 +1368,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_8 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1399,9 +1391,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,8).Value),
@@ -1416,7 +1406,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_9 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1440,9 +1429,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,9).Value),
@@ -1457,13 +1444,10 @@ AIGraph_DEV_1 As screen:
         Line_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_0 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =ColorValue(CSS_COMMON.colors.bg2)
             Fill: =ColorValue(CSS_COMMON.colors.bg2)
             FocusedBorderThickness: =4
             Height: =2
-            HoverFill: =ColorValue(CSS_COMMON.colors.bg2)
             OnSelect: =Select(Parent)
-            PressedFill: =ColorValue(CSS_COMMON.colors.bg2)
             Width: =Parent.TemplateWidth
             Y: =DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_DEV_GPTv_1.Y-1
             ZIndex: =12
@@ -1601,7 +1585,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col1
             FocusedBorderThickness: =4
             Height: |-
@@ -1625,9 +1608,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,1).Value),
@@ -1653,7 +1634,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col2
             FocusedBorderThickness: =4
             Height: |-
@@ -1677,9 +1657,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,2).Value),
@@ -1694,7 +1672,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_3 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col3
             FocusedBorderThickness: =4
             Height: |-
@@ -1718,9 +1695,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,3).Value),
@@ -1735,7 +1710,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_4 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col4
             FocusedBorderThickness: =4
             Height: |-
@@ -1759,9 +1733,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,4).Value),
@@ -1776,7 +1748,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_5 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =AIGraph_Col5
             FocusedBorderThickness: =4
             Height: |-
@@ -1800,9 +1771,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,5).Value),
@@ -1817,7 +1786,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_6 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1841,9 +1809,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,6).Value),
@@ -1858,7 +1824,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_7 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1882,9 +1847,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,7).Value),
@@ -1899,7 +1862,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_8 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1923,9 +1885,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,8).Value),
@@ -1940,7 +1900,6 @@ AIGraph_DEV_1 As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_9 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(105, 121, 126, 1)
             FocusedBorderThickness: =4
             Height: |-
@@ -1964,9 +1923,7 @@ AIGraph_DEV_1 As screen:
                     ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Height),
                     0
                 )
-            HoverFill: =RGBA(105, 121, 126, 1)
             OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
             Visible: |-
                 =If(
                     !IsError(Index(chatBotVersionList,9).Value),
@@ -1981,13 +1938,10 @@ AIGraph_DEV_1 As screen:
         Line_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_0 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DisabledFill: =ColorValue(CSS_COMMON.colors.bg2)
             Fill: =ColorValue(CSS_COMMON.colors.bg2)
             FocusedBorderThickness: =4
             Height: =2
-            HoverFill: =ColorValue(CSS_COMMON.colors.bg2)
             OnSelect: =Select(Parent)
-            PressedFill: =ColorValue(CSS_COMMON.colors.bg2)
             Width: =Parent.TemplateWidth
             Y: =DateLabel_BarChart_GPTv_Daily_Default_AIGraph_DEV_GPTv_1.Y-1
             ZIndex: =12
