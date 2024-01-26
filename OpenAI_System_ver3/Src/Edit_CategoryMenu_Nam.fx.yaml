@@ -3,7 +3,7 @@ Edit_CategoryMenu_Nam As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -18,9 +18,8 @@ Edit_CategoryMenu_Nam As screen:
         UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 버튼 클릭
         UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 버튼 클릭
         
-        Set(PA_Result,'[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
-        Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
-        Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
+        Select(Button_Refresh_CategoryMenu_2)
+        
         );
         
         ClearCollect(
@@ -36,31 +35,6 @@ Edit_CategoryMenu_Nam As screen:
             )
         );
         
-        Concurrent(
-            Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴
-                AssignedCategoryLv2Ids, 
-                ForAll( 
-                    Table(ParseJSON(PA_CategoryLv2_User_List)),
-                    Int(ThisRecord.Value.ID
-                    )
-            ));
-            Set( //[일반관리자] 불러온 Lv2 ID 값을 데이터 원본(똑실이_Category_table)과 비교하여 해당하는 Lv2 카테고리만 불러옴
-                AssignedCategoryTable,
-                Filter(똑실이_Category_table, ID in AssignedCategoryLv2Ids)
-            );,
-        
-            Set( //[일반관리자] PA에서 권한이 할당된 Lv1 카테고리의 ID 값을 불러옴
-                AssignedCategoryLv1Ids, 
-                ForAll(
-                    Table(ParseJSON(PA_CategoryLv1_User_List)),
-                    Int(ThisRecord.Value.ID
-                    )
-            ));
-            Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴
-                AssignedCategoryManagerTable,
-                Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank()), LV1Order)
-            );
-        );
 
     Button_newCategory_CategoryMenu_2 As button:
         BorderColor: |-
@@ -165,6 +139,35 @@ Edit_CategoryMenu_Nam As screen:
                     "FileCount",
                     "DocumentLanguage"
                 )
+            );
+            
+            Set(PA_Result,'[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
+            Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
+            Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
+            Concurrent(
+                Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴
+                    AssignedCategoryLv2Ids, 
+                    ForAll( 
+                        Table(ParseJSON(PA_CategoryLv2_User_List)),
+                        Int(ThisRecord.Value.ID
+                        )
+                ));
+                Set( //[일반관리자] 불러온 Lv2 ID 값을 데이터 원본(똑실이_Category_table)과 비교하여 해당하는 Lv2 카테고리만 불러옴
+                    AssignedCategoryTable,
+                    Filter(똑실이_Category_table, ID in AssignedCategoryLv2Ids)
+                );,
+            
+                Set( //[일반관리자] PA에서 권한이 할당된 Lv1 카테고리의 ID 값을 불러옴
+                    AssignedCategoryLv1Ids, 
+                    ForAll(
+                        Table(ParseJSON(PA_CategoryLv1_User_List)),
+                        Int(ThisRecord.Value.ID
+                        )
+                ));
+                Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴
+                    AssignedCategoryManagerTable,
+                    Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank()), LV1Order)
+                );
             );
         PaddingLeft: =30
         PressedBorderColor: |-
@@ -3024,7 +3027,7 @@ Edit_CategoryMenu_Nam As screen:
                 =If( isMainPopup,
                 
                 
-                Patch(똑실이_Category_Manager_table, LookUp(똑실이_Category_Manager_table,ID=AddPopUpID), {Users:AddCollect}),
+                Patch(똑실이_Category_Manager_table, LookUp(똑실이_Category_Manager_table,ID=AddPopUpID), {Users:AddCollect}); Select(Button_Refresh_CategoryMenu_2);,
                 
                 Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect})
                 ); 
@@ -3348,7 +3351,9 @@ Edit_CategoryMenu_Nam As screen:
                     {
                         Teams:AddTeamName
                     } 
-                ),
+                );
+                Select(Button_Refresh_CategoryMenu_2);
+                ,
                 Patch(
                     똑실이_Category_table,
                     LookUp(
@@ -3547,6 +3552,7 @@ Edit_CategoryMenu_Nam As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
+                Visible: =If(isMainPopup, Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, true)
                 Width: =25
                 X: =489
                 Y: =20
@@ -3699,28 +3705,30 @@ Edit_CategoryMenu_Nam As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
+            OnSelect: |
                 =If( isMainPopup,
-                Patch(
-                    똑실이_Category_Manager_table,
-                    LookUp(
+                    Patch(
                         똑실이_Category_Manager_table,
-                        ID = AddPopUpID
-                    ),
-                    {
-                        Teams:viewTeamName
-                    }
-                ),
-                Patch(
-                    똑실이_Category_table,
-                    LookUp(
+                        LookUp(
+                            똑실이_Category_Manager_table,
+                            ID = AddPopUpID
+                        ),
+                        {
+                            Teams:viewTeamName
+                        }
+                    );
+                    Select(Button_Refresh_CategoryMenu_2);
+                    ,
+                    Patch(
                         똑실이_Category_table,
-                        ID = AddPopUpID
-                    ),
-                    {
-                        Teams:viewTeamName
-                    }
-                )
+                        LookUp(
+                            똑실이_Category_table,
+                            ID = AddPopUpID
+                        ),
+                        {
+                            Teams:viewTeamName
+                        }
+                    )
                 );
                 UpdateContext({lookTeamVi:false});
                 UpdateContext({resetSearch_Lv2: true});
@@ -3861,6 +3869,7 @@ Edit_CategoryMenu_Nam As screen:
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                 PressedFill: =RGBA(0, 0, 0, 0)
+                Visible: =If(isMainPopup, Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, true)
                 Width: =25
                 X: =488
                 Y: =20
@@ -4583,14 +4592,15 @@ Edit_CategoryMenu_Nam As screen:
                         {
                             제목: ".",
                             Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text),
-                            Lv1Order:Last(똑실이_Category_Manager_table).ID + 1
+                            LV1Order:Last(똑실이_Category_Manager_table).ID + 1
                         }
                     );
                     Notify(
                         "저장하였습니다.",
                         NotificationType.Success,
                         0
-                    ); Refresh(똑실이_Category_Manager_table);
+                    ); 
+                    Select(Button_Refresh_CategoryMenu_2);
                     UpdateContext({AddLv1Category: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp);
                 
                 
