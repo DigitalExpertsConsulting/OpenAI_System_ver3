@@ -11,18 +11,12 @@ Edit_CategoryMenu_Nam As screen:
         UpdateContext({AddTeamPopUpVi: false});,
         UpdateContext({lookTeamVi:false});,
         UpdateContext({activeCategoryLv1:""}),
-        UpdateContext({AddLv1Category_Namsoo: false}), //변경 (원본 AddMianCategory)
-        UpdateContext({AddLv2Category_Namsoo: false}), //추가
+        
         UpdateContext({HisVi:false}),
         Set(CategoryPopup, false),
         
-        UpdateContext({lookLv1TeamView : false}),
-        UpdateContext({AddLv1TeamsPopUp : false}),
-        UpdateContext({lookLv1UserView : false}),
-        UpdateContext({AddLv1UsersPopUp : false}),
-        
-        UpdateContext({AddLv2Category: false}),
-        UpdateContext({AddLv1Category: false}),
+        UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 버튼 클릭
+        UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 버튼 클릭
         
         Set(PA_Result,'[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
         Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
@@ -340,7 +334,9 @@ Edit_CategoryMenu_Nam As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Distinct(CategoryTable,Category_LV1))
+            Text: |-
+                =CountRows(Filter(똑실이_Category_Manager_table,IsBlank(CategoryType)))
+                //CountRows(Distinct(똑실이_Category_Manager_table,Category_LV1))
             Width: =61
             X: =34
             Y: =55
@@ -405,7 +401,7 @@ Edit_CategoryMenu_Nam As screen:
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             Size: =20
-            Text: =CountRows(Filter(똑실이_Category_table,!IsBlank(LV2Order)))
+            Text: =CountRows(Filter(똑실이_Category_table,IsBlank(CategoryType)))
             Width: =61
             X: =34
             Y: =55
@@ -473,7 +469,7 @@ Edit_CategoryMenu_Nam As screen:
             Text: |-
                 =//CountIf(CategoryTable,(IsEmpty(Users) || IsBlank(Users))&& (TeamName="" || TeamName=Blank()))  & " / " & CountRows(CategoryTable) 
                 // && (TeamName="" || TeamName=Blank())
-                CountRows(Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
+                CountRows(Filter(똑실이_Category_table, IsBlank(CategoryType) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
             Width: =53
             X: =34
             Y: =55
@@ -916,7 +912,8 @@ Edit_CategoryMenu_Nam As screen:
                     =UpdateContext({AddPopUpID: ThisItem.ID});
                     Set(AddPopUpBackground,true);
                     ClearCollect(viewTeamName, ThisItem.Teams);
-                    UpdateContext({ lookTeamVi:true })
+                    UpdateContext({ lookTeamVi:true });
+                    UpdateContext({ isMainPopup : false });
                 PaddingBottom: =3
                 PaddingLeft: =3
                 PaddingRight: =3
@@ -954,7 +951,7 @@ Edit_CategoryMenu_Nam As screen:
                     =Set(AddPopUpBackground,true);
                     UpdateContext({AddTeamPopUpVi: true});
                     UpdateContext({AddLv2PopUpID: ThisItem.ID});
-                    ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID= ThisItem.ID).Teams);
+                    ClearCollect(AddTeamName,ThisItem.Teams);
                     ClearCollect(
                         Groups,
                         ForAll(
@@ -967,7 +964,8 @@ Edit_CategoryMenu_Nam As screen:
                                 is365: Text(ThisRecord.Value.is365)
                             }
                         )
-                    )
+                    );
+                    UpdateContext({ isMainPopup : false });
                 PaddingBottom: =3
                 PaddingLeft: =3
                 PaddingRight: =3
@@ -1006,6 +1004,7 @@ Edit_CategoryMenu_Nam As screen:
                     Set(AddPopUpBackground,true);
                     ClearCollect(addUserName, ThisItem.Users);
                     UpdateContext({lookUserVi:true});
+                    UpdateContext({ isMainPopup : false });
                 PaddingBottom: =3
                 PaddingLeft: =3
                 PaddingRight: =3
@@ -1044,7 +1043,8 @@ Edit_CategoryMenu_Nam As screen:
                     Set(AddPopUpBackground,true);
                     UpdateContext({ PopUpMenu: "User" });
                     UpdateContext({ AddPopUpID: ThisItem.ID });
-                    Collect(AddCollect, LookUp(똑실이_Category_table, ID= ThisItem.ID).Users);
+                    Collect(AddCollect, ThisItem.Users);
+                    UpdateContext({ isMainPopup : false });
                 PaddingBottom: =3
                 PaddingLeft: =3
                 PaddingRight: =3
@@ -1469,7 +1469,8 @@ Edit_CategoryMenu_Nam As screen:
                 =UpdateContext({AddPopUpID: ThisItem.ID});
                 Set(AddPopUpBackground,true);
                 ClearCollect(viewTeamName, ThisItem.Teams);
-                UpdateContext({ lookLv1TeamView:true })
+                UpdateContext({ lookTeamVi:true });
+                UpdateContext({ isMainPopup : true });
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1505,14 +1506,9 @@ Edit_CategoryMenu_Nam As screen:
             Image: =Icon_AddTeam
             OnSelect: |-
                 =Set(AddPopUpBackground,true);
-                UpdateContext({AddLv1TeamsPopUp: true});
-                
-                //테스트 UpdateContext({AddLv1PopUpID: ThisItem.ID});
-                With({Teams_add_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID)},
-                
-                UpdateContext({AddLv1PopUpID : Teams_add_ID});
-                
-                ClearCollect(AddTeamName,LookUp(똑실이_Category_table, ID = Teams_add_ID).Teams);
+                UpdateContext({AddTeamPopUpVi: true});
+                UpdateContext({AddLv2PopUpID: ThisItem.ID});
+                ClearCollect(AddTeamName,ThisItem.Teams);
                 ClearCollect(
                     Groups,
                     ForAll(
@@ -1525,8 +1521,8 @@ Edit_CategoryMenu_Nam As screen:
                             is365: Text(ThisRecord.Value.is365)
                         }
                     )
-                )
                 );
+                UpdateContext({ isMainPopup : true });
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1619,15 +1615,11 @@ Edit_CategoryMenu_Nam As screen:
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeamCheck
             OnSelect: |-
-                =With({Users_Edit_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID),
-                    Users_Edit_UsersInfo : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
-                
-                UpdateContext({AddLv1PopUpID : Users_Edit_ID});
-                
+                =UpdateContext({AddPopUpID: ThisItem.ID});
                 Set(AddPopUpBackground,true);
-                ClearCollect(addUserName, Users_Edit_UsersInfo);
-                UpdateContext({lookLv1UserView:true});
-                );
+                ClearCollect(addUserName, ThisItem.Users);
+                UpdateContext({lookUserVi:true});
+                UpdateContext({ isMainPopup : true });
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1662,15 +1654,12 @@ Edit_CategoryMenu_Nam As screen:
                 =ColorValue("#F5F5F5")
             Image: =Icon_AddTeam
             OnSelect: |-
-                =UpdateContext({ AddLv1UsersPopUp:true });
+                =UpdateContext({ AddPopUp:true });
                 Set(AddPopUpBackground,true);
                 UpdateContext({ PopUpMenu: "User" });
-                
-                With({Users_add_ID : Int (LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).ID)},
-                
-                UpdateContext({AddLv1PopUpID : Users_add_ID});
-                Collect(AddCollect, LookUp(똑실이_Category_Manager_table, ID= Users_add_ID).Users);
-                );
+                UpdateContext({ AddPopUpID: ThisItem.ID });
+                Collect(AddCollect, ThisItem.Users);
+                UpdateContext({ isMainPopup : true });
             PaddingBottom: =3
             PaddingLeft: =3
             PaddingRight: =3
@@ -1761,7 +1750,7 @@ Edit_CategoryMenu_Nam As screen:
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddLv1PopUpID).Category_LV1
+            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
             Width: =300
             X: =9
             Y: =25
@@ -1815,7 +1804,7 @@ Edit_CategoryMenu_Nam As screen:
             Height: =27
             PaddingLeft: =10
             Size: =13
-            Text: =LookUp(CategoryTable,ID=AddLv1PopUpID).Category_LV2
+            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV2
             Width: =375
             X: =155
             Y: =99
@@ -1849,7 +1838,7 @@ Edit_CategoryMenu_Nam As screen:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             Color: =RGBA(51, 51, 51, 1)
-            Default: =LookUp(CategoryTable,ID=AddLv1PopUpID).History
+            Default: =LookUp(CategoryTable,ID=AddPopUpID).History
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1901,7 +1890,7 @@ Edit_CategoryMenu_Nam As screen:
                     똑실이_Category_table,
                     LookUp(
                         똑실이_Category_table,
-                        ID = AddLv1PopUpID
+                        ID = AddPopUpID
                     ),
                     {History: TextInput_HistoryBody_CategoryMenu_3.Text}
                 ); Notify("등록되었습니다.",NotificationType.Success,0);
@@ -2727,620 +2716,6 @@ Edit_CategoryMenu_Nam As screen:
                     Y: =DataCardKey_Category_LV2_CategorySettingModal_CategoryMenu_2.Y
                     ZIndex: =4
 
-    Group_Edit_Lv1_User_Popup As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =97
-
-        Rectangle_EditUserPopup_Lv1_CategoryMenu As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderThickness: =2
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =720
-            OnSelect: =
-            Visible: =lookLv1UserView
-            Width: =600
-            X: =861
-            Y: =179
-            ZIndex: =89
-
-        Button_EditUserSave_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#FFFFFF")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =Patch(똑실이_Category_Manager_table, LookUp(똑실이_Category_Manager_table, ID=AddLv1PopUpID), {Users:addUserName});
-                
-                UpdateContext({lookLv1UserView:false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="확인"
-            Visible: =lookLv1UserView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
-            Width: =96
-            X: =1235
-            Y: =837
-            ZIndex: =90
-
-        Button_EditUsercancel_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =UpdateContext({lookLv1UserView:false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(0, 0, 0, 1)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="취소"
-            Visible: =lookLv1UserView
-            Width: =96
-            X: =1342
-            Y: =837
-            ZIndex: =91
-
-        Gallery_EditUser_Lv1_CategoryMenu As gallery.SelectedUsersTabletGallery:
-            AccessibleLabel: ="사용자가 사람을 선택함"
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Fill: |-
-                =ColorValue("#FAFAFA")
-            FocusedBorderThickness: =1
-            Height: =448
-            Items: =Search(addUserName,TextInput_EditUserHeader_Lv1_CategoryMenu.Text,"DisplayName","Email")
-            Layout: =Layout.Vertical
-            OnSelect: =
-            ShowScrollbar: =false
-            TemplatePadding: =0
-            TemplateSize: =57
-            Visible: =lookLv1UserView
-            Width: =552
-            X: =885
-            Y: =332
-            ZIndex: =92
-
-            Button_EditUserName_Lv1_CategoryMenu As button:
-                BorderColor: |-
-                    =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), ColorValue("#D1D1D1"))
-                BorderThickness: =1
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(0, 0, 0, 0)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                FocusedBorderThickness: =2
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =48
-                HoverBorderColor: =RGBA(15, 108, 189, 1)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =
-                OnSelect: =
-                PressedBorderColor: =RGBA(15, 108, 189, 1)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =
-                Size: =15
-                Text: =""
-                Width: =504
-                X: =24
-                Y: =9
-                ZIndex: =2
-
-            Label_EditUserName_Lv1_CategoryMenu As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =52
-                OnSelect: =
-                PaddingLeft: =10
-                Size: =13
-                Text: =ThisItem.DisplayName & " (" & ThisItem.Email & ")"
-                Width: =413
-                X: =24
-                Y: =9
-                ZIndex: =3
-
-            Icon_EditUserCancel_Lv1_CategoryMenu As icon.Add:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(105, 121, 126, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(220, 220, 220, 1)
-                DisabledFill: =RGBA(0, 0, 0, 0)
-                FocusedBorderThickness: =4
-                Height: =25
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverFill: =RGBA(0, 0, 0, 0)
-                Icon: =Icon.Cancel
-                OnSelect: =Remove(addUserName,ThisItem);
-                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedFill: =RGBA(0, 0, 0, 0)
-                Visible: =lookLv1UserView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
-                Width: =25
-                X: =485
-                Y: =20
-                ZIndex: =4
-
-        Rectangle_EditUserHeader_Lv1_CategoryMenu As rectangle:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            DisabledFill: =RGBA(0,0,0,0)
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderThickness: =4
-            Height: =88
-            HoverFill: =RGBA(0,0,0,0)
-            PressedFill: =RGBA(0,0,0,0)
-            Visible: =lookLv1UserView
-            Width: =552
-            X: =886
-            Y: =244
-            ZIndex: =93
-
-        Label_EditUserMain_Lv1_CategoryMenu As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Size: =16
-            Text: ="할당 인원"
-            Visible: =lookLv1UserView
-            X: =885
-            Y: =196
-            ZIndex: =94
-
-        TextInput_EditUserHeader_Lv1_CategoryMenu As text:
-            Align: =TextPosition.Left
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Default: =""
-            FocusedBorderThickness: =2
-            HintText: ="검색"
-            OnSelect: =
-            PaddingLeft: =15
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Reset: =resetSearch_Lv1
-            Visible: =lookLv1UserView
-            X: =911
-            Y: =265
-            ZIndex: =95
-
-        Icon_EditUserSearch_Lv1_CategoryMenu As icon.Search:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =TextInput_EditUserHeader_Lv1_CategoryMenu.Height-10
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Search
-            OnSelect: =
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =lookLv1UserView
-            Width: =Self.Height
-            X: =1193
-            Y: =270
-            ZIndex: =96
-
-    Group_Add_Lv1_Team_Popup As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =105
-
-        Rectangle_AddGroupPopup_Lv1_CategoryMenu As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderThickness: =2
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =720
-            OnSelect: =
-            Visible: =AddLv1TeamsPopUp
-            Width: =600
-            X: =881
-            Y: =199
-            ZIndex: =97
-
-        Button_AddGroupSave_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(0,0,0,0)
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#FFFFFF")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =Patch(
-                    똑실이_Category_Manager_table,
-                    LookUp(
-                        똑실이_Category_Manager_table,
-                        ID = AddLv1PopUpID
-                    ),
-                    {
-                        Teams:AddTeamName
-                    } 
-                ); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({AddLv1PopUpID: Blank()});
-                //Clear(AddTeamCollect);
-                Clear(AddTeamName);
-                UpdateContext({AddLv1TeamsPopUp: false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="확인"
-            Visible: =AddLv1TeamsPopUp
-            Width: =96
-            X: =1255
-            Y: =857
-            ZIndex: =98
-
-        Button_AddGroupCancel_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =UpdateContext({ AddLv1PopUpID:Blank() });
-                Clear(AddTeamName);
-                UpdateContext({ AddLv1TeamsPopUp:false });
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(0, 0, 0, 1)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="취소"
-            Visible: =AddLv1TeamsPopUp
-            Width: =96
-            X: =1362
-            Y: =857
-            ZIndex: =99
-
-        Gallery_AddGroup_Lv1_CategoryMenu As gallery.SelectedUsersTabletGallery:
-            AccessibleLabel: ="사용자가 사람을 선택함"
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Fill: |-
-                =ColorValue("#FAFAFA")
-            FocusedBorderThickness: =1
-            Height: =448
-            Items: |-
-                =//Filter(Groups,securityEnabled = "false")
-                Filter(Groups,securityEnabled="true" || is365 = "true")
-            Layout: =Layout.Vertical
-            OnSelect: =
-            ShowScrollbar: =false
-            TemplatePadding: =0
-            TemplateSize: =57
-            Visible: =AddLv1TeamsPopUp
-            Width: =552
-            X: =905
-            Y: =352
-            ZIndex: =100
-
-            Button_AddGroupName_Lv1_CategoryMenu As button:
-                BorderColor: |-
-                    =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), ColorValue("#D1D1D1"))
-                BorderThickness: =1
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(0, 0, 0, 0)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                FocusedBorderThickness: =2
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =48
-                HoverBorderColor: =RGBA(15, 108, 189, 1)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =
-                OnSelect: =
-                PressedBorderColor: =RGBA(15, 108, 189, 1)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =
-                Size: =15
-                Text: =""
-                Width: =504
-                X: =24
-                Y: =9
-                ZIndex: =2
-
-            Label_AddGroupName_Lv1_CategoryMenu As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =45
-                OnSelect: =
-                PaddingLeft: =10
-                PaddingTop: =0
-                Size: =13
-                Text: =ThisItem.displayName & " (" & ThisItem.mail & ")"
-                Tooltip: =ThisItem.displayName & " (" & ThisItem.mail & ")"
-                Width: =413
-                X: =100
-                Y: =12
-                ZIndex: =3
-
-            Icon_AddGroup_Lv1_CategoryMenu As icon.Add:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(105, 121, 126, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(220, 220, 220, 1)
-                DisabledFill: =RGBA(0, 0, 0, 0)
-                FocusedBorderThickness: =4
-                Height: =25
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverFill: =RGBA(0, 0, 0, 0)
-                Icon: |-
-                    =If(
-                        If(ThisItem.is365="true","c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in AddTeamName.Claims,
-                        Icon.Cancel,
-                        Icon.Add
-                    )
-                OnSelect: |-
-                    =If(
-                        If(ThisItem.is365="true","c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id in AddTeamName.Claims,
-                        Remove(
-                            AddTeamName,
-                            LookUp(
-                                AddTeamName,
-                                Claims = If(ThisItem.is365="true","c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id
-                            );
-                        );
-                        Notify(
-                            "팀 제거 완료.",
-                            NotificationType.Success,
-                            0
-                        ),
-                        Collect(
-                            AddTeamName,
-                            {
-                                Claims: If(ThisItem.is365="true","c:0o.c|federateddirectoryclaimprovider|","c:0t.c|tenant|") & ThisItem.id,
-                                Department:"",
-                                DisplayName: ThisItem.displayName,
-                                Email:ThisItem.mail,
-                                JobTitle:"",
-                                Picture:Blank()
-                            }
-                        );
-                        Notify(
-                            "팀 추가 완료.",
-                            NotificationType.Success,
-                            0
-                        )
-                    );
-                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedFill: =RGBA(0, 0, 0, 0)
-                Width: =25
-                X: =489
-                Y: =20
-                ZIndex: =4
-
-            Label_Prefix_Lv1_AddGroupName As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                OnSelect: =Select(Parent)
-                Size: =13
-                Text: =If(ThisItem.is365 = "true", "M365", " AD")
-                Width: =60
-                Wrap: =false
-                X: =40
-                Y: =12
-                ZIndex: =5
-
-        Rectangle_AddGroupHeader_Lv1_CategoryMenu As rectangle:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            DisabledFill: =RGBA(0,0,0,0)
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderThickness: =4
-            Height: =88
-            HoverFill: =RGBA(0,0,0,0)
-            PressedFill: =RGBA(0,0,0,0)
-            Visible: =AddLv1TeamsPopUp
-            Width: =552
-            X: =906
-            Y: =264
-            ZIndex: =101
-
-        Label_AddGroupMain_Lv1_CategoryMenu As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Size: =16
-            Text: ="그룹 할당"
-            Visible: =AddLv1TeamsPopUp
-            X: =905
-            Y: =216
-            ZIndex: =102
-
-        TextInput_AddGroupSearch_Lv1_CategoryMenu As text:
-            Align: =TextPosition.Left
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Default: =""
-            FocusedBorderThickness: =2
-            HintText: ="검색"
-            OnChange: |-
-                =ClearCollect(
-                    Groups,
-                    ForAll(
-                        Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run(Self.Text).output)),
-                        {
-                            id: ThisRecord.Value.id,
-                            mail: Text(ThisRecord.Value.mail),
-                            displayName: Text(ThisRecord.Value.displayName),
-                            securityEnabled: Text(ThisRecord.Value.securityEnabled),
-                            is365: Text(ThisRecord.Value.is365)
-                        }
-                    )
-                )
-            OnSelect: =
-            PaddingLeft: =15
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Reset: =resetSearch_Lv1
-            Visible: =AddLv1TeamsPopUp
-            X: =931
-            Y: =285
-            ZIndex: =103
-
-        Icon_AddGroupSearch_Lv1_CategoryMenu As icon.Search:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =TextInput_AddGroupSearch_Lv1_CategoryMenu.Height-10
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Search
-            OnSelect: =
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =AddLv1TeamsPopUp
-            Width: =Self.Height
-            X: =1208
-            Y: =291
-            ZIndex: =104
-
     Group_Edit_Lv2_User_Popup As group:
         Height: =5
         Width: =5
@@ -3382,7 +2757,7 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table, ID=AddLv1PopUpID), {Users:addUserName});
+                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table, ID=AddPopUpID), {Users:addUserName});
                 
                 UpdateContext({lookUserVi:false});
                 UpdateContext({resetSearch_Lv2: true});
@@ -3646,8 +3021,8 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddLv1PopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({ AddLv1PopUpID:Blank() });
+                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table,ID=AddPopUpID), {Users:AddCollect}); Notify("할당되었습니다.",NotificationType.Success,0);
+                UpdateContext({ AddPopUpID:Blank() });
                 Clear(AddCollect);
                 UpdateContext({AddPopUp:false});
                 UpdateContext({ resetSearch_Lv2:true });
@@ -3688,7 +3063,7 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ AddLv1PopUpID:Blank() });
+                =UpdateContext({ AddPopUpID:Blank() });
                 Clear(AddCollect);
                 UpdateContext({ AddPopUp:false });
                 UpdateContext({ resetSearch_Lv2:true });
@@ -3964,7 +3339,7 @@ Edit_CategoryMenu_Nam As screen:
                         Teams:AddTeamName
                     } 
                 ); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({AddLv1PopUpID: Blank()});
+                UpdateContext({AddPopUpID: Blank()});
                 //Clear(AddTeamCollect);
                 Clear(AddTeamName);
                 UpdateContext({AddTeamPopUpVi: false});
@@ -4005,7 +3380,7 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ AddLv1PopUpID:Blank() });
+                =UpdateContext({ AddPopUpID:Blank() });
                 Clear(AddTeamName);
                 UpdateContext({ AddTeamPopUpVi:false });
                 UpdateContext({ resetSearch_Lv2:true });
@@ -4303,15 +3678,27 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Patch(
-                    똑실이_Category_table,
+                =If( isMainPopup,
+                Patch(
+                    똑실이_Category_Manager_table,
                     LookUp(
-                        똑실이_Category_table,
-                        ID = AddLv1PopUpID
+                        똑실이_Category_Manager_table,
+                        ID = AddPopUpID
                     ),
                     {
                         Teams:viewTeamName
                     }
+                ),
+                Patch(
+                    똑실이_Category_table,
+                    LookUp(
+                        똑실이_Category_table,
+                        ID = AddPopUpID
+                    ),
+                    {
+                        Teams:viewTeamName
+                    }
+                )
                 );
                 UpdateContext({lookTeamVi:false});
                 UpdateContext({resetSearch_Lv2: true});
@@ -4549,606 +3936,6 @@ Edit_CategoryMenu_Nam As screen:
             X: =1163
             Y: =255
             ZIndex: =37
-
-    Group_Edit_Lv1_Team_Popup As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =113
-
-        Rectangle_EditGroupPopup_Lv1_CategoryMenu As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderThickness: =2
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =720
-            OnSelect: =
-            Visible: =lookLv1TeamView
-            Width: =600
-            X: =864
-            Y: =181
-            ZIndex: =105
-
-        Button_EditGroupsave_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(0,0,0,0)
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#FFFFFF")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =Patch(
-                    똑실이_Category_Manager_table,
-                    LookUp(
-                        똑실이_Category_Manager_table,
-                        ID = AddLv1PopUpID
-                    ),
-                    {
-                        Teams:viewTeamName
-                    }
-                );
-                UpdateContext({lookLv1TeamView:false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-                Clear(AddTeamName);
-            PressedBorderColor: =
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="확인"
-            Visible: =lookLv1TeamView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
-            Width: =96
-            X: =1238
-            Y: =839
-            ZIndex: =106
-
-        Button_EditGroupCancel_Lv1_CategoryMenu As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =UpdateContext({lookLv1TeamView:false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-                Clear(AddTeamName);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(0, 0, 0, 1)
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="취소"
-            Visible: =lookLv1TeamView
-            Width: =96
-            X: =1345
-            Y: =839
-            ZIndex: =107
-
-        Gallery_EditGroup_Lv1_CategoryMenu As gallery.SelectedUsersTabletGallery:
-            AccessibleLabel: ="사용자가 사람을 선택함"
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Fill: |-
-                =ColorValue("#FAFAFA")
-            Height: =488
-            Items: =Search(viewTeamName,TextInput_EditGroupHeader_Lv1_CategoryMenu.Text,"DisplayName")
-            Layout: =Layout.Vertical
-            OnSelect: =
-            ShowScrollbar: =false
-            TemplatePadding: =0
-            TemplateSize: =57
-            Visible: =lookLv1TeamView
-            Width: =552
-            X: =888
-            Y: =334
-            ZIndex: =108
-
-            Button_EditGroupName_Lv1_CategoryMenu As button:
-                BorderColor: =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), RGBA(0, 0, 0, 0))
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(0, 0, 0, 0)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =48
-                HoverBorderColor: =RGBA(15, 108, 189, 1)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =
-                OnSelect: =
-                PressedBorderColor: =RGBA(15, 108, 189, 1)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =
-                Size: =15
-                Text: =""
-                Visible: =lookLv1TeamView
-                Width: =504
-                X: =24
-                Y: =9
-                ZIndex: =2
-
-            Label_EditGroupName_Lv1_CategoryMenu As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =48
-                OnSelect: =
-                PaddingLeft: =10
-                Size: =13
-                Text: =ThisItem.DisplayName
-                Visible: =lookLv1TeamView
-                Width: =380
-                X: =100
-                Y: =9
-                ZIndex: =3
-
-            Icon_EditGroup_Lv1_CategoryMenu As icon.Add:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(105, 121, 126, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(220, 220, 220, 1)
-                DisabledFill: =RGBA(0, 0, 0, 0)
-                FocusedBorderThickness: =4
-                Height: =25
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverFill: =RGBA(0, 0, 0, 0)
-                Icon: =Icon.Cancel
-                OnSelect: =Remove(viewTeamName,ThisItem);
-                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedFill: =RGBA(0, 0, 0, 0)
-                Visible: =lookLv1TeamView And Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
-                Width: =25
-                X: =488
-                Y: =20
-                ZIndex: =4
-
-            Label_Prefix_Lv1_Group As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                OnSelect: =Select(Parent)
-                Size: =13
-                Text: |-
-                    =If(StartsWith(ThisItem.Claims,"c:0o.c|federateddirectoryclaimprovider|"), "M365", " AD")
-                Visible: =lookLv1TeamView
-                Width: =70
-                X: =40
-                Y: =13
-                ZIndex: =5
-
-        Rectangle_EditGroupHeader_Lv1_CategoryMenu As rectangle:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            DisabledFill: =RGBA(0,0,0,0)
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderThickness: =4
-            Height: =88
-            HoverFill: =RGBA(0,0,0,0)
-            PressedFill: =RGBA(0,0,0,0)
-            Visible: =lookLv1TeamView
-            Width: =552
-            X: =888
-            Y: =246
-            ZIndex: =109
-
-        Label_EditGroupMain_Lv1_CategoryMenu As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Size: =16
-            Text: ="할당 그룹"
-            Visible: =lookLv1TeamView
-            X: =887
-            Y: =198
-            ZIndex: =110
-
-        TextInput_EditGroupHeader_Lv1_CategoryMenu As text:
-            Align: =TextPosition.Left
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Default: =""
-            FocusedBorderThickness: =2
-            HintText: ="검색"
-            OnSelect: =
-            PaddingLeft: =15
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Reset: =resetSearch_Lv1
-            Visible: =lookLv1TeamView
-            X: =914
-            Y: =272
-            ZIndex: =111
-
-        Icon_EditGroupSearch_Lv1_CategoryMenu As icon.Search:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =TextInput_EditGroupHeader_Lv1_CategoryMenu.Height-10
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Search
-            OnSelect: =
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =lookLv1TeamView
-            Width: =Self.Height
-            X: =1186
-            Y: =277
-            ZIndex: =112
-
-    Group_Add_Lv1_User_Popup As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =114
-
-        Rectangle_AddUserPopup_CategoryLv1Menu_Popup As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderThickness: =2
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =720
-            OnSelect: =
-            Visible: =AddLv1UsersPopUp
-            Width: =600
-            X: =862
-            Y: =181
-            ZIndex: =80
-
-        Button_AddUserSave_CategoryLv1Menu_Popup As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#FFFFFF")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =Patch(똑실이_Category_Manager_table, LookUp(똑실이_Category_Manager_table,ID=AddLv1PopUpID), {Users:AddLv1Collect}); Notify("할당되었습니다.",NotificationType.Success,0);
-                UpdateContext({ AddLv1PopUpID:Blank() });
-                Clear(AddLv1Collect);
-                UpdateContext({AddLv1UsersPopUp:false});
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="확인"
-            Visible: =AddLv1UsersPopUp
-            Width: =96
-            X: =1236
-            Y: =839
-            ZIndex: =81
-
-        Button_AddUserCancel_CategoryLv1Menu_Popup As button:
-            AutoDisableOnSelect: =false
-            BorderColor: =RGBA(224, 224, 224, 1)
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: |-
-                =ColorValue("#242424")
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =UpdateContext({ AddLv1PopUpID : Blank() });
-                Clear(AddCollect);
-                UpdateContext({ AddLv1UsersPopUp:false });
-                UpdateContext({resetSearch_Lv1: true});
-                UpdateContext({resetSearch_Lv1: false});
-                Set(AddPopUpBackground,false);
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: |-
-                =ColorValue("#242424")
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =15
-            Text: ="취소"
-            Visible: =AddLv1UsersPopUp
-            Width: =96
-            X: =1343
-            Y: =839
-            ZIndex: =82
-
-        Gallery_AddUser_CategoryLv1Menu_Popup As gallery.SelectedUsersTabletGallery:
-            AccessibleLabel: ="사용자가 사람을 선택함"
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Fill: |-
-                =ColorValue("#FAFAFA")
-            Height: =448
-            Items: |-
-                =Filter(
-                    Office365사용자.SearchUser(
-                        {
-                            searchTerm: TextInput_AddUserSearch_CategoryLv1Menu_Popup.Text,
-                            top: 999
-                        }
-                    ),
-                    AccountEnabled = true
-                )
-            Layout: =Layout.Vertical
-            OnSelect: =
-            ShowScrollbar: =false
-            TemplatePadding: =0
-            TemplateSize: =57
-            Visible: =AddLv1UsersPopUp
-            Width: =552
-            X: =886
-            Y: =334
-            ZIndex: =83
-
-            Button_AddUserName_CategoryLv1Menu_Popup As button:
-                BorderColor: |-
-                    =If(ThisItem.IsSelected,RGBA(15, 108, 189, 1), ColorValue("#D1D1D1"))
-                BorderThickness: =1
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(0, 0, 0, 0)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                FocusedBorderThickness: =2
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =48
-                HoverBorderColor: =RGBA(15, 108, 189, 1)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =
-                OnSelect: =
-                PressedBorderColor: =RGBA(15, 108, 189, 1)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =
-                Size: =15
-                Text: =""
-                Width: =504
-                X: =24
-                Y: =9
-                ZIndex: =2
-
-            Label__AddUserName_CategoryLv1Menu_Popup As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =52
-                OnSelect: =
-                PaddingLeft: =10
-                Size: =13
-                Text: =ThisItem.DisplayName & " (" & ThisItem.Mail & ")"
-                Width: =413
-                X: =24
-                Y: =5
-                ZIndex: =3
-
-            Icon_AddUser_CategoryLv1Menu_Popup As icon.Add:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(105, 121, 126, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(220, 220, 220, 1)
-                DisabledFill: =RGBA(0, 0, 0, 0)
-                FocusedBorderThickness: =4
-                Height: =25
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverFill: =RGBA(0, 0, 0, 0)
-                Icon: |-
-                    =If(
-                        ThisItem.Mail in AddLv1Collect.Email,
-                        Icon.Cancel,
-                        Icon.Add
-                    )
-                OnSelect: |-
-                    =If(
-                        ThisItem.Mail in AddLv1Collect.Email,
-                        Remove(AddLv1Collect, LookUp(AddLv1Collect, Email=ThisItem.Mail));
-                        Notify(
-                            "사용자 제거 완료.",
-                            NotificationType.Success,
-                            0
-                        )
-                        ,
-                        Collect(
-                            AddLv1Collect,
-                            {
-                                Claims: "i:0#.f|membership|" & ThisItem.UserPrincipalName,
-                                Department: ThisItem.Department,
-                                DisplayName: ThisItem.DisplayName,
-                                JobTitle: ThisItem.JobTitle,
-                                Email: ThisItem.Mail,
-                                Picture: 'Office365사용자'.UserPhotoV2(ThisItem.Id)
-                            }
-                        );
-                        Notify(
-                            "사용자 추가 완료.",
-                            NotificationType.Success,
-                            0
-                        )
-                    )
-                PressedBorderColor: =RGBA(0, 0, 0, 0)
-                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedFill: =RGBA(0, 0, 0, 0)
-                Width: =25
-                X: =481
-                Y: =22
-                ZIndex: =4
-
-        Rectangle_AddUserHeader_CategoryLv1Menu_Popup As rectangle:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            DisabledFill: =RGBA(0,0,0,0)
-            DisplayMode: =DisplayMode.View
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderThickness: =4
-            Height: =88
-            HoverFill: =RGBA(0,0,0,0)
-            PressedFill: =RGBA(0,0,0,0)
-            Visible: =AddLv1UsersPopUp
-            Width: =552
-            X: =886
-            Y: =246
-            ZIndex: =84
-
-        Label_AddUserMain_CategoryLv1Menu_Popup As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Size: =16
-            Text: ="인원 할당"
-            Visible: =AddLv1UsersPopUp
-            X: =887
-            Y: =198
-            ZIndex: =85
-
-        TextInput_AddUserSearch_CategoryLv1Menu_Popup As text:
-            Align: =TextPosition.Left
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Default: =""
-            FocusedBorderThickness: =2
-            HintText: ="검색"
-            OnSelect: =
-            PaddingLeft: =15
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Reset: =resetSearch_Lv1
-            Visible: =AddLv1UsersPopUp
-            X: =912
-            Y: =267
-            ZIndex: =87
-
-        Icon_AddUserSearch_CategoryLv1Menu_Popup As icon.Search:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =TextInput_AddUserSearch_CategoryLv1Menu_Popup.Height-10
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Search
-            OnSelect: =
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =AddLv1UsersPopUp
-            Width: =Self.Height
-            X: =1189
-            Y: =272
-            ZIndex: =88
 
     Group_Add_CategoryLv2_Popup As group:
         Height: =5
