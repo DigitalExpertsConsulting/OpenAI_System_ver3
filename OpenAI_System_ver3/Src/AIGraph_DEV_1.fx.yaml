@@ -387,7 +387,9 @@ AIGraph_DEV_1 As screen:
                             AddColumns(
                                 GroupBy(AIGraphToken, "Category_LV1", "Group"),
                                 "Token_Total",
-                                Sum(Group, Token_Total)
+                                Sum(Group, Token_Total),
+                                "Token_UsageRate",
+                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%")
                             )
                         );
                         ClearCollect(
@@ -395,12 +397,25 @@ AIGraph_DEV_1 As screen:
                             AddColumns(
                                 GroupBy(AIGraphToken, "Category_LV2", "Group"),
                                 "Token_Total",
-                                Sum(Group, Token_Total)
+                                Sum(Group, Token_Total),
+                                "Token_UsageRate",
+                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%")
                             )
                         )
                     )
                 )
             );
+            
+            /*
+            ForAll(
+                Sequence(CountRows(collection)),
+                Patch(
+                    collection,
+                    Index(collection, Value),
+                    {Index: Value}
+                )
+            )
+            */
             
             
             UpdateContext({ 
@@ -3517,6 +3532,7 @@ AIGraph_DEV_1 As screen:
             )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
+        ShowNavigation: =true
         TemplatePadding: =0
         TemplateSize: |-
             =IfError(
@@ -3564,12 +3580,12 @@ AIGraph_DEV_1 As screen:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
-            DisabledFill: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
             Fill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
             FocusedBorderThickness: =4
             Height: =40
-            HoverFill: =RGBA(105, 121, 126, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
+            HoverFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
+            PressedFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
             Width: |-
                 =If(
                     !IsError(1/CountRows(Filter(
@@ -4484,7 +4500,7 @@ AIGraph_DEV_1 As screen:
         Items: |-
             =Filter(
                 AIGraphCategoryLV1Usage,
-                Category_LV1 <> Blank()
+                Category_LV1 <> Blank(),Token_UsageRate
             )
         LabelPosition: =LabelPosition.Inside
         PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -4518,4 +4534,129 @@ AIGraph_DEV_1 As screen:
         X: =PieChart_Token_Usage_AIGraph_DEV_1.X
         Y: =PieChart_Token_Usage_AIGraph_DEV_1.Y
         ZIndex: =59
+
+    "BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =325
+        Items: |-
+            =Filter(
+                AIGraphCategoryLV1Usage,
+                Category_LV1 <> Blank(),Token_UsageRate
+            )
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        ShowNavigation: =true
+        TemplatePadding: =0
+        TemplateSize: =104
+        Width: =395
+        X: =1488
+        Y: =250
+        ZIndex: =60
+
+        Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As label:
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.Category_LV1
+            Width: |
+                =160
+            X: =Color_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.X + Color_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.Width + 10
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            ZIndex: =1
+
+        Percentage_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13.5
+            Text: =ThisItem.Token_UsageRate
+            VerticalAlign: =VerticalAlign.Top
+            Width: |
+                =100
+            X: |-
+                =//Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.X + Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.Width
+                Parent.TemplateWidth - Self.Width
+            Y: =Parent.TemplateHeight/2 + 10
+            ZIndex: =2
+
+        Value_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13.5
+            Text: |-
+                =Text(ThisItem.Token_Total/1000, "###,###,###,##0.0# K")
+            VerticalAlign: =VerticalAlign.Top
+            Width: |
+                =100
+            X: =Parent.TemplateWidth - Self.Width
+            Y: =Parent.TemplateHeight/2 - Self.Height - 10
+            ZIndex: =3
+
+        Label_Percentage_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13.5
+            Text: ="사용 비율"
+            VerticalAlign: =VerticalAlign.Top
+            Width: |
+                =100
+            X: =Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.X + Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.Width
+            Y: =Parent.TemplateHeight/2 + 10
+            ZIndex: =4
+
+        Label_Value_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As label:
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =13.5
+            Text: |
+                ="사용량"
+            VerticalAlign: =VerticalAlign.Top
+            Width: |
+                =100
+            X: =Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.X + Label_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1.Width
+            Y: =Parent.TemplateHeight/2 - Self.Height - 10
+            ZIndex: =5
+
+        Color_BarChart_LV1Category_Detail_AIGraph_DEV_GPTv_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            Height: =5
+            OnSelect: =Select(Parent)
+            Visible: =Parent.Visible
+            Width: =30
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            ZIndex: =6
 
