@@ -10,7 +10,7 @@ Edit_CategoryMenu_Nam As screen:
         UpdateContext({lookUserVi:false});,
         UpdateContext({AddTeamPopUpVi: false});,
         UpdateContext({lookTeamVi:false});,
-        UpdateContext({testV:""}),
+        UpdateContext({activeCategoryLv1:""}),
         UpdateContext({AddLv1Category_Namsoo: false}), //변경 (원본 AddMianCategory)
         UpdateContext({AddLv2Category_Namsoo: false}), //추가
         UpdateContext({HisVi:false}),
@@ -557,17 +557,18 @@ Edit_CategoryMenu_Nam As screen:
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
         Items: |-
-            =Distinct(AssignedCategoryManagerTable,Category_LV1)
-            //AssignedCategoryManagerTable
+            =//Collect(ForAll(Distinct(AssignedCategoryManagerTable,Category_LV1),First(Filter(AssignedCategoryManagerTable,Category_LV1=ThisRecord.Category_LV1))))
+            //Distinct(AssignedCategoryManagerTable,Category_LV1)
+            AssignedCategoryManagerTable
             //SortByColumns(Filter(AssignedCategoryManagerTable, ), "LV1Order", SortOrder.Ascending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
-            =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+            =If(ThisItem.IsSelected && activeCategoryLv1<>ThisItem.Category_LV1,UpdateContext({activeCategoryLv1:ThisItem.Category_LV1}),UpdateContext({activeCategoryLv1:""}));
             //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
         ShowScrollbar: =false
         TemplatePadding: =0
-        TemplateSize: =If(!IsBlank(testV),CountRows(Gallery_Main_Lv1_CategoryMenu.AllItems) * 64,71)
+        TemplateSize: =If(!IsBlank(activeCategoryLv1),CountRows(Gallery_Main_Lv1_CategoryMenu.AllItems) * 64,71)
         Width: =1500
         X: =372
         Y: =355
@@ -599,9 +600,9 @@ Edit_CategoryMenu_Nam As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =Icon_galleryOn
-            ImageRotation: =If(ThisItem.Value = testV,ImageRotation.Rotate180,ImageRotation.None)
+            ImageRotation: =If(ThisItem.Category_LV1 = activeCategoryLv1,ImageRotation.Rotate180,ImageRotation.None)
             OnSelect: |-
-                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+                =If(ThisItem.IsSelected && activeCategoryLv1<>ThisItem.Category_LV1,UpdateContext({activeCategoryLv1:ThisItem.Category_LV1}),UpdateContext({activeCategoryLv1:""}));
                 //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
@@ -626,7 +627,7 @@ Edit_CategoryMenu_Nam As screen:
             OnSelect: |
                 =Refresh(똑실이_문서);
                 
-                If(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value))
+                If(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1))
                  > 0,
                     Notify(
                         "해당 카테고리의 하위 카테고리가 존재합니다.",
@@ -635,7 +636,7 @@ Edit_CategoryMenu_Nam As screen:
                     ),
                     UpdateContext({delPopVi: true});
                     UpdateContext({delType: "Main"});
-                    UpdateContext({AddPopUpCategory: ThisItem.Value});
+                    UpdateContext({AddPopUpCategory: ThisItem.Category_LV1});
                     
                 )
                 
@@ -675,13 +676,13 @@ Edit_CategoryMenu_Nam As screen:
         Gallery_Sub_CategoryMenu_3 As gallery.variableTemplateHeightGallery:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
-            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
-            Items: =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
+            Items: =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1), "LV2Order", SortOrder.Ascending)
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
             TemplateSize: =80
-            Visible: =If(ThisItem.Value=testV,true,false)
+            Visible: =If(ThisItem.Category_LV1=activeCategoryLv1,true,false)
             Width: =1490
             Y: =If(ThisItem.IsSelected, 63,0)
             ZIndex: =4
@@ -1286,47 +1287,13 @@ Edit_CategoryMenu_Nam As screen:
                 Y: =23
                 ZIndex: =23
 
-        Button_ShowSubgallery_CategoryMenu_3 As button:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(0,0,0,0)
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =38
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(0,0,0,0)
-            OnSelect: |-
-                =/* 
-                If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
-                */
-                //확인필요
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(0,0,0,0)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =15
-            Text: =""
-            Visible: =If(TextInput_Main_LV1_CategoryMenu_3.DisplayMode = DisplayMode.View, true,false)
-            Width: =1374
-            X: =45
-            Y: =20
-            ZIndex: =5
-
         TextInput_Main_LV1_CategoryMenu_3 As text:
             BorderColor: |-
                 =If( TextInput_Main_LV1_CategoryMenu_3.Text ="",
                 ColorValue("#D1D1D1"),RGBA(0,0,0,0))
             Color: =RGBA(51, 51, 51, 1)
             Default: |+
-                =ThisItem.Value
+                =ThisItem.Category_LV1
                 
                 
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1370,7 +1337,7 @@ Edit_CategoryMenu_Nam As screen:
                         0
                     ),
                 
-                ForAll(Sequence(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value))),Patch(똑실이_Category_table, LookUp(똑실이_Category_table, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
+                ForAll(Sequence(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1))),Patch(똑실이_Category_table, LookUp(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1), {Category_LV1:Self.Text}));
                 );
                 Set(CategoryVal3, Blank());
                 
@@ -1378,7 +1345,7 @@ Edit_CategoryMenu_Nam As screen:
                 
                 
             OnSelect: |-
-                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+                =If(ThisItem.IsSelected && activeCategoryLv1<>ThisItem.Category_LV1,UpdateContext({activeCategoryLv1:ThisItem.Category_LV1}),UpdateContext({activeCategoryLv1:""}));
             PressedBorderColor: |-
                 =ColorValue("#D1D1D1")
             PressedColor: =RGBA(51, 51, 51, 1)
@@ -1389,6 +1356,37 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =10
             Width: =400
             X: =53
+            Y: =20
+            ZIndex: =5
+
+        Button_ShowSubgallery_CategoryMenu_3 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(0,0,0,0)
+            Fill: =RGBA(0,0,0,0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =38
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(0,0,0,0)
+            OnSelect: |-
+                =If(ThisItem.IsSelected && activeCategoryLv1<>ThisItem.Category_LV1,UpdateContext({activeCategoryLv1:ThisItem.Category_LV1}),UpdateContext({activeCategoryLv1:""}));
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(0,0,0,0)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Visible: =If(TextInput_Main_LV1_CategoryMenu_3.DisplayMode = DisplayMode.View, true,false)
+            Width: =1374
+            X: =45
             Y: =20
             ZIndex: =6
 
@@ -1438,15 +1436,12 @@ Edit_CategoryMenu_Nam As screen:
             PaddingLeft: =10
             Size: =12
             Text: |-
-                =With({ Teams_Search : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams},
-                                
-                    If(
-                        CountRows(Teams_Search) = 0 || IsBlank(Teams_Search),
-                        "팀을 할당해 주세요",
-                        CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) > 1,
-                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName & " 외" & " " &  CountRows(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams) - 1,
-                        First(LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Teams).DisplayName
-                    )
+                =If(
+                    CountRows(ThisItem.Teams) = 0 || IsBlank(ThisItem.Teams),
+                    "팀을 할당해 주세요",
+                    CountRows(ThisItem.Teams) > 1,
+                    First(ThisItem.Teams).DisplayName & " 외" & " " &  CountRows(ThisItem.Teams) - 1,
+                    First(ThisItem.Teams).DisplayName
                 )
             Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =229
@@ -1600,13 +1595,10 @@ Edit_CategoryMenu_Nam As screen:
             PaddingLeft: =10
             Size: =12
             Text: |-
-                =With({ Users_Search : LookUp(AssignedCategoryManagerTable, Category_LV1 = TextInput_Main_LV1_CategoryMenu_3.Text).Users},
-                                
-                    If(CountRows(Users_Search) = 0 || IsBlank(Users_Search),
-                    "인원을 할당해 주세요", CountRows(Users_Search) > 1,
-                    First(Users_Search).DisplayName & " 외" & CountRows(Users_Search)-1 & " 명",
-                    First(Users_Search).DisplayName)
-                )
+                =If(CountRows(ThisItem.Users) = 0 || IsBlank(ThisItem.Users),
+                "인원을 할당해 주세요", CountRows(ThisItem.Users) > 1,
+                First(ThisItem.Users).DisplayName & " 외" & CountRows(ThisItem.Users)-1 & " 명",
+                First(ThisItem.Users).DisplayName)
             Visible: =Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email
             Width: =190
             Wrap: =false
