@@ -29,10 +29,6 @@ Edit_CategoryMenu_Nam As screen:
         Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
         );
         
-        
-        //Clear(delCate_Category_Table); //확인필요
-        //Clear(delCate_Manager_Table);
-        
         ClearCollect(
             Groups,
             ForAll(
@@ -629,18 +625,34 @@ Edit_CategoryMenu_Nam As screen:
             Image: =Delete
             OnSelect: |
                 =Refresh(똑실이_문서);
-                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                
+                If(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value))
+                 > 0,
+                    Notify(
+                        "해당 카테고리의 하위 카테고리가 존재합니다.",
+                        NotificationType.Error,
+                        0
+                    ),
+                    UpdateContext({delPopVi: true});
+                    UpdateContext({delType: "Main"});
+                    UpdateContext({AddPopUpCategory: ThisItem.Value});
+                    
+                )
+                
+                
+                /*If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
                  > 0,
                     Notify(
                         "폴더에 파일이 존재합니다.",
                         NotificationType.Error,
                         0
                     ),
-                    UpdateContext({delPopVi_Lv1: true});
+                    UpdateContext({delPopVi: true});
                     UpdateContext({delType: "Main"});
                     UpdateContext({delMainCate: ThisItem.Value});
                     
                 )
+                */
                 //If(CountRows(Filter(똑실이_문서, '{Path}'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))
                 //ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
             PaddingBottom: =05
@@ -1147,7 +1159,7 @@ Edit_CategoryMenu_Nam As screen:
                         ),
                         UpdateContext({AddPopUpID: ThisItem.ID});
                         UpdateContext({delType: "Sub"});
-                        UpdateContext({delPopVi_Lv2: true});
+                        UpdateContext({delPopVi: true});
                     
                     );
                 PaddingBottom: =05
@@ -5871,15 +5883,12 @@ Edit_CategoryMenu_Nam As screen:
             ZIndex: =65
 
     ButtonCanvas1 As 버튼:
-        BasePaletteColor: =
         DisplayMode: =DisplayMode.Edit
-        FontColor: =
         Height: =32
-        Visible: =delPopVi_Lv1
         Width: =96
-        X: =1465
-        Y: =152
-        ZIndex: =119
+        X: =1540
+        Y: =192
+        ZIndex: =126
 
     Group_del_CategoryLv1 As group:
         Height: =5
@@ -5916,7 +5925,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =8
             Size: =15
             Text: =""
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =600
             X: =774
             Y: =438
@@ -5941,46 +5950,17 @@ Edit_CategoryMenu_Nam As screen:
                 =If(
                     delType = "Main",
                     
-                    
-                    Collect(delCate_Manager_Table, Filter(똑실이_Category_Manager_table, Category_LV1=delMainCate));
-                    ForAll(
-                        Sequence(
-                            CountRows(
-                                Filter(
-                                    똑실이_Category_Manager_table,
-                                    Category_LV1 = delMainCate
-                                )
-                            )
-                        );
-                    
-                    Collect(delCate_Category_Table, Filter(똑실이_Category_table, Category_LV1=delMainCate));
-                    ForAll(
-                        Sequence(
-                            CountRows(
-                                Filter(
-                                    똑실이_Category_table,
-                                    Category_LV1 = delMainCate
-                                )
-                            )
-                        );
-                
-                        ,
-                        Remove(
-                            똑실이_Category_table,
-                            LookUp(
-                                똑실이_Category_table,
-                                Category_LV1 = delMainCate
-                            )
-                        )
-                    );
-                    ,
-                    Collect(delCate_Category_Table, LookUp(똑실이_Category_table, ID=AddPopUpID));
+                    RemoveIf(
+                        똑실이_Category_Manager_table,
+                        Category_LV1 = AddPopUpCategory
+                    )
+                    ,   
                     RemoveIf(
                         똑실이_Category_table,
                         ID = AddPopUpID
                     )
                 );
-                UpdateContext({delPopVi_Lv1: false});
+                UpdateContext({delPopVi: false});
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -5991,7 +5971,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =4
             Size: =11
             Text: ="삭제"
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =50
             X: =1241
             Y: =542
@@ -6020,7 +6000,7 @@ Edit_CategoryMenu_Nam As screen:
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =UpdateContext({ delPopVi_Lv1:false });
+                =UpdateContext({ delPopVi:false });
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
             PressedColor: |-
@@ -6033,7 +6013,7 @@ Edit_CategoryMenu_Nam As screen:
             RadiusTopRight: =4
             Size: =11
             Text: ="취소"
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =50
             X: =1299
             Y: =542
@@ -6053,7 +6033,7 @@ Edit_CategoryMenu_Nam As screen:
             Height: =34
             Size: =16
             Text: ="삭제하시겠습니까?"
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =193
             X: =791
             Y: =459
@@ -6071,7 +6051,7 @@ Edit_CategoryMenu_Nam As screen:
             Height: =24
             Size: =10
             Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =562
             X: =793
             Y: =500
@@ -6092,7 +6072,7 @@ Edit_CategoryMenu_Nam As screen:
                 =UpdateContext({delPopVi: false});
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =delPopVi_Lv1
+            Visible: =delPopVi
             Width: =20
             X: =1331
             Y: =462
