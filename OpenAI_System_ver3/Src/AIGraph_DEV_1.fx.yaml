@@ -67,6 +67,11 @@ AIGraph_DEV_1 As screen:
         Select(Button_Table_Filtering_AIGraph_DEV_1_1);
         
         Concurrent(
+            Set(AIGraphColorLists, [
+                AIGraph_Col1,AIGraph_Col2,AIGraph_Col3,AIGraph_Col4,AIGraph_Col5,AIGraph_Col6,AIGraph_Col7,AIGraph_Col8,AIGraph_Col9,
+                AIGraph_Col1,AIGraph_Col2,AIGraph_Col3,AIGraph_Col4,AIGraph_Col5,AIGraph_Col6,AIGraph_Col7,AIGraph_Col8,AIGraph_Col9
+            ]),
+        
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성
         );
@@ -367,19 +372,7 @@ AIGraph_DEV_1 As screen:
                             )
                         )
                     ),
-            /*
-            AddColumns(
-                GroupBy(
-                    Valuation, 
-                    "Postcode_x0020_Area", 
-                    "DATA"
-                ), 
-                "Count",
-                CountRows(DATA)
-                "Percentage" , 
-                Text(CountRows(DATA) / CountRows(Valuation) * 100, "##0%")
-            )
-            */
+            
                     If(
                         AppsBIAxis.Value = "카테고리",
                         ClearCollect(
@@ -389,7 +382,9 @@ AIGraph_DEV_1 As screen:
                                 "Token_Total",
                                 Sum(Group, Token_Total),
                                 "Token_UsageRate",
-                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%")
+                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%"),
+                                "Index",
+                                0
                             )
                         );
                         ClearCollect(
@@ -399,23 +394,36 @@ AIGraph_DEV_1 As screen:
                                 "Token_Total",
                                 Sum(Group, Token_Total),
                                 "Token_UsageRate",
-                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%")
+                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%"),
+                                "Index",
+                                0
                             )
                         )
                     )
                 )
             );
             
-            /*
-            ForAll(
-                Sequence(CountRows(collection)),
-                Patch(
-                    collection,
-                    Index(collection, Value),
-                    {Index: Value}
+            If(
+                AppsBIAxis.Value = "카테고리",
+                Concurrent(
+                    ForAll(
+                        Sequence(CountRows(AIGraphCategoryLV1Usage)),
+                        Patch(
+                            AIGraphCategoryLV1Usage,
+                            Index(AIGraphCategoryLV1Usage, Value),
+                            {Index: Value}
+                        )
+                    ),
+                    ForAll(
+                        Sequence(CountRows(AIGraphCategoryLV2Usage)),
+                        Patch(
+                            AIGraphCategoryLV2Usage,
+                            Index(AIGraphCategoryLV2Usage, Value),
+                            {Index: Value}
+                        )
+                    )
                 )
-            )
-            */
+            );
             
             
             UpdateContext({ 
@@ -3581,7 +3589,32 @@ AIGraph_DEV_1 As screen:
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
             DisabledFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
-            Fill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
+            Fill: |-
+                =IfError(
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV1Usage,
+                                Category_LV1 <> Blank()
+                            ),
+                            Category_LV1=ThisItem.Category_LV1,
+                            Index
+                        )
+                    ).Value,
+                    Color.Black,
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV1Usage,
+                                Category_LV1 <> Blank()
+                            ),
+                            Category_LV1=ThisItem.Category_LV1,
+                            Index
+                        )
+                    ).Value
+                )
             FocusedBorderThickness: =4
             Height: =40
             HoverFill: =RGBA(RandBetween(1,255), RandBetween(1,255), RandBetween(1,255), RandBetween(1,255))
@@ -4549,6 +4582,7 @@ AIGraph_DEV_1 As screen:
         ShowNavigation: =true
         TemplatePadding: =0
         TemplateSize: =104
+        Visible: =BarChart_LV1Category_Daily_AIGraph_DEV_GPTv_1.Visible
         Width: =395
         X: =1488
         Y: =250
