@@ -195,8 +195,8 @@ AIGraph_DEV_1 As screen:
             
             Concurrent(
                 ClearCollect(
+                    chatBotVersionList,
                     AddColumns(
-                        chatBotVersionList,
                         Sort(
                             Filter(
                                 Distinct(
@@ -454,6 +454,7 @@ AIGraph_DEV_1 As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =1310
         Y: =1040
         ZIndex: =1
@@ -3084,7 +3085,32 @@ AIGraph_DEV_1 As screen:
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
             DisabledFill: =RGBA(166, 166, 166, 1)
-            Fill: =RGBA(105, 121, 126, 1)
+            Fill: |-
+                =IfError(
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                chatBotVersionList,
+                                Value <> Blank()
+                            ),
+                            Value=ThisItem.Value,
+                            Index
+                        )
+                    ).Value,
+                    Color.Black,
+                    Index(
+                        AIGraphColorLists,
+                        LookUp(
+                            Filter(
+                                chatBotVersionList,
+                                Value <> Blank()
+                            ),
+                            Value=ThisItem.Value,
+                            Index
+                        )
+                    ).Value
+                )
             FocusedBorderThickness: =4
             Height: =5
             HoverFill: =RGBA(105, 121, 126, 1)
@@ -3444,12 +3470,6 @@ AIGraph_DEV_1 As screen:
                     Int('[Hidden]Value_Token_Input_AIGraph_DEV_1'.Text) +
                     Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text) +
                     Int('[Hidden]Value_Token_Total_AIGraph_DEV_1'.Text)
-                ) * 100, "##.0#%"),
-                Text(
-                    Int('[Hidden]Value_Token_Total_AIGraph_DEV_1'.Text) / (
-                    Int('[Hidden]Value_Token_Input_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Total_AIGraph_DEV_1'.Text)
                 ) * 100, "##.0#%")
             ]
         LabelPosition: =LabelPosition.Inside
@@ -3490,9 +3510,11 @@ AIGraph_DEV_1 As screen:
         DelayItemLoading: =true
         Height: =BarChart_GPTv_Default_Daily_AIGraph_DEV_GPTv_1.Height
         Items: |-
-            =Filter(
-                AIGraphCategoryLV1Usage,
-                Category_LV1 <> Blank()
+            =SortByColumns(
+                Filter(
+                    AIGraphCategoryLV1Usage,
+                    Category_LV1 <> Blank()
+                ),"Token_Total",SortOrder.Descending
             )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
@@ -4526,9 +4548,12 @@ AIGraph_DEV_1 As screen:
         DelayItemLoading: =true
         Height: =325
         Items: |-
-            =Filter(
-                AIGraphCategoryLV1Usage,
-                Category_LV1 <> Blank(),Token_UsageRate
+            =SortByColumns(
+                Filter(
+                    AIGraphCategoryLV1Usage,
+                    Category_LV1 <> Blank(),
+                    Token_UsageRate
+                ),"Token_Total",SortOrder.Descending
             )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
