@@ -1,0 +1,74 @@
+Edit_CategoryMenu_Nam As screen:
+    BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =Concurrent(
+        Set(AddPopUpBackground,false);,
+        UpdateContext({ AddPopUp:false });,
+        UpdateContext({lookUserVi:false});,
+        UpdateContext({AddTeamPopUpVi: false});,
+        UpdateContext({lookTeamVi:false});,
+        UpdateContext({testV:""}),
+        UpdateContext({AddLv1Category_Namsoo: false}), //변경 (원본 AddMianCategory)
+        UpdateContext({AddLv2Category_Namsoo: false}), //추가
+        UpdateContext({HisVi:false}),
+        Set(CategoryPopup, false),
+        
+        UpdateContext({lookLv1TeamView : false}),
+        UpdateContext({AddLv1TeamsPopUp : false}),
+        UpdateContext({lookLv1UserView : false}),
+        UpdateContext({AddLv1UsersPopUp : false}),
+        
+        UpdateContext({AddLv2Category: false}),
+        UpdateContext({AddLv1Category: false}),
+        
+        Set(PA_Result,'[DEV]똑실이-[Apps]일반관리자카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
+        Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
+        Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
+        );
+        
+        
+        //Clear(delCate_Category_Table); //확인필요
+        //Clear(delCate_Manager_Table);
+        
+        ClearCollect(
+            Groups,
+            ForAll(
+                Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
+                {
+                    id: ThisRecord.Value.id,
+                    mail: Text(ThisRecord.Value.mail),
+                    displayName: Text(ThisRecord.Value.displayName),
+                    securityEnabled: Text(ThisRecord.Value.securityEnabled)
+                }
+            )
+        );
+        
+        Concurrent(
+            Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴
+                AssignedCategoryLv2Ids, 
+                ForAll( 
+                    Table(ParseJSON(PA_CategoryLv2_User_List)),
+                    Int(ThisRecord.Value.ID
+                    )
+            ));
+            Set( //[일반관리자] 불러온 Lv2 ID 값을 데이터 원본(똑실이_Category_table)과 비교하여 해당하는 Lv2 카테고리만 불러옴
+                AssignedCategoryTable,
+                Filter(똑실이_Category_table, ID in AssignedCategoryLv2Ids)
+            );,
+        
+            Set( //[일반관리자] PA에서 권한이 할당된 Lv1 카테고리의 ID 값을 불러옴
+                AssignedCategoryLv1Ids, 
+                ForAll(
+                    Table(ParseJSON(PA_CategoryLv1_User_List)),
+                    Int(ThisRecord.Value.ID
+                    )
+            ));
+            Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴
+                AssignedCategoryManagerTable,
+                Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids)
+            );
+        );
+
