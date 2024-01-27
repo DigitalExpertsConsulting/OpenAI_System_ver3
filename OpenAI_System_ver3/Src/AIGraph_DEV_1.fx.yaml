@@ -38,6 +38,7 @@ AIGraph_DEV_1 As screen:
         );
         
         //============================== << 필터 초기화 및 로딩이미지 비활성화 >> ==============================
+        Set(AppsBIAxis, Radio_ChartView_AIGraph_DEV_1.Selected);
         Concurrent(
             Set(AIGraph_Col1, ColorValue(CSS_COMMON.colors.red1)),
             Set(AIGraph_Col2, ColorValue(CSS_COMMON.colors.orange1)),
@@ -52,7 +53,6 @@ AIGraph_DEV_1 As screen:
             Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE),
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE),
             Set(AIGraphAxis, First(AxisPickingList)),
-            Set(AppsBIAxis, Radio_ChartView_AIGraph_DEV_1.Selected),
         
             Reset(Dropdown_GalleryFilter_CategoryLV1_AIGraph_DEV_1),
             Reset(Dropdown_GalleryFilter_CategoryLV2_AIGraph_DEV_1),
@@ -193,34 +193,32 @@ AIGraph_DEV_1 As screen:
                 )
             );
             
-            Concurrent(
-                ClearCollect(
-                    chatBotVersionList,
-                    AddColumns(
-                        Sort(
-                            Filter(
-                                Distinct(
-                                    AIGraphToken,
-                                    Token_Model
-                                ), 
-                                Value <> Blank()
-                            ),
-                            Value,
-                            SortOrder.Ascending
+            ClearCollect(
+                chatBotVersionList,
+                AddColumns(
+                    Sort(
+                        Filter(
+                            Distinct(
+                                AIGraphToken,
+                                Token_Model
+                            ), 
+                            Value <> Blank()
                         ),
-                        "Index",0
-                    )
-                ),
+                        Value,
+                        SortOrder.Ascending
+                    ),
+                    "Index",0
+                )
+            );
             
-                ClearCollect(
-                    AIGraphAddColYM_All,
-                    AddColumns(
-                        AIGraphToken,
-                        "YearMonth",
-                        Year(Token_Date)*100 + Month(Token_Date),
-                        "YearMonth_",
-                        Text(Year(Token_Date)) & "년 " & Text(Month(Token_Date)) &"월"
-                    )
+            ClearCollect(
+                AIGraphAddColYM_All,
+                AddColumns(
+                    AIGraphToken,
+                    "YearMonth",
+                    Year(Token_Date)*100 + Month(Token_Date),
+                    "YearMonth_",
+                    Text(Year(Token_Date)) & "년 " & Text(Month(Token_Date)) &"월"
                 )
             );
             
@@ -3462,14 +3460,12 @@ AIGraph_DEV_1 As screen:
                 Text(
                     Int('[Hidden]Value_Token_Input_AIGraph_DEV_1'.Text) / (
                     Int('[Hidden]Value_Token_Input_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Total_AIGraph_DEV_1'.Text)
+                    Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text)
                 ) * 100, "##.0#%"),
                 Text(
                     Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text) / (
                     Int('[Hidden]Value_Token_Input_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text) +
-                    Int('[Hidden]Value_Token_Total_AIGraph_DEV_1'.Text)
+                    Int('[Hidden]Value_Token_Output_AIGraph_DEV_1'.Text)
                 ) * 100, "##.0#%")
             ]
         LabelPosition: =LabelPosition.Inside
