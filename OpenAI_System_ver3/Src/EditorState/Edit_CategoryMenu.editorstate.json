@@ -10024,7 +10024,14 @@
     "Button_SaveAddCategory_CategoryMenu_in_Lv2PopUp": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        "OnSelect",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "Set(CategoryVal2, Split(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value, \"\")); //이거맞나 //이거 뭐하는건데\nSet(CategoryVal3, Split(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text, \"\"));\n\nIf( //이거맞나 // 에러처리, Lv1 드롭다운 빈칸 일 때 에러 //근데 만약 \"-----------\" 이라는 카테고리를 만들고 싶어한다면? 어쩔건데\n     Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value = \"-----------\",     \n    Notify(\n        \"메인 카테고리를 선택해주세요.\",\n        NotificationType.Error,\n        0\n    ),\n\n\nIf( //이거맞나 // 에러처리, Lv2 이름 입력창이 빈칸 일 때 에러\n     TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text = \"\",\n     //TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text = \"\" || TextInput_AddMainCategoryNameSub_CategoryMenu_Lv2PopUp.Text = \"\",     \n    Notify(\n        \"이름을 지정하지 않은 하위 메뉴가 있습니다.\",\n        NotificationType.Error,\n        0\n    ),\n\nIf(\n    CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0 || CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,\n    Notify(\n        Char(34) & \"* : < > ? / \\ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요\",\n        NotificationType.Error,\n        0\n    ),\n\n    If(!IsBlank(LookUp(Category_ALL_Lv_List, Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text)),\n    //If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text && Category_LV2=TextInput_AddMainCategoryNameSub_CategoryMenu_Lv2PopUp.Text)),\n    //이거맞나 //위에꺼 Lv1 생성이라서 안넣었음\n\n     Notify(\n        \"중복된 카테고리명입니다\",\n        NotificationType.Error,\n        0\n    ),\n    Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용\n        똑실이_Category_table,\n        {\n            제목: \".\",\n            //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),\n            Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운\n            //\"새 메뉴\" & Last(똑실이_Category_table).ID + 1,\n            Category_LV2: Trim(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text),\n            //ID: Last(똑실이_Category_table).ID + 1,\n            //LV1Order: Last(똑실이_Category_table).LV1Order + 1, //이거맞나 //이거 Lv1 카운트 늘리는거잖아, Lv2 카테고리 추가하는데 필요없지\n            //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1), //이거맞나 //아래로 바꿈\n            LV1Order: Last(똑실이_Category_table).ID + 1, //이거 맞나 //좀더고민\n            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),\n            //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value=\"한국어\",\"ko\",\"en\")\n            DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp.Selected.Value,\"한국어\",\"ko\",\"English\",\"en\",\"日本語\",\"ja\")\n        }\n    );\n    Notify(\n        \"저장하였습니다.\",\n        NotificationType.Success,\n        0\n    ); Refresh(똑실이_Category_table);\n    UpdateContext({AddLv2Category: false}); Reset(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp);Reset(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp);\n\n););););",
+          "InvariantPropertyName": "OnSelect",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        },
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -10331,7 +10338,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultButtonStyle",
