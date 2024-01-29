@@ -184,7 +184,8 @@ Edit_CategoryMenu As screen:
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =Refresh(똑실이_Category_table);
+            =UpdateContext({locLoadingSpinner: true});
+            Refresh(똑실이_Category_table);
             Refresh(똑실이_Category_Manager_table);
             
             ClearCollect(
@@ -233,6 +234,8 @@ Edit_CategoryMenu As screen:
                     Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank()), LV1Order)
                 );
             );
+            
+            UpdateContext({locLoadingSpinner: false});
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -2042,7 +2045,7 @@ Edit_CategoryMenu As screen:
             FocusedBorderThickness: =2
             Height: =320
             Items: |-
-                =Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams))
+                =Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams) && IsBlank(CategoryType))
                 //Filter(Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Split(TeamName,",")))
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
