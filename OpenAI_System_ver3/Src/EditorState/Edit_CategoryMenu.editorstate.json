@@ -9385,7 +9385,14 @@
     "Button_Refresh_CategoryMenu_2": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        "OnSelect",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "Refresh(똑실이_Category_table);\n\nClearCollect(\n    CategoryTable,\n    ShowColumns(\n        똑실이_Category_table,\n        \"Title\",\n        \"Category_LV1\",\n        \"Category_LV2\",\n        \"LV1Order\",\n        \"LV2Order\",\n        \"Users\",\n        \"ID\",\n        \"History\",\n        \"Teams\",\n        \"FileCount\",\n        \"DocumentLanguage\"\n    )\n);\n\nSet(PA_Result,'똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'\nSet(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도\nSet(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //이거맞나 //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도\nConcurrent(\n    Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴\n        AssignedCategoryLv2Ids, \n        ForAll( \n            Table(ParseJSON(PA_CategoryLv2_User_List)),\n            Int(ThisRecord.Value.ID\n            )\n    ));\n    Set( //[일반관리자] 불러온 Lv2 ID 값을 데이터 원본(똑실이_Category_table)과 비교하여 해당하는 Lv2 카테고리만 불러옴\n        AssignedCategoryTable,\n        Filter(똑실이_Category_table, ID in AssignedCategoryLv2Ids)\n    );,\n\n    Set( //[일반관리자] PA에서 권한이 할당된 Lv1 카테고리의 ID 값을 불러옴\n        AssignedCategoryLv1Ids, \n        ForAll(\n            Table(ParseJSON(PA_CategoryLv1_User_List)),\n            Int(ThisRecord.Value.ID\n            )\n    ));\n    Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴\n        AssignedCategoryManagerTable,\n        Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank()), LV1Order)\n    );\n);",
+          "InvariantPropertyName": "OnSelect",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        },
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -9692,7 +9699,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultButtonStyle",
@@ -16275,7 +16282,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnVisible",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultScreenStyle",
@@ -19813,7 +19820,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Add_CategoryLv1_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 92,
+      "ParentIndex": 93,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -19865,7 +19872,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Add_CategoryLv2_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 91,
+      "ParentIndex": 92,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -19917,7 +19924,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Add_Lv2_Team_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 89,
+      "ParentIndex": 90,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -19969,7 +19976,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Add_Lv2_User_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 88,
+      "ParentIndex": 89,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20021,7 +20028,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_del__Category",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 93,
+      "ParentIndex": 94,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20073,7 +20080,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Edit_Lv2_Team_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 90,
+      "ParentIndex": 91,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20125,7 +20132,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Edit_Lv2_User_Popup",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 87,
+      "ParentIndex": 88,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20177,7 +20184,7 @@
       "MetaDataIDKey": "",
       "Name": "Group_Lv2CategorySettingModal_CategoryMenu",
       "OptimizeForDevices": "Off",
-      "ParentIndex": 86,
+      "ParentIndex": 87,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -27203,6 +27210,215 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
+          "RuleProviderType": "Unknown"
+        }
+      ],
+      "StyleName": "defaultImageStyle",
+      "Type": "ControlInfo"
+    },
+    "Image_LoadingSpinner_FM_Category_Manager": {
+      "AllowAccessToGlobals": true,
+      "ControlPropertyState": [
+        "Image",
+        "ImagePosition",
+        "ImageRotation",
+        "X",
+        "Y",
+        "Width",
+        "Height",
+        "Fill",
+        "DisabledFill",
+        "PressedFill",
+        "HoverFill",
+        "BorderColor",
+        "DisabledBorderColor",
+        "PressedBorderColor",
+        "HoverBorderColor",
+        "FocusedBorderColor",
+        "BorderStyle",
+        "DisplayMode",
+        "ZIndex",
+        "RadiusTopLeft",
+        "RadiusTopRight",
+        "RadiusBottomLeft",
+        "RadiusBottomRight",
+        "BorderThickness",
+        "FocusedBorderThickness",
+        "PaddingTop",
+        "PaddingRight",
+        "PaddingBottom",
+        "PaddingLeft",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "true",
+          "InvariantPropertyName": "Visible",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        }
+      ],
+      "HasDynamicProperties": false,
+      "IsAutoGenerated": false,
+      "IsComponentDefinition": false,
+      "IsDataControl": false,
+      "IsFromScreenLayout": false,
+      "IsGroupControl": false,
+      "IsLocked": false,
+      "LayoutName": "",
+      "MetaDataIDKey": "",
+      "Name": "Image_LoadingSpinner_FM_Category_Manager",
+      "OptimizeForDevices": "Off",
+      "ParentIndex": 86,
+      "PersistMetaDataIDKey": false,
+      "Properties": [
+        {
+          "Category": "Data",
+          "PropertyName": "Image",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PaddingBottom",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PaddingRight",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PaddingTop",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "FocusedBorderThickness",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "BorderThickness",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "RadiusBottomRight",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "RadiusBottomLeft",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "RadiusTopRight",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "RadiusTopLeft",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "ZIndex",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "DisplayMode",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "BorderStyle",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "HoverBorderColor",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PressedBorderColor",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "Visible",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "DisabledBorderColor",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "BorderColor",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "HoverFill",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PressedFill",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "DisabledFill",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "Fill",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "Height",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "Width",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "Y",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "X",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "ImageRotation",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "ImagePosition",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "FocusedBorderColor",
+          "RuleProviderType": "Unknown"
+        },
+        {
+          "Category": "Design",
+          "PropertyName": "PaddingLeft",
           "RuleProviderType": "Unknown"
         }
       ],
