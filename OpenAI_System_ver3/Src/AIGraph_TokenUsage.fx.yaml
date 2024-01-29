@@ -21,7 +21,7 @@ AIGraph_TokenUsage As screen:
             UpdateContext({locPopupBackground:false}),  // 팝업 배경 이미지 비활성화
         
             Set(DatePickerSetting, false),
-            Set(AxisPickingList, ["토큰 사용량", "GPT 버전", "카테고리"]); // 
+            Set(AxisPickingList, ["토큰", "GPT 버전", "카테고리"]); // 
             
             ClearCollect(
                 colCategoryAdmin,
@@ -59,6 +59,7 @@ AIGraph_TokenUsage As screen:
             Reset(Dropdown_DatePicker_AIGraph_TokenUsage),
             Reset(DatePicker_FirstDate_AIGraph_TokenUsage),
             Reset(DatePicker_LastDate_AIGraph_TokenUsage),
+            Reset(Dropdown_AxisPicker_AIGraph_TokenUsage),
             Reset(Radio_ChartView_AIGraph_TokenUsage),
             Reset(Toggle_DateSetting_AIGraph_TokenUsage),
             Select(Button_Table_Filtering_AIGraph_TokenUsage)
@@ -76,18 +77,42 @@ AIGraph_TokenUsage As screen:
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성
         );
 
+    Label_AIGraphMain_AIGraph_TokenUsage As Component_Main_Title:
+        ScreenTitle: =First(똑실이_ChatbotText_table).BotName & " 사용 분석"
+        X: =330
+
+    BG_Summ_AIGraph_TokenUsage As Component_Container:
+        Height: =870
+        Width: =465
+        X: =BG_Graph_AIGraph_TokenUsage.X + BG_Graph_AIGraph_TokenUsage.Width - 20
+        Y: =198
+        ZIndex: =2
+
     BG_Filtering_AIGraph_TokenUsage As Component_Container:
         Height: =120
         Width: =1556 + 40
         X: =Label_AIGraphMain_AIGraph_TokenUsage.X - 20
-        Y: =Label_AIGraphMain_AIGraph_TokenUsage.Y + Label_AIGraphMain_AIGraph_TokenUsage.Height + 20
+        Y: =Label_AIGraphMain_AIGraph_TokenUsage.Y + Label_AIGraphMain_AIGraph_TokenUsage.Height -5
+        ZIndex: =3
 
     BG_Graph_AIGraph_TokenUsage As Component_Container:
         Height: =870
-        Width: =1556 + 40
+        Width: =1151
         X: =Label_AIGraphMain_AIGraph_TokenUsage.X - 20
         Y: =198
-        ZIndex: =2
+        ZIndex: =4
+
+    Sep_PieChart_AIGraph_TokenUsage As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Fill: =RGBA(204, 204, 204, 1)
+        FocusedBorderThickness: =4
+        Height: =1
+        Width: =385
+        X: =Label_PieChart_AIGraph_TokenUsage.X
+        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y + Label_GraphTitle_AIGraph_TokenUsage_1.Height + 16
+        ZIndex: =5
 
     Button_Table_Filtering_AIGraph_TokenUsage As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -249,7 +274,7 @@ AIGraph_TokenUsage As screen:
             );
             
             If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
             
                 Concurrent(
                     ClearCollect(
@@ -472,9 +497,10 @@ AIGraph_TokenUsage As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =835
         Y: =1040
-        ZIndex: =4
+        ZIndex: =6
 
     Label_For_TEST_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -490,27 +516,10 @@ AIGraph_TokenUsage As screen:
         Visible: =false
         X: =1144
         Y: =1040
-        ZIndex: =5
+        ZIndex: =7
 
     Component_GNB_AIGraph_TokenUsage As New_Component_GNB:
-        ZIndex: =6
-
-    Label_AIGraphMain_AIGraph_TokenUsage As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =ColorValue(CSS_COMMON.colors.fg)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Bold
-        Size: =32
-        Text: =First(똑실이_ChatbotText_table).BotName & " 사용 분석"
-        Width: =600
-        X: =Component_GNB_AIGraph_TokenUsage.Width + 32
-        Y: =23
-        ZIndex: =7
+        ZIndex: =8
 
     Label_GalleryFilter_Category_AIGraph_TokenUsage As label:
         Align: =Align.Center
@@ -531,7 +540,7 @@ AIGraph_TokenUsage As screen:
         Width: =80
         X: =BG_Filtering_AIGraph_TokenUsage.X + 38
         Y: =BG_Filtering_AIGraph_TokenUsage.Y + BG_Filtering_AIGraph_TokenUsage.Height/2 - Self.Height/2
-        ZIndex: =8
+        ZIndex: =9
 
     Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -577,7 +586,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =Label_GalleryFilter_Category_AIGraph_TokenUsage.X + Label_GalleryFilter_Category_AIGraph_TokenUsage.Width + 8
         Y: =Label_GalleryFilter_Category_AIGraph_TokenUsage.Y
-        ZIndex: =9
+        ZIndex: =10
 
     Dropdown_GalleryFilter_CategoryLV2_AIGraph_TokenUsage As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -634,7 +643,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: ='Label_GalleryFilter_>_AIGraph_TokenUsage'.X + 'Label_GalleryFilter_>_AIGraph_TokenUsage'.Width
         Y: =Label_GalleryFilter_Category_AIGraph_TokenUsage.Y
-        ZIndex: =10
+        ZIndex: =11
 
     "'Label_GalleryFilter_>_AIGraph_TokenUsage' As label":
         Align: =Align.Center
@@ -648,7 +657,7 @@ AIGraph_TokenUsage As screen:
         Width: =40
         X: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.X + Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Width
         Y: =Label_GalleryFilter_Category_AIGraph_TokenUsage.Y-6
-        ZIndex: =11
+        ZIndex: =12
 
     Label_DatePicker_AIGraph_TokenUsage As label:
         Align: =Align.Center
@@ -669,7 +678,7 @@ AIGraph_TokenUsage As screen:
         Width: =40
         X: =Dropdown_GalleryFilter_CategoryLV2_AIGraph_TokenUsage.X + Dropdown_GalleryFilter_CategoryLV2_AIGraph_TokenUsage.Width + 24
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-        ZIndex: =12
+        ZIndex: =13
 
     "'Label_DatePicker_>_AIGraph_TokenUsage' As label":
         Align: =Align.Center
@@ -684,7 +693,7 @@ AIGraph_TokenUsage As screen:
         Width: =40
         X: =DatePicker_FirstDate_AIGraph_TokenUsage.X + DatePicker_FirstDate_AIGraph_TokenUsage.Width
         Y: ='Label_GalleryFilter_>_AIGraph_TokenUsage'.Y
-        ZIndex: =13
+        ZIndex: =14
 
     DatePicker_FirstDate_AIGraph_TokenUsage As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -724,7 +733,7 @@ AIGraph_TokenUsage As screen:
         X: |
             =Dropdown_DatePicker_AIGraph_TokenUsage.X + Dropdown_DatePicker_AIGraph_TokenUsage.Width + 10
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-        ZIndex: =14
+        ZIndex: =15
 
     DatePicker_LastDate_AIGraph_TokenUsage As datepicker:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -747,7 +756,7 @@ AIGraph_TokenUsage As screen:
             =200
         X: ='Label_DatePicker_>_AIGraph_TokenUsage'.X + 'Label_DatePicker_>_AIGraph_TokenUsage'.Width
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-        ZIndex: =15
+        ZIndex: =16
 
     Toggle_DateSetting_AIGraph_TokenUsage As toggleSwitch:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -778,7 +787,7 @@ AIGraph_TokenUsage As screen:
         Width: =60
         X: =1114
         Y: =64
-        ZIndex: =16
+        ZIndex: =17
 
     Dropdown_DatePicker_AIGraph_TokenUsage As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -824,7 +833,7 @@ AIGraph_TokenUsage As screen:
             =150
         X: =Label_DatePicker_AIGraph_TokenUsage.X + Label_DatePicker_AIGraph_TokenUsage.Width + 8
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-        ZIndex: =17
+        ZIndex: =18
 
     LineChart_Default_Monthly_AIGraph_TokenUsage As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -890,7 +899,7 @@ AIGraph_TokenUsage As screen:
             )
         NumberOfSeries: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 3,
                 4
             )
@@ -898,14 +907,14 @@ AIGraph_TokenUsage As screen:
         Size: =15
         Visible: |-
             =If(
-                DatePickerSetting = false And LineChart_Default_Daily_AIGraph_TokenUsage.Visible = false And AppsBIAxis.Value = "토큰 사용량",
+                DatePickerSetting = false And LineChart_Default_Daily_AIGraph_TokenUsage.Visible = false And AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =LineChart_Default_Daily_AIGraph_TokenUsage.Width
         X: =LineChart_Default_Daily_AIGraph_TokenUsage.X
         Y: =LineChart_Default_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =20
+        ZIndex: =21
 
     LineChart_Default_Daily_AIGraph_TokenUsage As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -941,7 +950,7 @@ AIGraph_TokenUsage As screen:
         Markers: =false
         NumberOfSeries: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 3,
                 4
             )
@@ -949,7 +958,7 @@ AIGraph_TokenUsage As screen:
         Size: =15
         Visible: |-
             =If(
-                DatePickerSetting = false And AppsBIAxis.Value = "토큰 사용량",
+                DatePickerSetting = false And AppsBIAxis.Value = "토큰",
                 If(
                     Dropdown_DatePicker_AIGraph_TokenUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TokenUsage.SelectedText.Value = "3개월",
                     true,
@@ -957,10 +966,10 @@ AIGraph_TokenUsage As screen:
                 ),
                 false
             )
-        Width: =1177
+        Width: =BG_Graph_AIGraph_TokenUsage.Width - 60
         X: =343
         Y: =340
-        ZIndex: =21
+        ZIndex: =22
 
     LineChart_Custom_Daily_AIGraph_TokenUsage As lineChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -987,7 +996,7 @@ AIGraph_TokenUsage As screen:
         Markers: =false
         NumberOfSeries: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 3,
                 4
             )
@@ -995,14 +1004,66 @@ AIGraph_TokenUsage As screen:
         Size: =15
         Visible: |-
             =If(
-                DatePickerSetting = true And AppsBIAxis.Value = "토큰 사용량",
+                DatePickerSetting = true And AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =LineChart_Default_Daily_AIGraph_TokenUsage.Width
         X: =LineChart_Default_Daily_AIGraph_TokenUsage.X
         Y: =LineChart_Default_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =22
+        ZIndex: =23
+
+    Group_RadioFilter_Category_AIGraph_TokenUsage As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =23
+
+        Radio_ChartView_AIGraph_TokenUsage As 라디오.pcfdataset:
+            DefaultSelectedItems: =First(AxisPickingList)
+            DisplayMode: =DisplayMode.Edit
+            Font: =Font.'Open Sans'
+            FontColor: =RGBA(0, 0, 0, 1)
+            FontSize: =20
+            FontWeight: =FontWeight.Normal
+            Height: |
+                =50
+            Items: =AxisPickingList
+            Layout: ='RadioGroupCanvas.Layout'.Horizontal
+            OnChange: |-
+                =Set(AppsBIAxis, Self.Selected);
+                Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE);
+                Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
+                Select(Button_Table_Filtering_AIGraph_TokenUsage);
+            OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
+            Required: =true 
+            Visible: =false
+            Width: =537
+            X: =1383
+            Y: =54
+            ZIndex: =19
+
+        Label_RadioFilter_Category_AIGraph_TokenUsage As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =ColorValue(CSS_COMMON.colors.fg)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =DatePicker_LastDate_AIGraph_TokenUsage.Height
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="비교방식"
+            Width: =80
+            X: =DatePicker_LastDate_AIGraph_TokenUsage.X + DatePicker_LastDate_AIGraph_TokenUsage.Width + 24
+            Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
+            ZIndex: =20
 
     BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -1075,7 +1136,7 @@ AIGraph_TokenUsage As screen:
         Width: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.Width
         X: =LineChart_Default_Daily_AIGraph_TokenUsage.X + 20
         Y: =LineChart_Default_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =23
+        ZIndex: =24
 
         DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage As label:
             Align: =Align.Center
@@ -1497,58 +1558,6 @@ AIGraph_TokenUsage As screen:
             Y: =DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage.Y-1
             ZIndex: =12
 
-    Group_RadioFilter_Category_AIGraph_TokenUsage As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =23
-
-        Radio_ChartView_AIGraph_TokenUsage As 라디오.pcfdataset:
-            DefaultSelectedItems: =First(AxisPickingList)
-            DisplayMode: =DisplayMode.Edit
-            Font: =Font.'Open Sans'
-            FontColor: =RGBA(0, 0, 0, 1)
-            FontSize: =20
-            FontWeight: =FontWeight.Normal
-            Height: |
-                =50
-            Items: =AxisPickingList
-            Layout: ='RadioGroupCanvas.Layout'.Horizontal
-            OnChange: |-
-                =Set(AppsBIAxis, Self.Selected);
-                Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE);
-                Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
-                Select(Button_Table_Filtering_AIGraph_TokenUsage);
-            OnSelect: =Set(AppsBIAxis, LookUp(AxisPickingList, Value=ThisRecord.Value))
-            Required: =true 
-            Visible: =false
-            Width: =537
-            X: =1383
-            Y: =54
-            ZIndex: =18
-
-        Label_RadioFilter_Category_AIGraph_TokenUsage As label:
-            Align: =Align.Center
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =ColorValue(CSS_COMMON.colors.fg)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =DatePicker_LastDate_AIGraph_TokenUsage.Height
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: ="비교방식"
-            Width: =80
-            X: =DatePicker_LastDate_AIGraph_TokenUsage.X + DatePicker_LastDate_AIGraph_TokenUsage.Width + 24
-            Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-            ZIndex: =19
-
     BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0 As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
         BorderStyle: =BorderStyle.None
@@ -1618,10 +1627,10 @@ AIGraph_TokenUsage As screen:
                 ),
                 false
             )
-        Width: =1100
+        Width: =BG_Graph_AIGraph_TokenUsage.Width - 100
         X: =LineChart_Default_Daily_AIGraph_TokenUsage.X + 20
         Y: =LineChart_Default_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =24
+        ZIndex: =25
 
         DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage As label:
             Align: =Align.Center
@@ -2149,7 +2158,7 @@ AIGraph_TokenUsage As screen:
         Width: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.Width
         X: =LineChart_Default_Daily_AIGraph_TokenUsage.X + 20
         Y: =LineChart_Default_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =25
+        ZIndex: =26
 
         DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage As label:
             Align: =Align.Center
@@ -2614,14 +2623,14 @@ AIGraph_TokenUsage As screen:
         Text: ="Input Token"
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
-        X: =1500
-        Y: =340
-        ZIndex: =26
+        X: =1520
+        Y: =712
+        ZIndex: =27
 
     Label_Token_Output_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2636,14 +2645,14 @@ AIGraph_TokenUsage As screen:
         Text: ="Output Token"
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
-        X: =Label_Token_Input_AIGraph_TokenUsage.X
-        Y: =430
-        ZIndex: =27
+        X: =1520
+        Y: =802
+        ZIndex: =28
 
     Label_Token_Total_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2658,14 +2667,14 @@ AIGraph_TokenUsage As screen:
         Text: ="Total Token"
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
-        X: =Label_Token_Input_AIGraph_TokenUsage.X
-        Y: =520
-        ZIndex: =28
+        X: =1520
+        Y: =892
+        ZIndex: =29
 
     Value_Token_Input_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2684,14 +2693,14 @@ AIGraph_TokenUsage As screen:
             )
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
         X: =Label_Token_Input_AIGraph_TokenUsage.X + Label_Token_Input_AIGraph_TokenUsage.Width
         Y: =Label_Token_Input_AIGraph_TokenUsage.Y
-        ZIndex: =29
+        ZIndex: =30
 
     Value_Token_Output_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2710,14 +2719,14 @@ AIGraph_TokenUsage As screen:
             )
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
         X: =Label_Token_Output_AIGraph_TokenUsage.X + Label_Token_Output_AIGraph_TokenUsage.Width
         Y: =Label_Token_Output_AIGraph_TokenUsage.Y
-        ZIndex: =30
+        ZIndex: =31
 
     Value_Token_Total_AIGraph_TokenUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2736,14 +2745,14 @@ AIGraph_TokenUsage As screen:
             )
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =200
         X: =Label_Token_Total_AIGraph_TokenUsage.X + Label_Token_Total_AIGraph_TokenUsage.Width
         Y: =Label_Token_Total_AIGraph_TokenUsage.Y
-        ZIndex: =31
+        ZIndex: =32
 
     Color_Token_Input_AIGraph_TokenUsage As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2757,14 +2766,14 @@ AIGraph_TokenUsage As screen:
         PressedFill: =RGBA(96, 197, 234, 1)
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =30
         X: =Label_Token_Input_AIGraph_TokenUsage.X - Self.Width
         Y: =Label_Token_Input_AIGraph_TokenUsage.Y+Label_Token_Input_AIGraph_TokenUsage.Height/2 - Self.Height/2
-        ZIndex: =32
+        ZIndex: =33
 
     Color_Token_Output_AIGraph_TokenUsage As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2778,14 +2787,14 @@ AIGraph_TokenUsage As screen:
         PressedFill: =RGBA(212,96,104,1)
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =30
         X: =Label_Token_Output_AIGraph_TokenUsage.X - Self.Width
         Y: =Label_Token_Output_AIGraph_TokenUsage.Y+Label_Token_Output_AIGraph_TokenUsage.Height/2 - Self.Height/2
-        ZIndex: =33
+        ZIndex: =34
 
     Color_Token_Total_AIGraph_TokenUsage As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2799,14 +2808,14 @@ AIGraph_TokenUsage As screen:
         PressedFill: =RGBA(247,199,114,1)
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
         Width: =30
         X: =Label_Token_Total_AIGraph_TokenUsage.X - Self.Width
         Y: =Label_Token_Total_AIGraph_TokenUsage.Y+Label_Token_Total_AIGraph_TokenUsage.Height/2 - Self.Height/2
-        ZIndex: =34
+        ZIndex: =35
 
     "'[Hidden]Value_Token_Input_AIGraph_TokenUsage' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2878,7 +2887,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =Label_Token_Input_AIGraph_TokenUsage.X + Label_Token_Input_AIGraph_TokenUsage.Width
         Y: =Label_Token_Input_AIGraph_TokenUsage.Y
-        ZIndex: =35
+        ZIndex: =36
 
     "'[Hidden]Value_Token_Output_AIGraph_TokenUsage' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2950,7 +2959,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =Label_Token_Output_AIGraph_TokenUsage.X + Label_Token_Output_AIGraph_TokenUsage.Width
         Y: =Label_Token_Output_AIGraph_TokenUsage.Y
-        ZIndex: =36
+        ZIndex: =37
 
     "'[Hidden]Value_Token_Total_AIGraph_TokenUsage' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3022,7 +3031,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =Label_Token_Total_AIGraph_TokenUsage.X + Label_Token_Total_AIGraph_TokenUsage.Width
         Y: =Label_Token_Total_AIGraph_TokenUsage.Y
-        ZIndex: =37
+        ZIndex: =38
 
     "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage' As label":
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3094,7 +3103,7 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =Label_Token_Output_AIGraph_TokenUsage.X + Label_Token_Output_AIGraph_TokenUsage.Width
         Y: =Label_Token_Output_AIGraph_TokenUsage.Y
-        ZIndex: =38
+        ZIndex: =39
 
     "Gallery_GPTv_Usage_AIGraph_TokenUsage As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -3121,9 +3130,9 @@ AIGraph_TokenUsage As screen:
                 false
             )
         Width: =Value_Token_Input_AIGraph_TokenUsage.X + Value_Token_Input_AIGraph_TokenUsage.Width - Label_Token_Input_AIGraph_TokenUsage.X
-        X: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.Width + BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.X + 10
+        X: =Label_PieChart_AIGraph_TokenUsage.X + 20
         Y: =Label_GPTv_Total_AIGraph_TokenUsage_2.Y + Label_GPTv_Total_AIGraph_TokenUsage_2.Height
-        ZIndex: =39
+        ZIndex: =40
 
         Color_GPTv_Total_AIGraph_TokenUsage_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -3300,7 +3309,7 @@ AIGraph_TokenUsage As screen:
         Width: =30
         X: =Gallery_GPTv_Usage_AIGraph_TokenUsage.X
         Y: =Label_GPTv_Total_AIGraph_TokenUsage_2.Y + Label_GPTv_Total_AIGraph_TokenUsage_2.Height/2 - Self.Height/2
-        ZIndex: =40
+        ZIndex: =41
 
     Label_GPTv_Total_AIGraph_TokenUsage_2 As label:
         Color: =RGBA(50, 49, 48, 1)
@@ -3332,9 +3341,8 @@ AIGraph_TokenUsage As screen:
         Visible: =Gallery_GPTv_Usage_AIGraph_TokenUsage.Visible
         Width: =200
         X: =Color_GPTv_Total_AIGraph_TokenUsage_2.X + Color_GPTv_Total_AIGraph_TokenUsage_2.Width + 10
-        Y: |
-            =275
-        ZIndex: =41
+        Y: =Sep_Summ_AIGraph_TokenUsage.Y + Sep_Summ_AIGraph_TokenUsage.Height + 20
+        ZIndex: =42
 
     Value_GPTv_Total_AIGraph_TokenUsage_2 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3355,7 +3363,7 @@ AIGraph_TokenUsage As screen:
         Width: =170
         X: =Label_GPTv_Total_AIGraph_TokenUsage_2.X + Label_GPTv_Total_AIGraph_TokenUsage_2.Width
         Y: =Label_GPTv_Total_AIGraph_TokenUsage_2.Y
-        ZIndex: =42
+        ZIndex: =43
 
     PieChart_GPTv_Usage_AIGraph_TokenUsage As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3490,7 +3498,7 @@ AIGraph_TokenUsage As screen:
         Width: =PieChart_Token_Usage_AIGraph_TokenUsage.Width
         X: =PieChart_Token_Usage_AIGraph_TokenUsage.X
         Y: =PieChart_Token_Usage_AIGraph_TokenUsage.Y
-        ZIndex: =43
+        ZIndex: =44
 
     PieChart_Token_Usage_AIGraph_TokenUsage As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -3499,7 +3507,7 @@ AIGraph_TokenUsage As screen:
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Font: =Font.'Segoe UI'
-        Height: =500
+        Height: =450
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
         Items: |-
@@ -3520,17 +3528,16 @@ AIGraph_TokenUsage As screen:
         Size: =15
         Visible: |-
             =If(
-                AppsBIAxis.Value = "토큰 사용량",
+                AppsBIAxis.Value = "토큰",
                 true,
                 false
             )
-        Width: =500
-        X: =1425
-        Y: =575
-        ZIndex: =44
+        Width: =450
+        X: =1450
+        Y: =240
+        ZIndex: =45
 
     Label_PieChart_AIGraph_TokenUsage As label:
-        Align: =Align.Center
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -3538,15 +3545,15 @@ AIGraph_TokenUsage As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Height: =110
+        Height: =Label_GraphTitle_AIGraph_TokenUsage_1.Height
         Size: =20
         Text: =First(똑실이_ChatbotText_table).BotName & " 사용 비율"
-        Width: |
-            =250
-        X: =PieChart_Token_Usage_AIGraph_TokenUsage.X + PieChart_Token_Usage_AIGraph_TokenUsage.Width/2 - Self.Width/2
-        Y: =PieChart_GPTv_Usage_AIGraph_TokenUsage.Y
-        ZIndex: =45
+        Width: =212
+        X: =1480
+        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y
+        ZIndex: =46
 
     "'[Hidden]Group_Value_GPTv_Total_AIGraph_TokenUsage' As group":
         Height: =5
@@ -3633,7 +3640,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =46
+            ZIndex: =47
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_3' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -3713,7 +3720,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =47
+            ZIndex: =48
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_4' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -3793,7 +3800,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =48
+            ZIndex: =49
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_5' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -3873,7 +3880,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =49
+            ZIndex: =50
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_6' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -3953,7 +3960,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =50
+            ZIndex: =51
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_7' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -4033,7 +4040,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =51
+            ZIndex: =52
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_8' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -4113,7 +4120,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =52
+            ZIndex: =53
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_9' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -4193,7 +4200,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =53
+            ZIndex: =54
 
         "'[Hidden]Value_GPTv_Total_AIGraph_TokenUsage_10' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -4273,7 +4280,7 @@ AIGraph_TokenUsage As screen:
             X: =1720
             Y: |
                 =0
-            ZIndex: =54
+            ZIndex: =55
 
     "BarChart_LV1Category_Daily_AIGraph_TokenUsage As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -4313,7 +4320,7 @@ AIGraph_TokenUsage As screen:
         Width: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.Width
         X: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.X
         Y: =BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0.Y
-        ZIndex: =55
+        ZIndex: =56
 
         Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage As label:
             Align: =Align.Right
@@ -4448,7 +4455,7 @@ AIGraph_TokenUsage As screen:
         Width: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width
         X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.X
         Y: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =56
+        ZIndex: =57
 
         Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage As label:
             Align: =Align.Right
@@ -4560,7 +4567,7 @@ AIGraph_TokenUsage As screen:
         Width: =PieChart_Token_Usage_AIGraph_TokenUsage.Width
         X: =PieChart_Token_Usage_AIGraph_TokenUsage.X
         Y: =PieChart_Token_Usage_AIGraph_TokenUsage.Y
-        ZIndex: =57
+        ZIndex: =58
 
     PieChart_LV2Category_Usage_AIGraph_TokenUsage As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -4584,7 +4591,7 @@ AIGraph_TokenUsage As screen:
         Width: =PieChart_Token_Usage_AIGraph_TokenUsage.Width
         X: =PieChart_Token_Usage_AIGraph_TokenUsage.X
         Y: =PieChart_Token_Usage_AIGraph_TokenUsage.Y
-        ZIndex: =58
+        ZIndex: =59
 
     "BarChart_LV1Category_Detail_AIGraph_TokenUsage As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -4607,7 +4614,7 @@ AIGraph_TokenUsage As screen:
         Width: =395
         X: =1488
         Y: =250
-        ZIndex: =59
+        ZIndex: =60
 
         Label_BarChart_LV1Category_Detail_AIGraph_TokenUsage As label:
             Color: =RGBA(50, 49, 48, 1)
@@ -4749,7 +4756,7 @@ AIGraph_TokenUsage As screen:
         ChevronHoverBackground: =RGBA(212, 212, 212, 1)
         ChevronHoverFill: =RGBA(33, 33, 33, 1)
         Color: =ColorValue(CSS_COMMON.colors.fg)
-        Default: =
+        Default: =First(AxisPickingList).Value
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
@@ -4777,5 +4784,47 @@ AIGraph_TokenUsage As screen:
         Width: =DatePicker_FirstDate_AIGraph_TokenUsage.Width
         X: =Label_RadioFilter_Category_AIGraph_TokenUsage.X + Label_RadioFilter_Category_AIGraph_TokenUsage.Width + 8
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
-        ZIndex: =60
+        ZIndex: =61
+
+    Label_GraphTitle_AIGraph_TokenUsage_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =ColorValue(CSS_COMMON.colors.fg)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =28
+        Size: =20
+        Text: =Dropdown_AxisPicker_AIGraph_TokenUsage.Selected.Value & " 사용량"
+        Width: =600
+        X: =Label_GalleryFilter_Category_AIGraph_TokenUsage.X
+        Y: =240
+        ZIndex: =62
+
+    Sep_AIGraph_TokenUsage As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Fill: =RGBA(204, 204, 204, 1)
+        FocusedBorderThickness: =4
+        Height: =1
+        Width: =1073
+        X: =Label_GraphTitle_AIGraph_TokenUsage_1.X
+        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y + Label_GraphTitle_AIGraph_TokenUsage_1.Height + 16
+        ZIndex: =63
+
+    Sep_Summ_AIGraph_TokenUsage As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Fill: =RGBA(204, 204, 204, 1)
+        FocusedBorderThickness: =4
+        Height: =1
+        Width: =385
+        X: =Sep_PieChart_AIGraph_TokenUsage.X
+        Y: =650
+        ZIndex: =64
 
