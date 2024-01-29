@@ -4,7 +4,8 @@ Edit_CategoryMenu As screen:
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |+
-        =Concurrent(
+        =UpdateContext({locLoadingSpinner: true});
+        Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
         UpdateContext({lookUserVi:false});,
@@ -34,6 +35,7 @@ Edit_CategoryMenu As screen:
                 }
             )
         );
+        UpdateContext({locLoadingSpinner: false});
         
 
     Button_newLv1Category_CategoryMenu As button:
@@ -183,6 +185,7 @@ Edit_CategoryMenu As screen:
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =Refresh(똑실이_Category_table);
+            Refresh(똑실이_Category_Manager_table);
             
             ClearCollect(
                 CategoryTable,
@@ -616,11 +619,7 @@ Edit_CategoryMenu As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
-        Items: |-
-            =//Collect(ForAll(Distinct(AssignedCategoryManagerTable,Category_LV1),First(Filter(AssignedCategoryManagerTable,Category_LV1=ThisRecord.Category_LV1))))
-            //Distinct(AssignedCategoryManagerTable,Category_LV1)
-            AssignedCategoryManagerTable
-            //SortByColumns(Filter(AssignedCategoryManagerTable, ), "LV1Order", SortOrder.Ascending)
+        Items: =SortByColumns(AssignedCategoryManagerTable, "LV1Order", SortOrder.Ascending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -2177,6 +2176,23 @@ Edit_CategoryMenu As screen:
         Width: =1620
         X: =300
         ZIndex: =44
+
+    Image_LoadingSpinner_FM_Category_Manager As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =977
+        Y: =474
+        ZIndex: =87
 
     Group_Lv2CategorySettingModal_CategoryMenu As group:
         Height: =5
@@ -4163,13 +4179,13 @@ Edit_CategoryMenu As screen:
                         {
                             제목: ".",
                             //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
-                            Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value), //이거맞나 //텍스트 입력 대신에 드롭다운
+                            Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value), 
                             //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
                             Category_LV2: Trim(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text),
                             //ID: Last(똑실이_Category_table).ID + 1,
-                            //LV1Order: Last(똑실이_Category_table).LV1Order + 1, //이거맞나 //이거 Lv1 카운트 늘리는거잖아, Lv2 카테고리 추가하는데 필요없지
+                            //LV1Order: Last(똑실이_Category_table).LV1Order + 1, 
                             //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1), //이거맞나 //아래로 바꿈
-                            LV1Order: Last(똑실이_Category_table).ID + 1, //이거 맞나 //좀더고민
+                            LV1Order: Last(똑실이_Category_table).ID + 1, 
                             LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),
                             //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
                             DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp.Selected.Value,"한국어","ko","English","en","日本語","ja")
@@ -4561,7 +4577,7 @@ Edit_CategoryMenu As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
+            OnSelect: |
                 =Set(CategoryVal2, Split(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text, ""));
                 If(
                     TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text = "",
@@ -4578,7 +4594,7 @@ Edit_CategoryMenu As screen:
                         NotificationType.Error,
                         0
                     ),
-                    If(!IsBlank(LookUp(Category_OnlyLv1_List,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text)),
+                    If(!IsBlank(LookUp(똑실이_Category_Manager_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text)),
                 
                      Notify(
                         "중복된 카테고리명입니다",
@@ -4590,7 +4606,7 @@ Edit_CategoryMenu As screen:
                         {
                             제목: ".",
                             Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text),
-                            LV1Order:Last(똑실이_Category_Manager_table).ID + 1
+                            LV1Order:Last(똑실이_Category_table).ID + 1
                         }
                     );
                     Notify(
