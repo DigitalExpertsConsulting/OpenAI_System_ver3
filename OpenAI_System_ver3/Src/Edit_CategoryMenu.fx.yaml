@@ -1,0 +1,38 @@
+Edit_CategoryMenu As screen:
+    BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |+
+        =Concurrent(
+        Set(AddPopUpBackground,false);,
+        UpdateContext({ AddPopUp:false });,
+        UpdateContext({lookUserVi:false});,
+        UpdateContext({AddTeamPopUpVi: false});,
+        UpdateContext({lookTeamVi:false});,
+        UpdateContext({activeCategoryLv1:""}),
+        
+        UpdateContext({HisVi:false}),
+        Set(CategoryPopup, false),
+        
+        UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 버튼 클릭
+        UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 버튼 클릭
+        
+        Select(Button_Refresh_CategoryMenu_2)
+        
+        );
+        
+        ClearCollect(
+            Groups,
+            ForAll(
+                Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
+                {
+                    id: ThisRecord.Value.id,
+                    mail: Text(ThisRecord.Value.mail),
+                    displayName: Text(ThisRecord.Value.displayName),
+                    securityEnabled: Text(ThisRecord.Value.securityEnabled)
+                }
+            )
+        );
+        
+
