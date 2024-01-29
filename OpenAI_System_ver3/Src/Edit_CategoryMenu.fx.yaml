@@ -616,11 +616,7 @@ Edit_CategoryMenu As screen:
         DelayItemLoading: =true
         Fill: =RGBA(255, 255, 255, 1)
         Height: =660
-        Items: |-
-            =//Collect(ForAll(Distinct(AssignedCategoryManagerTable,Category_LV1),First(Filter(AssignedCategoryManagerTable,Category_LV1=ThisRecord.Category_LV1))))
-            //Distinct(AssignedCategoryManagerTable,Category_LV1)
-            AssignedCategoryManagerTable
-            //SortByColumns(Filter(AssignedCategoryManagerTable, ), "LV1Order", SortOrder.Ascending)
+        Items: =SortByColumns(AssignedCategoryManagerTable, "LV1Order", SortOrder.Ascending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         OnSelect: |-
@@ -4561,7 +4557,7 @@ Edit_CategoryMenu As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
+            OnSelect: |
                 =Set(CategoryVal2, Split(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text, ""));
                 If(
                     TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text = "",
@@ -4578,7 +4574,7 @@ Edit_CategoryMenu As screen:
                         NotificationType.Error,
                         0
                     ),
-                    If(!IsBlank(LookUp(Category_OnlyLv1_List,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text)),
+                    If(!IsBlank(LookUp(똑실이_Category_Manager_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text)),
                 
                      Notify(
                         "중복된 카테고리명입니다",
@@ -4590,7 +4586,7 @@ Edit_CategoryMenu As screen:
                         {
                             제목: ".",
                             Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp.Text),
-                            LV1Order:Last(똑실이_Category_Manager_table).ID + 1
+                            LV1Order:Last(똑실이_Category_table).ID + 1
                         }
                     );
                     Notify(
