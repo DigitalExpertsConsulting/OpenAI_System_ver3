@@ -693,7 +693,7 @@ AIGraph_TokenUsage As screen:
         BorderColor: =RGBA(0, 18, 107, 1)
         Color: =ColorValue(CSS_COMMON.colors.fg)
         DisabledColor: =RGBA(166, 166, 166, 1)
-        DisplayMode: =DisplayMode.Disabled
+        DisplayMode: =If(Dropdown_DatePicker_AIGraph_TokenUsage.Selected.Value="직접선택", DisplayMode.Edit, DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         PaddingLeft: =0
         PaddingRight: =0
@@ -726,7 +726,7 @@ AIGraph_TokenUsage As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Dropdown_DatePicker_AIGraph_TokenUsage.Selected.Value="직접설정", DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(Dropdown_DatePicker_AIGraph_TokenUsage.Selected.Value="직접선택", DisplayMode.Edit, DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Height
         HoverDateFill: =RGBA(200, 200, 200, 1)
@@ -750,7 +750,7 @@ AIGraph_TokenUsage As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Dropdown_DatePicker_AIGraph_TokenUsage.Selected.Value="직접설정", DisplayMode.Edit, DisplayMode.Disabled)
+        DisplayMode: =If(Dropdown_DatePicker_AIGraph_TokenUsage.Selected.Value="직접선택", DisplayMode.Edit, DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         Height: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Height
         HoverDateFill: =RGBA(200, 200, 200, 1)
@@ -815,13 +815,13 @@ AIGraph_TokenUsage As screen:
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
-        Items: =["1개월", "3개월", "6개월", "1년", "직접설정"]
+        Items: =["1개월", "3개월", "6개월", "1년", "직접선택"]
         OnChange: |-
             =Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE);
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             
             If(
-                Self.Selected.Value = "직접설정",
+                Self.Selected.Value = "직접선택",
                 Set(DatePickerSetting,true),
                 Set(DatePickerSetting,false)
             );
@@ -2084,6 +2084,377 @@ AIGraph_TokenUsage As screen:
             Width: =Parent.TemplateWidth
             Y: =DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage.Y-1
             ZIndex: =12
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_0 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |-
+                =Text(ThisItem.Token_Total/1000, "#,###,##0.0#K")
+            Width: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_0.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_0.X
+            Y: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_0.Y - Self.Height
+            ZIndex: =13
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,1).Value),
+                                Index(chatBotVersionList,1).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,1).Value),
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_1.X
+            Y: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y + Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_1.Height - Self.Height
+            ZIndex: =14
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_2 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,2).Value),
+                                Index(chatBotVersionList,2).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,2).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_2.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =15
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_3 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,3).Value),
+                                Index(chatBotVersionList,3).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,3).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_3.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =16
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_4 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,4).Value),
+                                Index(chatBotVersionList,4).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,4).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_4.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =17
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_5 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,5).Value),
+                                Index(chatBotVersionList,5).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,5).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_5.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =18
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_6 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,6).Value),
+                                Index(chatBotVersionList,6).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,6).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_6.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =19
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_7 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,7).Value),
+                                Index(chatBotVersionList,7).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,7).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_7.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =20
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_8 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,8).Value),
+                                Index(chatBotVersionList,8).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,8).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_8.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =21
+
+        Label_GPTv_Daily_Default_AIGraph_TokenUsage_9 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =8
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphGPTvDailyUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,9).Value),
+                                Index(chatBotVersionList,9).Value
+                            )
+                        ),
+                        Token_Date=ThisItem.Token_Date,
+                        Token_Total
+                    )/1000, 
+                    "#,###,###,##0.0#K"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,9).Value),
+                    true,
+                    false
+                )
+            Width: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Width
+            X: =Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_9.X
+            Y: =Label_GPTv_Daily_Default_AIGraph_TokenUsage_1.Y
+            ZIndex: =22
 
     BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -4805,4 +5176,24 @@ AIGraph_TokenUsage As screen:
             Width: =30
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =6
+
+    AlertMSG_AIGraph_TokenUsage As label:
+        Align: =Align.Right
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =ColorValue(CSS_COMMON.colors.fg)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =28
+        Size: =10
+        Text: =" *저장된 데이터에 기반한 차트로, 실제 사용량과는 차이가 있을 수 있습니다."
+        Width: |
+            =800
+        X: =1086
+        Y: =78
+        ZIndex: =66
 
