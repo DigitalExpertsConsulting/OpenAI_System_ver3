@@ -38,7 +38,7 @@ AIGraph_UserSatisf As screen:
         );
         
         //============================== << 필터 초기화 및 로딩이미지 비활성화 >> ==============================
-        Set(AppsBIAxis, Dropdown_AxisPicker_AIGraph_TokenUsage_1.Selected);
+        Set(AppsBIAxis, Dropdown_AxisPicker_AIGraph_UserSatisf.Selected);
         Concurrent(
             Set(AIGraph_Col1, ColorValue(CSS_COMMON.colors.red1)),
             Set(AIGraph_Col2, ColorValue(CSS_COMMON.colors.orange1)),
@@ -376,7 +376,7 @@ AIGraph_UserSatisf As screen:
                 If(
                     AppsBIAxis.Value = "GPT 버전",
                     ClearCollect(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         AddColumns(
                             GroupBy(AIGraphUserSatisf, "Token_Model", "Group"),
                             "Usage_Total",
@@ -544,10 +544,10 @@ AIGraph_UserSatisf As screen:
                 AppsBIAxis.Value = "GPT 버전",
                 
                 ForAll(
-                    Sequence(CountRows(AIGraphGTPvUserSatisf)),
+                    Sequence(CountRows(AIGraphGPTvUserSatisf)),
                     Patch(
-                        AIGraphGTPvUserSatisf,
-                        Index(AIGraphGTPvUserSatisf, Value),
+                        AIGraphGPTvUserSatisf,
+                        Index(AIGraphGPTvUserSatisf, Value),
                         {Index: Value}
                     )
                 ),
@@ -588,6 +588,7 @@ AIGraph_UserSatisf As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =1310
         Y: =1040
         ZIndex: =7
@@ -603,6 +604,7 @@ AIGraph_UserSatisf As screen:
         Font: =Font.'Segoe UI'
         Size: =13
         Text: =CountRows(AIGraphUserSatisfMonthlyUsage)
+        Visible: =false
         X: =1144
         Y: =1040
         ZIndex: =8
@@ -659,10 +661,10 @@ AIGraph_UserSatisf As screen:
             =Set(SelectedLV1_AIGraph, Self.Selected.Value);
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Select(Button_Table_Filtering_AIGraph_UserSatisf)
-        PaddingBottom: =4
-        PaddingLeft: =4
-        PaddingRight: =4
-        PaddingTop: =4
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =RGBA(105, 121, 126, 1)
@@ -689,7 +691,7 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_TokenUsage_1.Selected.Value="카테고리", DisplayMode.Disabled, DisplayMode.Edit)
+        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_UserSatisf.Selected.Value="카테고리", DisplayMode.Disabled, DisplayMode.Edit)
         Font: =Font.'Segoe UI'
         Height: =Label_GalleryFilter_Category_AIGraph_UserSatisf.Height
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -718,10 +720,10 @@ AIGraph_UserSatisf As screen:
         OnChange: |-
             =Set(SelectedLV2_AIGraph, Self.Selected.Value);
             Select(Button_Table_Filtering_AIGraph_UserSatisf)
-        PaddingBottom: =4
-        PaddingLeft: =4
-        PaddingRight: =4
-        PaddingTop: =4
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =RGBA(105, 121, 126, 1)
@@ -738,10 +740,8 @@ AIGraph_UserSatisf As screen:
         BorderColor: =RGBA(0, 18, 107, 1)
         Color: =ColorValue(CSS_COMMON.colors.fg)
         DisabledColor: =RGBA(166, 166, 166, 1)
-        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_TokenUsage_1.Selected.Value="카테고리", DisplayMode.Disabled, DisplayMode.Edit)
+        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_UserSatisf.Selected.Value="카테고리", DisplayMode.Disabled, DisplayMode.Edit)
         Font: =Font.'Segoe UI'
-        PaddingLeft: =0
-        PaddingRight: =0
         Text: =">"
         Width: =40
         X: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.X + Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Width
@@ -987,13 +987,13 @@ AIGraph_UserSatisf As screen:
             =If(
                 CountRows(
                     If(
-                        Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "1개월" Or Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "3개월",
+                        Dropdown_AxisPicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_AxisPicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
                         Filter(
                             AIGraphTokenDailyUsage,
                             (
                                 Token_Date >= 
                                 Switch(
-                                    Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value,
+                                    Dropdown_AxisPicker_AIGraph_UserSatisf.SelectedText.Value,
                                         "1개월",
                                     Int(Text(DateAdd(Today(),-1,TimeUnit.Months), "yyyymm")),
                                         "3개월",
@@ -1105,7 +1105,7 @@ AIGraph_UserSatisf As screen:
             =If(
                 CountRows(
                     If(
-                        Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "직접선택",
+                        Dropdown_AxisPicker_AIGraph_UserSatisf.SelectedText.Value = "직접선택",
                         Filter(
                             AIGraphTokenDailyUsage_Custom,
                             Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate &&
@@ -1151,7 +1151,7 @@ AIGraph_UserSatisf As screen:
         Width: =200
         X: |
             =1520
-        Y: =Sep_Summ_AIGraph_TokenUsage_1.Y + 20
+        Y: =Sep_Summ_AIGraph_UserSatisf.Y + 20
         ZIndex: =25
 
     Label_Token_Output_AIGraph_UserSatisf As label:
@@ -1619,7 +1619,7 @@ AIGraph_UserSatisf As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =297
-        Items: =AIGraphGTPvUserSatisf
+        Items: =AIGraphGPTvUserSatisf
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         TemplatePadding: =0
@@ -1647,7 +1647,7 @@ AIGraph_UserSatisf As screen:
                         AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
@@ -1659,7 +1659,7 @@ AIGraph_UserSatisf As screen:
                         AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
@@ -1712,18 +1712,18 @@ AIGraph_UserSatisf As screen:
             OnSelect: =Select(Parent)
             Text: |-
                 =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                     Text(
                         Int(
                             Sum(
                                 Filter(
-                                    AIGraphGTPvUserSatisf,
+                                    AIGraphGPTvUserSatisf,
                                     Token_Model = ThisItem.Token_Model
                                 ),
                                 Usage_Good
                             )/Sum(
                                 Filter(
-                                    AIGraphGTPvUserSatisf,
+                                    AIGraphGPTvUserSatisf,
                                     Token_Model = ThisItem.Token_Model
                                 ),
                                 Usage_Total
@@ -1861,8 +1861,8 @@ AIGraph_UserSatisf As screen:
         Height: =Label_GPTv_Total_AIGraph_UserSatisf_0.Height
         Text: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
-                Text(Int(Sum(AIGraphGTPvUserSatisf,Usage_Good)/Sum(AIGraphGTPvUserSatisf,Usage_Total)*10000)/100, "#0.0# %"), 
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(Int(Sum(AIGraphGPTvUserSatisf,Usage_Good)/Sum(AIGraphGPTvUserSatisf,Usage_Total)*10000)/100, "#0.0# %"), 
                 0
             )
         Visible: |-
@@ -1889,99 +1889,99 @@ AIGraph_UserSatisf As screen:
             =[
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,1).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,2).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,3).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,4).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,5).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,6).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,7).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,8).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
                 ),
                 Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=Index(chatBotVersionList,9).Value,
                         Usage_Total
                     )/Sum(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Usage_Total
                     ) * 100, 
                     "#0.0#%"
@@ -2054,7 +2054,7 @@ AIGraph_UserSatisf As screen:
         Text: =First(똑실이_ChatbotText_table).BotName & " 답변 사용 비율"
         Width: =400
         X: =PieChart_Token_Usage_AIGraph_UserSatisf.X + PieChart_Token_Usage_AIGraph_UserSatisf.Width/2 - Self.Width/2
-        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y
+        Y: =Label_GraphTitle_AIGraph_UserSatisf.Y
         ZIndex: =44
 
     "BarChart_LV1Category_Daily_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
@@ -3125,8 +3125,8 @@ AIGraph_UserSatisf As screen:
             =If(
                 AppsBIAxis.Value = "GPT 버전",
                 If(
-                    !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
-                    Filter(Distinct(AIGraphGTPvUserSatisf, Token_Model),Value<>Blank())
+                    !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                    Filter(Distinct(AIGraphGPTvUserSatisf, Token_Model),Value<>Blank())
                 ),
                 Blank()
             )
@@ -3178,17 +3178,17 @@ AIGraph_UserSatisf As screen:
             Height: =40
             Width: |-
                 =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                     (
                         (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20) - (
                             (
-                                Sum(AIGraphGTPvUserSatisf,Usage_Total) - 
+                                Sum(AIGraphGPTvUserSatisf,Usage_Total) - 
                                 LookUp(
-                                    AIGraphGTPvUserSatisf,
+                                    AIGraphGPTvUserSatisf,
                                     Token_Model=ThisItem.Value,
                                     Usage_Total
                                 )
-                            ) / Sum(AIGraphGTPvUserSatisf,Usage_Total)
+                            ) / Sum(AIGraphGPTvUserSatisf,Usage_Total)
                         ) * (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20)
                     ), 0
                 )
@@ -3204,17 +3204,17 @@ AIGraph_UserSatisf As screen:
             Height: =40
             Width: |-
                 =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                     (
                         (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20) - (
                             (
-                                Sum(AIGraphGTPvUserSatisf,Usage_Total) - 
+                                Sum(AIGraphGPTvUserSatisf,Usage_Total) - 
                                 LookUp(
-                                    AIGraphGTPvUserSatisf,
+                                    AIGraphGPTvUserSatisf,
                                     Token_Model=ThisItem.Value,
                                     Usage_Good
                                 )
-                            ) / Sum(AIGraphGTPvUserSatisf,Usage_Total)
+                            ) / Sum(AIGraphGPTvUserSatisf,Usage_Total)
                         ) * (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20)
                     ), 0
                 )
@@ -3230,17 +3230,17 @@ AIGraph_UserSatisf As screen:
             Height: =40
             Width: |-
                 =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                     (
                         (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20) - (
                             (
-                                Sum(AIGraphGTPvUserSatisf,Usage_Total) - 
+                                Sum(AIGraphGPTvUserSatisf,Usage_Total) - 
                                 LookUp(
-                                    AIGraphGTPvUserSatisf,
+                                    AIGraphGPTvUserSatisf,
                                     Token_Model=ThisItem.Value,
                                     Usage_Bad
                                 )
-                            ) / Sum(AIGraphGTPvUserSatisf,Usage_Total)
+                            ) / Sum(AIGraphGPTvUserSatisf,Usage_Total)
                         ) * (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20)
                     ), 0
                 )
@@ -3262,7 +3262,7 @@ AIGraph_UserSatisf As screen:
             Text: |-
                 =Text(
                     LookUp(
-                        AIGraphGTPvUserSatisf,
+                        AIGraphGPTvUserSatisf,
                         Token_Model=ThisItem.Value,
                         Usage_Total
                     ), 
@@ -3272,7 +3272,7 @@ AIGraph_UserSatisf As screen:
                 =If(
                     AppsBIAxis.Value = "GPT 버전",
                     If(
-                        CountRows(AIGraphGTPvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGTPvUserSatisf).Token_Model),
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
                         true,
                         false
                     ),
@@ -3299,7 +3299,7 @@ AIGraph_UserSatisf As screen:
                     IsBlank(
                         Text(
                             LookUp(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model=ThisItem.Value,
                                 Usage_Good
                             ), 
@@ -3309,7 +3309,7 @@ AIGraph_UserSatisf As screen:
                     "0",
                     Text(
                         LookUp(
-                            AIGraphGTPvUserSatisf,
+                            AIGraphGPTvUserSatisf,
                             Token_Model=ThisItem.Value,
                             Usage_Good
                         ), 
@@ -3320,7 +3320,7 @@ AIGraph_UserSatisf As screen:
                 =If(
                     AppsBIAxis.Value = "GPT 버전",
                     If(
-                        CountRows(AIGraphGTPvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGTPvUserSatisf).Token_Model),
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
                         true,
                         false
                     ),
@@ -3347,7 +3347,7 @@ AIGraph_UserSatisf As screen:
                     IsBlank(
                         Text(
                             LookUp(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model=ThisItem.Value,
                                 Usage_Bad
                             ), 
@@ -3357,7 +3357,7 @@ AIGraph_UserSatisf As screen:
                     "0",
                     Text(
                         LookUp(
-                            AIGraphGTPvUserSatisf,
+                            AIGraphGPTvUserSatisf,
                             Token_Model=ThisItem.Value,
                             Usage_Bad
                         ), 
@@ -3368,7 +3368,7 @@ AIGraph_UserSatisf As screen:
                 =If(
                     AppsBIAxis.Value = "GPT 버전",
                     If(
-                        CountRows(AIGraphGTPvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGTPvUserSatisf).Token_Model),
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
                         true,
                         false
                     ),
@@ -3411,7 +3411,7 @@ AIGraph_UserSatisf As screen:
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
@@ -3429,10 +3429,10 @@ AIGraph_UserSatisf As screen:
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
-                        (Sum(AIGraphGTPvUserSatisf, Usage_Total)-Sum(AIGraphGTPvUserSatisf, Usage_Good))/Sum(AIGraphGTPvUserSatisf, Usage_Total)
+                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Good))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
                     ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
             )
@@ -3449,12 +3449,12 @@ AIGraph_UserSatisf As screen:
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
                         (
-                            Sum(AIGraphGTPvUserSatisf, Usage_Total)-Sum(AIGraphGTPvUserSatisf, Usage_Bad)
-                        )/Sum(AIGraphGTPvUserSatisf, Usage_Total)
+                            Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Bad)
+                        )/Sum(AIGraphGPTvUserSatisf, Usage_Total)
                     ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
             )
@@ -3477,16 +3477,16 @@ AIGraph_UserSatisf As screen:
         Size: =12
         Text: |-
             =/*If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 LookUp(
-                    AIGraphGTPvUserSatisf,
+                    AIGraphGPTvUserSatisf,
                     Token_Model=Blank(),
                     Usage_Total
                 ), 0
             )*/
             If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
-                Sum(AIGraphGTPvUserSatisf,Usage_Total), 
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Sum(AIGraphGPTvUserSatisf,Usage_Total), 
                 0
             )
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
@@ -3510,8 +3510,8 @@ AIGraph_UserSatisf As screen:
         Size: =12
         Text: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
-                Sum(AIGraphGTPvUserSatisf,Usage_Good), 
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Sum(AIGraphGPTvUserSatisf,Usage_Good), 
                 0
             )
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
@@ -3535,8 +3535,8 @@ AIGraph_UserSatisf As screen:
         Size: =12
         Text: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGTPvUserSatisf)),
-                Sum(AIGraphGTPvUserSatisf,Usage_Bad), 
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Sum(AIGraphGPTvUserSatisf,Usage_Bad), 
                 0
             )
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
@@ -3786,7 +3786,7 @@ AIGraph_UserSatisf As screen:
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =6
 
-    Dropdown_AxisPicker_AIGraph_TokenUsage_1 As dropdown:
+    Dropdown_AxisPicker_AIGraph_UserSatisf As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
         ChevronBackground: =RGBA(255, 255, 255, 1)
         ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
@@ -3826,7 +3826,7 @@ AIGraph_UserSatisf As screen:
         Y: =Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Y
         ZIndex: =68
 
-    Sep_PieChart_AIGraph_TokenUsage_1 As rectangle:
+    Sep_PieChart_AIGraph_UserSatisf As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -3835,10 +3835,10 @@ AIGraph_UserSatisf As screen:
         Height: =1
         Width: =385
         X: =Label_PieChart_AIGraph_UserSatisf.X
-        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y + Label_GraphTitle_AIGraph_TokenUsage_1.Height + 16
+        Y: =Label_GraphTitle_AIGraph_UserSatisf.Y + Label_GraphTitle_AIGraph_UserSatisf.Height + 16
         ZIndex: =69
 
-    Label_GraphTitle_AIGraph_TokenUsage_1 As label:
+    Label_GraphTitle_AIGraph_UserSatisf As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -3852,7 +3852,7 @@ AIGraph_UserSatisf As screen:
         Size: =20
         Text: |-
             =Switch(
-                Dropdown_AxisPicker_AIGraph_TokenUsage_1.Selected.Value, 
+                Dropdown_AxisPicker_AIGraph_UserSatisf.Selected.Value, 
                 "기간", "기간 별 만족 추이",
                 "GPT 버전", "GPT 버전 별 만족 비교",
                 "카테고리", "카테고리 별 만족 비교"
@@ -3862,7 +3862,7 @@ AIGraph_UserSatisf As screen:
         Y: =240
         ZIndex: =71
 
-    Sep_AIGraph_TokenUsage_1 As rectangle:
+    Sep_AIGraph_UserSatisf As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -3870,11 +3870,11 @@ AIGraph_UserSatisf As screen:
         FocusedBorderThickness: =4
         Height: =1
         Width: =1073
-        X: =Label_GraphTitle_AIGraph_TokenUsage_1.X
-        Y: =Label_GraphTitle_AIGraph_TokenUsage_1.Y + Label_GraphTitle_AIGraph_TokenUsage_1.Height + 16
+        X: =Label_GraphTitle_AIGraph_UserSatisf.X
+        Y: =Label_GraphTitle_AIGraph_UserSatisf.Y + Label_GraphTitle_AIGraph_UserSatisf.Height + 16
         ZIndex: =72
 
-    Sep_Summ_AIGraph_TokenUsage_1 As rectangle:
+    Sep_Summ_AIGraph_UserSatisf As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -3882,7 +3882,7 @@ AIGraph_UserSatisf As screen:
         FocusedBorderThickness: =4
         Height: =1
         Width: =385
-        X: =Sep_PieChart_AIGraph_TokenUsage_1.X
+        X: =Sep_PieChart_AIGraph_UserSatisf.X
         Y: =670
         ZIndex: =73
 
@@ -3890,7 +3890,7 @@ AIGraph_UserSatisf As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =40
-        Items: =AIGraphGTPvUserSatisf
+        Items: =AIGraphGPTvUserSatisf
         LoadingSpinner: =LoadingSpinner.Data
         TemplatePadding: =0
         TemplateSize: =110
@@ -3900,9 +3900,9 @@ AIGraph_UserSatisf As screen:
                 true,
                 false
             )
-        Width: =CountRows(AIGraphGTPvUserSatisf) * Self.TemplateWidth
-        X: =Sep_AIGraph_TokenUsage_1.X + Sep_AIGraph_TokenUsage_1.Width - Self.Width
-        Y: =Sep_AIGraph_TokenUsage_1.Y + Sep_AIGraph_TokenUsage_1.Height + 10
+        Width: =CountRows(AIGraphGPTvUserSatisf) * Self.TemplateWidth
+        X: =Sep_AIGraph_UserSatisf.X + Sep_AIGraph_UserSatisf.Width - Self.Width
+        Y: =Sep_AIGraph_UserSatisf.Y + Sep_AIGraph_UserSatisf.Height + 10
         ZIndex: =74
 
         Label_Legend_GPTv_AIGraph_UserSatisf As label:
@@ -3940,7 +3940,7 @@ AIGraph_UserSatisf As screen:
                         AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
@@ -3952,7 +3952,7 @@ AIGraph_UserSatisf As screen:
                         AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGTPvUserSatisf,
+                                AIGraphGPTvUserSatisf,
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
