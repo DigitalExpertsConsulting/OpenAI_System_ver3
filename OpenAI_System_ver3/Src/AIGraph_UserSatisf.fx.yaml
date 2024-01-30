@@ -1065,22 +1065,20 @@ AIGraph_UserSatisf As screen:
             =If(
                 DatePickerSetting = false,
                 If(
-                    Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "1년" Or Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "6개월",
+                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
                     Filter(
-                        AIGraphTokenMonthlyUsage,
+                        AIGraphUserSatisfMonthlyUsage,
                         (
-                            YearMonth >= 
-                            Switch(
-                                Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value,
+                            YearMonth >= Switch(
+                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
                                     "6개월",
-                                Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                DateAdd(Today(),-6,TimeUnit.Months),
                                     "1년",
-                                Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                DateAdd(Today(),-12,TimeUnit.Months)
                             )
-                        ) &&
-                        (
-                            YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                        ),YearMonth_ <> Blank()
+                        ) && (
+                            YearMonth <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                        )
                     )
                 )
             )
@@ -1088,13 +1086,13 @@ AIGraph_UserSatisf As screen:
             =If(
                 CountRows(
                         If(
-                            Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "1년" Or Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value = "6개월",
+                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
                             Filter(
-                                AIGraphTokenMonthlyUsage,
+                                AIGraphUserSatisfMonthlyUsage,
                                 (
                                     YearMonth >= 
                                     Switch(
-                                        Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value,
+                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
                                             "6개월",
                                         Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
                                             "1년",
@@ -1311,8 +1309,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: ="만족했어요"
         Visible: |-
             =If(
@@ -1321,8 +1319,9 @@ AIGraph_UserSatisf As screen:
                 false
             )
         Width: =200
-        X: =1500
-        Y: =340
+        X: |
+            =1520
+        Y: =Sep_Summ_AIGraph_TokenUsage_1.Y + 20
         ZIndex: =25
 
     Label_Token_Output_AIGraph_UserSatisf As label:
@@ -1333,8 +1332,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: ="별로에요"
         Visible: |-
             =If(
@@ -1344,7 +1343,7 @@ AIGraph_UserSatisf As screen:
             )
         Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X
-        Y: =430
+        Y: =Label_Token_Input_AIGraph_UserSatisf.Y + Label_Token_Input_AIGraph_UserSatisf.Height + 20
         ZIndex: =26
 
     Label_Token_Total_AIGraph_UserSatisf As label:
@@ -1355,8 +1354,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: ="잘모르겠어요"
         Visible: |-
             =If(
@@ -1366,10 +1365,11 @@ AIGraph_UserSatisf As screen:
             )
         Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X
-        Y: =520
+        Y: =Label_Token_Output_AIGraph_UserSatisf.Y + Label_Token_Output_AIGraph_UserSatisf.Height + 20
         ZIndex: =27
 
     Value_Token_Input_AIGraph_UserSatisf As label:
+        Align: =Align.Right
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1377,8 +1377,7 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Semibold
-        Size: =20
+        Font: =Font.'Segoe UI'
         Text: |
             =Text(
                 Int('[Hidden]Value_Token_Input_AIGraph_UserSatisf'.Text),
@@ -1390,12 +1389,12 @@ AIGraph_UserSatisf As screen:
                 true,
                 false
             )
-        Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X + Label_Token_Input_AIGraph_UserSatisf.Width
         Y: =Label_Token_Input_AIGraph_UserSatisf.Y
         ZIndex: =28
 
     Value_Token_Output_AIGraph_UserSatisf As label:
+        Align: =Align.Right
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1403,8 +1402,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: |-
             =Text(
                 Int('[Hidden]Value_Token_Output_AIGraph_UserSatisf'.Text),
@@ -1416,12 +1415,12 @@ AIGraph_UserSatisf As screen:
                 true,
                 false
             )
-        Width: =200
         X: =Label_Token_Output_AIGraph_UserSatisf.X + Label_Token_Output_AIGraph_UserSatisf.Width
         Y: =Label_Token_Output_AIGraph_UserSatisf.Y
         ZIndex: =29
 
     Value_Token_Total_AIGraph_UserSatisf As label:
+        Align: =Align.Right
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1429,8 +1428,7 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Semibold
-        Size: =20
+        Font: =Font.'Segoe UI'
         Text: |-
             =Text(
                 Int('[Hidden]Value_Token_Total_AIGraph_UserSatisf'.Text),
@@ -1442,7 +1440,6 @@ AIGraph_UserSatisf As screen:
                 true,
                 false
             )
-        Width: =200
         X: =Label_Token_Total_AIGraph_UserSatisf.X + Label_Token_Total_AIGraph_UserSatisf.Width
         Y: =Label_Token_Total_AIGraph_UserSatisf.Y
         ZIndex: =30
@@ -1451,12 +1448,9 @@ AIGraph_UserSatisf As screen:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        DisabledFill: =RGBA(96, 197, 234, 1)
-        Fill: =RGBA(96, 197, 234, 1)
+        Fill: =Index(AIGraph_ColorLists,1).Value
         FocusedBorderThickness: =4
         Height: =5
-        HoverFill: =RGBA(96, 197, 234, 1)
-        PressedFill: =RGBA(96, 197, 234, 1)
         Visible: |-
             =If(
                 AppsBIAxis.Value = "기간",
@@ -1472,12 +1466,9 @@ AIGraph_UserSatisf As screen:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        DisabledFill: =RGBA(212,96,104,1)
-        Fill: =RGBA(212,96,104,1)
+        Fill: =Index(AIGraph_ColorLists,2).Value
         FocusedBorderThickness: =4
         Height: =5
-        HoverFill: =RGBA(212,96,104,1)
-        PressedFill: =RGBA(212,96,104,1)
         Visible: |-
             =If(
                 AppsBIAxis.Value = "기간",
@@ -1485,20 +1476,17 @@ AIGraph_UserSatisf As screen:
                 false
             )
         Width: =30
-        X: =Label_Token_Output_AIGraph_UserSatisf.X - Self.Width
-        Y: =Label_Token_Output_AIGraph_UserSatisf.Y+Label_Token_Output_AIGraph_UserSatisf.Height/2 - Self.Height/2
+        X: =Color_Token_Input_AIGraph_UserSatisf.X
+        Y: =Label_Token_Output_AIGraph_UserSatisf.Y + Label_Token_Output_AIGraph_UserSatisf.Height/2 - Self.Height/2
         ZIndex: =32
 
     Color_Token_Total_AIGraph_UserSatisf As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
-        DisabledFill: =RGBA(247,199,114,1)
-        Fill: =RGBA(247,199,114,1)
+        Fill: =Index(AIGraph_ColorLists,3).Value
         FocusedBorderThickness: =4
         Height: =5
-        HoverFill: =RGBA(247,199,114,1)
-        PressedFill: =RGBA(247,199,114,1)
         Visible: |-
             =If(
                 AppsBIAxis.Value = "기간",
@@ -1506,8 +1494,8 @@ AIGraph_UserSatisf As screen:
                 false
             )
         Width: =30
-        X: =Label_Token_Total_AIGraph_UserSatisf.X - Self.Width
-        Y: =Label_Token_Total_AIGraph_UserSatisf.Y+Label_Token_Total_AIGraph_UserSatisf.Height/2 - Self.Height/2
+        X: =Color_Token_Input_AIGraph_UserSatisf.X
+        Y: =Label_Token_Total_AIGraph_UserSatisf.Y + Label_Token_Total_AIGraph_UserSatisf.Height/2 - Self.Height/2
         ZIndex: =33
 
     "'[Hidden]Value_Token_Input_AIGraph_UserSatisf' As label":
@@ -1518,8 +1506,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: |-
             =If(
                 DatePickerSetting = false,
@@ -1577,7 +1565,6 @@ AIGraph_UserSatisf As screen:
                 )
             ))
         Visible: =false
-        Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X + Label_Token_Input_AIGraph_UserSatisf.Width
         Y: =Label_Token_Input_AIGraph_UserSatisf.Y
         ZIndex: =34
@@ -1590,8 +1577,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: |-
             =If(
                 DatePickerSetting = false,
@@ -1662,8 +1649,8 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Size: =20
         Text: |-
             =If(
                 DatePickerSetting = false,
@@ -2226,9 +2213,9 @@ AIGraph_UserSatisf As screen:
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Font: =Font.'Segoe UI'
-        Height: =500
+        Height: =450
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =[RGBA(96, 197, 234, 1), RGBA(212,96,104,1), RGBA(247,199,114,1)]
+        ItemColorSet: =AIGraph_ColorLists
         Items: |-
             =[
                 Text(
@@ -2244,6 +2231,7 @@ AIGraph_UserSatisf As screen:
             ]
         LabelPosition: =LabelPosition.Inside
         PressedBorderColor: =RGBA(0, 0, 0, 0)
+        ShowLabels: =false
         Size: =15
         Visible: |-
             =If(
@@ -2251,9 +2239,9 @@ AIGraph_UserSatisf As screen:
                 true,
                 false
             )
-        Width: =500
-        X: =1425
-        Y: =575
+        Width: =450
+        X: =1450
+        Y: =240
         ZIndex: =43
 
     Label_PieChart_AIGraph_UserSatisf As label:
