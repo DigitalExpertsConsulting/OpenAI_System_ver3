@@ -2776,13 +2776,37 @@ Edit_CategoryMenu As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |-
-                =Patch(똑실이_Category_table, LookUp(똑실이_Category_table, ID=AddPopUpID), {Users:addUserName});
+            OnSelect: |
+                =If( isMainPopup,
+                    Patch(
+                        똑실이_Category_Manager_table,
+                        LookUp(
+                            똑실이_Category_Manager_table,
+                            ID = AddPopUpID
+                        ),
+                        {
+                            Users:addUserName
+                        }
+                    );
+                    Select(Button_Refresh_CategoryMenu_2);
+                    ,
+                    Patch(
+                        똑실이_Category_table,
+                        LookUp(
+                            똑실이_Category_table,
+                            ID = AddPopUpID
+                        ),
+                        {
+                            Teams:addUserName
+                        }
+                    )
+                );
                 
                 UpdateContext({lookUserVi:false});
                 UpdateContext({resetSearch_Lv2: true});
                 UpdateContext({resetSearch_Lv2: false});
                 Set(AddPopUpBackground,false);
+                Clear(addUserName);
             PressedBorderColor: =
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
