@@ -183,6 +183,7 @@ AIGraph_TotalUsage As screen:
             Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE);
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Reset(Dropdown_DatePicker_AIGraph_TotalUsage);
+            Select(Button_Table_Filtering_AIGraph_TokenUsage_2);
             Select(Button_Table_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
         PaddingLeft: =12
@@ -433,6 +434,16 @@ AIGraph_TotalUsage As screen:
                                 CountRows(Group)
                             )
                         )
+                    ),
+                    ClearCollect(
+                        AIGraphGPTvUserSatisf,
+                        AddColumns(
+                            GroupBy(Filter(AIGraphUsage,Token_Model<>Blank()), "Token_Model", "Group"),
+                            "Usage_Total",
+                            CountRows(Group),
+                            "Index",
+                            0
+                        )
                     )
                 ),
             
@@ -466,17 +477,25 @@ AIGraph_TotalUsage As screen:
             );
             
             If(
+                ForAll(
+                    Sequence(CountRows(AIGraphGPTvUserSatisf)),
+                    Patch(
+                        AIGraphGPTvUserSatisf,
+                        Index(AIGraphGPTvUserSatisf, Value),
+                        {Index: Value}
+                    )
+                ) ;
                 AppsBIAxis.Value = "카테고리",
                 ClearCollect(
                     AIGraphCategoryLV1GPTvUsage,
                     SortByColumns(
-                        AIGraphCategoryLV1GPTvUsage,"Usage_Total",SortOrder.Descending
+                        Filter(AIGraphCategoryLV1GPTvUsage,Category_LV1<>Blank()),"Usage_Total",SortOrder.Descending
                     )
                 );
                 ClearCollect(
                     AIGraphCategoryLV2GPTvUsage,
                     SortByColumns(
-                        AIGraphCategoryLV2GPTvUsage,"Usage_Total",SortOrder.Descending
+                        Filter(AIGraphCategoryLV2GPTvUsage,Category_LV1<>Blank()),"Usage_Total",SortOrder.Descending
                     )
                 );
                 Concurrent(
@@ -513,6 +532,7 @@ AIGraph_TotalUsage As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =1310
         Y: =1040
         ZIndex: =11
@@ -528,6 +548,7 @@ AIGraph_TotalUsage As screen:
         Font: =Font.'Segoe UI'
         Size: =13
         Text: =AppsBIAxis.Value
+        Visible: =false
         X: =1144
         Y: =1040
         ZIndex: =12
@@ -572,17 +593,27 @@ AIGraph_TotalUsage As screen:
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
-            =Filter(
-                Distinct(
-                    colCategoryAdmin_New,
-                    Category_LV1
+            =If(
+                Dropdown_AxisPicker_AIGraph_GPTvUsage.Selected.Value <> "GPT 버전",
+                Filter(
+                    Distinct(
+                        AICategory_Default,
+                        Category_LV1
+                    ),
+                    Value <> Blank()
                 ),
-                Value <> Blank()
+                Filter(
+                    Distinct(
+                        Filter(AICategory_Default, Token_Model<>Blank() Or Category_LV1 = "전체"),
+                        Category_LV1
+                    ),
+                    Value <> Blank()
+                )
             )
         OnChange: |-
             =Set(SelectedLV1_AIGraph, Self.Selected.Value);
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
-            Select(Button_Table_Filtering_AIGraph_TotalUsage)
+            Select(Button_Table_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -640,7 +671,7 @@ AIGraph_TotalUsage As screen:
             )
         OnChange: |-
             =Set(SelectedLV2_AIGraph, Self.Selected.Value);
-            Select(Button_Table_Filtering_AIGraph_TotalUsage)
+            Select(Button_Table_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -794,7 +825,7 @@ AIGraph_TotalUsage As screen:
                 Set(DatePickerSetting,false)
             );
             
-            Select(Button_Table_Filtering_AIGraph_TotalUsage)
+            Select(Button_Table_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -858,7 +889,7 @@ AIGraph_TotalUsage As screen:
         Height: |
             =450
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =AIGraph_ColorLists
+        ItemColorSet: =AIGraph_GPTv_ColorLists
         Items: |-
             =[
                 Text(
@@ -1093,7 +1124,7 @@ AIGraph_TotalUsage As screen:
                         AIGraph_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphCategoryLV1UserSatisf,
+                                AIGraphCategoryLV1GPTvUsage,
                                 Category_LV1 <> Blank()
                             ),
                             Category_LV1=ThisItem.Category_LV1,
@@ -1105,7 +1136,7 @@ AIGraph_TotalUsage As screen:
                         AIGraph_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphCategoryLV1UserSatisf,
+                                AIGraphCategoryLV1GPTvUsage,
                                 Category_LV1 <> Blank()
                             ),
                             Category_LV1=ThisItem.Category_LV1,
@@ -1137,15 +1168,15 @@ AIGraph_TotalUsage As screen:
         TemplatePadding: =0
         TemplateSize: |-
             =IfError(
-                Self.Height/CountRows(AIGraphCategoryLV1UserSatisf),
+                Self.Height/CountRows(AIGraphCategoryLV1GPTvUsage),
                 0,
                 If(
-                    CountRows(AIGraphCategoryLV1UserSatisf) = 1, 
+                    CountRows(AIGraphCategoryLV1GPTvUsage) = 1, 
                     80,
                     If(
-                        Self.Height/CountRows(AIGraphCategoryLV1UserSatisf) < 60,
+                        Self.Height/CountRows(AIGraphCategoryLV1GPTvUsage) < 60,
                         60,
-                        Self.Height/CountRows(AIGraphCategoryLV1UserSatisf)
+                        Self.Height/CountRows(AIGraphCategoryLV1GPTvUsage)
                     )
                 )
             )
@@ -1188,7 +1219,7 @@ AIGraph_TotalUsage As screen:
                         AIGraph_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphCategoryLV1UserSatisf,
+                                AIGraphCategoryLV1GPTvUsage,
                                 Category_LV1 <> Blank()
                             ),
                             Category_LV1=ThisItem.Category_LV1,
@@ -1200,7 +1231,7 @@ AIGraph_TotalUsage As screen:
                         AIGraph_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphCategoryLV1UserSatisf,
+                                AIGraphCategoryLV1GPTvUsage,
                                 Category_LV1 <> Blank()
                             ),
                             Category_LV1=ThisItem.Category_LV1,
@@ -1213,19 +1244,19 @@ AIGraph_TotalUsage As screen:
             Width: |-
                 =If(
                     !IsError(1/CountRows(Filter(
-                    AIGraphCategoryLV1UserSatisf,
+                    AIGraphCategoryLV1GPTvUsage,
                     Category_LV1 <> Blank()
                 ))),
                     (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TotalUsage.Width - 20) - (
                         (
                             Max(Filter(
-                    AIGraphCategoryLV1UserSatisf,
+                    AIGraphCategoryLV1GPTvUsage,
                     Category_LV1 <> Blank()
                 ),Usage_Total) - 
                             LookUp(
                                 Filter(
                                     Filter(
-                    AIGraphCategoryLV1UserSatisf,
+                    AIGraphCategoryLV1GPTvUsage,
                     Category_LV1 <> Blank()
                 ),
                                     Category_LV1=ThisItem.Category_LV1
@@ -1234,7 +1265,7 @@ AIGraph_TotalUsage As screen:
                                 Usage_Total
                             )
                         ) / Max(Filter(
-                    AIGraphCategoryLV1UserSatisf,
+                    AIGraphCategoryLV1GPTvUsage,
                     Category_LV1 <> Blank()
                 ),Usage_Total)
                     ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TotalUsage.Width - 20),
@@ -1370,20 +1401,8 @@ AIGraph_TotalUsage As screen:
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         TemplatePadding: =0
-        TemplateSize: |-
-            =IfError(
-                Self.Height/CountRows(AIGraphCategoryLV2UserSatisf),
-                0,
-                If(
-                    CountRows(AIGraphCategoryLV2UserSatisf) = 1, 
-                    80,
-                    If(
-                        Self.Height/CountRows(AIGraphCategoryLV2UserSatisf) < 60,
-                        60,
-                        Self.Height/CountRows(AIGraphCategoryLV2UserSatisf)
-                    )
-                )
-            )
+        TemplateSize: |
+            =60
         Visible: |-
             =If(
                 AppsBIAxis.Value = "카테고리" And Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value <> "전체",
@@ -1524,7 +1543,7 @@ AIGraph_TotalUsage As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =270
-        Items: =AIGraphGPTvUserSatisf
+        Items: =Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank())
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
@@ -1572,10 +1591,10 @@ AIGraph_TotalUsage As screen:
             Fill: |-
                 =IfError(
                     Index(
-                        AIGraph_ColorLists,
+                        AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGPTvUserSatisf,
+                                Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank()),
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
@@ -1584,10 +1603,10 @@ AIGraph_TotalUsage As screen:
                     ).Value,
                     Color.Black,
                     Index(
-                        AIGraph_ColorLists,
+                        AIGraph_GPTv_ColorLists,
                         LookUp(
                             Filter(
-                                AIGraphGPTvUserSatisf,
+                                Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank()),
                                 Token_Model <> Blank()
                             ),
                             Token_Model=ThisItem.Token_Model,
@@ -1837,7 +1856,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,1).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,1).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -1885,7 +1904,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,2).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,2).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -1923,7 +1942,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,3).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,3).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -1961,7 +1980,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,4).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,4).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -1999,7 +2018,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,5).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,5).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2037,7 +2056,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,6).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,6).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2068,14 +2087,14 @@ AIGraph_TotalUsage As screen:
                     false
                 )
             Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Width
-            X: =1
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.X + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.Width
             Y: =Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - Self.Height
             ZIndex: =8
 
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,7).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,7).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2106,14 +2125,14 @@ AIGraph_TotalUsage As screen:
                     false
                 )
             Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Width
-            X: =1
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.X + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.Width
             Y: =Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - Self.Height
             ZIndex: =9
 
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,8).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,8).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2144,14 +2163,14 @@ AIGraph_TotalUsage As screen:
                     false
                 )
             Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Width
-            X: =1
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.X + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.Width
             Y: =Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - Self.Height
             ZIndex: =10
 
         Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,9).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,9).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2182,7 +2201,7 @@ AIGraph_TotalUsage As screen:
                     false
                 )
             Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Width
-            X: =1
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.X + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.Width
             Y: =Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - Self.Height
             ZIndex: =11
 
@@ -2196,6 +2215,377 @@ AIGraph_TotalUsage As screen:
             Width: =Parent.TemplateWidth
             Y: =DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Y-1
             ZIndex: =12
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =10
+            Text: |-
+                =Text(ThisItem.Usage_Total, "#,###,###,##0")
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Y
+            ZIndex: =13
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,1).Value),
+                                Index(chatBotVersionList,1).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,1).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_1.Height - Self.Height
+            ZIndex: =14
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,2).Value),
+                                Index(chatBotVersionList,2).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,2).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_2.Height - Self.Height
+            ZIndex: =15
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,3).Value),
+                                Index(chatBotVersionList,3).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,3).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_3.Height - Self.Height
+            ZIndex: =16
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,4).Value),
+                                Index(chatBotVersionList,4).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,4).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_4.Height - Self.Height
+            ZIndex: =17
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,5).Value),
+                                Index(chatBotVersionList,5).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,5).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_5.Height - Self.Height
+            ZIndex: =18
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,6).Value),
+                                Index(chatBotVersionList,6).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,6).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_6.Height - Self.Height
+            ZIndex: =19
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,7).Value),
+                                Index(chatBotVersionList,7).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,7).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_7.Height - Self.Height
+            ZIndex: =20
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,8).Value),
+                                Index(chatBotVersionList,8).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,8).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_8.Height - Self.Height
+            ZIndex: =21
+
+        Label_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphMonthlyGPTvUsage,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,9).Value),
+                                Index(chatBotVersionList,9).Value
+                            )
+                        ),
+                        YearMonth=ThisItem.YearMonth,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,9).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9.Width
+            X: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9.X
+            Y: =Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9.Y + Bar_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_9.Height - Self.Height
+            ZIndex: =22
 
     BarChart_GPTv_Default_Daily_AIGraph_TotalUsage As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -2329,7 +2719,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,1).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,1).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2378,7 +2768,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,2).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,2).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2416,7 +2806,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_3 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,3).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,3).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2454,7 +2844,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_4 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,4).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,4).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2492,7 +2882,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_5 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,5).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,5).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2530,7 +2920,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_6 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,6).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,6).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2568,7 +2958,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_7 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,7).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,7).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2606,7 +2996,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_8 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,8).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,8).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -2644,7 +3034,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_9 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,9).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,9).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3227,7 +3617,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,1).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,1).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3276,7 +3666,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,2).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,2).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3314,7 +3704,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,3).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,3).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3352,7 +3742,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,4).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,4).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3390,7 +3780,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,5).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,5).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3428,7 +3818,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,6).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,6).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3466,7 +3856,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,7).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,7).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3504,7 +3894,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,8).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,8).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3542,7 +3932,7 @@ AIGraph_TotalUsage As screen:
         Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =Index(AIGraph_ColorLists,9).Value
+            Fill: =Index(AIGraph_GPTv_ColorLists,9).Value
             FocusedBorderThickness: =4
             Height: |-
                 =If(
@@ -3591,18 +3981,514 @@ AIGraph_TotalUsage As screen:
             Y: =DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Y-1
             ZIndex: =12
 
-    AIGTUSAVINGLABEL As label:
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =Text(ThisItem.Usage_Total, "#,###,###,##0")
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Y
+            ZIndex: =13
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,1).Value),
+                                Index(chatBotVersionList,1).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,1).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_1.Height - Self.Height
+            ZIndex: =14
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,2).Value),
+                                Index(chatBotVersionList,2).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,2).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_2.Height - Self.Height
+            ZIndex: =15
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,3).Value),
+                                Index(chatBotVersionList,3).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,3).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_3.Height - Self.Height
+            ZIndex: =16
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,4).Value),
+                                Index(chatBotVersionList,4).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,4).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_4.Height - Self.Height
+            ZIndex: =17
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,5).Value),
+                                Index(chatBotVersionList,5).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,5).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_5.Height - Self.Height
+            ZIndex: =18
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,6).Value),
+                                Index(chatBotVersionList,6).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,6).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_6.Height - Self.Height
+            ZIndex: =19
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,7).Value),
+                                Index(chatBotVersionList,7).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,7).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_7.Height - Self.Height
+            ZIndex: =20
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,8).Value),
+                                Index(chatBotVersionList,8).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,8).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_8.Height - Self.Height
+            ZIndex: =21
+
+        Label_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =5
+            Text: |-
+                =Text(
+                    LookUp(
+                        Filter(
+                            AIGraphDailyGPTvUsage_Custom,
+                            Token_Model=If(
+                                !IsError(Index(chatBotVersionList,9).Value),
+                                Index(chatBotVersionList,9).Value
+                            )
+                        ),
+                        Date=ThisItem.Date,
+                        Usage_Total
+                    ), 
+                    "#,###,###,##0"
+                )
+            Visible: |-
+                =If(
+                    !IsError(Index(chatBotVersionList,9).Value) And Self.Text <> "0",
+                    true,
+                    false
+                )
+            Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.X
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.Height - Self.Height
+            ZIndex: =22
+
+    Button_Table_Filtering_AIGraph_TokenUsage_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         Font: =Font.'Segoe UI'
-        Size: =13
-        Text: ="텍스트"
-        X: =40
-        Y: =40
-        ZIndex: =39
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =Concurrent(
+                Set(AIGraphStartDate,
+                    Text(If(
+                            DatePickerSetting = false,
+                            Switch(
+                                Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value,
+                                "1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                "3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                "6개월", DateAdd(Today(),-6,TimeUnit.Months),
+                                "1년", DateAdd(Today(),-12,TimeUnit.Months)
+                            ), DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                        ), "yyyy-mm-dd"
+                    )
+                ),
+                Set(AIGraphEndDate,
+                    Text(If(
+                        DatePickerSetting = false,
+                        DateAdd(Today(),-0,TimeUnit.Months),
+                        DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate
+                    ), "yyyy-mm-dd"))
+            );
+            
+            UpdateContext({AIGraphTotalUsageRes: '똑실이-[Apps]AIGraph토큰사용성분석'.Run(
+                "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point","")
+                    ,{
+                    // StartDate
+                    text_2: AIGraphStartDate,
+                    // EndDate
+                    text_3: AIGraphEndDate
+                }).result_json
+            });
+            
+            ClearCollect(
+                AIGraphTotalUsageResResponse,
+                ForAll(
+                    Table(ParseJSON(AIGraphTotalUsageRes)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
+                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        Token_Model: Text(ThisRecord.Value.AnswerModel),
+                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
+                        ID: Int(ThisRecord.Value.ID)
+                    }
+                )
+            );
+            
+            ClearCollect(
+                AICategory_Default,
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
+                Filter(
+                    AIGraphTotalUsageResResponse,
+                    Token_Date >= If(
+                                        DatePickerSetting = false,
+                                        Switch(
+                                            Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value,
+                                            "1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                            "3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                            "6개월", DateAdd(Today(),-6,TimeUnit.Months),
+                                            "1년", DateAdd(Today(),-12,TimeUnit.Months)
+                                        ), DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                                    ) && 
+                    Token_Date <= If(
+                                        DatePickerSetting = false,
+                                        DateAdd(Today(),-0,TimeUnit.Months),
+                                        DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate
+                                    )
+                )
+            );
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        Visible: =false
+        X: =1760
+        Y: =1040
+        ZIndex: =40
 
