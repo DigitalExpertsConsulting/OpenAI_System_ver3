@@ -56,6 +56,7 @@ AIGraph_UserSatisf As screen:
         );
         
         Select(Button_Table_Filtering_AIGraph_UserSatisf);
+        Select(Button_Table_Filtering_AIGraph_UserSatisf_1);
         
         Concurrent(
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
@@ -575,6 +576,7 @@ AIGraph_UserSatisf As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
+        Visible: =false
         X: =915
         Y: =1040
         ZIndex: =7
@@ -2126,7 +2128,7 @@ AIGraph_UserSatisf As screen:
                                 Category_LV1 <> Blank()
                             ),
                             Category_LV1=ThisItem.Category_LV1,
-                            Index-1
+                            Index
                         )
                     ).Value,
                     Color.Black,
@@ -2134,7 +2136,7 @@ AIGraph_UserSatisf As screen:
                 )
             FocusedBorderThickness: =4
             Height: =20
-            Width: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total
+            Width: =IfError(Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total,0,Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total)
             X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =3
@@ -2963,24 +2965,18 @@ AIGraph_UserSatisf As screen:
             Fill: |-
                 =IfError(
                     Index(
-                        AIGraphColorLists,
+                        AIGraph_ColorLists,
                         LookUp(
-                            Filter(
-                                AIGraphCategoryLV2UserSatisf,
-                                Category_LV2 <> Blank()
-                            ),
+                            AIGraphCategoryLV2UserSatisf,
                             Category_LV2=ThisItem.Category_LV2,
                             Index
                         )
                     ).Value,
                     Color.Black,
                     Index(
-                        AIGraphColorLists,
+                        AIGraph_ColorLists,
                         LookUp(
-                            Filter(
-                                AIGraphCategoryLV2UserSatisf,
-                                Category_LV2 <> Blank()
-                            ),
+                            AIGraphCategoryLV2UserSatisf,
                             Category_LV2=ThisItem.Category_LV2,
                             Index
                         )
@@ -3041,6 +3037,50 @@ AIGraph_UserSatisf As screen:
             Y: =5
             ZIndex: =4
 
+        Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Fill: |-
+                =IfError(
+                    Index(
+                        AIGraph_ColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV2UserSatisf,
+                                Category_LV2 <> Blank()
+                            ),
+                            Category_LV2=ThisItem.Category_LV2,
+                            Index
+                        )
+                    ).Value,
+                    Color.Black,
+                    ColorValue(CSS_COMMON.colors.aigraphTotal)
+                )
+            FocusedBorderThickness: =4
+            Height: =20
+            Width: =IfError(Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total,0,Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total)
+            X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            ZIndex: =5
+
+        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1 As label:
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Parent.TemplateHeight - Self.Y*2
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =ThisItem.Token_UserSatisfRate
+            Width: =135
+            X: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1.Width + 5
+            Y: =20
+            ZIndex: =6
+
     PieChart_LV1Category_Usage_AIGraph_UserSatisf As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -3073,9 +3113,9 @@ AIGraph_UserSatisf As screen:
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Font: =Font.'Segoe UI'
-        Height: =PieChart_Token_Usage_AIGraph_UserSatisf.Height
+        Height: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Height
         HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =AIGraphColorLists
+        ItemColorSet: =AIGraph_ColorLists
         Items: |-
             =SortByColumns(
                 AIGraphCategoryLV2UserSatisf,
@@ -3086,9 +3126,9 @@ AIGraph_UserSatisf As screen:
         ShowLabels: =false
         Size: =15
         Visible: =BarChart_LV2Category_Daily_AIGraph_UserSatisf.Visible
-        Width: =PieChart_Token_Usage_AIGraph_UserSatisf.Width
-        X: =1420
-        Y: =PieChart_Token_Usage_AIGraph_UserSatisf.Y
+        Width: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Width
+        X: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.X
+        Y: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Y
         ZIndex: =57
 
     "BarChart_GPTv_Default_Daily_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
@@ -3614,10 +3654,8 @@ AIGraph_UserSatisf As screen:
         Height: =BarChart_LV1Category_Detail_AIGraph_UserSatisf.Height
         Items: |-
             =SortByColumns(
-                Filter(
-                    AIGraphCategoryLV2UserSatisf,
-                    Token_UserSatisfRate
-                ),"Usage_Total",SortOrder.Descending
+                AIGraphCategoryLV2UserSatisf,
+                "Usage_Total",SortOrder.Descending
             )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
@@ -3668,24 +3706,18 @@ AIGraph_UserSatisf As screen:
             Fill: |-
                 =IfError(
                     Index(
-                        AIGraphColorLists,
+                        AIGraph_ColorLists,
                         LookUp(
-                            Filter(
-                                AIGraphCategoryLV2UserSatisf,
-                                Category_LV2 <> Blank()
-                            ),
+                            AIGraphCategoryLV2UserSatisf,
                             Category_LV2=ThisItem.Category_LV2,
                             Index
                         )
                     ).Value,
                     Color.Black,
                     Index(
-                        AIGraphColorLists,
+                        AIGraph_ColorLists,
                         LookUp(
-                            Filter(
-                                AIGraphCategoryLV2UserSatisf,
-                                Category_LV2 <> Blank()
-                            ),
+                            AIGraphCategoryLV2UserSatisf,
                             Category_LV2=ThisItem.Category_LV2,
                             Index
                         )
@@ -4006,19 +4038,4 @@ AIGraph_UserSatisf As screen:
         X: =1231
         Y: =1040
         ZIndex: =76
-
-    AIGRAPHSAVINGLABEL As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: ="텍스트"
-        X: =40
-        Y: =40
-        ZIndex: =77
 
