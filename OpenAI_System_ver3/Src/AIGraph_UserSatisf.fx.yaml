@@ -169,7 +169,7 @@ AIGraph_UserSatisf As screen:
                 ForAll(
                     Table(ParseJSON(AIGraphResponse)),
                     {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
                         IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
@@ -648,7 +648,7 @@ AIGraph_UserSatisf As screen:
                 )
             )
         OnChange: |-
-            =Set(SelectedLV1_AIGraph, Self.Selected.Value);
+            =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Select(Button_Table_Filtering_AIGraph_UserSatisf);
         PaddingBottom: =5
@@ -1114,12 +1114,6 @@ AIGraph_UserSatisf As screen:
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Text: ="만족했어요"
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
         Width: =200
         X: |
             =1520
@@ -1137,12 +1131,6 @@ AIGraph_UserSatisf As screen:
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Text: ="별로에요"
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
         Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X
         Y: =Label_Token_Input_AIGraph_UserSatisf.Y + Label_Token_Input_AIGraph_UserSatisf.Height + 20
@@ -1158,13 +1146,7 @@ AIGraph_UserSatisf As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Text: ="잘모르겠어요"
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
+        Text: ="미응답"
         Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X
         Y: =Label_Token_Output_AIGraph_UserSatisf.Y + Label_Token_Output_AIGraph_UserSatisf.Height + 20
@@ -1182,14 +1164,8 @@ AIGraph_UserSatisf As screen:
         Font: =Font.'Segoe UI'
         Text: |
             =Text(
-                Int('[Hidden]Value_Token_Input_AIGraph_UserSatisf'.Text),
+                CountRows(Filter(AIGraphUserSatisf, IsGood="true")),
                 "###,###,###,##0"
-            )
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
             )
         X: =Label_Token_Input_AIGraph_UserSatisf.X + Label_Token_Input_AIGraph_UserSatisf.Width
         Y: =Label_Token_Input_AIGraph_UserSatisf.Y
@@ -1206,16 +1182,10 @@ AIGraph_UserSatisf As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
-        Text: |-
+        Text: |
             =Text(
-                Int('[Hidden]Value_Token_Output_AIGraph_UserSatisf'.Text),
+                CountRows(Filter(AIGraphUserSatisf, IsBad="true")),
                 "###,###,###,##0"
-            )
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
             )
         X: =Label_Token_Output_AIGraph_UserSatisf.X + Label_Token_Output_AIGraph_UserSatisf.Width
         Y: =Label_Token_Output_AIGraph_UserSatisf.Y
@@ -1231,16 +1201,10 @@ AIGraph_UserSatisf As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Text: |-
+        Text: |
             =Text(
-                Int('[Hidden]Value_Token_Total_AIGraph_UserSatisf'.Text),
+                CountRows(AIGraphUserSatisf) + CountRows(Filter(AIGraphUserSatisf, IsGood="true")) - CountRows(Filter(AIGraphUserSatisf, IsBad="true")),
                 "###,###,###,##0"
-            )
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
             )
         X: =Label_Token_Total_AIGraph_UserSatisf.X + Label_Token_Total_AIGraph_UserSatisf.Width
         Y: =Label_Token_Total_AIGraph_UserSatisf.Y
@@ -1253,12 +1217,6 @@ AIGraph_UserSatisf As screen:
         Fill: =Index(AIGraph_ColorLists,1).Value
         FocusedBorderThickness: =4
         Height: =5
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
         Width: =30
         X: =Label_Token_Input_AIGraph_UserSatisf.X - Self.Width
         Y: =Label_Token_Input_AIGraph_UserSatisf.Y+Label_Token_Input_AIGraph_UserSatisf.Height/2 - Self.Height/2
@@ -1271,12 +1229,6 @@ AIGraph_UserSatisf As screen:
         Fill: =Index(AIGraph_ColorLists,2).Value
         FocusedBorderThickness: =4
         Height: =5
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
         Width: =30
         X: =Color_Token_Input_AIGraph_UserSatisf.X
         Y: =Label_Token_Output_AIGraph_UserSatisf.Y + Label_Token_Output_AIGraph_UserSatisf.Height/2 - Self.Height/2
@@ -1289,563 +1241,10 @@ AIGraph_UserSatisf As screen:
         Fill: =Index(AIGraph_ColorLists,3).Value
         FocusedBorderThickness: =4
         Height: =5
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
         Width: =30
         X: =Color_Token_Input_AIGraph_UserSatisf.X
         Y: =Label_Token_Total_AIGraph_UserSatisf.Y + Label_Token_Total_AIGraph_UserSatisf.Height/2 - Self.Height/2
         ZIndex: =33
-
-    "'[Hidden]Value_Token_Input_AIGraph_UserSatisf' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Text: |-
-            =If(
-                DatePickerSetting = false,
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                    Sum(
-                        Filter(//AIGraphUserSatisfDailyUsage
-                            AIGraphUserSatisfDailyUsage,
-                            (
-                                Date >= Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "1개월",
-                                    DateAdd(Today(),-1,TimeUnit.Months),
-                                        "3개월",
-                                    DateAdd(Today(),-3,TimeUnit.Months)
-                                )
-                            ) && (
-                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                            )
-                        ), Usage_Good
-                    ),
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
-                    Sum(
-                        Filter(
-                            AIGraphUserSatisfMonthlyUsage,
-                            (
-                                YearMonth >= 
-                                Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "6개월",
-                                    Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                        "1년",
-                                    Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                )
-                            ) &&
-                            (
-                                YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                            ),
-                            YearMonth_ <> Blank()
-                        ), Usage_Good
-                    )
-                )),
-            If(
-                DatePickerSetting = true,
-                Sum(
-                    Filter(
-                        AIGraphUserSatisfDailyUsage_Custom,
-                        (
-                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                        ) && (
-                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate 
-                        )
-                    ),Usage_Good
-                )
-            ))
-        Visible: =false
-        X: =Label_Token_Input_AIGraph_UserSatisf.X + Label_Token_Input_AIGraph_UserSatisf.Width
-        Y: =Label_Token_Input_AIGraph_UserSatisf.Y
-        ZIndex: =34
-
-    "'[Hidden]Value_Token_Output_AIGraph_UserSatisf' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Text: |-
-            =If(
-                DatePickerSetting = false,
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                    Sum(
-                        Filter(//AIGraphUserSatisfDailyUsage
-                            AIGraphUserSatisfDailyUsage,
-                            (
-                                Date >= Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "1개월",
-                                    DateAdd(Today(),-1,TimeUnit.Months),
-                                        "3개월",
-                                    DateAdd(Today(),-3,TimeUnit.Months)
-                                )
-                            ) && (
-                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                            )
-                        ), Usage_Bad
-                    ),
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
-                    Sum(
-                        Filter(
-                            AIGraphUserSatisfMonthlyUsage,
-                            (
-                                YearMonth >= 
-                                Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "6개월",
-                                    Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                        "1년",
-                                    Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                )
-                            ) &&
-                            (
-                                YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                            ),
-                            YearMonth_ <> Blank()
-                        ), Usage_Bad
-                    )
-                )),
-            If(
-                DatePickerSetting = true,
-                Sum(
-                    Filter(
-                        AIGraphUserSatisfDailyUsage_Custom,
-                        (
-                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                        ) && (
-                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate 
-                        )
-                    ),Usage_Bad
-                )
-            ))
-        Visible: =false
-        Width: =200
-        X: =Label_Token_Output_AIGraph_UserSatisf.X + Label_Token_Output_AIGraph_UserSatisf.Width
-        Y: =Label_Token_Output_AIGraph_UserSatisf.Y
-        ZIndex: =35
-
-    "'[Hidden]Value_Token_Total_AIGraph_UserSatisf' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Text: |-
-            =If(
-                DatePickerSetting = false,
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                    Sum(
-                        Filter(//AIGraphUserSatisfDailyUsage
-                            AIGraphUserSatisfDailyUsage,
-                            (
-                                Date >= Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "1개월",
-                                    DateAdd(Today(),-1,TimeUnit.Months),
-                                        "3개월",
-                                    DateAdd(Today(),-3,TimeUnit.Months)
-                                )
-                            ) && (
-                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                            )
-                        ), Usage_Total
-                    ),
-                If(
-                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
-                    Sum(
-                        Filter(
-                            AIGraphUserSatisfMonthlyUsage,
-                            (
-                                YearMonth >= 
-                                Switch(
-                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                        "6개월",
-                                    Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                        "1년",
-                                    Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                )
-                            ) &&
-                            (
-                                YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                            ),
-                            YearMonth_ <> Blank()
-                        ), Usage_Total
-                    )
-                )),
-            If(
-                DatePickerSetting = true,
-                Sum(
-                    Filter(
-                        AIGraphUserSatisfDailyUsage_Custom,
-                        (
-                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                        ) && (
-                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate 
-                        )
-                    ),Usage_Total
-                )
-            ))
-        Visible: =false
-        Width: =200
-        X: =Label_Token_Total_AIGraph_UserSatisf.X + Label_Token_Total_AIGraph_UserSatisf.Width
-        Y: =Label_Token_Total_AIGraph_UserSatisf.Y
-        ZIndex: =36
-
-    "'[Hidden]Value_GPTv_Total_AIGraph_UserSatisf_0' As label":
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Semibold
-        Size: =20
-        Text: |-
-            =    If(
-                    DatePickerSetting = false,
-                    If(
-                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                        Sum(
-                            Filter(
-                                AIGraphGPTvDailyUsage,
-                                (
-                                    Token_Date >= Switch(
-                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                            "1개월",
-                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                            "3개월",
-                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                    )
-                                ) && (
-                                    Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                )
-                            ), Token_Total
-                        )/100,
-                    If(
-                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
-                        Sum(
-                            Filter(
-                                AIGraphGPTvMonthlyUsage,
-                                (
-                                    YearMonth >= 
-                                    Switch(
-                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                            "6개월",
-                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                            "1년",
-                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                    )
-                                ) &&
-                                (
-                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                                ),
-                                YearMonth_ <> Blank()
-                            ), Token_Total
-                        )/100
-                    )),
-                If(
-                    DatePickerSetting = true,
-                    Sum(
-                        Filter(
-                            AIGraphGPTvDailyUsage_Custom,
-                            (
-                                Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                            ) && (
-                                Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate 
-                            )
-                        ),Token_Total
-                    )/100
-                ))
-        Visible: =false
-        Width: =200
-        X: =Label_Token_Output_AIGraph_UserSatisf.X + Label_Token_Output_AIGraph_UserSatisf.Width
-        Y: =Label_Token_Output_AIGraph_UserSatisf.Y
-        ZIndex: =37
-
-    "Gallery_GPTv_Usage_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =297
-        Items: =Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank())
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        TemplatePadding: =0
-        TemplateSize: |
-            =40
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: =Color_GPTv_Total_AIGraph_UserSatisf_0.Width + Label_GPTv_Total_AIGraph_UserSatisf_0.Width + Value_GPTv_Total_AIGraph_UserSatisf_0.Width
-        X: =Color_GPTv_Total_AIGraph_UserSatisf_0.X
-        Y: =Label_GPTv_Total_AIGraph_UserSatisf_0.Y + Label_GPTv_Total_AIGraph_UserSatisf_0.Height
-        ZIndex: =38
-
-        Color_GPTv_Total_AIGraph_UserSatisf_1 As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledFill: =RGBA(166, 166, 166, 1)
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_GPTv_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphGPTvUserSatisf,
-                                Token_Model <> Blank()
-                            ),
-                            Token_Model=ThisItem.Token_Model,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_GPTv_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphGPTvUserSatisf,
-                                Token_Model <> Blank()
-                            ),
-                            Token_Model=ThisItem.Token_Model,
-                            Index
-                        )
-                    ).Value
-                )
-            FocusedBorderThickness: =4
-            Height: =5
-            HoverFill: =RGBA(105, 121, 126, 1)
-            OnSelect: =Select(Parent)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            Width: =30
-            X: |
-                =0
-            Y: =Label_GPTv_Total_AIGraph_UserSatisf_1.Y+Label_GPTv_Total_AIGraph_UserSatisf_1.Height/2 - Self.Height/2
-            ZIndex: =1
-
-        Label_GPTv_Total_AIGraph_UserSatisf_1 As label:
-            Color: =RGBA(50, 49, 48, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
-            OnSelect: =Select(Parent)
-            Text: |-
-                =Upper(
-                    If(
-                        IsBlank(Substitute(Substitute(ThisItem.Token_Model, "chat", ""), "_", "")),
-                        "gpt3.5",
-                        Substitute(Substitute(ThisItem.Token_Model, "chat", ""), "_", "")
-                    )
-                )
-            Width: =200
-            X: =Color_GPTv_Total_AIGraph_UserSatisf_1.Width
-            Y: =5
-            ZIndex: =2
-
-        Value_GPTv_Total_AIGraph_UserSatisf_1 As label:
-            Align: =Align.Right
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =Label_GPTv_Total_AIGraph_UserSatisf_1.Height
-            OnSelect: =Select(Parent)
-            Text: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                    Text(
-                        Int(
-                            Sum(
-                                Filter(
-                                    AIGraphGPTvUserSatisf,
-                                    Token_Model = ThisItem.Token_Model
-                                ),
-                                Usage_Good
-                            )/Sum(
-                                Filter(
-                                    AIGraphGPTvUserSatisf,
-                                    Token_Model = ThisItem.Token_Model
-                                ),
-                                Usage_Total
-                            )*10000)/100, 
-                        "#0.0# %"
-                    ), 
-                    0
-                )
-            Width: =Parent.TemplateWidth - Label_GPTv_Total_AIGraph_UserSatisf_1.Width - Color_GPTv_Total_AIGraph_UserSatisf_1.Width
-            X: =Label_GPTv_Total_AIGraph_UserSatisf_1.X + Label_GPTv_Total_AIGraph_UserSatisf_1.Width
-            Y: =Label_GPTv_Total_AIGraph_UserSatisf_1.Y
-            ZIndex: =3
-
-        "'[Hidden]Value_GPTv_Total_AIGraph_UserSatisf_1' As label":
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            OnSelect: =Select(Parent)
-            Size: =13
-            Text: |-
-                =If(
-                    DatePickerSetting = false,
-                    If(
-                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                        Sum(
-                            Filter(
-                                AIGraphGPTvDailyUsage,
-                                (
-                                    Token_Date >= Switch(
-                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                            "1개월",
-                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                            "3개월",
-                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                    )
-                                ) && (
-                                    Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                ),
-                                Token_Model=ThisItem.Token_Model
-                            ), Token_Total
-                        )/100,
-                    If(
-                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년",
-                        Sum(
-                            Filter(
-                                AIGraphGPTvMonthlyUsage,
-                                (
-                                    YearMonth >= 
-                                    Switch(
-                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                            "6개월",
-                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                            "1년",
-                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                    )
-                                ) &&
-                                (
-                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                                ),
-                                YearMonth_ <> Blank(),
-                                Token_Model=ThisItem.Token_Model
-                            ), Token_Total
-                        )/100
-                    )),
-                If(
-                    DatePickerSetting = true,
-                    Sum(
-                        Filter(
-                            AIGraphGPTvDailyUsage_Custom,
-                            (
-                                Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                            ) && (
-                                Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate 
-                            ),
-                            Token_Model=ThisItem.Token_Model
-                        ),Token_Total
-                    )/100
-                ))
-            Visible: =false
-            X: =250
-            Y: =65
-            ZIndex: =4
-
-    Color_GPTv_Total_AIGraph_UserSatisf_0 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
-        FocusedBorderThickness: =4
-        Height: =5
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: =30
-        X: =Label_GPTv_Total_AIGraph_UserSatisf_0.X - Self.Width
-        Y: =Label_GPTv_Total_AIGraph_UserSatisf_0.Y + Label_GPTv_Total_AIGraph_UserSatisf_0.Height/2 - Self.Height/2
-        ZIndex: =39
-
-    Label_GPTv_Total_AIGraph_UserSatisf_0 As label:
-        Color: =RGBA(50, 49, 48, 1)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =Label_Token_Input_AIGraph_UserSatisf.Height
-        Text: ="전체 만족도"
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: =Label_Token_Input_AIGraph_UserSatisf.Width
-        X: =Label_Token_Input_AIGraph_UserSatisf.X
-        Y: =Label_Token_Input_AIGraph_UserSatisf.Y
-        ZIndex: =40
-
-    Value_GPTv_Total_AIGraph_UserSatisf_0 As label:
-        Align: =Align.Right
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Height: =Label_GPTv_Total_AIGraph_UserSatisf_0.Height
-        Text: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                Text(Int(Sum(AIGraphGPTvUserSatisf,Usage_Good)/Sum(AIGraphGPTvUserSatisf,Usage_Total)*10000)/100, "#0.0# %"), 
-                0
-            )
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        X: =Label_GPTv_Total_AIGraph_UserSatisf_0.X + Label_GPTv_Total_AIGraph_UserSatisf_0.Width
-        Y: =Label_GPTv_Total_AIGraph_UserSatisf_0.Y
-        ZIndex: =41
 
     PieChart_GPTv_Usage_AIGraph_UserSatisf As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1854,29 +1253,18 @@ AIGraph_UserSatisf As screen:
         Color: =RGBA(51, 51, 51, 1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         Font: =Font.'Segoe UI'
-        Height: =PieChart_Token_Usage_AIGraph_UserSatisf.Height
+        Height: |
+            =450
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =AIGraph_ColorLists
         Items: |-
             =[
                 Text(
-                    Sum(
-                        AIGraphGPTvUserSatisf,
-                        Usage_Good
-                    )/Sum(
-                        AIGraphGPTvUserSatisf,
-                        Usage_Total
-                    ) * 100, 
+                    CountRows(Filter(AIGraphUserSatisf, IsGood="true"))/CountRows(AIGraphUserSatisf)* 100, 
                     "#0.0#%"
                 ),
                 Text(
-                    Sum(
-                        AIGraphGPTvUserSatisf,
-                        Usage_Bad
-                    )/Sum(
-                        AIGraphGPTvUserSatisf,
-                        Usage_Total
-                    ) * 100, 
+                    CountRows(Filter(AIGraphUserSatisf, IsBad="true"))/CountRows(AIGraphUserSatisf)* 100, 
                     "#0.0#%"
                 )
             ]
@@ -1884,54 +1272,12 @@ AIGraph_UserSatisf As screen:
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         ShowLabels: =false
         Size: =15
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: =PieChart_Token_Usage_AIGraph_UserSatisf.Width
-        X: =PieChart_Token_Usage_AIGraph_UserSatisf.X
-        Y: =PieChart_Token_Usage_AIGraph_UserSatisf.Y
-        ZIndex: =42
-
-    PieChart_Token_Usage_AIGraph_UserSatisf As pieChart:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        Font: =Font.'Segoe UI'
-        Height: =450
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =AIGraph_ColorLists
-        Items: |-
-            =[
-                Text(
-                    Int('[Hidden]Value_Token_Input_AIGraph_UserSatisf'.Text) / (
-                    Int('[Hidden]Value_Token_Input_AIGraph_UserSatisf'.Text) +
-                    Int('[Hidden]Value_Token_Output_AIGraph_UserSatisf'.Text)
-                ) * 100, "##.0#%"),
-                Text(
-                    Int('[Hidden]Value_Token_Output_AIGraph_UserSatisf'.Text) / (
-                    Int('[Hidden]Value_Token_Input_AIGraph_UserSatisf'.Text) +
-                    Int('[Hidden]Value_Token_Output_AIGraph_UserSatisf'.Text)
-                ) * 100, "##.0#%")
-            ]
-        LabelPosition: =LabelPosition.Inside
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        ShowLabels: =false
-        Size: =15
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "기간",
-                true,
-                false
-            )
-        Width: =450
+        Width: |-
+            =450
+                
         X: =1450
-        Y: =240
-        ZIndex: =43
+        Y: =Sep_AIGraph_UserSatisf.Y - 30
+        ZIndex: =42
 
     Label_PieChart_AIGraph_UserSatisf As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1946,7 +1292,7 @@ AIGraph_UserSatisf As screen:
         Size: =20
         Text: =First(똑실이_ChatbotText_table).BotName & " 답변 만족 비율"
         Width: =400
-        X: =PieChart_Token_Usage_AIGraph_UserSatisf.X + PieChart_Token_Usage_AIGraph_UserSatisf.Width/2 - Self.Width/2
+        X: =1480
         Y: =Label_GraphTitle_AIGraph_UserSatisf.Y
         ZIndex: =44
 
@@ -3033,56 +2379,6 @@ AIGraph_UserSatisf As screen:
             Y: =20
             ZIndex: =6
 
-    PieChart_LV1Category_Usage_AIGraph_UserSatisf As pieChart:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        Font: =Font.'Segoe UI'
-        Height: =PieChart_Token_Usage_AIGraph_UserSatisf.Height
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =AIGraph_ColorLists
-        Items: |-
-            =SortByColumns(
-                AIGraphCategoryLV1UserSatisf,
-                "Usage_Total",SortOrder.Descending
-            )
-        LabelPosition: =LabelPosition.Inside
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        ShowLabels: =false
-        Size: =15
-        Visible: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Visible
-        Width: =PieChart_Token_Usage_AIGraph_UserSatisf.Width
-        X: =PieChart_Token_Usage_AIGraph_UserSatisf.X
-        Y: =PieChart_Token_Usage_AIGraph_UserSatisf.Y
-        ZIndex: =56
-
-    PieChart_LV2Category_Usage_AIGraph_UserSatisf As pieChart:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        Font: =Font.'Segoe UI'
-        Height: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Height
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        ItemColorSet: =AIGraph_ColorLists
-        Items: |-
-            =SortByColumns(
-                AIGraphCategoryLV2UserSatisf,
-                "Usage_Total",SortOrder.Descending
-            )
-        LabelPosition: =LabelPosition.Inside
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        ShowLabels: =false
-        Size: =15
-        Visible: =BarChart_LV2Category_Daily_AIGraph_UserSatisf.Visible
-        Width: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Width
-        X: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.X
-        Y: =PieChart_LV1Category_Usage_AIGraph_UserSatisf.Y
-        ZIndex: =57
-
     "BarChart_GPTv_Default_Daily_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
@@ -3511,177 +2807,6 @@ AIGraph_UserSatisf As screen:
         Y: =Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.Y
         ZIndex: =65
 
-    "BarChart_LV1Category_Detail_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =325
-        Items: |-
-            =SortByColumns(
-                Filter(
-                    AIGraphCategoryLV1UserSatisf,
-                    Token_UserSatisfRate
-                ),"Usage_Total",SortOrder.Descending
-            )
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        ShowNavigation: =true
-        TemplatePadding: =0
-        TemplateSize: =40
-        Visible: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Visible
-        Width: =Gallery_GPTv_Usage_AIGraph_UserSatisf.Width
-        X: =Color_Token_Input_AIGraph_UserSatisf.X
-        Y: =Label_Token_Input_AIGraph_UserSatisf.Y
-        ZIndex: =66
-
-        Label_BarChart_LV1Category_Detail_AIGraph_UserSatisf As label:
-            Color: =RGBA(50, 49, 48, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: |-
-                =If(
-                    ThisItem.Category_LV1 = Blank(),
-                    "전체",
-                    ThisItem.Category_LV1
-                )
-            X: =Color_BarChart_LV1Category_Detail_AIGraph_UserSatisf.X + Color_BarChart_LV1Category_Detail_AIGraph_UserSatisf.Width + 10
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =1
-
-        Value_BarChart_LV1Category_Detail_AIGraph_UserSatisf As label:
-            Align: =Align.Right
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Height: =Self.Size * 1.8
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: |-
-                =Text(ThisItem.Usage_Total, "###,###,###,##0") & " ( " & ThisItem.Token_UserSatisfRate & " )    "
-            VerticalAlign: =VerticalAlign.Top
-            Width: |
-                =150
-            X: =Parent.TemplateWidth - Self.Width
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =3
-
-        Color_BarChart_LV1Category_Detail_AIGraph_UserSatisf As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV1UserSatisf,
-                            Category_LV1=ThisItem.Category_LV1,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV1UserSatisf,
-                            Category_LV1=ThisItem.Category_LV1,
-                            Index
-                        )
-                    ).Value
-                )
-            Height: =5
-            OnSelect: =Select(Parent)
-            Visible: =Parent.Visible
-            Width: =30
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =6
-
-    "BarChart_LV2Category_Detail_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =BarChart_LV1Category_Detail_AIGraph_UserSatisf.Height
-        Items: |-
-            =SortByColumns(
-                AIGraphCategoryLV2UserSatisf,
-                "Usage_Total",SortOrder.Descending
-            )
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        ShowNavigation: =true
-        TemplatePadding: =0
-        TemplateSize: =40
-        Visible: =BarChart_LV2Category_Daily_AIGraph_UserSatisf.Visible
-        Width: =BarChart_LV1Category_Detail_AIGraph_UserSatisf.Width
-        X: =BarChart_LV1Category_Detail_AIGraph_UserSatisf.X
-        Y: =BarChart_LV1Category_Detail_AIGraph_UserSatisf.Y
-        ZIndex: =67
-
-        Label_BarChart_LV2Category_Detail_AIGraph_UserSatisf As label:
-            Color: =RGBA(50, 49, 48, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: =ThisItem.Category_LV2
-            X: =Color_BarChart_LV2Category_Detail_AIGraph_UserSatisf.X + Color_BarChart_LV2Category_Detail_AIGraph_UserSatisf.Width + 10
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =1
-
-        Value_BarChart_LV2Category_Detail_AIGraph_UserSatisf As label:
-            Align: =Align.Right
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            Height: =Self.Size * 1.8
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Size: =13.5
-            Text: =ThisItem.Usage_Total & " ( " & ThisItem.Token_UserSatisfRate & " )    "
-            VerticalAlign: =VerticalAlign.Top
-            Width: =200
-            X: =Parent.TemplateWidth - Self.Width
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =3
-
-        Color_BarChart_LV2Category_Detail_AIGraph_UserSatisf As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV2UserSatisf,
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV2UserSatisf,
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value
-                )
-            Height: =5
-            OnSelect: =Select(Parent)
-            Visible: =Parent.Visible
-            Width: =30
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =6
-
     Dropdown_AxisPicker_AIGraph_UserSatisf As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
         ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -3781,86 +2906,6 @@ AIGraph_UserSatisf As screen:
         X: =Sep_PieChart_AIGraph_UserSatisf.X
         Y: =670
         ZIndex: =73
-
-    "Legend_GPTv_AIGraph_UserSatisf As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =40
-        Items: =Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank())
-        LoadingSpinner: =LoadingSpinner.Data
-        TemplatePadding: =0
-        TemplateSize: =110
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "GPT 버전",
-                true,
-                false
-            )
-        Width: =CountRows(Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank())) * Self.TemplateWidth
-        X: =Sep_AIGraph_UserSatisf.X + Sep_AIGraph_UserSatisf.Width - Self.Width
-        Y: =Sep_AIGraph_UserSatisf.Y + Sep_AIGraph_UserSatisf.Height + 10
-        ZIndex: =74
-
-        Label_Legend_GPTv_AIGraph_UserSatisf As label:
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Font: =Font.'Segoe UI'
-            Height: =20
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Size: =12
-            Text: |-
-                =Upper(
-                    If(
-                        IsBlank(Substitute(Substitute(ThisItem.Token_Model, "chat", ""), "_", "")),
-                        "gpt3.5",
-                        Substitute(Substitute(ThisItem.Token_Model, "chat", ""), "_", "")
-                    )
-                )
-            VerticalAlign: =VerticalAlign.Top
-            Width: =80
-            X: =Color_Legend_GPTv_AIGraph_UserSatisf.X + Color_Legend_GPTv_AIGraph_UserSatisf.Width + 5
-            Y: =Parent.Height/2 - Self.Height/2
-            ZIndex: =3
-
-        Color_Legend_GPTv_AIGraph_UserSatisf As circle:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_GPTv_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphGPTvUserSatisf,
-                                Token_Model <> Blank()
-                            ),
-                            Token_Model=ThisItem.Token_Model,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_GPTv_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphGPTvUserSatisf,
-                                Token_Model <> Blank()
-                            ),
-                            Token_Model=ThisItem.Token_Model,
-                            Index
-                        )
-                    ).Value
-                )
-            Height: =12
-            OnSelect: =Select(Parent)
-            Width: =12
-            Y: =Parent.Height/2 - Self.Height/2
-            ZIndex: =4
 
     AlertMSG_AIGraph_UserSatisf As label:
         Align: =Align.Right
@@ -3963,7 +3008,7 @@ AIGraph_UserSatisf As screen:
                 ForAll(
                     Table(ParseJSON(AIGraphResponse)),
                     {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
                         IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
@@ -4365,7 +3410,7 @@ AIGraph_UserSatisf As screen:
                 ForAll(
                     Table(ParseJSON(AIGraphUserSatisfRes)),
                     {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
                         Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
                         IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
