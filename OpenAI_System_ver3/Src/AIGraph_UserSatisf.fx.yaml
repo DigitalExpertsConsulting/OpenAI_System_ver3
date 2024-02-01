@@ -5,19 +5,7 @@ AIGraph_UserSatisf As screen:
     OnHidden: |-
         =Concurrent(
             Set(gblStartPage,"AIGraph_UserSatisf"),
-            Clear(AIGraphToken),
-            Clear(AIGraphUserSatisf),
-            Clear(colCategoryAdmin_New),
-            Clear(chatBotVersionList),
-            Clear(AIGraphAddColYM_All),
-            Clear(AIGraphUserSatisfMonthlyUsage),
-            Clear(AIGraphUserSatisfDailyUsage),
-            Clear(AIGraphUserSatisfDailyUsage_Custom),
-            Clear(AIGraphGPTvUserSatisf),
-            Clear(AIGraphCategoryLV1UserSatisf),
-            Clear(AIGraphCategoryLV2UserSatisf),
-            Clear(AIGraphUserSatisfResponse),
-            Clear(AICategory_Default)
+            Clear(AIGraphToken)
         )
     OnVisible: |
         =//============================== << 화면 최초 접속 시 >> ==============================
@@ -62,11 +50,10 @@ AIGraph_UserSatisf As screen:
             Reset(Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf),
             Reset(Dropdown_DatePicker_AIGraph_UserSatisf),
             Reset(DatePicker_FirstDate_AIGraph_UserSatisf),
-            Reset(DatePicker_LastDate_AIGraph_UserSatisf),
-            Reset(Dropdown_AxisPicker_AIGraph_UserSatisf)
+            Reset(DatePicker_LastDate_AIGraph_UserSatisf)
         );
         
-        Select(Button_Table_Filtering_AIGraph_UserSatisf);
+        Select(Button_Table_Filtering_AIGraph_UserSatisf_1);
         
         Concurrent(
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
@@ -579,7 +566,6 @@ AIGraph_UserSatisf As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        Visible: =false
         X: =915
         Y: =1040
         ZIndex: =7
@@ -594,8 +580,7 @@ AIGraph_UserSatisf As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         Size: =13
-        Text: =CountRows(AIGraphUserSatisfMonthlyUsage)
-        Visible: =false
+        Text: =
         X: =1144
         Y: =1040
         ZIndex: =8
@@ -3718,7 +3703,6 @@ AIGraph_UserSatisf As screen:
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Reset(Dropdown_DatePicker_AIGraph_UserSatisf);
             Select(Button_Table_Filtering_AIGraph_UserSatisf);
-            Select(Button_Table_Filtering_AIGraph_UserSatisf_1);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -3906,7 +3890,7 @@ AIGraph_UserSatisf As screen:
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |-
+        OnSelect: |+
             =Concurrent(
                 Set(AIGraphStartDate,
                     Text(If(
@@ -3927,6 +3911,435 @@ AIGraph_UserSatisf As screen:
                         DateAdd(Today(),-0,TimeUnit.Months),
                         DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate
                     ), "yyyy-mm-dd"))
+            );
+            
+            UpdateContext({AIGraphResponse: '똑실이-[Apps]AIGraphQALog분석'.Run(
+                    If(
+                        // LV1=전체 LV2=전체 일경우
+                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value = DEFAULT_CATEGORY_VALUE && 
+                        Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        If(
+                            // 카테고리LV1만 선택한 경우
+                            Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value <> DEFAULT_CATEGORY_VALUE && 
+                            Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(
+                                    LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                    Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value
+                                ), Category_LV1LV2 & "?"
+                            ),"delete_point"), "?delete_point", ""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value = DEFAULT_CATEGORY_VALUE && 
+                                Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(
+                                        LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                        Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf.Selected.Value
+                                    ), Category_LV1LV2 & "?"
+                                ), "delete_point"), "?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value & "/" & Dropdown_GalleryFilter_CategoryLV2_AIGraph_UserSatisf.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
+                    // StartDate
+                    text_1: AIGraphStartDate,
+                    // EndDate
+                    text_2: AIGraphEndDate
+                }).result_json
+            });
+            
+            ClearCollect(
+                AIGraphUserSatisf,
+                ForAll(
+                    Table(ParseJSON(AIGraphResponse)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
+                        IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
+                        IsBad: Text(ThisRecord.Value.HateT_x002f_F),
+                        Token_Model: Text(ThisRecord.Value.AnswerModel),
+                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
+                        ID: Int(ThisRecord.Value.ID)
+                    }
+                )
+            );
+            
+            ClearCollect(
+                colCategoryAdmin_New,
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
+                Filter(
+                    DropColumns(
+                        AIGraphUserSatisf,
+                        "Bot_Type","ID","Token_Model","IsGood","IsBad"
+                    ),
+                    Date >= If(
+                                DatePickerSetting = false,
+                                Switch(
+                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                    "1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                    "3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                    "6개월", DateAdd(Today(),-6,TimeUnit.Months),
+                                    "1년", DateAdd(Today(),-12,TimeUnit.Months)
+                                ), DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                            ) && 
+                    Date <= If(
+                                DatePickerSetting = false,
+                                DateAdd(Today(),-0,TimeUnit.Months),
+                                DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate
+                            )
+                )
+            );
+            
+            ClearCollect(
+                chatBotVersionList,
+                AddColumns(
+                    Sort(
+                        Filter(
+                            Distinct(
+                                AIGraphUserSatisf,
+                                Token_Model
+                            ), 
+                            Value <> Blank()
+                        ),
+                        Value,
+                        SortOrder.Ascending
+                    ),
+                    "Index",0
+                )
+            );
+            
+            ClearCollect(
+                AIGraphAddColYM_All,
+                AddColumns(
+                    AIGraphUserSatisf,
+                    "YearMonth",
+                    Year(Date)*100 + Month(Date),
+                    "YearMonth_",
+                    Text(Year(Date)) & "년 " & Text(Month(Date)) &"월"
+                )
+            );
+            
+            If(
+                Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value = "전체",
+                Set(AIGraphAddColYM, AIGraphAddColYM_All),
+                Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value))
+            );
+            
+            If(
+                AppsBIAxis.Value = "기간",
+                Concurrent(
+                    ClearCollect(
+                        AIGraphUserSatisfMonthlyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or 
+                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphUserSatisfDailyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or 
+                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "Date", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphUserSatisfDailyUsage_Custom,
+                        If(
+                            DatePickerSetting = true,
+                            AddColumns(
+                                GroupBy(AIGraphUserSatisf, "Date", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    )
+                ),
+            /*
+                Concurrent(
+                    ClearCollect(
+                        AIGraphUserSatisfMonthlyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "6개월" Or 
+                                Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1년"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphUserSatisfDailyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1개월" Or 
+                                Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "3개월"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "Date", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphUserSatisfDailyUsage_Custom,
+                        If(
+                            DatePickerSetting = true,
+                            AddColumns(
+                                GroupBy(AIGraphUserSatisf, "Date", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true"))
+                            )
+                        )
+                    )
+                ),*/
+                If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    ClearCollect(
+                        AIGraphGPTvUserSatisf,
+                        AddColumns(
+                            GroupBy(AIGraphUserSatisf, "Token_Model", "Group"),
+                            "Usage_Total",
+                            CountRows(Group),
+                            "Usage_Good",
+                            CountRows(Filter(Group, IsGood="true")),
+                            "Usage_Bad",
+                            CountRows(Filter(Group, IsBad="true")),
+                            "Index",
+                            0
+                        )
+                    )
+                
+            /*
+                    Concurrent(
+                        ClearCollect(
+                            AIGraphGPTvMonthlyUserSatisf,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1년" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "6개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Token_Model", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group),
+                                    "Usage_Good",
+                                    CountRows(Filter(Group, IsGood="true")),
+                                    "Usage_Bad",
+                                    CountRows(Filter(Group, IsBad="true"))
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvDailyUserSatisf,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "3개월"
+                                ),
+                                AddColumns(
+                                    //GroupBy(AIGraphAddColYM, "Date", "Token_Model", "Group"),
+                                    GroupBy(AIGraphAddColYM, "Date", "Token_Model", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group),
+                                    "Usage_Good",
+                                    CountRows(Filter(Group, IsGood="true")),
+                                    "Usage_Bad",
+                                    CountRows(Filter(Group, IsBad="true"))
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvUserSatisfMonthlyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1년" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "6개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvUserSatisfDailyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_DEV_2.SelectedText.Value = "3개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Date", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvUserSatisfDailyUsage_Custom,
+                            If(
+                                DatePickerSetting = true,
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Date", "Token_Model", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvUserSatisfDailyXAxis_Custom,
+                            If(
+                                DatePickerSetting = true,
+                                AddColumns(
+                                    GroupBy(AIGraphUserSatisf, "Date", "Group"),
+                                    "Usage_Total",
+                                    CountRows(Group),
+                                    "Usage_Good",
+                                    CountRows(Filter(Group, IsGood="true")),
+                                    "Usage_Bad",
+                                    CountRows(Filter(Group, IsBad="true"))
+                                )
+                            )
+                        )
+                    )
+                    */
+                    ,
+            
+                    If(
+                        AppsBIAxis.Value = "카테고리",
+                        ClearCollect(
+                            AIGraphCategoryLV1UserSatisf,
+                            AddColumns(
+                                GroupBy(AIGraphUserSatisf, "Category_LV1", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true")),
+                                "Token_UserSatisfRate",
+                                Text(Int(CountRows(Filter(Group, IsGood="true")) / CountRows(Group) * 10000) / 100, "#0.0#%"),
+                                "Index",
+                                0
+                            )
+                        );
+                        ClearCollect(
+                            AIGraphCategoryLV2UserSatisf,
+                            AddColumns(
+                                GroupBy(AIGraphUserSatisf, "Category_LV2", "Group"),
+                                "Usage_Total",
+                                CountRows(Group),
+                                "Usage_Good",
+                                CountRows(Filter(Group, IsGood="true")),
+                                "Usage_Bad",
+                                CountRows(Filter(Group, IsBad="true")),
+                                "Token_UserSatisfRate",
+                                Text(Int(CountRows(Filter(Group, IsGood="true")) / CountRows(Group) * 10000) / 100, "#0.0#%"),
+                                "Index",
+                                0
+                            )
+                        )
+                    )
+                )
+            );
+            
+            Concurrent(
+                ClearCollect(
+                    AIGraphCategoryLV1UserSatisf,
+                    SortByColumns(AIGraphCategoryLV1UserSatisf,"Usage_Total",SortOrder.Descending)
+                ),
+                ClearCollect(
+                    AIGraphCategoryLV2UserSatisf,
+                    SortByColumns(AIGraphCategoryLV2UserSatisf,"Usage_Total",SortOrder.Descending)
+                )
+            );
+            
+            If(
+                AppsBIAxis.Value = "GPT 버전",
+                
+                ForAll(
+                    Sequence(CountRows(AIGraphGPTvUserSatisf)),
+                    Patch(
+                        AIGraphGPTvUserSatisf,
+                        Index(AIGraphGPTvUserSatisf, Value),
+                        {Index: Value}
+                    )
+                ),
+                If(
+                    AppsBIAxis.Value = "카테고리",
+                    Concurrent(
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV1UserSatisf)),
+                            Patch(
+                                AIGraphCategoryLV1UserSatisf,
+                                Index(AIGraphCategoryLV1UserSatisf, Value),
+                                {Index: Value}
+                            )
+                        ),
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV2UserSatisf)),
+                            Patch(
+                                AIGraphCategoryLV2UserSatisf,
+                                Index(AIGraphCategoryLV2UserSatisf, Value),
+                                {Index: Value}
+                            )
+                        )
+                    )
+                )
             );
             
             UpdateContext({AIGraphUserSatisfRes: '똑실이-[Apps]AIGraphQALog분석'.Run(
@@ -3981,6 +4394,13 @@ AIGraph_UserSatisf As screen:
                             )
                 )
             );
+            
+            Select(Button_Table_Filtering_AIGraph_UserSatisf);
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+            
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -3990,7 +4410,6 @@ AIGraph_UserSatisf As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        Visible: =false
         X: =1231
         Y: =1040
         ZIndex: =76
