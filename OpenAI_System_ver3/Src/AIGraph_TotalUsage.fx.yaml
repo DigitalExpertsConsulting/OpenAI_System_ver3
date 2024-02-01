@@ -4,8 +4,20 @@ AIGraph_TotalUsage As screen:
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnHidden: |-
         =Concurrent(
-            Set(gblStartPage,"AIGraph_UserSatisf"),
-            Clear(AIGraphToken)
+            Set(gblStartPage,"AIGraph_TotalUsage"),
+            Clear(AIGraphToken),
+            Clear(AIGraphUserSatisf),
+            Clear(colCategoryAdmin_New),
+            Clear(chatBotVersionList),
+            Clear(AIGraphAddColYM_All),
+            Clear(AIGraphUserSatisfMonthlyUsage),
+            Clear(AIGraphUserSatisfDailyUsage),
+            Clear(AIGraphUserSatisfDailyUsage_Custom),
+            Clear(AIGraphGPTvUserSatisf),
+            Clear(AIGraphCategoryLV1UserSatisf),
+            Clear(AIGraphCategoryLV2UserSatisf),
+            Clear(AIGraphCategoryLV1GPTvUsage),
+            Clear(AIGraphCategoryLV2GPTvUsage)
         )
     OnVisible: |
         =//============================== << 화면 최초 접속 시 >> ==============================
@@ -38,19 +50,9 @@ AIGraph_TotalUsage As screen:
         );
         
         //============================== << 필터 초기화 및 로딩이미지 비활성화 >> ==============================
-        Reset(Dropdown_AxisPicker_AIGraph_GPTvUsage);
-        Set(AppsBIAxis, Dropdown_AxisPicker_AIGraph_GPTvUsage.Selected);
+        Reset(Dropdown_AxisPicker_AIGraph_TotalUsage);
+        Set(AppsBIAxis, Dropdown_AxisPicker_AIGraph_TotalUsage.Selected);
         Concurrent(
-            Set(AIGraph_Col1, ColorValue(CSS_COMMON.colors.red1)),
-            Set(AIGraph_Col2, ColorValue(CSS_COMMON.colors.orange1)),
-            Set(AIGraph_Col3, ColorValue(CSS_COMMON.colors.yellow1)),
-            Set(AIGraph_Col4, ColorValue(CSS_COMMON.colors.green1)),
-            Set(AIGraph_Col5, ColorValue(CSS_COMMON.colors.mustard1)),
-            Set(AIGraph_Col6, ColorValue(CSS_COMMON.colors.red2)),
-            Set(AIGraph_Col7, ColorValue(CSS_COMMON.colors.orange2)),
-            Set(AIGraph_Col8, ColorValue(CSS_COMMON.colors.yellow2)),
-            Set(AIGraph_Col9, ColorValue(CSS_COMMON.colors.green2)),
-        
             Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE),
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE),
             Set(AIGraphAxis, First(AxisPickingList)),
@@ -60,18 +62,12 @@ AIGraph_TotalUsage As screen:
             Reset(Dropdown_DatePicker_AIGraph_TotalUsage),
             Reset(DatePicker_FirstDate_AIGraph_TotalUsage),
             Reset(DatePicker_LastDate_AIGraph_TotalUsage),
-            Select(Button_Table_Filtering_AIGraph_TotalUsage)
+            Reset(Dropdown_AxisPicker_AIGraph_TotalUsage)
         );
         
-        Select(Button_Table_Filtering_AIGraph_TokenUsage_2);
         Select(Button_Table_Filtering_AIGraph_TotalUsage);
         
         Concurrent(
-            Set(AIGraphColorLists, [
-                AIGraph_Col1,AIGraph_Col2,AIGraph_Col3,AIGraph_Col4,AIGraph_Col5,AIGraph_Col6,AIGraph_Col7,AIGraph_Col8,AIGraph_Col9,
-                AIGraph_Col1,AIGraph_Col2,AIGraph_Col3,AIGraph_Col4,AIGraph_Col5,AIGraph_Col6,AIGraph_Col7,AIGraph_Col8,AIGraph_Col9
-            ]),
-        
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
             UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성
         );
@@ -104,7 +100,7 @@ AIGraph_TotalUsage As screen:
         Y: =198
         ZIndex: =5
 
-    AlertMSG_AIGraph_GPTvUsage As label:
+    AlertMSG_AIGraph_TotalUsage As label:
         Align: =Align.Right
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -132,7 +128,7 @@ AIGraph_TotalUsage As screen:
         FocusedBorderThickness: =4
         Height: =1
         Width: =385
-        X: =Label_PieChart_AIGraph_UserSatisf.X
+        X: =1475
         Y: =Label_GraphTitle_AIGraph_TotalUsage.Y + Label_GraphTitle_AIGraph_TotalUsage.Height + 16
         ZIndex: =7
 
@@ -160,7 +156,7 @@ AIGraph_TotalUsage As screen:
         Y: =690
         ZIndex: =9
 
-    Dropdown_AxisPicker_AIGraph_GPTvUsage As dropdown:
+    Dropdown_AxisPicker_AIGraph_TotalUsage As dropdown:
         BorderColor: =RGBA(166, 166, 166, 1)
         ChevronBackground: =RGBA(255, 255, 255, 1)
         ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
@@ -184,8 +180,8 @@ AIGraph_TotalUsage As screen:
             Set(SelectedLV1_AIGraph, DEFAULT_CATEGORY_VALUE);
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Reset(Dropdown_DatePicker_AIGraph_TotalUsage);
-            Select(Button_Table_Filtering_AIGraph_TokenUsage_2);
             Select(Button_Table_Filtering_AIGraph_TotalUsage);
+            Select(Button_LV1Category_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -595,7 +591,7 @@ AIGraph_TotalUsage As screen:
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
             =If(
-                Dropdown_AxisPicker_AIGraph_GPTvUsage.Selected.Value <> "GPT 버전",
+                Dropdown_AxisPicker_AIGraph_TotalUsage.Selected.Value <> "GPT 버전",
                 Filter(
                     Distinct(
                         AICategory_Default,
@@ -862,7 +858,7 @@ AIGraph_TotalUsage As screen:
         Y: =Label_GalleryFilter_Category_AIGraph_TotalUsage.Y
         ZIndex: =22
 
-    Label_PieChart_AIGraph_GPTvUsage As label:
+    Label_PieChart_AIGraph_TotalUsage As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1531,12 +1527,12 @@ AIGraph_TotalUsage As screen:
         Size: =20
         Text: |-
             =Switch(
-                Dropdown_AxisPicker_AIGraph_GPTvUsage.Selected.Value, 
+                Dropdown_AxisPicker_AIGraph_TotalUsage.Selected.Value, 
                 "GPT 버전", "GPT 버전 사용 추이",
                 "카테고리", "카테고리 별 사용 횟수"
             )
         Width: =600
-        X: =Label_GalleryFilter_Category_AIGraph_UserSatisf.X
+        X: =Label_GalleryFilter_Category_AIGraph_TotalUsage.X
         Y: =240
         ZIndex: =31
 
@@ -4393,7 +4389,7 @@ AIGraph_TotalUsage As screen:
             Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_9.Height - Self.Height
             ZIndex: =22
 
-    Button_Table_Filtering_AIGraph_TokenUsage_2 As button:
+    Button_LV1Category_Filtering_AIGraph_TotalUsage As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
