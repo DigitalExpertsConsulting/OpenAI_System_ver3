@@ -1132,7 +1132,7 @@ AIGraph_UserSatisf As screen:
         Width: =200
         X: |
             =1520
-        Y: =Sep_Summ_AIGraph_UserSatisf.Y + 20
+        Y: =Label_Token_Total_AIGraph_UserSatisf.Y + Label_Token_Total_AIGraph_UserSatisf.Height + 20
         ZIndex: =25
 
     Label_Token_Output_AIGraph_UserSatisf As label:
@@ -1164,7 +1164,7 @@ AIGraph_UserSatisf As screen:
         Text: ="미응답"
         Width: =200
         X: =Label_Token_Input_AIGraph_UserSatisf.X
-        Y: =Label_Token_Output_AIGraph_UserSatisf.Y + Label_Token_Output_AIGraph_UserSatisf.Height + 20
+        Y: =Sep_Summ_AIGraph_UserSatisf.Y + 20
         ZIndex: =27
 
     Value_Token_Input_AIGraph_UserSatisf As label:
@@ -1179,7 +1179,15 @@ AIGraph_UserSatisf As screen:
         Font: =Font.'Segoe UI'
         Text: |
             =Text(
-                CountRows(Filter(AIGraphUserSatisf, IsGood="true")),
+                CountRows(Filter(If(
+                SelectedLV1_AIGraph = "전체",
+                AIGraphUserSatisf,
+                If(
+                    SelectedLV1_AIGraph = "카테고리",
+                    Filter(AIGraphUserSatisf, Category_LV1="카테고리 미선택"),
+                    Filter(AIGraphUserSatisf, Category_LV1=SelectedLV1_AIGraph)
+                )
+            ), IsGood="true")),
                 "###,###,###,##0"
             )
         X: =Label_Token_Input_AIGraph_UserSatisf.X + Label_Token_Input_AIGraph_UserSatisf.Width
@@ -1196,10 +1204,17 @@ AIGraph_UserSatisf As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
         Text: |
             =Text(
-                CountRows(Filter(AIGraphUserSatisf, IsBad="true")),
+                CountRows(Filter(If(
+                SelectedLV1_AIGraph = "전체",
+                AIGraphUserSatisf,
+                If(
+                    SelectedLV1_AIGraph = "카테고리",
+                    Filter(AIGraphUserSatisf, Category_LV1="카테고리 미선택"),
+                    Filter(AIGraphUserSatisf, Category_LV1=SelectedLV1_AIGraph)
+                )
+            ), IsBad="true")),
                 "###,###,###,##0"
             )
         X: =Label_Token_Output_AIGraph_UserSatisf.X + Label_Token_Output_AIGraph_UserSatisf.Width
@@ -1216,9 +1231,47 @@ AIGraph_UserSatisf As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
-        Text: |
+        Text: |-
             =Text(
-                CountRows(AIGraphUserSatisf) + CountRows(Filter(AIGraphUserSatisf, IsGood="true")) - CountRows(Filter(AIGraphUserSatisf, IsBad="true")),
+                CountRows(
+                    If(
+                        SelectedLV1_AIGraph = "전체",
+                        AIGraphUserSatisf,
+                        If(
+                            SelectedLV1_AIGraph = "카테고리",
+                            Filter(AIGraphUserSatisf, Category_LV1="카테고리 미선택"),
+                            Filter(AIGraphUserSatisf, Category_LV1=SelectedLV1_AIGraph)
+                        )
+                    )
+                ) - 
+                CountRows(
+                    Filter(
+                        If(
+                            SelectedLV1_AIGraph = "전체",
+                            AIGraphUserSatisf,
+                            If(
+                                SelectedLV1_AIGraph = "카테고리",
+                                Filter(AIGraphUserSatisf, Category_LV1="카테고리 미선택"),
+                                Filter(AIGraphUserSatisf, Category_LV1=SelectedLV1_AIGraph)
+                            )
+                        ), 
+                        IsGood="true"
+                    )
+                ) - 
+                CountRows(
+                    Filter(
+                        If(
+                            SelectedLV1_AIGraph = "전체",
+                            AIGraphUserSatisf,
+                            If(
+                                SelectedLV1_AIGraph = "카테고리",
+                                Filter(AIGraphUserSatisf, Category_LV1="카테고리 미선택"),
+                                Filter(AIGraphUserSatisf, Category_LV1=SelectedLV1_AIGraph)
+                            )
+                        ), 
+                        IsBad="true"
+                    )
+                ),
                 "###,###,###,##0"
             )
         X: =Label_Token_Total_AIGraph_UserSatisf.X + Label_Token_Total_AIGraph_UserSatisf.Width
@@ -1272,17 +1325,7 @@ AIGraph_UserSatisf As screen:
             =450
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =AIGraph_ColorLists
-        Items: |-
-            =[
-                Text(
-                    CountRows(Filter(AIGraphUserSatisf, IsGood="true"))/CountRows(AIGraphUserSatisf)* 100, 
-                    "#0.0#%"
-                ),
-                Text(
-                    CountRows(Filter(AIGraphUserSatisf, IsBad="true"))/CountRows(AIGraphUserSatisf)* 100, 
-                    "#0.0#%"
-                )
-            ]
+        Items: =[Value_Token_Input_AIGraph_UserSatisf.Text,Value_Token_Output_AIGraph_UserSatisf.Text,Value_Token_Total_AIGraph_UserSatisf.Text]
         LabelPosition: =LabelPosition.Inside
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         ShowLabels: =false
@@ -1324,20 +1367,8 @@ AIGraph_UserSatisf As screen:
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
         TemplatePadding: =0
-        TemplateSize: |-
-            =IfError(
-                Self.Height/CountRows(AIGraphCategoryLV1UserSatisf),
-                0,
-                If(
-                    CountRows(AIGraphCategoryLV1UserSatisf) = 1, 
-                    80,
-                    If(
-                        Self.Height/CountRows(AIGraphCategoryLV1UserSatisf) < 60,
-                        60,
-                        Self.Height/CountRows(AIGraphCategoryLV1UserSatisf)
-                    )
-                )
-            )
+        TemplateSize: |
+            =80
         Visible: |-
             =If(
                 AppsBIAxis.Value = "카테고리" And SelectedLV1_AIGraph = "전체",
@@ -1375,78 +1406,44 @@ AIGraph_UserSatisf As screen:
         Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV1UserSatisf,
-                            Category_LV1=ThisItem.Category_LV1,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV1UserSatisf,
-                            Category_LV1=ThisItem.Category_LV1,
-                            Index
-                        )
-                    ).Value
-                )
+            Fill: =Index(AIGraph_ColorLists,3).Value
             FocusedBorderThickness: =4
-            Height: =40
+            Height: =20
             Width: |-
                 =If(
                     !IsError(1/CountRows(AIGraphCategoryLV1UserSatisf)),
-                    (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20) - (
-                        (
+                    (
+                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphCategoryLV1UserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
+                                    Filter(
+                                        AIGraphCategoryLV1UserSatisf,
+                                        Category_LV1=ThisItem.Category_LV1
+                                    ),
+                                    Category_LV1=ThisItem.Category_LV1,
+                                    Usage_Total
+                                )
+                            ) / 
                             Max(
                                 AIGraphCategoryLV1UserSatisf,
                                 Usage_Total
-                            ) -
-                            LookUp(
-                                Filter(
-                                    AIGraphCategoryLV1UserSatisf,
-                                    Category_LV1=ThisItem.Category_LV1
-                                ),
-                                Category_LV1=ThisItem.Category_LV1,
-                                Usage_Total
                             )
-                        ) / 
-                        Max(
-                            AIGraphCategoryLV1UserSatisf,
-                            Usage_Total
-                        )
-                    ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20),
+                        ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
                     0
                 )
             X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            Y: =Parent.TemplateHeight/2 - Self.Height/2 - Self.Height
             ZIndex: =2
 
         Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphCategoryLV1UserSatisf,
-                                Category_LV1 <> Blank()
-                            ),
-                            Category_LV1=ThisItem.Category_LV1,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    ColorValue(CSS_COMMON.colors.aigraphTotal)
-                )
+            Fill: =Index(AIGraph_ColorLists,1).Value
             FocusedBorderThickness: =4
             Height: =20
             Width: =IfError(Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total,0,Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total)
@@ -1458,26 +1455,36 @@ AIGraph_UserSatisf As screen:
             Align: =Align.Right
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
+            Height: |
+                =20
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
-            Size: =12
+            Size: =11
             Text: |-
-                =Text(ThisItem.Usage_Total, "###,###,###,##0")
+                =Text(ThisItem.Usage_Total, "###,###,###,##0")// & " ( 100% )    "
             Width: =135
             X: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
-            Y: =5
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Y
             ZIndex: =4
 
-        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate As label:
+        RateValue_BarChart_LV1Category_Daily_AIGraph_UserSatisf_Good As label:
+            Align: |-
+                =If(
+                    Int((ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100 > 50,
+                    Align.Right,
+                    Align.Left
+                )
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
+            Height: |
+                =20
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
@@ -1486,9 +1493,127 @@ AIGraph_UserSatisf As screen:
             Size: =10
             Text: =ThisItem.Token_UserSatisfRate
             Width: =135
-            X: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.Width + 5
-            Y: =10
+            X: |-
+                =If(
+                    Int((ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100 > 50,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.Width - Self.Width - 5,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.Width + 5
+                )
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.Y
             ZIndex: =5
+
+        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf_Good As label:
+            Align: =Align.Right
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =11
+            Text: =ThisItem.Usage_Good
+            Width: =Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width
+            X: =Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate.Y
+            ZIndex: =6
+
+        Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =Index(AIGraph_ColorLists,2).Value
+            FocusedBorderThickness: =4
+            Height: =20
+            Width: =IfError(Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Bad/ThisItem.Usage_Total,0,Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Bad/ThisItem.Usage_Total)
+            X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2 + Self.Height
+            ZIndex: =7
+
+        RateValue_BarChart_LV1Category_Daily_AIGraph_UserSatisf_Good_1 As label:
+            Align: |-
+                =If(
+                    Int((ThisItem.Usage_Bad)/ThisItem.Usage_Total*10000)/100 > 50,
+                    Align.Right,
+                    Align.Left
+                )
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =Text(Int(ThisItem.Usage_Bad / ThisItem.Usage_Total*10000)/100, "#0.0#%")
+            Width: =135
+            X: |-
+                =If(
+                    Int((ThisItem.Usage_Bad)/ThisItem.Usage_Total*10000)/100 > 50,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.Width - Self.Width - 5,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.Width + 5
+                )
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.Y
+            ZIndex: =8
+
+        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf_Good_1 As label:
+            Align: =Align.Right
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =11
+            Text: =ThisItem.Usage_Bad
+            Width: =Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width
+            X: =Value_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2.Y
+            ZIndex: =9
+
+        RateValue_BarChart_LV1Category_Daily_AIGraph_UserSatisf_Good_2 As label:
+            Align: |-
+                =If(
+                    Int((ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100 < 50 Or Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width < 350,
+                    Align.Left,
+                    Align.Right
+                )
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =Text(Int((ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100, "#0.0#%")
+            Width: =135
+            X: |-
+                =If(
+                    Int((ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100 < 50 Or Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width < 350,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 5,
+                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - Self.Width - 5
+                )
+            Y: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Y
+            ZIndex: =10
 
     "'[Hidden]Group_Value_GPTv_Total_AIGraph_UserSatisf' As group":
         Height: =5
@@ -2274,61 +2399,38 @@ AIGraph_UserSatisf As screen:
         Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV2UserSatisf,
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            AIGraphCategoryLV2UserSatisf,
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value
-                )
+            Fill: =Index(AIGraph_ColorLists,3).Value
             FocusedBorderThickness: =4
-            Height: =40
+            Height: =20
             Width: |-
                 =If(
-                    !IsError(1/CountRows(Filter(
-                    AIGraphCategoryLV2UserSatisf,
-                    Category_LV2 <> Blank()
-                ))),
-                    (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20) - (
-                        (
-                            Max(Filter(
-                    AIGraphCategoryLV2UserSatisf,
-                    Category_LV2 <> Blank()
-                ),Usage_Total) - 
-                            LookUp(
-                                Filter(
+                    !IsError(1/CountRows(AIGraphCategoryLV2UserSatisf)),
+                    (
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphCategoryLV2UserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
                                     Filter(
-                    AIGraphCategoryLV2UserSatisf,
-                    Category_LV2 <> Blank()
-                ),
-                                    Category_LV2=ThisItem.Category_LV2
-                                ),
-                                Category_LV2=ThisItem.Category_LV2,
+                                        AIGraphCategoryLV2UserSatisf,
+                                        Category_LV2=ThisItem.Category_LV2
+                                    ),
+                                    Category_LV2=ThisItem.Category_LV2,
+                                    Usage_Total
+                                )
+                            ) / 
+                            Max(
+                                AIGraphCategoryLV2UserSatisf,
                                 Usage_Total
                             )
-                        ) / Max(Filter(
-                    AIGraphCategoryLV2UserSatisf,
-                    Category_LV2 <> Blank()
-                ),Usage_Total)
-                    ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20),
+                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
                     0
                 )
             X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            Y: =Parent.TemplateHeight/2 - Self.Height/2 - Self.Height
             ZIndex: =3
 
         Value_BarChart_LV2Category_Daily_AIGraph_UserSatisf As label:
@@ -2336,7 +2438,8 @@ AIGraph_UserSatisf As screen:
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
+            Height: |
+                =20
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
@@ -2347,52 +2450,176 @@ AIGraph_UserSatisf As screen:
                 =Text(ThisItem.Usage_Total, "###,###,###,##0")
             Width: =135
             X: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
-            Y: =5
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Y
             ZIndex: =4
-
-        Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1 As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphCategoryLV2UserSatisf,
-                                Category_LV2 <> Blank()
-                            ),
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    ColorValue(CSS_COMMON.colors.aigraphTotal)
-                )
-            FocusedBorderThickness: =4
-            Height: =20
-            Width: =IfError(Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total,0,Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good/ThisItem.Usage_Total)
-            X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =5
 
         Value_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1 As label:
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
+            Height: =20
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
             Size: =10
-            Text: =ThisItem.Token_UserSatisfRate
+            Text: |-
+                =Text(Int((ThisItem.Usage_Total - ThisItem.Usage_Good - ThisItem.Usage_Bad)/ThisItem.Usage_Total*10000)/100, "#0.0#%")
             Width: =135
-            X: =Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1.X + Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_1.Width + 5
-            Y: =20
+            X: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 5
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Y
             ZIndex: =6
+
+        Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =Index(AIGraph_ColorLists,1).Value
+            FocusedBorderThickness: =4
+            Height: =20
+            Width: |-
+                =If(
+                    !IsError(1/CountRows(AIGraphCategoryLV2UserSatisf)),
+                    (
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphCategoryLV2UserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
+                                    Filter(
+                                        AIGraphCategoryLV2UserSatisf,
+                                        Category_LV2=ThisItem.Category_LV2
+                                    ),
+                                    Category_LV2=ThisItem.Category_LV2,
+                                    Usage_Good
+                                )
+                            ) / 
+                            Max(
+                                AIGraphCategoryLV2UserSatisf,
+                                Usage_Total
+                            )
+                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
+                    0
+                )
+            X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            ZIndex: =7
+
+        Value_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1 As label:
+            Align: =Align.Right
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =12
+            Text: |-
+                =Text(ThisItem.Usage_Good, "###,###,###,##0")
+            Width: =135
+            X: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1.Y
+            ZIndex: =8
+
+        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_2 As label:
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =Text(Int((ThisItem.Usage_Good)/ThisItem.Usage_Total*10000)/100, "#0.0#%")
+            Width: =135
+            X: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1.X + Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1.Width + 5
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_1.Y
+            ZIndex: =9
+
+        Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2 As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            Fill: =Index(AIGraph_ColorLists,2).Value
+            FocusedBorderThickness: =4
+            Height: =20
+            Width: |-
+                =If(
+                    !IsError(1/CountRows(AIGraphCategoryLV2UserSatisf)),
+                    (
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphCategoryLV2UserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
+                                    Filter(
+                                        AIGraphCategoryLV2UserSatisf,
+                                        Category_LV2=ThisItem.Category_LV2
+                                    ),
+                                    Category_LV2=ThisItem.Category_LV2,
+                                    Usage_Bad
+                                )
+                            ) / 
+                            Max(
+                                AIGraphCategoryLV2UserSatisf,
+                                Usage_Total
+                            )
+                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 20)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
+                    0
+                )
+            X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2 + Self.Height
+            ZIndex: =10
+
+        Value_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2 As label:
+            Align: =Align.Right
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: |
+                =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =12
+            Text: |-
+                =Text(ThisItem.Usage_Bad, "###,###,###,##0")
+            Width: =135
+            X: =BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2.Y
+            ZIndex: =11
+
+        Value_BarChart_LV1Category_Daily_AIGraph_UserSatisfRate_3 As label:
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =Text(Int((ThisItem.Usage_Bad)/ThisItem.Usage_Total*10000)/100, "#0.0#%")
+            Width: =135
+            X: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2.X + Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2.Width
+            Y: =Bar_BarChart_LV2Category_Daily_AIGraph_UserSatisf_2.Y
+            ZIndex: =12
 
     "BarChart_GPTv_Default_Daily_AIGraph_UserSatisf As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
@@ -2450,7 +2677,7 @@ AIGraph_UserSatisf As screen:
         Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
+            Fill: =Index(AIGraph_ColorLists,3).Value
             FocusedBorderThickness: =4
             Height: =40
             Width: |-
@@ -2469,6 +2696,30 @@ AIGraph_UserSatisf As screen:
                         ) * (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20)
                     ), 0
                 )
+                
+                /*
+                
+                        (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphGPTvUserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
+                                    Filter(
+                                        AIGraphGPTvUserSatisf,
+                                        Category_LV1=ThisItem.Category_LV1
+                                    ),
+                                    Category_LV1=ThisItem.Category_LV1,
+                                    Usage_Total
+                                )
+                            ) / 
+                            Max(
+                                AIGraphGPTvUserSatisf,
+                                Usage_Total
+                            )
+                        ) * (Parent.Width - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width - 20)
+                */
             X: =DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Daily_Default_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height*1.5
             ZIndex: =2
@@ -2529,19 +2780,28 @@ AIGraph_UserSatisf As screen:
             Align: =Align.Right
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
-            Size: =12
+            Size: =11
             Text: |-
                 =Text(
                     LookUp(
                         AIGraphGPTvUserSatisf,
                         Token_Model=ThisItem.Value,
                         Usage_Total
+                    ) - LookUp(
+                        AIGraphGPTvUserSatisf,
+                        Token_Model=ThisItem.Value,
+                        Usage_Good
+                    ) - LookUp(
+                        AIGraphGPTvUserSatisf,
+                        Token_Model=ThisItem.Value,
+                        Usage_Bad
                     ), 
                     "###,###,###,###"
                 )
@@ -2564,13 +2824,14 @@ AIGraph_UserSatisf As screen:
             Align: =Align.Right
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
-            Size: =12
+            Size: =11
             Text: |-
                 =If(
                     IsBlank(
@@ -2612,13 +2873,14 @@ AIGraph_UserSatisf As screen:
             Align: =Align.Right
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
-            Size: =12
+            Size: =11
             Text: |-
                 =If(
                     IsBlank(
@@ -2656,6 +2918,278 @@ AIGraph_UserSatisf As screen:
             Y: =Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.Y
             ZIndex: =7
 
+        Value_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_1 As label:
+            Align: |
+                =If(
+                    Int(
+                        (
+                            CountRows(AIGraphUserSatisf)-
+                            CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                            CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                        )/CountRows(AIGraphUserSatisf)*10000
+                    )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
+                    Align.Left,
+                    Align.Right
+                )
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =If(
+                    IsBlank(
+                        Text(
+                            Int(
+                                (LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Total
+                                )-LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Good
+                                )-LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Bad
+                                ))/LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Total
+                                )*10000)/100, 
+                            "##0.0#%"
+                        )
+                    ),
+                    "0",
+                    Text(
+                        Int(
+                            (LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Total
+                            )-LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Good
+                            )-LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Bad
+                            ))/LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Total
+                            )*10000)/100, 
+                        "##0.0#%"
+                    )
+                )
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    If(
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
+                        true,
+                        false
+                    ),
+                    false
+                )
+            Width: =135
+            X: |-
+                =If(
+                    Int(
+                        (
+                            CountRows(AIGraphUserSatisf)-
+                            CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                            CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                        )/CountRows(AIGraphUserSatisf)*10000
+                    )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
+                    Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width + 5,
+                    Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width -Self.Width - 5
+                )
+            Y: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Y
+            ZIndex: =8
+
+        Value_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_1 As label:
+            Align: |
+                =If(
+                    Int(
+                        LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Good
+                        )/LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Total
+                        )*10000
+                    )/100 > 50,
+                    Align.Right,
+                    Align.Left
+                )
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =If(
+                    IsBlank(
+                        Text(
+                            Int(
+                                LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Good
+                                )/LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Total
+                                )*10000)/100, 
+                            "##0.0#%"
+                        )
+                    ),
+                    "0",
+                    Text(
+                        Int(
+                            LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Good
+                            )/LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Total
+                            )*10000)/100, 
+                        "##0.0#%"
+                    )
+                )
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    If(
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
+                        true,
+                        false
+                    ),
+                    false
+                )
+            Width: =135
+            X: |-
+                =If(
+                    Int(
+                        LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Good
+                        )/LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Total
+                        )*10000
+                    )/100 > 50,
+                    Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf.Width - Self.Width - 5,
+                    Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf.Width + 5
+                )
+            Y: =Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf.Y
+            ZIndex: =9
+
+        Value_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_1 As label:
+            Align: |
+                =If(
+                    Int(
+                        LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Bad
+                        )/LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Total
+                        )*10000
+                    )/100 > 50,
+                    Align.Right,
+                    Align.Left
+                )
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: |-
+                =If(
+                    IsBlank(
+                        Text(
+                            Int(
+                                LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Bad
+                                )/LookUp(
+                                    AIGraphGPTvUserSatisf,
+                                    Token_Model=ThisItem.Value,
+                                    Usage_Total
+                                )*10000)/100, 
+                            "##0.0#%"
+                        )
+                    ),
+                    "0",
+                    Text(
+                        Int(
+                            LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Bad
+                            )/LookUp(
+                                AIGraphGPTvUserSatisf,
+                                Token_Model=ThisItem.Value,
+                                Usage_Total
+                            )*10000)/100, 
+                        "##0.0#%"
+                    )
+                )
+            Visible: |-
+                =If(
+                    AppsBIAxis.Value = "GPT 버전",
+                    If(
+                        CountRows(AIGraphGPTvUserSatisf) <> 1 Or !IsBlank(First(AIGraphGPTvUserSatisf).Token_Model),
+                        true,
+                        false
+                    ),
+                    false
+                )
+            Width: =135
+            X: |-
+                =If(
+                    Int(
+                        LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Bad
+                        )/LookUp(
+                            AIGraphGPTvUserSatisf,
+                            Token_Model=ThisItem.Value,
+                            Usage_Total
+                        )*10000
+                    )/100 > 50,
+                    Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.Width - Self.Width - 5,
+                    Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.Width + 5
+                )
+            Y: =Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf.Y
+            ZIndex: =10
+
     DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf As label:
         Align: =Align.Right
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -2682,7 +3216,7 @@ AIGraph_UserSatisf As screen:
     Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
-        Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
+        Fill: =Index(AIGraph_ColorLists,3).Value
         FocusedBorderThickness: =4
         Height: =40
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
@@ -2690,7 +3224,9 @@ AIGraph_UserSatisf As screen:
             =If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
-                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
+                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
+                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Good)+Sum(AIGraphGPTvUserSatisf, Usage_Bad))))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
+                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
             )
         X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width + 20
@@ -2748,10 +3284,11 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Height
         PaddingLeft: =0
-        Size: =12
+        Size: =11
         Text: |-
             =/*If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
@@ -2763,7 +3300,7 @@ AIGraph_UserSatisf As screen:
             )*/
             If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                Text(Sum(AIGraphGPTvUserSatisf,Usage_Total), "#,###,###,##0"),
+                Text((CountRows(AIGraphUserSatisf)-CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-CountRows(Filter(AIGraphUserSatisf,IsBad="true"))), "#,###,###,##0"),
                 0
             )
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
@@ -2781,10 +3318,11 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Height
         PaddingLeft: =0
-        Size: =12
+        Size: =11
         Text: |-
             =If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
@@ -2806,10 +3344,11 @@ AIGraph_UserSatisf As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
         Height: =Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.Height
         PaddingLeft: =0
-        Size: =12
+        Size: =11
         Text: |-
             =If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
@@ -3479,4 +4018,142 @@ AIGraph_UserSatisf As screen:
         X: =977
         Y: =474
         ZIndex: =77
+
+    Value_BarChart_GPTv_UsageTotal_Daily_AIGraph_UserSatisf_1 As label:
+        Align: |-
+            =If(
+                Int(
+                    (
+                        CountRows(AIGraphUserSatisf)-
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                    )/CountRows(AIGraphUserSatisf)*10000
+                )/100 > 50,
+                Align.Right,
+                Align.Left
+            )
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Height
+        PaddingLeft: =0
+        Size: =10
+        Text: |-
+            =If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(
+                    Int(
+                        (CountRows(AIGraphUserSatisf)-
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true")))/CountRows(AIGraphUserSatisf)*10000)/100, 
+                    "##0.0#%"
+                ),
+                0
+            )
+        Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
+        Width: =135
+        X: |-
+            =If(
+                Int(
+                    (
+                        CountRows(AIGraphUserSatisf)-
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                    )/CountRows(AIGraphUserSatisf)*10000
+                )/100 > 50,
+                Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Width - Self.Width - 5,
+                Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Width + 5
+            )
+        Y: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Y
+        ZIndex: =78
+
+    Value_BarChart_GPTv_UsageGood_Daily_AIGraph_UserSatisf_1 As label:
+        Align: |-
+            =If(
+                Int(CountRows(Filter(AIGraphUserSatisf,IsGood="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
+                Align.Right,
+                Align.Left
+            )
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_0.Height
+        PaddingLeft: =0
+        Size: =10
+        Text: |-
+            =If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(
+                    Int(
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))/CountRows(AIGraphUserSatisf)*10000)/100, 
+                    "##0.0#%"
+                ),
+                0
+            )
+        Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
+        Width: =135
+        X: |-
+            =If(
+                Int(
+                    (
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50
+                ),
+                Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.Width - Self.Width - 5,
+                Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.Width + 5
+            )
+        Y: =Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.Y
+        ZIndex: =79
+
+    Value_BarChart_GPTv_UsageBad_Daily_AIGraph_UserSatisf_1 As label:
+        Align: |-
+            =If(
+                Int(CountRows(Filter(AIGraphUserSatisf,IsBad="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
+                Align.Right,
+                Align.Left
+            )
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =Bar_BarChart_GPTv_UsageGood_AIGraph_UserSatisf_0.Height
+        PaddingLeft: =0
+        Size: =10
+        Text: |-
+            =If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(
+                    Int(
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true"))/CountRows(AIGraphUserSatisf)*10000)/100, 
+                    "##0.0#%"
+                ),
+                0
+            )
+        Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
+        Width: =135
+        X: |-
+            =If(
+                Int(
+                    (
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50
+                ),
+                Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.Width - Self.Width - 5,
+                Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.X + Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.Width + 5
+            )
+        Y: =Bar_BarChart_GPTv_UsageBad_AIGraph_UserSatisf_0.Y
+        ZIndex: =80
 
