@@ -4107,7 +4107,7 @@ AIGraph_UserSatisf As screen:
 
     Value_BarChart_GPTv_UsageTotal_Daily_AIGraph_UserSatisf_1 As label:
         Align: |-
-            =If(
+            =IfError(If(
                 Int(
                     (
                         CountRows(AIGraphUserSatisf)-
@@ -4117,7 +4117,17 @@ AIGraph_UserSatisf As screen:
                 )/100 > 50,
                 Align.Right,
                 Align.Left
-            )
+            ),Align.Left,If(
+                Int(
+                    (
+                        CountRows(AIGraphUserSatisf)-
+                        CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                        CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                    )/CountRows(AIGraphUserSatisf)*10000
+                )/100 > 50,
+                Align.Right,
+                Align.Left
+            ))
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -4171,11 +4181,15 @@ AIGraph_UserSatisf As screen:
 
     Value_BarChart_GPTv_UsageGood_Daily_AIGraph_UserSatisf_1 As label:
         Align: |-
-            =If(
+            =IfError(If(
                 Int(CountRows(Filter(AIGraphUserSatisf,IsGood="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
                 Align.Right,
                 Align.Left
-            )
+            ),Align.Left,If(
+                Int(CountRows(Filter(AIGraphUserSatisf,IsGood="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
+                Align.Right,
+                Align.Left
+            ))
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -4220,11 +4234,15 @@ AIGraph_UserSatisf As screen:
 
     Value_BarChart_GPTv_UsageBad_Daily_AIGraph_UserSatisf_1 As label:
         Align: |-
-            =If(
+            =IfError(If(
                 Int(CountRows(Filter(AIGraphUserSatisf,IsBad="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
                 Align.Right,
                 Align.Left
-            )
+            ),Align.Left,If(
+                Int(CountRows(Filter(AIGraphUserSatisf,IsBad="true"))/CountRows(AIGraphUserSatisf)*10000)/100 > 50,
+                Align.Right,
+                Align.Left
+            ))
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
