@@ -179,7 +179,7 @@ AIGraph_TokenUsage As screen:
                     Table(ParseJSON(AIGraphResponse)),
                     {
                         Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
                         Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
                         Token_Input: Text(ThisRecord.Value.Token_Input),
@@ -501,7 +501,6 @@ AIGraph_TokenUsage As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        Visible: =false
         X: =835
         Y: =1040
         ZIndex: =6
@@ -616,6 +615,7 @@ AIGraph_TokenUsage As screen:
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_TokenUsage.Selected.Value<>"카테고리", DisplayMode.Edit, DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         Height: =Label_GalleryFilter_Category_AIGraph_TokenUsage.Height
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -664,6 +664,7 @@ AIGraph_TokenUsage As screen:
         BorderColor: =RGBA(0, 18, 107, 1)
         Color: =ColorValue(CSS_COMMON.colors.fg)
         DisabledColor: =RGBA(166, 166, 166, 1)
+        DisplayMode: =If(Dropdown_AxisPicker_AIGraph_TokenUsage.Selected.Value<>"카테고리", DisplayMode.Edit, DisplayMode.Disabled)
         Font: =Font.'Segoe UI'
         Text: =">"
         Width: =40
@@ -6196,8 +6197,7 @@ AIGraph_TokenUsage As screen:
                     Table(ParseJSON(AIGraphResponse)),
                     {
                         Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
+                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
                         Token_Input: Text(ThisRecord.Value.Token_Input),
                         Token_Output: Text(ThisRecord.Value.Token_Output),
@@ -6508,9 +6508,9 @@ AIGraph_TokenUsage As screen:
                 "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point","")
                     ,{
                     // StartDate
-                    text_2: AIGraphStartDate,
+                    text_2: "2000-01-01",
                     // EndDate
-                    text_3: AIGraphEndDate
+                    text_3: "2999-12-31"
                 }).result_json
             });
             
@@ -6519,9 +6519,8 @@ AIGraph_TokenUsage As screen:
                 ForAll(
                     Table(ParseJSON(AIGraphTokenUsageRes)),
                     {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        //Token_Date: Text(ThisRecord.Value.Token_Date, "yyyy-mm-dd"),
+                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
+                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
                         Token_Input: Text(ThisRecord.Value.Token_Input),
                         Token_Output: Text(ThisRecord.Value.Token_Output),
@@ -6536,24 +6535,7 @@ AIGraph_TokenUsage As screen:
             ClearCollect(
                 AICategory_Default,
                 {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
-                Filter(
-                    AIGraphTokenUsageResponse,
-                    Token_Date >= If(
-                                        DatePickerSetting = false,
-                                        Switch(
-                                            Dropdown_DatePicker_AIGraph_TokenUsage.SelectedText.Value,
-                                            "1개월", DateAdd(Today(),-1,TimeUnit.Months),
-                                            "3개월", DateAdd(Today(),-3,TimeUnit.Months),
-                                            "6개월", DateAdd(Today(),-6,TimeUnit.Months),
-                                            "1년", DateAdd(Today(),-12,TimeUnit.Months)
-                                        ), DatePicker_FirstDate_AIGraph_TokenUsage.SelectedDate
-                                    ) && 
-                    Token_Date <= If(
-                                        DatePickerSetting = false,
-                                        DateAdd(Today(),-0,TimeUnit.Months),
-                                        DatePicker_LastDate_AIGraph_TokenUsage.SelectedDate
-                                    )
-                )
+                AIGraphTokenUsageResponse
             );
             
             UpdateContext({ 
@@ -6570,7 +6552,6 @@ AIGraph_TokenUsage As screen:
         RadiusTopRight: =0
         Size: =15
         Text: ="버튼"
-        Visible: =false
         X: =1760
         Y: =1040
         ZIndex: =67
