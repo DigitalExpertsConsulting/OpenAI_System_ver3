@@ -3030,7 +3030,7 @@ AIGraph_UserSatisf As screen:
                 )
             Width: =135
             X: |-
-                =If(
+                =IfError(If(
                     Int(
                         (
                             CountRows(AIGraphUserSatisf)-
@@ -3040,7 +3040,17 @@ AIGraph_UserSatisf As screen:
                     )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
                     Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width + 5,
                     Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width -Self.Width - 5
-                )
+                ),0,If(
+                    Int(
+                        (
+                            CountRows(AIGraphUserSatisf)-
+                            CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                            CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                        )/CountRows(AIGraphUserSatisf)*10000
+                    )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
+                    Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width + 5,
+                    Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.X + Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width -Self.Width - 5
+                ))
             Y: =Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Y
             ZIndex: =8
 
