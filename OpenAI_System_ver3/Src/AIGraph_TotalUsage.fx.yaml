@@ -1532,7 +1532,7 @@ AIGraph_TotalUsage As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =270
-        Items: =Filter(AIGraphGPTvUserSatisf,Token_Model<>Blank())
+        Items: =AIGraphGPTvUserSatisf
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
@@ -1639,7 +1639,7 @@ AIGraph_TotalUsage As screen:
                     AIGraphGPTvUserSatisf,
                     Token_Model=ThisItem.Token_Model,
                     Usage_Total
-                ) / Sum(AIGraphGPTvUserSatisf,Usage_Total) * 10000)/100, "#0.0%") & " )    ")
+                ) / CountRows(AIGraphUsage) * 10000)/100, "#0.0%") & " )    ")
             Visible: |-
                 =If(
                     AppsBIAxis.Value = "GPT 버전",
@@ -1650,8 +1650,8 @@ AIGraph_TotalUsage As screen:
                     ),
                     false
                 )
-            Width: =Parent.Width - Self.X
-            X: =DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage.X + DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage.Width
+            Width: =200
+            X: =Parent.Width - Self.Width
             Y: =DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage.Y
             ZIndex: =5
 
@@ -1704,13 +1704,13 @@ AIGraph_TotalUsage As screen:
         Size: =12
         Text: |-
             =If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                Text(Sum(AIGraphGPTvUserSatisf,Usage_Total), "#,###,###,##0"),
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphUsage)),
+                Text(CountRows(AIGraphUsage), "#,###,###,##0"),
                 0
             ) & " ( 100.0% )    "
         Visible: =Summ_GPTv_Default_Daily_AIGraph_TotalUsage.Visible
-        Width: =130
-        X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_TotalUsage_0.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_TotalUsage_0.Width
+        Width: =200
+        X: =Summ_GPTv_Default_Daily_AIGraph_TotalUsage.X + Summ_GPTv_Default_Daily_AIGraph_TotalUsage.Width - Self.Width
         Y: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_TotalUsage_0.Y
         ZIndex: =35
 
