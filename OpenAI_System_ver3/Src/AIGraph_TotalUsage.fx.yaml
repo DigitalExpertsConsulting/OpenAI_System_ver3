@@ -266,7 +266,7 @@ AIGraph_TotalUsage As screen:
                     Table(ParseJSON(AIGraphResponse)),
                     {
                         Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
-                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
+                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV2)),
                         Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
                         IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
                         IsBad: Text(ThisRecord.Value.HateT_x002f_F),
@@ -525,7 +525,7 @@ AIGraph_TotalUsage As screen:
         Size: =15
         Text: ="버튼"
         Visible: =false
-        X: =1310
+        X: =901
         Y: =1040
         ZIndex: =11
 
@@ -539,7 +539,7 @@ AIGraph_TotalUsage As screen:
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         Size: =13
-        Text: =AppsBIAxis.Value
+        Text: =CountRows(AIGraphDailyGPTvUsageXAxis)
         Visible: =false
         X: =1144
         Y: =1040
@@ -1709,7 +1709,10 @@ AIGraph_TotalUsage As screen:
         FocusedBorderThickness: =4
         FontWeight: =FontWeight.Semibold
         Height: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_TotalUsage_0.Height
+        PaddingBottom: =0
         PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
         Size: =12
         Text: |-
             =If(
@@ -4712,13 +4715,14 @@ AIGraph_TotalUsage As screen:
                 )
             );
             
-            UpdateContext({AIGraphTotalUsageRes: '똑실이-[Apps]AIGraph토큰사용성분석'.Run(
+            
+            UpdateContext({AIGraphTotalUsageRes: '똑실이-[Apps]AIGraphQALog분석'.Run(
                 "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point","")
-                    ,{
+                ,{
                     // StartDate
-                    text_2: "2000-01-01",
+                    text_1: "2000-01-01",
                     // EndDate
-                    text_3: "2999-12-31"
+                    text_2: "2999-12-31"
                 }).result_json
             });
             
@@ -4729,10 +4733,9 @@ AIGraph_TotalUsage As screen:
                     {
                         Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV2)),
-                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
-                        Token_Input: Text(ThisRecord.Value.Token_Input),
-                        Token_Output: Text(ThisRecord.Value.Token_Output),
-                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
+                        IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
+                        IsBad: Text(ThisRecord.Value.HateT_x002f_F),
                         Token_Model: Text(ThisRecord.Value.AnswerModel),
                         Bot_Type: Text(ThisRecord.Value.Bot_Type),
                         ID: Int(ThisRecord.Value.ID)
