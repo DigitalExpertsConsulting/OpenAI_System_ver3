@@ -1366,154 +1366,59 @@ FileManage As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#115EA3")
-            OnSelect: |+
-                =
+            OnSelect: |
+                =/*
+                UpdateContext({
+                    FileUploadSuccess: true,
+                    FileUploadMsg:""
+                });
                 // 첫번째 if => if()
                 If(
                     Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
-                    Notify("할당된 카테고리가 없습니다.",NotificationType.Error,5000),
-                
-                
+                    UpdateContext({
+                        FileUploadSuccess: false,
+                        FileUploadMsg: "할당된 카테고리가 없습니다."
+                    }),
                     // 두번째 if => if(if())
                     If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
-                        Notify("첨부 파일 등록은 필수입니다.",NotificationType.Error,5000),
-                
+                        UpdateContext({
+                            FileUploadSuccess: false,
+                            FileUploadMsg: "첨부 파일 등록은 필수입니다."
+                        }),
                         // 세번째 if => if(if(if()))
-                        If(Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value &&      FileNameNoExtension=gblFileNameNoExtension))),
-                    
-                            Notify("동일한 파일이 이미 존재합니다.",NotificationType.Error,5000),
-                
+                        If(Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension = gblFileNameNoExtension))),
                             UpdateContext({
-                               FileUploadResult: 
-                               ""
-                            });
-                
-                            //sharepoint에 파일 저장
-                            UpdateContext({
-                                FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
-                                    Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                    Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                                    {
-                                        file: {
-                                            name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                            contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                                        }
-                                    }
-                                ).filename
-                            });
-                
-                            // FiileUpload_tabel에 파일 정보 저장
-                            Patch(
-                                똑실이_FileUpload_table,
-                                {
-                                    제목: Concatenate(
+                                FileUploadSuccess: false,
+                                FileUploadMsg: "동일한 파일이 이미 존재합니다."
+                            }),
+                           UpdateContext({
+                                FileUploadResult: 
+                                    IfError( '[DEV]똑실이-[Apps]파일업로드'.Run(
+                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
                                         Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                                        "-",
-                                        First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
-                                    ),
-                                    Upload_Date: Now(),
-                                    Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                    Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                                    File_Name: FileUploadResult,
-                                    File_Type: Upper(
-                                        Last(
-                                            Split(
-                                                First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                                "."
-                                            )
-                                        ).Value
-                                    ),
-                                    FileNameNoExtension : gblFileNameNoExtension,
-                                    Index_Status: If(".pdf" in FileUploadResult, "not_indexed","uploading")
-                                }
-                            );
-                
-                        )
-                
-                    )
-                
-                );
-                
-                Refresh(똑실이_FileUpload_table);
-                
-                UpdateContext({ModalVisible: false });
-                
-                ResetForm(Form_FileUpload_FM);
-                
-                
-                
-                /* 20231107 옛날 코드
-                If(
-                    Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
-                    Notify("할당된 카테고리가 없습니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
-                );
-                
-                
-                If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
-                    Notify("첨부 파일 등록은 필수입니다.",NotificationType.Error);UpdateContext({ErrorFM:true});
-                );
-                
-                If(
-                    Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension=gblFileNameNoExtension))),
-                
-                Notify("동일한 파일이 이미 존재합니다.",NotificationType.Error),
-                If(
-                    !ErrorFM,
-                    UpdateContext({
-                        FileUploadResult: 
-                        ""
-                    });
-                
-                
-                    UpdateContext({
-                        FileUploadResult: '똑실이-[Apps]파일업로드'.Run(
-                            Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                            Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                            {
-                                file: {
-                                    name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
-                                }
-                            }
-                        ).filename
-                    });
-                
-                    Patch(
-                        똑실이_FileUpload_table,
-                        {
-                            제목: Concatenate(
-                                Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                                "-",
-                                First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name
-                            ),
-                            Upload_Date: Now(),
-                            Category_LV1: Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                            Category_LV2: Dropdown_LV2Category_FileUpload_FM.Selected.Value,
-                            File_Name: FileUploadResult,
-                            File_Type: Upper(
-                                Last(
-                                    Split(
-                                        First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                        "."
+                                            {
+                                                file: {
+                                                    name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
+                                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                                                }
+                                            }
+                                        ).filename,
+                                        UpdateContext({
+                                            FileUploadSuccess: false,
+                                            FileUploadMsg: "카테고리 폴더에 권한이 없습니다. 잠시 후 다시 시도해주세요."
+                                        })
                                     )
-                                ).Value
-                            ),
-                            FileNameNoExtension : gblFileNameNoExtension
-                            ,
-                            Index_Status: If(".pdf" in FileUploadResult, "not_indexed","uploading")
-                        }
-                    );
-                )
+                            });
+                        )
+                    )
                 );
                 
-                Refresh(똑실이_FileUpload_table);
+                If(FileUploadSuccess,Select(Button_Refresh_FM),Notify(FileUploadMsg,NotificationType.Error,5000));
+                
                 
                 UpdateContext({ModalVisible: false });
-                
                 ResetForm(Form_FileUpload_FM);
-                
                 */
-                
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
