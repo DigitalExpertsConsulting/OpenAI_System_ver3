@@ -1410,7 +1410,7 @@ AIGraph_UserSatisf As screen:
             FocusedBorderThickness: =4
             Height: =20
             Width: |-
-                =If(
+                =IfError(If(
                     !IsError(1/CountRows(AIGraphCategoryLV1UserSatisf)),
                     (
                         (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20) - (
@@ -1435,7 +1435,32 @@ AIGraph_UserSatisf As screen:
                         ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20)
                     ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
                     0
-                )
+                ),0,If(
+                    !IsError(1/CountRows(AIGraphCategoryLV1UserSatisf)),
+                    (
+                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20) - (
+                            (
+                                Max(
+                                    AIGraphCategoryLV1UserSatisf,
+                                    Usage_Total
+                                ) -
+                                LookUp(
+                                    Filter(
+                                        AIGraphCategoryLV1UserSatisf,
+                                        Category_LV1=ThisItem.Category_LV1
+                                    ),
+                                    Category_LV1=ThisItem.Category_LV1,
+                                    Usage_Total
+                                )
+                            ) / 
+                            Max(
+                                AIGraphCategoryLV1UserSatisf,
+                                Usage_Total
+                            )
+                        ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 20)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
+                    0
+                ))
             X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2 - Self.Height
             ZIndex: =2
@@ -3307,14 +3332,21 @@ AIGraph_UserSatisf As screen:
         Height: =40
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
-            =If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
                         (Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Good)+Sum(AIGraphGPTvUserSatisf, Usage_Bad))))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
                     ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
-            )
+            ),0,If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                (
+                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
+                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Total)-(Sum(AIGraphGPTvUserSatisf, Usage_Good)+Sum(AIGraphGPTvUserSatisf, Usage_Bad))))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
+                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
+                ), 0
+            ))
         X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width + 20
         Y: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Y + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Height/2 - Self.Height*1.5
         ZIndex: =60
@@ -3327,14 +3359,21 @@ AIGraph_UserSatisf As screen:
         Height: =40
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
-            =If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
                         (Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Good))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
                     ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
-            )
+            ),0,If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                (
+                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
+                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Good))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
+                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
+                ), 0
+            ))
         X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width + 20
         Y: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Y + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Height/2 - Self.Height/2
         ZIndex: =61
@@ -3347,7 +3386,7 @@ AIGraph_UserSatisf As screen:
         Height: =40
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
-            =If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 (
                     (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
@@ -3356,7 +3395,16 @@ AIGraph_UserSatisf As screen:
                         )/Sum(AIGraphGPTvUserSatisf, Usage_Total)
                     ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
                 ), 0
-            )
+            ),0,If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                (
+                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20) - (
+                        (
+                            Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Bad)
+                        )/Sum(AIGraphGPTvUserSatisf, Usage_Total)
+                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 20)
+                ), 0
+            ))
         X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width + 20
         Y: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Y + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Height/2 + Self.Height*0.5
         ZIndex: =62
@@ -3376,19 +3424,15 @@ AIGraph_UserSatisf As screen:
         PaddingLeft: =0
         Size: =11
         Text: |-
-            =/*If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                LookUp(
-                    AIGraphGPTvUserSatisf,
-                    Token_Model=Blank(),
-                    Usage_Total
-                ), 0
-            )*/
-            If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 Text((CountRows(AIGraphUserSatisf)-CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-CountRows(Filter(AIGraphUserSatisf,IsBad="true"))), "#,###,###,##0"),
                 0
-            )
+            ),"",If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text((CountRows(AIGraphUserSatisf)-CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-CountRows(Filter(AIGraphUserSatisf,IsBad="true"))), "#,###,###,##0"),
+                0
+            ))
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: =135
         X: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
@@ -3410,11 +3454,15 @@ AIGraph_UserSatisf As screen:
         PaddingLeft: =0
         Size: =11
         Text: |-
-            =If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 Text(Sum(AIGraphGPTvUserSatisf,Usage_Good), "#,###,###,##0"),
                 0
-            )
+            ),"",If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(Sum(AIGraphGPTvUserSatisf,Usage_Good), "#,###,###,##0"),
+                0
+            ))
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: =135
         X: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
@@ -3436,11 +3484,15 @@ AIGraph_UserSatisf As screen:
         PaddingLeft: =0
         Size: =11
         Text: |-
-            =If(
+            =IfError(If(
                 AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
                 Text(Sum(AIGraphGPTvUserSatisf,Usage_Bad), "#,###,###,##0"),
                 0
-            )
+            ),"",If(
+                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                Text(Sum(AIGraphGPTvUserSatisf,Usage_Bad), "#,###,###,##0"),
+                0
+            ))
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: =135
         X: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - Self.Width - 20
