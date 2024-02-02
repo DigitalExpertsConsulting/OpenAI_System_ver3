@@ -2943,8 +2943,8 @@ AIGraph_UserSatisf As screen:
             ZIndex: =7
 
         Value_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf_1 As label:
-            Align: |
-                =If(
+            Align: |-
+                =IfError(If(
                     Int(
                         (
                             CountRows(AIGraphUserSatisf)-
@@ -2954,6 +2954,18 @@ AIGraph_UserSatisf As screen:
                     )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
                     Align.Left,
                     Align.Right
+                )
+                ,Align.Left,If(
+                    Int(
+                        (
+                            CountRows(AIGraphUserSatisf)-
+                            CountRows(Filter(AIGraphUserSatisf,IsGood="true"))-
+                            CountRows(Filter(AIGraphUserSatisf,IsBad="true"))
+                        )/CountRows(AIGraphUserSatisf)*10000
+                    )/100 < 50 Or Bar_BarChart_GPTv_UsageTotal_AIGraph_UserSatisf.Width < 350,
+                    Align.Left,
+                    Align.Right
+                )
                 )
             Color: =RGBA(50, 49, 48, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
