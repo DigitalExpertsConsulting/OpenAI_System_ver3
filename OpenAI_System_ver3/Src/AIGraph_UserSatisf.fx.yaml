@@ -239,7 +239,11 @@ AIGraph_UserSatisf As screen:
             If(
                 SelectedLV1_AIGraph = "전체",
                 Set(AIGraphAddColYM, AIGraphAddColYM_All),
-                Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=SelectedLV1_AIGraph))
+                If(
+                    SelectedLV1_AIGraph = "카테고리",
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1="카테고리 미선택")),
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=SelectedLV1_AIGraph))
+                )
             );
             
             If(
@@ -620,7 +624,7 @@ AIGraph_UserSatisf As screen:
         ChevronHoverBackground: =RGBA(212, 212, 212, 1)
         ChevronHoverFill: =RGBA(33, 33, 33, 1)
         Color: =ColorValue(CSS_COMMON.colors.fg)
-        Default: =If(SelectedLV1_AIGraph = "카테고리 미선택", "카테고리 미선택", SelectedLV1_AIGraph)
+        Default: =If(SelectedLV1_AIGraph = "카테고리", "카테고리 미선택", SelectedLV1_AIGraph)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
@@ -648,7 +652,7 @@ AIGraph_UserSatisf As screen:
                 )
             )
         OnChange: |-
-            =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리 미선택"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
+            =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Select(Button_Table_Filtering_AIGraph_UserSatisf);
         PaddingBottom: =5
@@ -697,13 +701,24 @@ AIGraph_UserSatisf As screen:
                         Category_LV2
                     ),
                     // 카테고리 LV1 이 전체가 아닌 다른걸로 선택되어 있을경우
-                    Distinct(
-                        Filter(
-                            colCategoryAdmin_New,
-                            Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = SelectedLV1_AIGraph
+                    If(
+                        SelectedLV1_AIGraph = "카테고리",
+                        Distinct(
+                            Filter(
+                                colCategoryAdmin_New,
+                                Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = "카테고리 미선택"
+                            ),
+                            Category_LV2
                         ),
-                        Category_LV2
+                        Distinct(
+                            Filter(
+                                colCategoryAdmin_New,
+                                Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = SelectedLV1_AIGraph
+                            ),
+                            Category_LV2
+                        )
                     )
+                    
                 ),
                 Value <> Blank()
             )
@@ -3395,9 +3410,9 @@ AIGraph_UserSatisf As screen:
                 )
             );
             
-            UpdateContext({AIGraphUserSatisfRes: '똑실이-[Apps]AIGraphQALog분석'.Run(
-                "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
-                {
+            UpdateContext({AIGraphGPTvUserSatisfRes: '똑실이-[Apps]AIGraph토큰사용성분석'.Run(
+                "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point","")
+                    ,{
                     // StartDate
                     text_2: "2000-01-01",
                     // EndDate
@@ -3406,15 +3421,16 @@ AIGraph_UserSatisf As screen:
             });
             
             ClearCollect(
-                AIGraphUserSatisfResponse,
+                AIGraphGPTvUserSatisfResponse,
                 ForAll(
-                    Table(ParseJSON(AIGraphUserSatisfRes)),
+                    Table(ParseJSON(AIGraphGPTvUserSatisfRes)),
                     {
                         Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
                         Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV2)),
-                        Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
-                        IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
-                        IsBad: Text(ThisRecord.Value.HateT_x002f_F),
+                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
                         Token_Model: Text(ThisRecord.Value.AnswerModel),
                         Bot_Type: Text(ThisRecord.Value.Bot_Type),
                         ID: Int(ThisRecord.Value.ID)
@@ -3425,7 +3441,7 @@ AIGraph_UserSatisf As screen:
             ClearCollect(
                 AICategory_Default,
                 {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
-                AIGraphUserSatisfResponse
+                AIGraphGPTvUserSatisfResponse
             );
             
             UpdateContext({ 

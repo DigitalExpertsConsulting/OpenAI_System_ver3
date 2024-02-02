@@ -335,7 +335,11 @@ AIGraph_TotalUsage As screen:
             If(
                 SelectedLV1_AIGraph = "전체",
                 Set(AIGraphAddColYM, AIGraphAddColYM_All),
-                Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=SelectedLV1_AIGraph))
+                If(
+                    SelectedLV1_AIGraph = "카테고리",
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1="카테고리 미선택")),
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=SelectedLV1_AIGraph))
+                )
             );
             
             If(
@@ -599,7 +603,7 @@ AIGraph_TotalUsage As screen:
                 )
             )
         OnChange: |-
-            =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리 미선택"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
+            =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
             Set(SelectedLV2_AIGraph, DEFAULT_CATEGORY_VALUE);
             Select(Button_Table_Filtering_AIGraph_TotalUsage);
         PaddingBottom: =5
@@ -1823,7 +1827,7 @@ AIGraph_TotalUsage As screen:
                                     YearMonth_=ThisItem.YearMonth_,
                                     Usage_Total
                                 )
-                            ) / Max(AIGraphMonthlyGPTvUsage,Usage_Total)
+                            ) / Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total)
                         ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height)
                     ), 0
                 )
