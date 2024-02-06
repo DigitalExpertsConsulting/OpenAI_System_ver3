@@ -1220,7 +1220,23 @@ Edit_CategoryMenu As screen:
                     )
                     */
                     Refresh(똑실이_문서);
-                    If(CountRows(Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))>0,
+                    Refresh(똑실이_FileUpload_table);
+                    
+                    UpdateContext({
+                        CountFiles: With({
+                            _files: Filter(
+                                똑실이_FileUpload_table,
+                                Category_LV1=ThisItem.Category_LV1, 
+                                Category_LV2=ThisItem.Category_LV2
+                            )
+                        }, CountRows(_files)),
+                        CountDocuments: With({
+                            _docs: Filter(똑실이_문서, '폴더 경로'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/")
+                        }, CountRows(_docs))
+                    });
+                    
+                    If(
+                        CountFiles>0 Or CountDocuments>0,
                     Notify(
                             "폴더에 파일이 존재합니다.",
                             NotificationType.Error,
