@@ -230,6 +230,23 @@ BadWordManage As screen:
             SortByColumns(Filter(똑실이_BadWords_table, (IsBlank(TextInput_BWSearch_BWM.Text) || TextInput_BWSearch_BWM.Text in BadWords) ),"ID",SortOrder.Descending)
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+        OnSelect: |-
+            =Concurrent(
+            Set(ViewBadWord, false);,
+            Set(EditPopUpBadWord, true);,
+            
+            Reset(TextInput_BadWord_BWM);,
+            Reset(TextInput_BadWordType_BWM);,
+            
+            Set(delPopupBackground_BWM,true);,
+            
+            ClearCollect(
+                BadWordsType,
+                {Value: "직접입력"},
+                Distinct(똑실이_BadWords_table, BadWords_Type)
+               
+            );
+            )
         ShowScrollbar: =false
         TemplatePadding: =0
         TemplateSize: =75
@@ -262,7 +279,7 @@ BadWordManage As screen:
             Size: =12
             Text: |
                 =//ThisItem.Edit_Date
-                Text(ThisItem.Created, "yyyy-mm-dd")
+                Text(ThisItem.'만든 날짜', "yyyy-mm-dd")
                 //Text(ThisItem.Edit_Date, "yyyy-mm-dd")
             Width: =97
             X: =1087
@@ -403,9 +420,11 @@ BadWordManage As screen:
                    
             Image: =Delete
             OnSelect: |
-                =Select(Parent);
+                =Set(EditPopUpBadWord, false);
+                Select(Parent);
                 
                 UpdateContext({remove_IDNumber:Label_IDValue_BWM.Text});
+                
                 
                 Set(delPopUp_BWM,true);
                 Set(delPopupBackground_BWM,true)
@@ -506,7 +525,7 @@ BadWordManage As screen:
         Y: =154
         ZIndex: =17
 
-    Container_EditBadWordPopup_BWM As groupContainer.manualLayoutContainer:
+    Container_BadWordPopup_BWM As groupContainer.manualLayoutContainer:
         DropShadow: =DropShadow.ExtraBold
         Fill: =RGBA(255, 255, 255, 1)
         Height: =300
@@ -669,7 +688,7 @@ BadWordManage As screen:
             Y: =159
             ZIndex: =7
 
-        Button_EditBadWordPopup_BWM As button:
+        Button_RegisterBadWordPopup_BWM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -687,7 +706,7 @@ BadWordManage As screen:
                 =ColorValue("#1141A3")
             OnSelect: |
                 =If(
-                    !IsBlank(TextInput_BadWord_BWM.Text) && !IsBlank(TextInput_BadWordType_BWM.Text),
+                    !IsBlank(TextInput_BadWord_BWM.Text) && !IsBlank(TextInput_BadWordType_BWM.Text) && !CountRows(Gallery_BadWordGallery_BWM.AllItems) <> !CountRows(Distinct(Gallery_BadWordGallery_BWM.AllItems, BadWords)),
                     ClearCollect(BadWordsList,Split(TextInput_BadWord_BWM.Text,","));
                     ForAll(BadWordsList,
                     Collect(
@@ -707,6 +726,7 @@ BadWordManage As screen:
                         NotificationType.Error,
                         5000
                     ),
+                    Notify("중복된 값이 있습니다.", NotificationType.Error, 5000),
                     ClearCollect(
                     BadWordsType,
                     {Value: "직접입력"},
@@ -826,8 +846,331 @@ BadWordManage As screen:
             Y: =190
             ZIndex: =12
 
+    Container_EditBadWordPopup_BWM As groupContainer.manualLayoutContainer:
+        DropShadow: =DropShadow.ExtraBold
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =300
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Visible: =EditPopUpBadWord
+        Width: =600
+        X: =800
+        Y: =372
+        ZIndex: =19
+
+        Rectangle_EditBadwordAdit_BWM As rectangle:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =176
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =552
+            X: =24
+            Y: =65
+            ZIndex: =1
+
+        Label_EditBWMAdd_BWM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =27
+            Size: =16
+            Text: ="금칙어 수정"
+            Visible: =EditPopUpBadWord
+            Width: =149
+            X: =24
+            Y: =20
+            ZIndex: =2
+
+        Image_EditCloseBadWordPopup_BWM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =25
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |
+                =Set(EditPopUpBadWord, false);
+                Set(delPopupBackground_BWM,false);
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =25
+            X: =554
+            Y: =26
+            ZIndex: =3
+
+        Label_EditBadWordAdd_BWM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Size: =13
+            Text: ="금칙어"
+            Visible: =EditPopUpBadWord
+            Width: =75
+            X: =41
+            Y: =80
+            ZIndex: =4
+
+        TextInput_EditBadWord_BWM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =TextInput_BadWordsValue_BWM
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HintText: =" 금칙어를 입력하세요."
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =05
+            RadiusBottomRight: =05
+            RadiusTopRight: =05
+            Size: =13
+            Visible: =EditPopUpBadWord
+            Width: =504
+            X: =39
+            Y: =108
+            ZIndex: =5
+
+        TextInput_EditBadWordType_BWM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =If(Dropdown_EditBadWordType_BWM.Selected.Value = "직접입력","",Dropdown_EditBadWordType_BWM.Selected.Value)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =Color.Black
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =If(Dropdown_EditBadWordType_BWM.Selected.Value = "직접입력",DisplayMode.Edit,DisplayMode.Disabled)
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HintText: =" 유형을 입력하세요."
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =05
+            RadiusBottomRight: =05
+            RadiusTopLeft: =05
+            RadiusTopRight: =05
+            Size: =13
+            Visible: =EditPopUpBadWord
+            Width: =265
+            X: =39
+            Y: =188
+            ZIndex: =6
+
+        Label_EditBadWordTypeAdd_BWM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =20
+            Size: =13
+            Text: ="금칙어 유형"
+            Visible: =EditPopUpBadWord
+            Width: =110
+            X: =41
+            Y: =159
+            ZIndex: =7
+
+        Button_EditRegisterBadWordPopup_BWM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =0
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#1141A3")
+            OnSelect: |
+                =If(
+                    !IsBlank(TextInput_EditBadWord_BWM.Text) && !IsBlank(TextInput_EditBadWordType_BWM.Text),
+                    ClearCollect(BadWordsList,Split(TextInput_EditBadWord_BWM.Text,","));
+                    ForAll(BadWordsList,
+                    Patch(
+                        똑실이_BadWords_table,
+                        LookUp(똑실이_BadWords_table, ID = Gallery_BadWordGallery_BWM.Selected.ID),
+                        {
+                            제목: ".",
+                            BadWords: ThisRecord.Value,
+                            BadWords_Type: TextInput_EditBadWordType_BWM.Text,
+                            Edit_Date: Now(),
+                            Adder_Name: Office365사용자.MyProfile().DisplayName
+                        }
+                    ));
+                    Set(EditPopUpBadWord, false);
+                    Set(delPopupBackground_BWM,false);,
+                    Notify(
+                        "금칙어와 유형을 모두 입력해주세요",
+                        NotificationType.Error,
+                        5000
+                    ),
+                    ClearCollect(
+                    BadWordsType,
+                    {Value: "직접입력"},
+                    Distinct(똑실이_BadWords_table, BadWords_Type)
+                    );
+                );
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =05
+            RadiusBottomRight: =05
+            RadiusTopLeft: =05
+            RadiusTopRight: =05
+            Text: ="수정"
+            Width: =50
+            X: =468
+            Y: =252
+            ZIndex: =8
+
+        Button_EditCancelBadWordPopup_BWM As button:
+            BorderColor: =RGBA(230, 230, 230, 1)
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(0,0,0, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |
+                =Set(EditPopUpBadWord, false);
+                Set(delPopupBackground_BWM,false);
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =05
+            RadiusBottomRight: =05
+            RadiusTopLeft: =05
+            RadiusTopRight: =05
+            Text: ="취소"
+            Width: =50
+            X: =526
+            Y: =252
+            ZIndex: =9
+
+        Button_EditBorder_BWM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =DisplayMode.Disabled
+            Fill: =RGBA(105, 121, 126, 1)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Size: =15
+            Text: =""
+            Width: =223
+            X: =320
+            Y: =188
+            ZIndex: =10
+
+        Dropdown_EditBadWordType_BWM As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderStyle: =BorderStyle.None
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |-
+                =//"직접입력"
+                TextInput_BadWordsTypeValue_BWM
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =29
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: =BadWordsType.Value
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Width: =220
+            X: =322
+            Y: =190
+            ZIndex: =12
+
     New_Component_GNB_BWM As New_Component_GNB:
-        ZIndex: =23
+        ZIndex: =20
 
     Group_BWGalleryHeader_BWM As group:
         Height: =5
@@ -941,7 +1284,7 @@ BadWordManage As screen:
             Width: =600
             X: =810
             Y: =419
-            ZIndex: =24
+            ZIndex: =21
 
         Button_OKDeleteBadWord_BWM As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -992,7 +1335,7 @@ BadWordManage As screen:
             Width: =50
             X: =1277
             Y: =523
-            ZIndex: =25
+            ZIndex: =22
 
         Button_CancleDeleteBadWord_BWM As button:
             BorderColor: |-
@@ -1035,7 +1378,7 @@ BadWordManage As screen:
             Width: =50
             X: =1335
             Y: =523
-            ZIndex: =26
+            ZIndex: =23
 
         Label_DeleteBadWord_BWM As label:
             Align: =Align.Center
@@ -1055,7 +1398,7 @@ BadWordManage As screen:
             Width: =193
             X: =827
             Y: =440
-            ZIndex: =27
+            ZIndex: =24
 
         Label_DeleteBadWordSub_BWM As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1073,7 +1416,7 @@ BadWordManage As screen:
             Width: =562
             X: =829
             Y: =481
-            ZIndex: =28
+            ZIndex: =25
 
         Image_DeleteBadWordExit_BWM As image:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1095,5 +1438,5 @@ BadWordManage As screen:
             Width: =20
             X: =1367
             Y: =443
-            ZIndex: =29
+            ZIndex: =26
 
