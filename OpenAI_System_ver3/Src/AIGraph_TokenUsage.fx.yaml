@@ -1620,13 +1620,16 @@ AIGraph_TokenUsage As screen:
             DisabledColor: =RGBA(166, 166, 166, 1)
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
-            Height: =160
+            Height: =125
             OnSelect: =Select(Parent)
             PaddingBottom: =0
             PaddingRight: =0
             PaddingTop: =0
             Size: =13
-            Text: =ThisItem.Token_Date
+            Text: |-
+                =Char(13) & Year(ThisItem.Token_Date)&"년" & 
+                Char(13) & Month(ThisItem.Token_Date)&"월 " & Day(ThisItem.Token_Date)&"일"
+            VerticalAlign: =VerticalAlign.Top
             Width: =Parent.TemplateWidth
             Y: =Parent.Height-Self.Height
             ZIndex: =1
@@ -1641,7 +1644,7 @@ AIGraph_TokenUsage As screen:
                     AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvDailyXAxis_Custom)),
                     If(
                         DatePickerSetting = true,
-                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height) - (
+                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height - 20) - (
                             (
                                 Max(AIGraphGPTvDailyXAxis_Custom,Token_Total) - 
                                 LookUp(
@@ -1650,13 +1653,13 @@ AIGraph_TokenUsage As screen:
                                     Token_Total
                                 )
                             ) / Max(AIGraphGPTvDailyXAxis_Custom,Token_Total)
-                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height)
+                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height - 20)
                     ), 0
                 ),0,If(
                     AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvDailyXAxis_Custom)),
                     If(
                         DatePickerSetting = true,
-                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height) - (
+                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height - 20) - (
                             (
                                 Max(AIGraphGPTvDailyXAxis_Custom,Token_Total) - 
                                 LookUp(
@@ -1665,7 +1668,7 @@ AIGraph_TokenUsage As screen:
                                     Token_Total
                                 )
                             ) / Max(AIGraphGPTvDailyXAxis_Custom,Token_Total)
-                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height)
+                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height - 20)
                     ), 0
                 ))
             OnSelect: =Select(Parent)
@@ -1700,7 +1703,7 @@ AIGraph_TokenUsage As screen:
                 =Text(ThisItem.Token_Total/1000, "#,###,###,##0K")
             Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Width
             X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.X
-            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Y
+            Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Y - Self.Height
             ZIndex: =4
 
         "BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1 As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0'":
@@ -1709,61 +1712,54 @@ AIGraph_TokenUsage As screen:
             Height: =Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height
             Items: |-
                 =Filter(
-                    AIGraphGPTvDailyUsage,
+                    AIGraphGPTvDailyUsage_Custom,
                     Token_Date=ThisItem.Token_Date
                 )
             LoadingSpinner: =LoadingSpinner.Data
             TemplatePadding: =0
             TemplateSize: =40
             Width: =40*CountRows(chatBotVersionList)
-            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Width
+            X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.X + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Width
             ZIndex: =6
 
             Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1 As rectangle:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
-                Fill: =Index(AIGraph_ColorLists,1).Value
+                Fill: |-
+                    =IfError(Index(
+                        AIGraph_GPTv_ColorLists,
+                        LookUp(
+                            chatBotVersionList,
+                            Value=ThisItem.Token_Model,
+                            Index
+                        )
+                    ).Value,Color.BlueViolet,Index(
+                        AIGraph_GPTv_ColorLists,
+                        LookUp(
+                            chatBotVersionList,
+                            Value=ThisItem.Token_Model,
+                            Index
+                        )
+                    ).Value)
                 FocusedBorderThickness: =4
                 Height: |-
-                    =IfError(If(
-                        !IsError(1/CountRows(AIGraphGPTvDailyXAxis_Custom)) And !IsError(Index(chatBotVersionList,1).Value),
-                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height) - (
+                    =If(
+                        IsBlank(ThisItem.Token_Model),
+                        0,
+                        (Parent.Height - 20) - (
                             (
                                 Max(AIGraphGPTvDailyXAxis_Custom,Token_Total) - 
                                 LookUp(
                                     Filter(
                                         AIGraphGPTvDailyUsage_Custom,
-                                        Token_Model=If(
-                                            !IsError(Index(chatBotVersionList,1).Value),
-                                            Index(chatBotVersionList,1).Value
-                                        )
+                                        Token_Model=ThisItem.Token_Model
                                     ),
-                                    Token_Date=ThisItem.Token_Date,
+                                    Token_Date_=ThisItem.Token_Date_,
                                     Token_Total
                                 )
                             ) / Max(AIGraphGPTvDailyXAxis_Custom,Token_Total)
-                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height),
-                        0
-                    ),0,If(
-                        !IsError(1/CountRows(AIGraphGPTvDailyXAxis_Custom)) And !IsError(Index(chatBotVersionList,1).Value),
-                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height) - (
-                            (
-                                Max(AIGraphGPTvDailyXAxis_Custom,Token_Total) - 
-                                LookUp(
-                                    Filter(
-                                        AIGraphGPTvDailyUsage_Custom,
-                                        Token_Model=If(
-                                            !IsError(Index(chatBotVersionList,1).Value),
-                                            Index(chatBotVersionList,1).Value
-                                        )
-                                    ),
-                                    Token_Date=ThisItem.Token_Date,
-                                    Token_Total
-                                )
-                            ) / Max(AIGraphGPTvDailyXAxis_Custom,Token_Total)
-                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height),
-                        0
-                    ))
+                        ) * (Parent.Height - 20)
+                    )
                 OnSelect: =Select(Parent)
                 Visible: |-
                     =If(
@@ -1771,20 +1767,8 @@ AIGraph_TokenUsage As screen:
                         true,//Index(chatBotVersionList,1).Value
                         false
                     )
-                Width: |-
-                    =//30/CountRows(chatBotVersionList)
-                    If(
-                        !IsError(1/CountRows(chatBotVersionList)),
-                        (Parent.TemplateWidth - Self.X*2)/CountRows(chatBotVersionList),
-                        0
-                    )
-                X: |-
-                    =If(
-                        !IsError(Parent.TemplateWidth/10/CountRows(chatBotVersionList)),
-                        Parent.TemplateWidth/10/CountRows(chatBotVersionList),
-                        0
-                    )
-                Y: =Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height - Self.Height
+                Width: =40
+                Y: =Parent.Height - Self.Height
                 ZIndex: =5
 
             Label_GPTv_Custom_Daily_Default_AIGraph_TokenUsage_1 As label:
@@ -1803,31 +1787,28 @@ AIGraph_TokenUsage As screen:
                 PaddingLeft: =0
                 PaddingRight: =0
                 PaddingTop: =0
-                Size: =5
-                Text: |-
+                Size: =10
+                Text: |
                     =Text(
                         LookUp(
-                            Filter(
-                                AIGraphGPTvDailyUsage_Custom,
-                                Token_Model=If(
-                                    !IsError(Index(chatBotVersionList,1).Value),
-                                    Index(chatBotVersionList,1).Value
-                                )
-                            ),
-                            Token_Date=ThisItem.Token_Date,
-                            Token_Total
-                        )/1000, 
-                        "#,###,###,##0"
+                                Filter(
+                                    AIGraphGPTvDailyUsage_Custom,
+                                    Token_Model=ThisItem.Token_Model
+                                ),
+                                Token_Date_=ThisItem.Token_Date_,
+                                Token_Total
+                            )/1000, 
+                        "#,###,###,##0K"
                     )
                 Visible: |-
                     =If(
-                        !IsError(Index(chatBotVersionList,1).Value) And Self.Text <> "0",
-                        true,
-                        false
+                        Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.Height = 0,
+                        false,
+                        true
                     )
                 Width: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.Width
                 X: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.X
-                Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.Y + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.Height - Self.Height
+                Y: =Bar_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1.Y- Self.Height
                 ZIndex: =6
 
         Line_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_0 As rectangle:
