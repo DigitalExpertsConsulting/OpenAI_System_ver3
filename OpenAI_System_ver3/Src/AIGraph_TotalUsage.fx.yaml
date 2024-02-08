@@ -1829,9 +1829,7 @@ AIGraph_TotalUsage As screen:
             Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
             FocusedBorderThickness: =4
             Height: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphMonthlyGPTvUsageXAxis)),
-                    If(
+                =IfError(If(
                         Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
                         (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - 20) - (
                             (
@@ -1843,8 +1841,19 @@ AIGraph_TotalUsage As screen:
                                 )
                             ) / Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total)
                         ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - 20)
-                    ), 0
-                )
+                    ),0,If(
+                        Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
+                        (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - 20) - (
+                            (
+                                Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total) - 
+                                LookUp(
+                                    AIGraphMonthlyGPTvUsageXAxis,
+                                    YearMonth_=ThisItem.YearMonth_,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total)
+                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TotalUsage_0.Height - 20)
+                    ))
             OnSelect: =Select(Parent)
             Width: =40
             X: |-
@@ -1923,10 +1932,7 @@ AIGraph_TotalUsage As screen:
                     )
                 FocusedBorderThickness: =4
                 Height: |-
-                    =If(
-                        IsBlank(ThisItem.Token_Model),
-                        0,
-                        (Parent.Height - 20) - (
+                    =IfError((Parent.Height - 20) - (
                             (
                                 Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total) - 
                                 LookUp(
@@ -1938,8 +1944,19 @@ AIGraph_TotalUsage As screen:
                                     Usage_Total
                                 )
                             ) / Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total)
-                        ) * (Parent.Height - 20)
-                    )
+                        ) * (Parent.Height - 20),0,(Parent.Height - 20) - (
+                            (
+                                Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total) - 
+                                LookUp(
+                                    Filter(
+                                        AIGraphMonthlyGPTvUsage,
+                                        Token_Model=ThisItem.Token_Model
+                                    ),
+                                    YearMonth=ThisItem.YearMonth,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphMonthlyGPTvUsageXAxis,Usage_Total)
+                        ) * (Parent.Height - 20))
                 OnSelect: =Select(Parent)
                 Visible: |-
                     =If(
@@ -2086,9 +2103,7 @@ AIGraph_TotalUsage As screen:
             Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
             FocusedBorderThickness: =4
             Height: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphDailyGPTvUsageXAxis)),
-                    If(
+                =IfError(If(
                         Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월",
                         (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.Height - 20) - (
                             (
@@ -2100,8 +2115,19 @@ AIGraph_TotalUsage As screen:
                                 )
                             ) / Max(AIGraphDailyGPTvUsage,Usage_Total)
                         ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.Height - 20)
-                    ), 0
-                )
+                    ),0,If(
+                        Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월",
+                        (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.Height - 20) - (
+                            (
+                                Max(AIGraphDailyGPTvUsageXAxis,Usage_Total) - 
+                                LookUp(
+                                    AIGraphDailyGPTvUsageXAxis,
+                                    Date=ThisItem.Date,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphDailyGPTvUsage,Usage_Total)
+                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.Height - 20)
+                    ))
             OnSelect: =Select(Parent)
             Width: =40
             X: |-
@@ -2185,10 +2211,7 @@ AIGraph_TotalUsage As screen:
                     )
                 FocusedBorderThickness: =4
                 Height: |-
-                    =If(
-                        IsBlank(ThisItem.Token_Model),
-                        0,
-                        (Parent.Height - 20) - (
+                    =IfError((Parent.Height - 20) - (
                             (
                                 Max(AIGraphDailyGPTvUsageXAxis, Usage_Total) - 
                                 LookUp(
@@ -2200,8 +2223,19 @@ AIGraph_TotalUsage As screen:
                                     Usage_Total
                                 )
                             ) / Max(AIGraphDailyGPTvUsageXAxis, Usage_Total)
-                        ) * (Parent.Height - 20)
-                    )
+                        ) * (Parent.Height - 20),0,(Parent.Height - 20) - (
+                            (
+                                Max(AIGraphDailyGPTvUsageXAxis, Usage_Total) - 
+                                LookUp(
+                                    Filter(
+                                        AIGraphDailyGPTvUsage,
+                                        Token_Model=ThisItem.Token_Model
+                                    ),
+                                    Date=ThisItem.Date,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphDailyGPTvUsageXAxis, Usage_Total)
+                        ) * (Parent.Height - 20))
                 OnSelect: =Select(Parent)
                 Visible: |-
                     =If(
@@ -2344,9 +2378,7 @@ AIGraph_TotalUsage As screen:
             Fill: =ColorValue(CSS_COMMON.colors.aigraphTotal)
             FocusedBorderThickness: =4
             Height: |-
-                =If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphDailyGPTvUsageXAxis_Custom)),
-                    If(
+                =IfError(If(
                         DatePickerSetting = true,
                         (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Height - 20) - (
                             (
@@ -2358,8 +2390,19 @@ AIGraph_TotalUsage As screen:
                                 )
                             ) / Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total)
                         ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Height - 20)
-                    ), 0
-                )
+                    ),0,If(
+                        DatePickerSetting = true,
+                        (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Height - 20) - (
+                            (
+                                Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total) - 
+                                LookUp(
+                                    AIGraphDailyGPTvUsageXAxis_Custom,
+                                    Date=ThisItem.Date,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total)
+                        ) * (Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Height - 20)
+                    ))
             OnSelect: =Select(Parent)
             Width: |
                 =40
@@ -2444,10 +2487,7 @@ AIGraph_TotalUsage As screen:
                     )
                 FocusedBorderThickness: =4
                 Height: |-
-                    =If(
-                        IsBlank(ThisItem.Token_Model),
-                        0,
-                        (Parent.Height - 20) - (
+                    =IfError((Parent.Height - 20) - (
                             (
                                 Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total) - 
                                 LookUp(
@@ -2459,8 +2499,19 @@ AIGraph_TotalUsage As screen:
                                     Usage_Total
                                 )
                             ) / Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total)
-                        ) * (Parent.Height - 20)
-                    )
+                        ) * (Parent.Height - 20),0,(Parent.Height - 20) - (
+                            (
+                                Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total) - 
+                                LookUp(
+                                    Filter(
+                                        AIGraphDailyGPTvUsage_Custom,
+                                        Token_Model=ThisItem.Token_Model
+                                    ),
+                                    Date=ThisItem.Date,
+                                    Usage_Total
+                                )
+                            ) / Max(AIGraphDailyGPTvUsageXAxis_Custom,Usage_Total)
+                        ) * (Parent.Height - 20))
                 OnSelect: =Select(Parent)
                 Visible: |-
                     =If(
