@@ -740,7 +740,20 @@ Edit_CategoryMenu As screen:
             BorderColor: =RGBA(166, 166, 166, 1)
             Fill: =RGBA(255, 255, 255, 1)
             Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
-            Items: =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Category_LV1), "LV2Order", SortOrder.Ascending)
+            Items: |-
+                =SortByColumns(
+                    With(
+                        {
+                        _category: Filter(
+                            똑실이_Category_table,
+                            Category_LV1 = ThisItem.Category_LV1
+                        )
+                        }, Filter(_category,Category_LV1 exactin ThisItem.Category_LV1)
+                
+                    ),
+                    "LV2Order",
+                    SortOrder.Ascending
+                )
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
