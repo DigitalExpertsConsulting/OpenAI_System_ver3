@@ -412,7 +412,7 @@ AIGraph_TokenUsage As screen:
                                 "Token_Total",
                                 Sum(Group, Token_Total),
                                 "Token_UsageRate",
-                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%"),
+                                IfError(Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%"),"0.0%",Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%")),
                                 "Index",
                                 0
                             )
@@ -424,7 +424,7 @@ AIGraph_TokenUsage As screen:
                                 "Token_Total",
                                 Sum(Group, Token_Total),
                                 "Token_UsageRate",
-                                Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%"),
+                                IfError(Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%"),"0.0%",Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%")),
                                 "Index",
                                 0
                             )
@@ -2848,12 +2848,7 @@ AIGraph_TokenUsage As screen:
             FocusedBorderThickness: =4
             Height: =40
             Width: |-
-                =If(
-                    !IsError(1/CountRows(Filter(
-                    AIGraphCategoryLV1Usage,
-                    Category_LV1 <> Blank()
-                ))),
-                    (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20) - (
+                =IfError((Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20) - (
                         (
                             Max(Filter(
                     AIGraphCategoryLV1Usage,
@@ -2874,9 +2869,28 @@ AIGraph_TokenUsage As screen:
                     AIGraphCategoryLV1Usage,
                     Category_LV1 <> Blank()
                 ),Token_Total)
-                    ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20),
-                    0
-                )
+                    ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20),0,(Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20) - (
+                        (
+                            Max(Filter(
+                    AIGraphCategoryLV1Usage,
+                    Category_LV1 <> Blank()
+                ),Token_Total) - 
+                            LookUp(
+                                Filter(
+                                    Filter(
+                    AIGraphCategoryLV1Usage,
+                    Category_LV1 <> Blank()
+                ),
+                                    Category_LV1=ThisItem.Category_LV1
+                                ),
+                                Category_LV1=ThisItem.Category_LV1,
+                                Token_Total
+                            )
+                        ) / Max(Filter(
+                    AIGraphCategoryLV1Usage,
+                    Category_LV1 <> Blank()
+                ),Token_Total)
+                    ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - 20))
             X: =Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.X + Label_BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =3
@@ -2898,6 +2912,149 @@ AIGraph_TokenUsage As screen:
             Width: =135
             X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - Self.Width - 20
             Y: =5
+            ZIndex: =4
+
+    "BarChart_LV2Category_Daily_AIGraph_TokenUsage As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Height: =675
+        Items: =AIGraphCategoryLV2Usage
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =60
+        Visible: |-
+            =If(
+                AppsBIAxis.Value = "카테고리" And SelectedLV1_AIGraph <> "전체",
+                true,
+                false
+            )
+        Width: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width
+        X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.X
+        Y: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Y
+        ZIndex: =54
+
+        Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage As label:
+            Align: =Align.Right
+            Color: =ColorValue(CSS_COMMON.colors.fg)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =Parent.TemplateHeight - Self.Y*2
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.Category_LV2
+            Width: =135
+            Y: =5
+            ZIndex: =2
+
+        Bar_BarChart_LV2Category_Daily_AIGraph_TokenUsage As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Fill: |-
+                =IfError(
+                    Index(
+                        AIGraph_ColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV2Usage,
+                                Category_LV2 <> Blank()
+                            ),
+                            Category_LV2=ThisItem.Category_LV2,
+                            Index
+                        )
+                    ).Value,
+                    Color.Black,
+                    Index(
+                        AIGraph_ColorLists,
+                        LookUp(
+                            Filter(
+                                AIGraphCategoryLV2Usage,
+                                Category_LV2 <> Blank()
+                            ),
+                            Category_LV2=ThisItem.Category_LV2,
+                            Index
+                        )
+                    ).Value
+                )
+            FocusedBorderThickness: =4
+            Height: =40
+            Width: |-
+                =IfError((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20) - (
+                    (
+                        Max(
+                            Filter(
+                                AIGraphCategoryLV2Usage,
+                                Category_LV2 <> Blank()
+                            ),Token_Total
+                        ) - 
+                        LookUp(
+                            Filter(
+                                Filter(
+                                    AIGraphCategoryLV2Usage,
+                                    Category_LV2 <> Blank()
+                                ),
+                                Category_LV2=ThisItem.Category_LV2
+                            ),
+                            Category_LV2=ThisItem.Category_LV2,
+                            Token_Total
+                        )
+                    ) / Max(
+                        Filter(
+                            AIGraphCategoryLV2Usage,
+                            Category_LV2 <> Blank()
+                        ),Token_Total
+                    )
+                ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20),0,(Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20) - (
+                    (
+                        Max(
+                            Filter(
+                                AIGraphCategoryLV2Usage,
+                                Category_LV2 <> Blank()
+                            ),Token_Total
+                        ) - 
+                        LookUp(
+                            Filter(
+                                Filter(
+                                    AIGraphCategoryLV2Usage,
+                                    Category_LV2 <> Blank()
+                                ),
+                                Category_LV2=ThisItem.Category_LV2
+                            ),
+                            Category_LV2=ThisItem.Category_LV2,
+                            Token_Total
+                        )
+                    ) / Max(
+                        Filter(
+                            AIGraphCategoryLV2Usage,
+                            Category_LV2 <> Blank()
+                        ),Token_Total
+                    )
+                ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20))
+            X: =Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.X + Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width + 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
+            ZIndex: =3
+
+        Value_BarChart_LV2Category_Daily_AIGraph_TokenUsage As label:
+            Align: =Align.Right
+            Color: =ColorValue(CSS_COMMON.colors.fg)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FontWeight: =FontWeight.Semibold
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =12
+            Text: |-
+                =Text(ThisItem.Token_Total/1000, "###,###,###,##0.0# K")
+            Width: =135
+            X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - Self.Width - 20
+            Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =4
 
     "'[Hidden]Group_Value_GPTv_Total_AIGraph_TokenUsage' As group":
@@ -3627,149 +3784,6 @@ AIGraph_TokenUsage As screen:
                 =0
             ZIndex: =52
 
-    "BarChart_LV2Category_Daily_AIGraph_TokenUsage As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DelayItemLoading: =true
-        Height: =675
-        Items: =AIGraphCategoryLV2Usage
-        Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
-        TemplatePadding: =0
-        TemplateSize: =60
-        Visible: |-
-            =If(
-                AppsBIAxis.Value = "카테고리" And SelectedLV1_AIGraph <> "전체",
-                true,
-                false
-            )
-        Width: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width
-        X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.X
-        Y: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Y
-        ZIndex: =54
-
-        Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage As label:
-            Align: =Align.Right
-            Color: =ColorValue(CSS_COMMON.colors.fg)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            Height: =Parent.TemplateHeight - Self.Y*2
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Size: =12
-            Text: =ThisItem.Category_LV2
-            Width: =135
-            Y: =5
-            ZIndex: =2
-
-        Bar_BarChart_LV2Category_Daily_AIGraph_TokenUsage As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Fill: |-
-                =IfError(
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphCategoryLV2Usage,
-                                Category_LV2 <> Blank()
-                            ),
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value,
-                    Color.Black,
-                    Index(
-                        AIGraph_ColorLists,
-                        LookUp(
-                            Filter(
-                                AIGraphCategoryLV2Usage,
-                                Category_LV2 <> Blank()
-                            ),
-                            Category_LV2=ThisItem.Category_LV2,
-                            Index
-                        )
-                    ).Value
-                )
-            FocusedBorderThickness: =4
-            Height: =40
-            Width: |-
-                =IfError((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20) - (
-                    (
-                        Max(
-                            Filter(
-                                AIGraphCategoryLV2Usage,
-                                Category_LV2 <> Blank()
-                            ),Token_Total
-                        ) - 
-                        LookUp(
-                            Filter(
-                                Filter(
-                                    AIGraphCategoryLV2Usage,
-                                    Category_LV2 <> Blank()
-                                ),
-                                Category_LV2=ThisItem.Category_LV2
-                            ),
-                            Category_LV2=ThisItem.Category_LV2,
-                            Token_Total
-                        )
-                    ) / Max(
-                        Filter(
-                            AIGraphCategoryLV2Usage,
-                            Category_LV2 <> Blank()
-                        ),Token_Total
-                    )
-                ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20),0,(Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20) - (
-                    (
-                        Max(
-                            Filter(
-                                AIGraphCategoryLV2Usage,
-                                Category_LV2 <> Blank()
-                            ),Token_Total
-                        ) - 
-                        LookUp(
-                            Filter(
-                                Filter(
-                                    AIGraphCategoryLV2Usage,
-                                    Category_LV2 <> Blank()
-                                ),
-                                Category_LV2=ThisItem.Category_LV2
-                            ),
-                            Category_LV2=ThisItem.Category_LV2,
-                            Token_Total
-                        )
-                    ) / Max(
-                        Filter(
-                            AIGraphCategoryLV2Usage,
-                            Category_LV2 <> Blank()
-                        ),Token_Total
-                    )
-                ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width - 20))
-            X: =Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.X + Label_BarChart_LV2Category_Daily_AIGraph_TokenUsage.Width + 20
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =3
-
-        Value_BarChart_LV2Category_Daily_AIGraph_TokenUsage As label:
-            Align: =Align.Right
-            Color: =ColorValue(CSS_COMMON.colors.fg)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FontWeight: =FontWeight.Semibold
-            OnSelect: =Select(Parent)
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Size: =12
-            Text: |-
-                =Text(ThisItem.Token_Total/1000, "###,###,###,##0.0# K")
-            Width: =135
-            X: =BarChart_LV1Category_Daily_AIGraph_TokenUsage.Width - Self.Width - 20
-            Y: =Parent.TemplateHeight/2 - Self.Height/2
-            ZIndex: =4
-
     PieChart_LV1Category_Usage_AIGraph_TokenUsage As pieChart:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -3983,7 +3997,12 @@ AIGraph_TokenUsage As screen:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
         Height: =BarChart_LV1Category_Detail_AIGraph_TokenUsage.Height
-        Items: =AIGraphCategoryLV2Usage
+        Items: |-
+            =If(
+                Max(AIGraphCategoryLV2Usage, Token_Total)=0 Or IsBlank(AIGraphCategoryLV2Usage),
+                Blank(),
+                AIGraphCategoryLV2Usage
+            )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
@@ -4526,23 +4545,6 @@ AIGraph_TokenUsage As screen:
         Y: =1040
         ZIndex: =64
 
-    LoadingSpinner_AIGraph_TokenUsage As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =locLoadingSpinner
-        X: =977
-        Y: =474
-        ZIndex: =65
-
     Label_Alert_NoData_AIGraph_TokenUsage_1 As label:
         Align: =Align.Center
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -4881,7 +4883,45 @@ AIGraph_TokenUsage As screen:
                             ))
                         ),
                     "카테고리",
-                        false
+                        (
+                            CountRows(
+                                If(
+                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Selected.Value="전체",
+                                    AIGraphCategoryLV1Usage,
+                                    AIGraphCategoryLV2Usage
+                                )
+                            ) = 1 && Max(
+                                If(
+                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Selected.Value="전체",
+                                    AIGraphCategoryLV1Usage,
+                                    AIGraphCategoryLV2Usage
+                                ),Token_Total
+                            ) = 0
+                        ) Or (IsError(
+                            CountRows(
+                                If(
+                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Selected.Value="전체",
+                                    AIGraphCategoryLV1Usage,
+                                    AIGraphCategoryLV2Usage
+                                )
+                            )
+                        )) Or (IsBlank(
+                            CountRows(
+                                If(
+                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Selected.Value="전체",
+                                    AIGraphCategoryLV1Usage,
+                                    AIGraphCategoryLV2Usage
+                                )
+                            )
+                        )) Or (CountRows(
+                            (
+                                If(
+                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TokenUsage.Selected.Value="전체",
+                                    AIGraphCategoryLV1Usage,
+                                    AIGraphCategoryLV2Usage
+                                )
+                            )
+                        )=0)
                 ),
                 "데이터가 없습니다."
             )
@@ -4894,7 +4934,7 @@ AIGraph_TokenUsage As screen:
         Width: =1081
         X: =340
         Y: =305
-        ZIndex: =66
+        ZIndex: =65
 
     Label_Alert_NoData_AIGraph_TokenUsage_2 As label:
         Align: =Align.Center
@@ -4919,5 +4959,22 @@ AIGraph_TokenUsage As screen:
         Width: =200
         X: =PieChart_Token_Usage_AIGraph_TokenUsage.X + (PieChart_Token_Usage_AIGraph_TokenUsage.Width - Self.Width)/2
         Y: =PieChart_Token_Usage_AIGraph_TokenUsage.Y + (PieChart_Token_Usage_AIGraph_TokenUsage.Height - Self.Height)/2
+        ZIndex: =66
+
+    LoadingSpinner_AIGraph_TokenUsage As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =977
+        Y: =474
         ZIndex: =67
 
