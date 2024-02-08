@@ -2519,6 +2519,18 @@ AIGraph_UserSatisf As screen:
         Y: =240
         ZIndex: =53
 
+    Sep_AIGraph_UserSatisf As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Fill: =RGBA(204, 204, 204, 1)
+        FocusedBorderThickness: =4
+        Height: =1
+        Width: =1073
+        X: =Label_GraphTitle_AIGraph_UserSatisf.X
+        Y: =Label_GraphTitle_AIGraph_UserSatisf.Y + Label_GraphTitle_AIGraph_UserSatisf.Height + 16
+        ZIndex: =54
+
     "'[Hidden]Group_Value_GPTv_Total_AIGraph_UserSatisf' As group":
         Height: =5
         Width: =5
@@ -3246,18 +3258,6 @@ AIGraph_UserSatisf As screen:
                 =0
             ZIndex: =40
 
-    Sep_AIGraph_UserSatisf As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Fill: =RGBA(204, 204, 204, 1)
-        FocusedBorderThickness: =4
-        Height: =1
-        Width: =1073
-        X: =Label_GraphTitle_AIGraph_UserSatisf.X
-        Y: =Label_GraphTitle_AIGraph_UserSatisf.Y + Label_GraphTitle_AIGraph_UserSatisf.Height + 16
-        ZIndex: =54
-
     Sep_Summ_AIGraph_UserSatisf As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
@@ -3767,9 +3767,9 @@ AIGraph_UserSatisf As screen:
                                     If(
                                         Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
                                         Filter(
-                                            AIGraphTokenDailyUsage,
+                                            AIGraphUserSatisfDailyUsage,
                                             (
-                                                Token_Date >= Switch(
+                                                Date >= Switch(
                                                     Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
                                                         "1개월",
                                                     DateAdd(Today(),-1,TimeUnit.Months),
@@ -3777,13 +3777,13 @@ AIGraph_UserSatisf As screen:
                                                     DateAdd(Today(),-3,TimeUnit.Months)
                                                 )
                                             ) && (
-                                                Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
                                             )
                                         ),
                                         If(
                                             Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
                                             Filter(
-                                                AIGraphTokenMonthlyUsage,
+                                                AIGraphUserSatisfMonthlyUsage,
                                                 (
                                                     YearMonth >= 
                                                     Switch(
@@ -3801,23 +3801,22 @@ AIGraph_UserSatisf As screen:
                                         )
                                     ),
                                     Filter(
-                                        AIGraphTokenDailyUsage_Custom,
+                                        AIGraphUserSatisfDailyUsage_Custom,
                                         (
-                                            Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
                                         ) && (
-                                            Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
+                                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
                                         )
                                     )
-                                )
-                            ) = 1 && Max(
+                                )) = 1 && Max(
                                 If(
                                     DatePickerSetting = false,
                                     If(
                                         Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
                                         Filter(
-                                            AIGraphTokenDailyUsage,
+                                            AIGraphUserSatisfDailyUsage,
                                             (
-                                                Token_Date >= Switch(
+                                                Date >= Switch(
                                                     Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
                                                         "1개월",
                                                     DateAdd(Today(),-1,TimeUnit.Months),
@@ -3825,13 +3824,13 @@ AIGraph_UserSatisf As screen:
                                                     DateAdd(Today(),-3,TimeUnit.Months)
                                                 )
                                             ) && (
-                                                Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
                                             )
                                         ),
                                         If(
                                             Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
                                             Filter(
-                                                AIGraphTokenMonthlyUsage,
+                                                AIGraphUserSatisfMonthlyUsage,
                                                 (
                                                     YearMonth >= 
                                                     Switch(
@@ -3849,232 +3848,190 @@ AIGraph_UserSatisf As screen:
                                         )
                                     ),
                                     Filter(
-                                        AIGraphTokenDailyUsage_Custom,
+                                        AIGraphUserSatisfDailyUsage_Custom,
                                         (
-                                            Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
                                         ) && (
-                                            Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
+                                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
                                         )
                                     )
                                 ),
-                                Token_Total
-                            ) = 0
+                                Usage_Total) = 0
                             ) Or (IsError(
                                 CountRows(
-                                    If(
-                                        DatePickerSetting = false,
-                                        If(
-                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                                            Filter(
-                                                AIGraphTokenDailyUsage,
-                                                (
-                                                    Token_Date >= Switch(
-                                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                                            "1개월",
-                                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                                            "3개월",
-                                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                                    )
-                                                ) && (
-                                                    Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                                )
-                                            ),
-                                            If(
-                                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
-                                                Filter(
-                                                    AIGraphTokenMonthlyUsage,
-                                                    (
-                                                        YearMonth >= 
-                                                        Switch(
-                                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                                                "6개월",
-                                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                                                "1년",
-                                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                                        )
-                                                    ) &&
-                                                    (
-                                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                                                    ),YearMonth_ <> Blank()
-                                                )
-                                            )
-                                        ),
-                                        Filter(
-                                            AIGraphTokenDailyUsage_Custom,
-                                            (
-                                                Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                                            ) && (
-                                                Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ) Or (IsBlank(
-                                CountRows(
-                                    If(
-                                        DatePickerSetting = false,
-                                        If(
-                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
-                                            Filter(
-                                                AIGraphTokenDailyUsage,
-                                                (
-                                                    Token_Date >= Switch(
-                                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                                            "1개월",
-                                                        DateAdd(Today(),-1,TimeUnit.Months),
-                                                            "3개월",
-                                                        DateAdd(Today(),-3,TimeUnit.Months)
-                                                    )
-                                                ) && (
-                                                    Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                                                )
-                                            ),
-                                            If(
-                                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
-                                                Filter(
-                                                    AIGraphTokenMonthlyUsage,
-                                                    (
-                                                        YearMonth >= 
-                                                        Switch(
-                                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                                                "6개월",
-                                                            Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
-                                                                "1년",
-                                                            Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
-                                                        )
-                                                    ) &&
-                                                    (
-                                                        YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
-                                                    ),YearMonth_ <> Blank()
-                                                )
-                                            )
-                                        ),
-                                        Filter(
-                                            AIGraphTokenDailyUsage_Custom,
-                                            (
-                                                Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                                            ) && (
-                                                Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ),
-                    "GPT 버전",
-                        (
-                            CountRows(
                                 If(
                                     DatePickerSetting = false,
                                     If(
-                                        (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphGPTvDailyUsage)),
-                                            AIGraphGPTvDailyXAxis
+                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
+                                        Filter(
+                                            AIGraphUserSatisfDailyUsage,
+                                            (
+                                                Date >= Switch(
+                                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                        "1개월",
+                                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                                        "3개월",
+                                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                                )
+                                            ) && (
+                                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                            )
                                         ),
                                         If(
-                                            (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphGPTvMonthlyXAxis)),
-                                                AIGraphGPTvMonthlyXAxis
-                                            ),
-                                            Blank()
+                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
+                                            Filter(
+                                                AIGraphUserSatisfMonthlyUsage,
+                                                (
+                                                    YearMonth >= 
+                                                    Switch(
+                                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                            "6개월",
+                                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                            "1년",
+                                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                                    )
+                                                ) &&
+                                                (
+                                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                                ),YearMonth_ <> Blank()
+                                            )
                                         )
                                     ),
                                     Filter(
-                                        AIGraphGPTvDailyXAxis_Custom,
+                                        AIGraphUserSatisfDailyUsage_Custom,
                                         (
-                                            Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
                                         ) && (
-                                            Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
-                                        )
-                                    )
-                                )
-                            ) = 1 && Max(
-                            If(
-                                DatePickerSetting = false,
-                                If(
-                                    (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월"),
-                                    If(
-                                        !IsError(1/CountRows(AIGraphGPTvDailyUsage)),
-                                        AIGraphGPTvDailyXAxis
-                                    ),
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphGPTvMonthlyXAxis)),
-                                            AIGraphGPTvMonthlyXAxis
-                                        ),
-                                        Blank()
-                                    )
-                                ),
-                                Filter(
-                                    AIGraphGPTvDailyXAxis_Custom,
-                                    (
-                                        Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                                    ) && (
-                                        Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
-                                    )
-                                )
-                            ), Token_Total
-                            ) = 0
-                        ) Or (IsError(
-                            CountRows(
-                                If(
-                                    DatePickerSetting = false,
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphGPTvDailyUsage)),
-                                            AIGraphGPTvDailyXAxis
-                                        ),
-                                        If(
-                                            (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphGPTvMonthlyXAxis)),
-                                                AIGraphGPTvMonthlyXAxis
-                                            ),
-                                            Blank()
-                                        )
-                                    ),
-                                    Filter(
-                                        AIGraphGPTvDailyXAxis_Custom,
-                                        (
-                                            Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                                        ) && (
-                                            Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
+                                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
                                         )
                                     )
                                 )
                             ))
                         ) Or (IsBlank(
-                            CountRows(
+                                CountRows(
                                 If(
                                     DatePickerSetting = false,
                                     If(
-                                        (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphGPTvDailyUsage)),
-                                            AIGraphGPTvDailyXAxis
+                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
+                                        Filter(
+                                            AIGraphUserSatisfDailyUsage,
+                                            (
+                                                Date >= Switch(
+                                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                        "1개월",
+                                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                                        "3개월",
+                                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                                )
+                                            ) && (
+                                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                            )
                                         ),
                                         If(
-                                            (Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphGPTvMonthlyXAxis)),
-                                                AIGraphGPTvMonthlyXAxis
-                                            ),
-                                            Blank()
+                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
+                                            Filter(
+                                                AIGraphUserSatisfMonthlyUsage,
+                                                (
+                                                    YearMonth >= 
+                                                    Switch(
+                                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                            "6개월",
+                                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                            "1년",
+                                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                                    )
+                                                ) &&
+                                                (
+                                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                                ),YearMonth_ <> Blank()
+                                            )
                                         )
                                     ),
                                     Filter(
-                                        AIGraphGPTvDailyXAxis_Custom,
+                                        AIGraphUserSatisfDailyUsage_Custom,
                                         (
-                                            Token_Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
                                         ) && (
-                                            Token_Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
+                                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
                                         )
                                     )
+                                )
+                            ))
+                        ) Or (CountRows(
+                                If(
+                                    DatePickerSetting = false,
+                                    If(
+                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "3개월",
+                                        Filter(
+                                            AIGraphUserSatisfDailyUsage,
+                                            (
+                                                Date >= Switch(
+                                                    Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                        "1개월",
+                                                    DateAdd(Today(),-1,TimeUnit.Months),
+                                                        "3개월",
+                                                    DateAdd(Today(),-3,TimeUnit.Months)
+                                                )
+                                            ) && (
+                                                Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
+                                            )
+                                        ),
+                                        If(
+                                            Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "1년" Or Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value = "6개월",
+                                            Filter(
+                                                AIGraphUserSatisfMonthlyUsage,
+                                                (
+                                                    YearMonth >= 
+                                                    Switch(
+                                                        Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
+                                                            "6개월",
+                                                        Int(Text(DateAdd(Today(),-6,TimeUnit.Months), "yyyymm")),
+                                                            "1년",
+                                                        Int(Text(DateAdd(Today(),-12,TimeUnit.Months), "yyyymm"))
+                                                    )
+                                                ) &&
+                                                (
+                                                    YearMonth <= Int(Text(DateAdd(Today(),-0,TimeUnit.Months), "yyyymm"))
+                                                ),YearMonth_ <> Blank()
+                                            )
+                                        )
+                                    ),
+                                    Filter(
+                                        AIGraphUserSatisfDailyUsage_Custom,
+                                        (
+                                            Date >= DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
+                                        ) && (
+                                            Date <= DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate //
+                                        )
+                                    )
+                                )
+                            )=0
+                        ),
+                    "GPT 버전",
+                        (
+                            CountRows(
+                                If(
+                                    !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                                    Filter(Distinct(AIGraphGPTvUserSatisf, Token_Model),Value<>Blank())
+                                )
+                            ) = 1 && Max(
+                                If(
+                                    !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                                    AIGraphGPTvUserSatisf
+                                ),Usage_Total
+                            ) = 0
+                        ) Or (IsError(
+                            CountRows(
+                                If(
+                                    !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                                    Filter(Distinct(AIGraphGPTvUserSatisf, Token_Model),Value<>Blank())
+                                )
+                            ))
+                        ) Or (IsBlank(
+                            CountRows(
+                                If(
+                                    !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
+                                    Filter(Distinct(AIGraphGPTvUserSatisf, Token_Model),Value<>Blank())
                                 )
                             ))
                         ),
@@ -4083,38 +4040,38 @@ AIGraph_UserSatisf As screen:
                             CountRows(
                                 If(
                                     Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value="전체",
-                                    AIGraphCategoryLV1Usage,
-                                    AIGraphCategoryLV2Usage
+                                    AIGraphCategoryLV1UserSatisf,
+                                    AIGraphCategoryLV2UserSatisf
                                 )
                             ) = 1 && Max(
                                 If(
                                     Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value="전체",
-                                    AIGraphCategoryLV1Usage,
-                                    AIGraphCategoryLV2Usage
-                                ),Token_Total
+                                    AIGraphCategoryLV1UserSatisf,
+                                    AIGraphCategoryLV2UserSatisf
+                                ),Usage_Total
                             ) = 0
                         ) Or (IsError(
                             CountRows(
                                 If(
                                     Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value="전체",
-                                    AIGraphCategoryLV1Usage,
-                                    AIGraphCategoryLV2Usage
+                                    AIGraphCategoryLV1UserSatisf,
+                                    AIGraphCategoryLV2UserSatisf
                                 )
                             )
                         )) Or (IsBlank(
                             CountRows(
                                 If(
                                     Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value="전체",
-                                    AIGraphCategoryLV1Usage,
-                                    AIGraphCategoryLV2Usage
+                                    AIGraphCategoryLV1UserSatisf,
+                                    AIGraphCategoryLV2UserSatisf
                                 )
                             )
                         )) Or (CountRows(
                             (
                                 If(
                                     Dropdown_GalleryFilter_CategoryLV1_AIGraph_UserSatisf.Selected.Value="전체",
-                                    AIGraphCategoryLV1Usage,
-                                    AIGraphCategoryLV2Usage
+                                    AIGraphCategoryLV1UserSatisf,
+                                    AIGraphCategoryLV2UserSatisf
                                 )
                             )
                         )=0)
