@@ -1740,48 +1740,7 @@ AIGraph_TotalUsage As screen:
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
         TemplatePadding: =0
-        TemplateSize: |-
-            =If(
-                !IsError(
-                    If(
-                        AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                        If(
-                            CountRows(
-                                If(
-                                    AppsBIAxis.Value = "GPT 버전" And Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
-                                    AIGraphMonthlyGPTvUsageXAxis
-                                )
-                            ) > 23,
-                            50,
-                            Self.Width / CountRows(
-                                If(
-                                    AppsBIAxis.Value = "GPT 버전" And Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
-                                    AIGraphMonthlyGPTvUsageXAxis
-                                )
-                            )
-                        )
-                    )
-                ),
-                If(
-                    AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                    If(
-                        CountRows(
-                            If(
-                                AppsBIAxis.Value = "GPT 버전" And Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
-                                AIGraphMonthlyGPTvUsageXAxis
-                            )
-                        ) > 23,
-                        50,
-                        Self.Width / CountRows(
-                            If(
-                                AppsBIAxis.Value = "GPT 버전" And Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년",
-                                AIGraphMonthlyGPTvUsageXAxis
-                            )
-                        )
-                    )
-                ), 
-                0
-            )
+        TemplateSize: =135
         Visible: |-
             =If(
                 DatePickerSetting = false And AppsBIAxis.Value = "GPT 버전",
@@ -1875,6 +1834,10 @@ AIGraph_TotalUsage As screen:
             Font: =Font.'Segoe UI'
             Height: =20
             OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
             Size: =10
             Text: |-
                 =Text(ThisItem.Usage_Total, "#,###,###,##0")
@@ -2041,21 +2004,7 @@ AIGraph_TotalUsage As screen:
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
         TemplatePadding: =0
-        TemplateSize: |-
-            =IfError(
-                1 / CountRows(AIGraphUsage),
-                0,
-                Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.Width*
-                (
-                    If(
-                        CountRows(
-                            Distinct(AIGraphUsage,Token_Model)
-                        )=1,
-                        CountRows(Distinct(AIGraphUsage,Token_Model))+1,
-                        CountRows(Distinct(AIGraphUsage,Token_Model))
-                    )
-                ) + Bar_BarChart_GPTv_Daily_Default_AIGraph_TotalUsage_0.X * 2
-            )
+        TemplateSize: =135
         Visible: |-
             =If(
                 DatePickerSetting = false And AppsBIAxis.Value = "GPT 버전",
@@ -2329,12 +2278,7 @@ AIGraph_TotalUsage As screen:
         LoadingSpinner: =LoadingSpinner.Data
         ShowNavigation: =true
         TemplatePadding: =0
-        TemplateSize: |-
-            =IfError(
-                1 / CountRows(AIGraphDailyGPTvUsageXAxis_Custom),
-                0,
-                Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.Width*If(CountRows(Distinct(AIGraphDailyGPTvUsage_Custom,Token_Model))=1,CountRows(Distinct(AIGraphDailyGPTvUsage_Custom,Token_Model))+1,CountRows(Distinct(AIGraphDailyGPTvUsage_Custom,Token_Model))) + Bar_BarChart_GPTv_Custom_Daily_AIGraph_TotalUsage_0.X * 2
-            )
+        TemplateSize: =135
         Visible: |-
             =If(
                 DatePickerSetting = true And AppsBIAxis.Value = "GPT 버전",
@@ -2966,170 +2910,174 @@ AIGraph_TotalUsage As screen:
         Size: =15
         Text: |-
             =If(
-                Switch(
-                    AppsBIAxis.Value,
-                    "GPT 버전",
-                        (
-                            CountRows(
-                                If(
-                                    DatePickerSetting = false,
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
-                                            AIGraphDailyGPTvUsageXAxis
-                                        ),
-                                        If(
-                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                                                AIGraphMonthlyGPTvUsageXAxis
-                                            ),
-                                            Blank()
-                                        )
-                                    ),
-                                    Filter(
-                                        AIGraphDailyGPTvUsageXAxis_Custom,
-                                        (
-                                            Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
-                                        ) && (
-                                            Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
-                                        )
-                                    )
-                                )
-                            ) = 1 && Max(
-                                If(
-                                    DatePickerSetting = false,
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
-                                            AIGraphDailyGPTvUsageXAxis
-                                        ),
-                                        If(
-                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                                                AIGraphMonthlyGPTvUsageXAxis
-                                            ),
-                                            Blank()
-                                        )
-                                    ),
-                                    Filter(
-                                        AIGraphDailyGPTvUsageXAxis_Custom,
-                                        (
-                                            Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
-                                        ) && (
-                                            Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
-                                        )
-                                    )
-                                ), Usage_Total
-                            ) = 0
-                        ) Or (IsError(
-                            CountRows(
-                                If(
-                                    DatePickerSetting = false,
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
-                                            AIGraphDailyGPTvUsageXAxis
-                                        ),
-                                        If(
-                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                                                AIGraphMonthlyGPTvUsageXAxis
-                                            ),
-                                            Blank()
-                                        )
-                                    ),
-                                    Filter(
-                                        AIGraphDailyGPTvUsageXAxis_Custom,
-                                        (
-                                            Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
-                                        ) && (
-                                            Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
-                                        )
-                                    )
-                                )
-                            ))
-                        ) Or (IsBlank(
-                            CountRows(
-                                If(
-                                    DatePickerSetting = false,
-                                    If(
-                                        (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
-                                        If(
-                                            !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
-                                            AIGraphDailyGPTvUsageXAxis
-                                        ),
-                                        If(
-                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
-                                            If(
-                                                !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
-                                                AIGraphMonthlyGPTvUsageXAxis
-                                            ),
-                                            Blank()
-                                        )
-                                    ),
-                                    Filter(
-                                        AIGraphDailyGPTvUsageXAxis_Custom,
-                                        (
-                                            Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
-                                        ) && (
-                                            Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
-                                        )
-                                    )
-                                )
-                            ))
-                        ),
-                    "카테고리",
-                        (
-                            CountRows(
-                                If(
-                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
-                                    AIGraphCategoryLV1GPTvUsage,
-                                    AIGraphCategoryLV2GPTvUsage
-                                )
-                            ) = 1 && Max(
-                                If(
-                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
-                                    AIGraphDailyGPTvUsageXAxis,
-                                    AIGraphDailyGPTvUsageXAxis
-                                ),Usage_Total
-                            ) = 0
-                        ) Or (IsError(
-                            CountRows(
-                                If(
-                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
-                                    AIGraphCategoryLV1GPTvUsage,
-                                    AIGraphCategoryLV2GPTvUsage
-                                )
-                            )
-                        )) Or (IsBlank(
-                            CountRows(
-                                If(
-                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
-                                    AIGraphCategoryLV1GPTvUsage,
-                                    AIGraphCategoryLV2GPTvUsage
-                                )
-                            )
-                        )) Or (CountRows(
+                locLoadingSpinner=true,
+                "데이터를 분석하고 있습니다.",
+                If(
+                    Switch(
+                        AppsBIAxis.Value,
+                        "GPT 버전",
                             (
-                                If(
-                                    Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
-                                    AIGraphCategoryLV1GPTvUsage,
-                                    AIGraphCategoryLV2GPTvUsage
+                                CountRows(
+                                    If(
+                                        DatePickerSetting = false,
+                                        If(
+                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
+                                            If(
+                                                !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
+                                                AIGraphDailyGPTvUsageXAxis
+                                            ),
+                                            If(
+                                                (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
+                                                If(
+                                                    !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
+                                                    AIGraphMonthlyGPTvUsageXAxis
+                                                ),
+                                                Blank()
+                                            )
+                                        ),
+                                        Filter(
+                                            AIGraphDailyGPTvUsageXAxis_Custom,
+                                            (
+                                                Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                                            ) && (
+                                                Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
+                                            )
+                                        )
+                                    )
+                                ) = 1 && Max(
+                                    If(
+                                        DatePickerSetting = false,
+                                        If(
+                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
+                                            If(
+                                                !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
+                                                AIGraphDailyGPTvUsageXAxis
+                                            ),
+                                            If(
+                                                (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
+                                                If(
+                                                    !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
+                                                    AIGraphMonthlyGPTvUsageXAxis
+                                                ),
+                                                Blank()
+                                            )
+                                        ),
+                                        Filter(
+                                            AIGraphDailyGPTvUsageXAxis_Custom,
+                                            (
+                                                Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                                            ) && (
+                                                Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
+                                            )
+                                        )
+                                    ), Usage_Total
+                                ) = 0
+                            ) Or (IsError(
+                                CountRows(
+                                    If(
+                                        DatePickerSetting = false,
+                                        If(
+                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
+                                            If(
+                                                !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
+                                                AIGraphDailyGPTvUsageXAxis
+                                            ),
+                                            If(
+                                                (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
+                                                If(
+                                                    !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
+                                                    AIGraphMonthlyGPTvUsageXAxis
+                                                ),
+                                                Blank()
+                                            )
+                                        ),
+                                        Filter(
+                                            AIGraphDailyGPTvUsageXAxis_Custom,
+                                            (
+                                                Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                                            ) && (
+                                                Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
+                                            )
+                                        )
+                                    )
+                                ))
+                            ) Or (IsBlank(
+                                CountRows(
+                                    If(
+                                        DatePickerSetting = false,
+                                        If(
+                                            (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "3개월"),
+                                            If(
+                                                !IsError(1/CountRows(AIGraphDailyGPTvUsage)),
+                                                AIGraphDailyGPTvUsageXAxis
+                                            ),
+                                            If(
+                                                (Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "6개월" Or Dropdown_DatePicker_AIGraph_TotalUsage.SelectedText.Value = "1년"),
+                                                If(
+                                                    !IsError(1/CountRows(AIGraphMonthlyGPTvUsage)),
+                                                    AIGraphMonthlyGPTvUsageXAxis
+                                                ),
+                                                Blank()
+                                            )
+                                        ),
+                                        Filter(
+                                            AIGraphDailyGPTvUsageXAxis_Custom,
+                                            (
+                                                Date >= DatePicker_FirstDate_AIGraph_TotalUsage.SelectedDate
+                                            ) && (
+                                                Date <= DatePicker_LastDate_AIGraph_TotalUsage.SelectedDate //
+                                            )
+                                        )
+                                    )
+                                ))
+                            ),
+                        "카테고리",
+                            (
+                                CountRows(
+                                    If(
+                                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
+                                        AIGraphCategoryLV1GPTvUsage,
+                                        AIGraphCategoryLV2GPTvUsage
+                                    )
+                                ) = 1 && Max(
+                                    If(
+                                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
+                                        AIGraphDailyGPTvUsageXAxis,
+                                        AIGraphDailyGPTvUsageXAxis
+                                    ),Usage_Total
+                                ) = 0
+                            ) Or (IsError(
+                                CountRows(
+                                    If(
+                                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
+                                        AIGraphCategoryLV1GPTvUsage,
+                                        AIGraphCategoryLV2GPTvUsage
+                                    )
                                 )
-                            )
-                        )=0)
-                ),
-                "데이터가 없습니다."
+                            )) Or (IsBlank(
+                                CountRows(
+                                    If(
+                                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
+                                        AIGraphCategoryLV1GPTvUsage,
+                                        AIGraphCategoryLV2GPTvUsage
+                                    )
+                                )
+                            )) Or (CountRows(
+                                (
+                                    If(
+                                        Dropdown_GalleryFilter_CategoryLV1_AIGraph_TotalUsage.Selected.Value="전체",
+                                        AIGraphCategoryLV1GPTvUsage,
+                                        AIGraphCategoryLV2GPTvUsage
+                                    )
+                                )
+                            )=0)
+                    ),
+                    "데이터가 없습니다."
+                )
             )
         Visible: |-
             =If(
-                Self.Text = "데이터가 없습니다.",
+                Self.Text = "데이터가 없습니다." Or Self.Text = "데이터를 분석하고 있습니다.",
                 true,
                 false
             )
@@ -3154,7 +3102,7 @@ AIGraph_TotalUsage As screen:
         Text: =Label_Alert_NoData_AIGraph_TotalUsage_1.Text
         Visible: |-
             =If(
-                Self.Text = "데이터가 없습니다.",
+                Self.Text = "데이터가 없습니다." Or Self.Text = "데이터를 분석하고 있습니다.",
                 true,
                 false
             )
