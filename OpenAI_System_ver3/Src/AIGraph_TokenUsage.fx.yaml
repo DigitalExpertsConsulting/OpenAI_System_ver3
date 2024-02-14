@@ -1036,7 +1036,6 @@ AIGraph_TokenUsage As screen:
     BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage As gallery.galleryHorizontal:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
-        DelayItemLoading: =true
         Height: =LineChart_Default_Daily_AIGraph_TokenUsage.Height
         Items: |-
             =If(
@@ -1167,7 +1166,6 @@ AIGraph_TokenUsage As screen:
         "BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage_1 As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0'":
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DelayItemLoading: =true
             Height: =Parent.Height - DateLabel_BarChart_GPTv_Default_Monthly_AIGraph_TokenUsage.Height
             Items: |-
                 =Filter(
@@ -1307,7 +1305,6 @@ AIGraph_TokenUsage As screen:
     BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_0 As gallery.galleryHorizontal:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
-        DelayItemLoading: =true
         Height: =LineChart_Default_Daily_AIGraph_TokenUsage.Height
         Items: |-
             =If(
@@ -1427,7 +1424,24 @@ AIGraph_TokenUsage As screen:
             PaddingTop: =0
             Size: =10
             Text: |-
-                =Text(ThisItem.Token_Total/1000, "#,###,###,##0K")
+                =/*If(
+                    Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000,
+                    Text(ThisItem.Token_Total, "#,###,###,##0"),
+                    If(
+                        Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000,
+                        Text(ThisItem.Token_Total/1000, "#,###,###,##0K"),
+                        If(
+                            Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000000,
+                            Text(ThisItem.Token_Total/1000000, "#,###,###,##0M"),
+                            If(
+                                Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000000000,
+                                Text(ThisItem.Token_Total/1000000, "#,###,###,##0B")
+                            )
+                        )
+                    )
+                )*/
+                
+                Text(ThisItem.Token_Total/1000, "#,###,###,##0K")
             Visible: |-
                 =If(
                     Bar_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage_0.Height<1,
@@ -1442,7 +1456,6 @@ AIGraph_TokenUsage As screen:
         "BarChart_GPTv_Default_Daily_AIGraph_TokenUsage_1 As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0'":
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
-            DelayItemLoading: =true
             Height: =Parent.Height - DateLabel_BarChart_GPTv_Daily_Default_AIGraph_TokenUsage.Height
             Items: |-
                 =Filter(
@@ -1450,6 +1463,7 @@ AIGraph_TokenUsage As screen:
                     Token_Date=ThisItem.Token_Date
                 )
             LoadingSpinner: =
+            LoadingSpinnerColor: =RGBA(0, 0, 0, 0)
             TemplatePadding: =0
             TemplateSize: =40
             Width: =40*CountRows(chatBotVersionList)
@@ -1545,16 +1559,73 @@ AIGraph_TokenUsage As screen:
                 PaddingRight: =0
                 PaddingTop: =0
                 Size: =10
-                Text: |
-                    =Text(
-                        LookUp(
+                Text: |-
+                    =/*If(
+                        Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000,
+                        Text(
+                            LookUp(
                                 Filter(
                                     AIGraphGPTvDailyUsage,
                                     Token_Model=ThisItem.Token_Model
                                 ),
                                 Token_Date_=ThisItem.Token_Date_,
                                 Token_Total
-                            )/1000, 
+                            ), 
+                            "#,###,###,##0"
+                        ),
+                        If(
+                            Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000,
+                            Text(
+                                LookUp(
+                                    Filter(
+                                        AIGraphGPTvDailyUsage,
+                                        Token_Model=ThisItem.Token_Model
+                                    ),
+                                    Token_Date_=ThisItem.Token_Date_,
+                                    Token_Total
+                                )/1000, 
+                                "#,###,###,##0K"
+                            ),
+                            If(
+                                Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000000,
+                                Text(
+                                    LookUp(
+                                        Filter(
+                                            AIGraphGPTvDailyUsage,
+                                            Token_Model=ThisItem.Token_Model
+                                        ),
+                                        Token_Date_=ThisItem.Token_Date_,
+                                        Token_Total
+                                    )/1000000, 
+                                    "#,###,###,##0M"
+                                ),
+                                If(
+                                    Max(AIGraphGPTvDailyXAxis, Token_Total) < 1000000000000,
+                                    Text(
+                                        LookUp(
+                                            Filter(
+                                                AIGraphGPTvDailyUsage,
+                                                Token_Model=ThisItem.Token_Model
+                                            ),
+                                            Token_Date_=ThisItem.Token_Date_,
+                                            Token_Total
+                                        )/1000000000, 
+                                        "#,###,###,##0B"
+                                    )
+                                )
+                            )
+                        )
+                    )*/
+                    
+                    Text(
+                        LookUp(
+                            Filter(
+                                AIGraphGPTvDailyUsage,
+                                Token_Model=ThisItem.Token_Model
+                            ),
+                            Token_Date_=ThisItem.Token_Date_,
+                            Token_Total
+                        )/1000, 
                         "#,###,###,##0K"
                     )
                 Visible: |-
@@ -1582,7 +1653,6 @@ AIGraph_TokenUsage As screen:
     BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage As gallery.galleryHorizontal:
         BorderColor: =RGBA(166, 166, 166, 1)
         BorderStyle: =BorderStyle.None
-        DelayItemLoading: =true
         Height: =LineChart_Default_Daily_AIGraph_TokenUsage.Height
         Items: |-
             =If(
@@ -1718,7 +1788,6 @@ AIGraph_TokenUsage As screen:
         "BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage_1 As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0'":
             BorderColor: =RGBA(166, 166, 166, 1)
             BorderStyle: =BorderStyle.None
-            DelayItemLoading: =true
             Height: =Parent.Height - DateLabel_BarChart_GPTv_Custom_Daily_AIGraph_TokenUsage.Height
             Items: |-
                 =Filter(
