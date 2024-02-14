@@ -1253,53 +1253,65 @@ AIGraph_UserSatisf As screen:
             FocusedBorderThickness: =4
             Height: =20
             Width: |-
-                =IfError((
-                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            ((
-                                Max(
-                                    AIGraphCategoryLV1UserSatisf,
-                                    Usage_Total
-                                ) -
-                                (
-                                    LookUp(
-                                        Filter(
-                                            AIGraphCategoryLV1UserSatisf,
-                                            Category_LV1=ThisItem.Category_LV1
-                                        ),
-                                        Category_LV1=ThisItem.Category_LV1,
-                                        Usage_Bad
-                                    )
-                                )
-                            )) / 
-                            Max(
+                =IfError(
+                    If(
+                        Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
                                 AIGraphCategoryLV1UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,0,(
-                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            ((
-                                Max(
-                                    AIGraphCategoryLV1UserSatisf,
-                                    Usage_Total
-                                ) -
-                                (
-                                    LookUp(
-                                        Filter(
-                                            AIGraphCategoryLV1UserSatisf,
-                                            Category_LV1=ThisItem.Category_LV1
-                                        ),
-                                        Category_LV1=ThisItem.Category_LV1,
-                                        Usage_Bad
-                                    )
-                                )
-                            )) / 
-                            Max(
+                                Category_LV1 = ThisItem.Category_LV1
+                            ),
+                            Category_LV1 = ThisItem.Category_LV1,
+                            Usage_Bad
+                        ),
+                        ((Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (((Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        ) - ( LookUp(
+                            Filter(
                                 AIGraphCategoryLV1UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total)
+                                Category_LV1 = ThisItem.Category_LV1
+                            ),
+                            Category_LV1 = ThisItem.Category_LV1,
+                            Usage_Bad
+                        ) ))) / Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    ),
+                    0,
+                    If(
+                        Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
+                                AIGraphCategoryLV1UserSatisf,
+                                Category_LV1 = ThisItem.Category_LV1
+                            ),
+                            Category_LV1 = ThisItem.Category_LV1,
+                            Usage_Bad
+                        ),
+                        ((Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (((Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        ) - ( LookUp(
+                            Filter(
+                                AIGraphCategoryLV1UserSatisf,
+                                Category_LV1 = ThisItem.Category_LV1
+                            ),
+                            Category_LV1 = ThisItem.Category_LV1,
+                            Usage_Bad
+                        ) ))) / Max(
+                            AIGraphCategoryLV1UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    )
+                )
             X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2 + Self.Height
             ZIndex: =2
@@ -1310,15 +1322,20 @@ AIGraph_UserSatisf As screen:
             Fill: =Index(AIGraph_ColorLists,1).Value
             FocusedBorderThickness: =4
             Height: =20
-            Width: |
-                =/*IfError(
-                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good / (ThisItem.Usage_Total - ThisItem.Usage_Good - ThisItem.Usage_Bad),
-                    0,
-                    Bar_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width * ThisItem.Usage_Good / (ThisItem.Usage_Total - ThisItem.Usage_Good - ThisItem.Usage_Bad)
-                )*/
-                
-                
-                IfError((
+            Width: |-
+                =IfError(If(
+                    Max(
+                        AIGraphCategoryLV1UserSatisf,
+                        Usage_Total
+                    ) <> LookUp(
+                        Filter(
+                            AIGraphCategoryLV1UserSatisf,
+                            Category_LV1=ThisItem.Category_LV1
+                        ),
+                        Category_LV1=ThisItem.Category_LV1,
+                        Usage_Good
+                    ),
+                    (
                         (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (
                             ((
                                 Max(
@@ -1341,7 +1358,21 @@ AIGraph_UserSatisf As screen:
                                 Usage_Total
                             )
                         ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,0,(
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
+                    (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
+                ),0,If(
+                    Max(
+                        AIGraphCategoryLV1UserSatisf,
+                        Usage_Total
+                    ) <> LookUp(
+                        Filter(
+                            AIGraphCategoryLV1UserSatisf,
+                            Category_LV1=ThisItem.Category_LV1
+                        ),
+                        Category_LV1=ThisItem.Category_LV1,
+                        Usage_Good
+                    ),
+                    (
                         (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125) - (
                             ((
                                 Max(
@@ -1364,7 +1395,9 @@ AIGraph_UserSatisf As screen:
                                 Usage_Total
                             )
                         ) * (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total)
+                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,
+                    (Parent.Width - Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width - 125)
+                ))
             X: =Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV1Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =3
@@ -1635,49 +1668,65 @@ AIGraph_UserSatisf As screen:
             FocusedBorderThickness: =4
             Height: =20
             Width: |-
-                =IfError((
-                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            (
-                                Max(
-                                    AIGraphCategoryLV2UserSatisf,
-                                    Usage_Total
-                                ) -
-                                LookUp(
-                                    Filter(
-                                        AIGraphCategoryLV2UserSatisf,
-                                        Category_LV2=ThisItem.Category_LV2
-                                    ),
-                                    Category_LV2=ThisItem.Category_LV2,
-                                    Usage_Bad
-                                )
-                            ) / 
-                            Max(
+                =IfError(
+                    If(
+                        Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
                                 AIGraphCategoryLV2UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,0,(
-                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            (
-                                Max(
-                                    AIGraphCategoryLV2UserSatisf,
-                                    Usage_Total
-                                ) -
-                                LookUp(
-                                    Filter(
-                                        AIGraphCategoryLV2UserSatisf,
-                                        Category_LV2=ThisItem.Category_LV2
-                                    ),
-                                    Category_LV2=ThisItem.Category_LV2,
-                                    Usage_Bad
-                                )
-                            ) / 
-                            Max(
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Bad
+                        ),
+                        ((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - ((Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) - LookUp(
+                            Filter(
                                 AIGraphCategoryLV2UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total)
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Bad
+                        )) / Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    ),
+                    0,
+                    If(
+                        Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
+                                AIGraphCategoryLV2UserSatisf,
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Bad
+                        ),
+                        ((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - ((Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) - LookUp(
+                            Filter(
+                                AIGraphCategoryLV2UserSatisf,
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Bad
+                        )) / Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    )
+                )
             X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2 + Self.Height
             ZIndex: =2
@@ -1689,49 +1738,65 @@ AIGraph_UserSatisf As screen:
             FocusedBorderThickness: =4
             Height: =20
             Width: |-
-                =IfError((
-                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            (
-                                Max(
-                                    AIGraphCategoryLV2UserSatisf,
-                                    Usage_Total
-                                ) -
-                                LookUp(
-                                    Filter(
-                                        AIGraphCategoryLV2UserSatisf,
-                                        Category_LV2=ThisItem.Category_LV2
-                                    ),
-                                    Category_LV2=ThisItem.Category_LV2,
-                                    Usage_Good
-                                )
-                            ) / 
-                            Max(
+                =IfError(
+                    If(
+                        Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
                                 AIGraphCategoryLV2UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total,0,(
-                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - (
-                            (
-                                Max(
-                                    AIGraphCategoryLV2UserSatisf,
-                                    Usage_Total
-                                ) -
-                                LookUp(
-                                    Filter(
-                                        AIGraphCategoryLV2UserSatisf,
-                                        Category_LV2=ThisItem.Category_LV2
-                                    ),
-                                    Category_LV2=ThisItem.Category_LV2,
-                                    Usage_Good
-                                )
-                            ) / 
-                            Max(
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Good
+                        ),
+                        ((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - ((Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) - LookUp(
+                            Filter(
                                 AIGraphCategoryLV2UserSatisf,
-                                Usage_Total
-                            )
-                        ) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
-                    ) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good)/ThisItem.Usage_Total)
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Good
+                        )) / Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    ),
+                    0,
+                    If(
+                        Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) <> LookUp(
+                            Filter(
+                                AIGraphCategoryLV2UserSatisf,
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Good
+                        ),
+                        ((Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125) - ((Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        ) - LookUp(
+                            Filter(
+                                AIGraphCategoryLV2UserSatisf,
+                                Category_LV2 = ThisItem.Category_LV2
+                            ),
+                            Category_LV2 = ThisItem.Category_LV2,
+                            Usage_Good
+                        )) / Max(
+                            AIGraphCategoryLV2UserSatisf,
+                            Usage_Total
+                        )) * (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)) * (ThisItem.Usage_Total - ThisItem.Usage_Bad - ThisItem.Usage_Good) / ThisItem.Usage_Total,
+                        (Parent.Width - Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width - 125)
+                    )
+                )
             X: =Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.X + Label_BarChart_LV2Category_Daily_AIGraph_UserSatisf.Width + 20
             Y: =Parent.TemplateHeight/2 - Self.Height/2
             ZIndex: =3
@@ -2484,21 +2549,37 @@ AIGraph_UserSatisf As screen:
         Height: =40
         Visible: =BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Visible
         Width: |-
-            =IfError(If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                (
-                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125) - (
-                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Good))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
-                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125)
-                ), 0
-            ),0,If(
-                AppsBIAxis.Value = "GPT 버전" And !IsError(1/CountRows(AIGraphGPTvUserSatisf)),
-                (
-                    (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125) - (
-                        (Sum(AIGraphGPTvUserSatisf, Usage_Total)-Sum(AIGraphGPTvUserSatisf, Usage_Good))/Sum(AIGraphGPTvUserSatisf, Usage_Total)
-                    ) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125)
-                ), 0
-            ))
+            =IfError(
+                If(
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1 / CountRows(AIGraphGPTvUserSatisf)),
+                    ((BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125) - ((Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Total
+                    ) - Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Good
+                    )) / Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Total
+                    )) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125)),
+                    0
+                ),
+                0,
+                If(
+                    AppsBIAxis.Value = "GPT 버전" And !IsError(1 / CountRows(AIGraphGPTvUserSatisf)),
+                    ((BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125) - ((Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Total
+                    ) - Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Good
+                    )) / Sum(
+                        AIGraphGPTvUserSatisf,
+                        Usage_Total
+                    )) * (BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width - 125)),
+                    0
+                )
+            )
         X: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.X + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Width + 20
         Y: =DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Y + DateLabel_BarChart_GPTv_Default_Daily_AIGraph_UserSatisf.Height/2 - Self.Height/2
         ZIndex: =46
