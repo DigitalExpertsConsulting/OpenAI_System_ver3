@@ -395,3 +395,424 @@
         Y: =132
         ZIndex: =82
 
+    Gallery_Main_AICategory_AICM As gallery.variableTemplateHeightGallery:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DelayItemLoading: =true
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =786
+        Items: =Distinct(똑실이_Category_table,Category_LV1)
+        Layout: =Layout.Vertical
+        LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
+        OnSelect: |-
+            =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+            //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
+        ShowScrollbar: =false
+        TemplatePadding: =0
+        TemplateSize: =If(!IsBlank(testV),CountRows(Gallery_Main_AICategory_AICM.AllItems) * 64,71)
+        Width: =1500
+        X: =372
+        Y: =245
+        ZIndex: =83
+
+        Rectangle_MainGallery_AICategory_AICM As rectangle:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledFill: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(224, 224, 224, 1)
+            FocusedBorderThickness: =4
+            Height: =1
+            HoverFill: =RGBA(224, 224, 224, 1)
+            OnSelect: =
+            PressedFill: =RGBA(224, 224, 224, 1)
+            Width: =1463
+            X: =15
+            Y: =70
+            ZIndex: =1
+
+        Image_CategoryGallery_AICategory_AICM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Icon_galleryOn
+            ImageRotation: =If(ThisItem.Value=testV,ImageRotation.Rotate180,ImageRotation.None)
+            OnSelect: |-
+                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+                //If(ThisItem.IsSelected And testV="internal_rules",UpdateContext({testV:"t"}),UpdateContext({testV:"f"}))
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =20
+            X: =15
+            Y: =31
+            ZIndex: =2
+
+        Gallery_Sub_AICategory_AICM As gallery.variableTemplateHeightGallery:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =If(ThisItem.IsSelected,CountRows(SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)) * 75 + 10,0)
+            Items: |
+                =SortByColumns(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value), "LV2Order", SortOrder.Ascending)
+            Layout: =Layout.Vertical
+            OnSelect: =
+            ShowScrollbar: =false
+            TemplateSize: =80
+            Visible: =If(ThisItem.Value=testV,true,false)
+            Width: =1490
+            Y: =If(ThisItem.IsSelected, 63,0)
+            ZIndex: =3
+
+            Button_SubGalleryBody_AICategory_AICM As button:
+                BorderColor: |-
+                    =If(ThisItem.IsSelected,ColorValue("#0F6CBD"), RGBA(224, 224, 224, 1))
+                BorderThickness: =1
+                DisabledBorderColor: |-
+                    =ColorValue("#D1D1D1")
+                DisabledColor: |-
+                    =ColorValue("#FFFFFF")
+                DisabledFill: |-
+                    =ColorValue("#FFFFFF")
+                Fill: =If(ThisItem.IsSelected,RGBA(235,243,252,1),RGBA(255, 255, 255, 1))
+                FocusedBorderColor: |-
+                    =ColorValue("#0F6CBD")
+                FocusedBorderThickness: =2
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =64
+                HoverBorderColor: =RGBA(15, 108, 189, 1)
+                HoverColor: =RGBA(255, 255, 255, 1)
+                HoverFill: =
+                OnSelect: =
+                PressedBorderColor: =RGBA(15, 108, 189, 1)
+                PressedColor: =RGBA(255, 255, 255, 1)
+                PressedFill: =RGBA(255, 255, 255, 1)
+                Size: =15
+                Text: =""
+                Width: =1434
+                X: =40
+                Y: =4
+                ZIndex: =1
+
+            CategorySettingButton_AICategory_AICM As icon.Settings:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                Color: =RGBA(52, 60, 63, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(220, 220, 220, 1)
+                DisabledFill: =RGBA(0, 0, 0, 0)
+                FocusedBorderThickness: =4
+                Height: =29
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                HoverFill: =RGBA(0, 0, 0, 0)
+                Icon: =Icon.Settings
+                OnSelect: |
+                    =UpdateContext({
+                        ShowCategorySettingModal: true,
+                        CategorySettingModalItem: ThisItem
+                    });
+                    ResetForm(Form_CategorySettingModal_CategoryMenu);
+                PaddingBottom: =5
+                PaddingTop: =3
+                PressedBorderColor: =RGBA(0, 0, 0, 0)
+                PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                Width: =29
+                X: =1386
+                Y: =23
+                ZIndex: =23
+
+            lbl_SubAICategory_LV2_AICM As label:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                OnSelect: =Select(Parent)
+                Size: =13
+                Text: =ThisItem.Category_LV2
+                X: =80
+                Y: =16
+                ZIndex: =24
+
+            lbl_SubAICategory_AnswerModel_AICM As label:
+                Align: =Align.Center
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =2
+                Color: =RGBA(51, 51, 51, 1)
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisabledColor: =RGBA(166, 166, 166, 1)
+                DisabledFill: =
+                DisplayMode: =DisplayMode.View
+                Fill: =RGBA(255, 59, 212, 0.41)
+                FocusedBorderThickness: =4
+                Font: =Font.'Segoe UI'
+                HoverFill: =
+                OnSelect: =Select(Parent)
+                Size: =12
+                Text: =ThisItem.AnswerModel
+                X: =504
+                Y: =16
+                ZIndex: =25
+
+        Image_DeleteMainList_AICategory_AICM As image:
+            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =If(Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email, DisplayMode.Edit,DisplayMode.Disabled)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =35
+            HoverBorderColor: =RGBA(224, 224, 224, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            Image: =Delete
+            OnSelect: |
+                =//ForAll(Sequence(CountRows(Filter(CategoryTable,OData__x004c_V1=ThisItem.Value))),Remove(CategoryTable,LookUp(CategoryTable,OData__x004c_V1=ThisItem.Value)))
+                Refresh(똑실이_문서);
+                
+                If(CountRows(Filter(똑실이_문서, "Shared Documents/"&ThisItem.Value&"/" in '폴더 경로' && 폴더= false ))
+                 > 0,
+                    Notify(
+                        "폴더에 파일이 존재합니다.",
+                        NotificationType.Error,
+                        0
+                    ),
+                    UpdateContext({delPopVi: true});
+                    UpdateContext({delType: "Main"});
+                    UpdateContext({delMainCate: ThisItem.Value});
+                    
+                )
+                //If(CountRows(Filter(똑실이_문서, '{Path}'= "Shared Documents/"&ThisItem.Category_LV1&"/"&ThisItem.Category_LV2&"/"))
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Transparency: =If(Image_DeleteMainList_AICategory_AICM.DisplayMode = DisplayMode.Disabled,0.5,0)
+            Width: =35
+            X: =1443
+            Y: =23
+            ZIndex: =4
+
+        Button_newCategory2_AICategory_AICM As button:
+            BorderColor: =RGBA(224, 224, 224, 1)
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: =RGBA(15, 108, 189, 1)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =If(ThisItem.IsSelected,46,0)
+            HoverBorderColor: =RGBA(15, 108, 189, 1)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =
+            OnSelect: |
+                =Collect(
+                    똑실이_Category_table,
+                    {
+                        제목: ".",
+                        Category_LV1: ThisItem.Value,
+                        Category_LV2: "",
+                        //ID: Last(똑실이_Category_table).ID + 1,
+                        DocumentLanguage:"ko",
+                        LV1Order: LookUp(
+                            똑실이_Category_table,
+                            Category_LV1 = ThisItem.Value
+                        ).LV1Order,
+                        LV2Order: Last(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = ThisItem.Value
+                            )
+                        ).LV2Order + 1
+                    }
+                );
+            PressedBorderColor: =RGBA(15, 108, 189, 1)
+            PressedColor: =RGBA(0, 0, 0, 1)
+            PressedFill: =
+            Size: =15
+            Text: ="새 카테고리 추가"
+            Visible: |-
+                =//Or(ThisItem.IsSelected,false)
+                //If(ThisItem.Value=testV,true,false)
+                false
+            Width: =1420
+            X: =45
+            Y: =If(ThisItem.IsSelected,Gallery_Sub_AICategory_AICM.Y + Gallery_Sub_AICategory_AICM.Height + 10, 0)
+            ZIndex: =5
+
+        Image_SubAddMainMenu2_AICategory_AICM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =24
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =PlusBlack
+            OnSelect: =Select(Button_newCategory2_AICategory_AICM)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =Button_newCategory2_AICategory_AICM.Visible
+            Width: =24
+            X: =636
+            Y: =Gallery_Sub_AICategory_AICM.Y + Gallery_Sub_AICategory_AICM.Height + 23
+            ZIndex: =6
+
+        Button_select_AICategory_AICM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =61
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Visible: |-
+                =If(
+                    ThisItem.Value = "새 메뉴" & LookUp(CategoryTable,Category_LV1=ThisItem.Value).ID,
+                    false,
+                    true
+                )
+            Width: =400
+            X: =53
+            ZIndex: =7
+
+        TextInput_Main_LV1_AICategory_AICM As text:
+            BorderColor: |-
+                =If( TextInput_Main_LV1_AICategory_AICM.Text ="",
+                ColorValue("#D1D1D1"),RGBA(0,0,0,0))
+            Color: =RGBA(51, 51, 51, 1)
+            Default: |+
+                =ThisItem.Value
+                
+                
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: |+
+                =DisplayMode.View
+                //If(ThisItem.Value="" || ThisItem.Value=Blank(), DisplayMode.Edit,DisplayMode.View)
+                /*
+                If(
+                    "새 메뉴" in ThisItem.Value  & LookUp(똑실이_Category_table,Category_LV1=ThisItem.Value).ID,
+                    DisplayMode.Edit,
+                    DisplayMode.View
+                )
+                */
+                
+            FocusedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            HintText: |-
+                =/*
+                If(
+                    "새 메뉴" in ThisItem.Value   & LookUp(똑실이_Category_table,Category_LV1=ThisItem.Value).ID,
+                    "새 메뉴",
+                    ThisItem.Value
+                )
+                */
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            OnChange: |+
+                =Set(CategoryVal3, Split(Self.Text, ""));
+                
+                If(
+                    CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,
+                    Notify(
+                        Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                        NotificationType.Error,
+                        5000
+                    ),
+                
+                ForAll(Sequence(CountRows(Filter(똑실이_Category_table, Category_LV1=ThisItem.Value))),Patch(똑실이_Category_table, LookUp(똑실이_Category_table, Category_LV1=ThisItem.Value), {Category_LV1:Self.Text}));
+                );
+                Set(CategoryVal3, Blank());
+                
+                
+                
+                
+            OnSelect: |-
+                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedColor: =RGBA(51, 51, 51, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Width: =400
+            X: =53
+            Y: =20
+            ZIndex: =8
+
+        Button_ShowSubgallery_AICategory_AICM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(0,0,0,0)
+            Fill: =RGBA(0,0,0,0)
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =38
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(0,0,0,0)
+            OnSelect: |-
+                =If(ThisItem.IsSelected && testV<>ThisItem.Value,UpdateContext({testV:ThisItem.Value}),UpdateContext({testV:""}));
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(0,0,0,0)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =15
+            Text: =""
+            Visible: =If(TextInput_Main_LV1_AICategory_AICM.DisplayMode = DisplayMode.View, true,false)
+            Width: =1374
+            X: =35
+            Y: =20
+            ZIndex: =9
+
