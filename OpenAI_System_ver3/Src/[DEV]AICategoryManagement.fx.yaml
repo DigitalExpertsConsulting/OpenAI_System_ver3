@@ -1,0 +1,397 @@
+"'[DEV]AICategoryManagement' As screen":
+    BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinner: =LoadingSpinner.Data
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |-
+        =Concurrent(
+        Set(AddPopUpBackground,false);,
+        UpdateContext({ AddPopUp:false });,
+        UpdateContext({lookUserVi:false});,
+        UpdateContext({AddTeamPopUpVi: false});,
+        UpdateContext({lookTeamVi:false});,
+        UpdateContext({testV:""}),
+        UpdateContext({AddMianCategory: false}),
+        UpdateContext({HisVi:false}),
+        Set(CategoryPopup, false);
+        );
+        
+        ClearCollect(
+            CategoryTable,
+            ShowColumns(
+                똑실이_Category_table,
+                "Title",
+                "Category_LV1",
+                "Category_LV2",
+                "LV1Order",
+                "LV2Order",
+                "Users",
+                "ID",
+                "History",
+                "Teams",
+                "FileCount",
+                "DocumentLanguage",
+                "Author"
+            )
+        );
+        Clear(delCate);
+        
+        ClearCollect(
+            Groups,
+            ForAll(
+                Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
+                {
+                    id: ThisRecord.Value.id,
+                    mail: Text(ThisRecord.Value.mail),
+                    displayName: Text(ThisRecord.Value.displayName),
+                    securityEnabled: Text(ThisRecord.Value.securityEnabled)
+                }
+            )
+        );
+
+    Component_Container_AICM As Component_Container:
+        Height: =870
+        Width: =1549
+        X: =348
+        Y: =198
+
+    Button_Refresh_CategoryMenu_AICM As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =Refresh(똑실이_Category_table);
+            
+            ClearCollect(
+                CategoryTable,
+                ShowColumns(
+                    똑실이_Category_table,
+                    "Title",
+                    "Category_LV1",
+                    "Category_LV2",
+                    "LV1Order",
+                    "LV2Order",
+                    "Users",
+                    "ID",
+                    "History",
+                    "Teams",
+                    "FileCount",
+                    "DocumentLanguage"
+                )
+            );
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="새로고침"
+        Width: =121
+        X: =1735
+        Y: =35
+        ZIndex: =3
+
+    Label_CategoryMenuTitle_CategoryMenu_AICM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: ="AI 카테고리 관리"
+        Width: =393
+        X: =343
+        Y: =23
+        ZIndex: =4
+
+    Button_CategoryMenuSAVEPatch_CategoryMenu_AICM As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |-
+            =ClearCollect(CategoryTable_Update,
+                ForAll(CategoryTable,
+                    {   Title:".",
+                        ID: If(ID in 똑실이_Category_table.ID, ThisRecord.ID, Blank()),
+                        History: ThisRecord.History,
+                        LV1Order:ThisRecord.LV1Order,
+                        LV2Order:ThisRecord.LV2Order,
+                        Category_LV1:Trim(ThisRecord.Category_LV1),
+                        Category_LV2:Trim(ThisRecord.Category_LV2),
+                        Users:ThisRecord.Users,
+                        Teams:ThisRecord.Teams,
+                        DocumentLanguage:ThisRecord.DocumentLanguage
+                        //Author:ThisRecord.Author
+                    }
+                )
+            );
+            
+            //Filter(CategoryTable,Not(ID in Category_table.ID), Patch(CategoryTable, Defaults(CategoryTable), {ID:Blank()}));
+            If(
+                CountRows(
+                    Filter(
+                        CategoryTable,
+                        Category_LV2 = "" || Category_LV2 = Blank()
+                    )
+                ) > 0,
+                Notify(
+                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
+                    NotificationType.Error,
+                    5000
+                ),
+                Patch(
+                    똑실이_Category_table,
+                    CategoryTable_Update
+                );
+                RemoveIf(똑실이_Category_table, ID in delCate.ID);
+                Notify(
+                    "저장하였습니다.",
+                    NotificationType.Success,
+                    5000
+                );
+            );
+            Clear(delCate);
+            ClearCollect(
+                CategoryTable,
+                ShowColumns(
+                    똑실이_Category_table,
+                    "Title",
+                    "Category_LV2",
+                    "Category_LV1",
+                    "LV1Order",
+                    "LV2Order",
+                    "Users",
+                    "ID",
+                    "History",
+                    "Teams",
+                    "DocumentLanguage",
+                    "Author"
+                )
+            );
+            //Patch(Category_table,CategoryTable)
+        PaddingLeft: =40
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        Size: =14
+        Text: ="Save"
+        Visible: =false
+        Width: =121
+        X: =1751
+        Y: =36
+        ZIndex: =5
+
+    Image_CategoryMenuSAVEPatch_CategoryMenu_AICM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =25
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =IconSave
+        OnSelect: =Select(Button_CategoryMenuSAVEPatch_CategoryMenu_AICM)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =false
+        Width: =25
+        X: =1774
+        Y: =44
+        ZIndex: =6
+
+    New_Component_GNB_CategoryMenu_AICM As New_Component_GNB:
+        ZIndex: =7
+
+    Image_Refresh_CategoryMenu_AICM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =20
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =TokenMenuRefresh
+        OnSelect: =Select(Button_Refresh_CategoryMenu_AICM)
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =20
+        X: =1752
+        Y: =46
+        ZIndex: =35
+
+    Component_Container_Search_AICM As Component_Container:
+        Height: =108
+        Width: =1549
+        X: =348
+        Y: =104
+        ZIndex: =76
+
+    Label_SearchCategory_AICM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =33
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Text: ="카테고리"
+        Width: =90
+        X: =403
+        Y: =142
+        ZIndex: =79
+
+    Dropdown_SearchCategoryLV1_AICM As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =DEFAULT_CATEGORY_VALUE
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =32
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =Distinct(
+                colCategory,
+                Category_LV1
+            )
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Width: =240
+        X: =493
+        Y: =142
+        ZIndex: =80
+
+    Dropdown_SearchCategoryLV2_AICM As dropdown:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        ChevronBackground: =RGBA(255, 255, 255, 1)
+        ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+        ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+        ChevronFill: =RGBA(33, 33, 33, 1)
+        ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+        ChevronHoverFill: =RGBA(33, 33, 33, 1)
+        Color: =RGBA(51, 51, 51, 1)
+        Default: =DEFAULT_CATEGORY_VALUE
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Font: =Font.'Segoe UI'
+        Height: =32
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverColor: =RGBA(51, 51, 51, 1)
+        HoverFill: =RGBA(212, 212, 212, 1)
+        Items: |-
+            =If(
+                Dropdown_SearchCategoryLV1_AICM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                Distinct(
+                    SortByColumns(
+                        colCategory,
+                        "LV2Order",
+                        SortOrder.Ascending
+                    ),
+                    Category_LV2
+                )
+                ,
+                Distinct(
+                    SortByColumns(
+                        Filter(
+                            colCategory,
+                            Dropdown_SearchCategoryLV1_AICM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                        ),
+                        "LV2Order",
+                        SortOrder.Ascending
+                    ),
+                    Category_LV2
+                )
+            )
+        PaddingBottom: =5
+        PaddingLeft: =12
+        PaddingRight: =5
+        PaddingTop: =5
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        SelectionFill: =RGBA(105, 121, 126, 1)
+        Size: =13
+        Width: =240
+        X: =776
+        Y: =142
+        ZIndex: =81
+
+    Label_SearchCategoryArrow_AICM As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 18, 107, 1)
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        Font: =Font.'Segoe UI'
+        Height: =47
+        PaddingLeft: =0
+        PaddingRight: =0
+        Text: =">"
+        Width: =43
+        X: =733
+        Y: =132
+        ZIndex: =82
+
