@@ -28,8 +28,56 @@
             UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
             Set(gblSelectedAgentFunctionItemID,0) // gblSelectedAgentFunctionItemID 변수 초기화
         );
+        // 3. 검색 핕터에 적용되는 Category 가져오기
+        
+        //Set(colAgentCategoryList, '똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category);
+        
+        ClearCollect(
+            colAgentCategoryList,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending
+                //,
+                //"Category_LV2",
+               // SortOrder.Ascending
+            )
+        );
+        
+        // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (빈칸만)
+        ClearCollect(
+            colAgentCategory,
+            Filter(
+                colAgentCategoryList,
+                CategoryType = Blank()
+            )
+        );
+         
+        
+        // 검색 필터에 적용되는 Category_LV2 가져오기
+        ClearCollect(
+            colAgentCategory_LV2,
+            First(colAgentCategory),
+            SortByColumns(
+                    LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
         
         
+        /*
         // 3. 할당된 권한 불러오기
         ClearCollect(
             colAgentManage,
@@ -54,6 +102,7 @@
                     SortOrder.Ascending
                 )
         );
+        */
         
         // 4. 기본 Type 컬렉션 설정
         ClearCollect(
@@ -62,7 +111,7 @@
             ForAll(
                 똑실이_AgentFunction_table​,
                 If(
-                    Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
+                    Category_LV1 exactin colAgentCategory.Category_LV1 && Category_LV2 exactin colAgentCategory.Category_LV2,
                     {
                         Category_LV1: Text(ThisRecord.Category_LV1),
                         Category_LV2: Text(ThisRecord.Category_LV2),
@@ -168,7 +217,7 @@
                             Search(
                                 Filter(
                                     똑실이_AgentFunction_table​,
-                                    ThisRecord.Category_LV1 in colAgentManage.Category_LV1 && ThisRecord.Category_LV2 in colAgentManage.Category_LV2
+                                    ThisRecord.Category_LV1 in colAgentCategory.Category_LV1 && ThisRecord.Category_LV2 in colAgentCategory.Category_LV2
                                 ),
                                 TextInput_GalleryFilter_Name_AFM.Text,
                                 "Name"
@@ -703,7 +752,7 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =Distinct(
-                    colAgentManage,
+                    colAgentCategory,
                     Category_LV1
                 )
                 /*Distinct(
@@ -716,10 +765,42 @@
                 )*/
             OnChange: |-
                 =//LV2를 뽑아오는 코드
+                /*
                 If(
                     Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
                     Select(Button_SelectLV1All_FM_4),
                     Select(Button_SelectLV1_FM_4)
+                );
+                */
+                // 검색 필터에 적용되는 Category_LV2 가져오기
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    //전체인 경우 모든 lv2 가져오기
+                    ClearCollect(
+                        colAgentCategory_LV2,
+                
+                        First(colAgentCategory), 
+                        
+                        SortByColumns(
+                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                                "Category_LV2",
+                                SortOrder.Ascending
+                            )
+                    );,
+                    //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
+                    ClearCollect(
+                    colAgentCategory_LV2,
+                
+                    First(colAgentCategory), //전체 - 전체
+                    
+                    SortByColumns(
+                        Filter(
+                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=Category_LV1),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        )
+                );
                 );
                 
                 
@@ -781,7 +862,7 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =Distinct(
-                    colAgentManage_LV2,
+                    colAgentCategory_LV2,//colAgentManage_LV2
                     Category_LV2
                 )
                 
