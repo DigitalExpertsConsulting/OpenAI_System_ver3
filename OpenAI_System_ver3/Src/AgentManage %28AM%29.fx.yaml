@@ -26,31 +26,56 @@
             Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
         );
         
-        // 3. 할당된 권한 불러오기
+        
+        
+        // 3. 검색 핕터에 적용되는 Category 가져오기
+        
+        //Set(colAgentCategoryList, '똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category);
+        
         ClearCollect(
-            colAgentManage,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE},
-            ForAll(
-                Table(ParseJSON('똑실이-[Apps]Agent사용자카테고리목록'.Run(User().Email).output_category)),
-                {
-                    Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                    Category_LV2: Text(ThisRecord.Value.Category_LV2)
-                }
+            colAgentCategoryList,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending
+                //,
+                //"Category_LV2",
+               // SortOrder.Ascending
             )
         );
         
-        
+        // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (빈칸만)
         ClearCollect(
-            colAgentManage_LV2,
+            colAgentCategory,
+            Filter(
+                colAgentCategoryList,
+                CategoryType = Blank()
+            )
+        );
+         
         
-            First(colAgentManage),
-            
+        // 검색 필터에 적용되는 Category_LV2 가져오기
+        ClearCollect(
+            colAgentCategory_LV2,
+            First(colAgentCategory),
             SortByColumns(
-                    LastN(colAgentManage,CountRows(colAgentManage)-1),
+                    LastN(colAgentCategory,CountRows(colAgentCategory)-1),
                     "Category_LV2",
                     SortOrder.Ascending
                 )
         );
+        
         
         // 4. 기본 Type 컬렉션 설정
         ClearCollect(
@@ -59,7 +84,7 @@
             ForAll(
                 똑실이_AgentFunction_table​,
                 If(
-                    Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
+                    Category_LV1 exactin colAgentCategory.Category_LV1 && Category_LV2 exactin colAgentCategory.Category_LV2,
                     {
                         Category_LV1: Text(ThisRecord.Category_LV1),
                         Category_LV2: Text(ThisRecord.Category_LV2),
@@ -188,7 +213,7 @@
         DisabledFill: =RGBA(244, 244, 244, 1)
         DisplayMode: |-
             =If(!IsBlank(gblRequestBody), DisplayMode.Edit, DisplayMode.Disabled)
-            //  gblRequestBody 변수가 비어있지 않을 때만 버튼 활성화
+            //gblRequestBody 변수가 비어있지 않을 때만 버튼 활성화
         Fill: |-
             =ColorValue("#0F6CBD")
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
@@ -261,6 +286,7 @@
         Size: =11
         Text: ="서버 업로드"
         Tooltip: ="버튼 클릭 시 서버 업로드가 진행됩니다"
+        Visible: =IsSuperAdmin
         Width: =120
         X: =1759
         Y: =45
@@ -469,7 +495,7 @@
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            DisplayMode: =If(!IsBlank(gblRequestBody),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화 
+            DisplayMode: =If(!IsBlank(gblRequestBody),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화
             Fill: |-
                 =ColorValue("#0F6CBD")
             FocusedBorderColor: |-
@@ -607,7 +633,7 @@
             PaddingRight: =10
             PaddingTop: =10
             Size: =13
-            Text: =gblRequestBody 
+            Text: =gblRequestBody
             Visible: =locServerUploadPopup
             Width: =823
             X: =609
@@ -623,6 +649,7 @@
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
+        Height: =45
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -651,8 +678,9 @@
         Text: |-
             ="Type:LV1(전체)/LV2(전체)"
         Visible: =false
-        X: =969
-        Y: =42
+        Width: =92
+        X: =762
+        Y: =38
         ZIndex: =50
 
     Button_SelectLV1LV2All_FM_3 As button:
@@ -664,6 +692,7 @@
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
+        Height: =37
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -697,8 +726,9 @@
         Text: |-
             ="Type:LV1(선택)/LV2(전체)"
         Visible: =false
-        X: =1175
-        Y: =42
+        Width: =84
+        X: =873
+        Y: =38
         ZIndex: =51
 
     Button_SelectLV1AllLV2_FM_3 As button:
@@ -710,6 +740,7 @@
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
+        Height: =48
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -740,8 +771,9 @@
         Text: |-
             ="Type:LV1(전체)/LV2(선택)"
         Visible: =false
-        X: =1370
-        Y: =42
+        Width: =89
+        X: =966
+        Y: =35
         ZIndex: =52
 
     Button_SelectLV1LV2_FM_3 As button:
@@ -753,6 +785,7 @@
         FocusedBorderColor: =ColorFade(Self.Fill, -75%)
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Semibold
+        Height: =42
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -782,8 +815,9 @@
         Text: |-
             ="Type:LV1(선택)/LV2(선택)"
         Visible: =false
-        X: =1380
-        Y: =112
+        Width: =91
+        X: =1071
+        Y: =42
         ZIndex: =53
 
     AgentManagement_AM As group:
@@ -1197,7 +1231,7 @@
                             Search(
                                 Filter(
                                     똑실이_AgentFunction_table​,
-                                    ThisRecord.Category_LV1 in colAgentManage.Category_LV1 && ThisRecord.Category_LV2 in colAgentManage.Category_LV2
+                                    ThisRecord.Category_LV1 exactin colAgentCategory.Category_LV1 && ThisRecord.Category_LV2 exactin colAgentCategory.Category_LV2
                                 ),
                                 TextInput_GalleryFilter_FunctionID_AM.Text,
                                 "Name"
@@ -1225,10 +1259,9 @@
                 )
             Layout: =Layout.Vertical
             LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
-            ShowScrollbar: =false
             TemplatePadding: =0
             TemplateSize: =60
-            Width: =1526
+            Width: =1515
             WrapCount: =0
             X: =354
             Y: =802
@@ -1273,13 +1306,12 @@
                 OnSelect: =Select(Parent)
                 Size: =13
                 Text: =ThisItem.Category_LV1 & "  >  " & ThisItem.Category_LV2
-                Width: =307
+                Width: =400
                 X: =655
                 Y: =10
                 ZIndex: =3
 
             Label_GalleryAgentFunction_Type_AM As label:
-                Align: =Align.Center
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -1292,7 +1324,7 @@
                 Size: =13
                 Text: =ThisItem.Type
                 Width: =205
-                X: =977
+                X: =1070
                 Y: =10
                 ZIndex: =5
 
@@ -1356,7 +1388,6 @@
             ZIndex: =5
 
         Label_GalleryHeader_Type_AM As label:
-            Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -1370,7 +1401,7 @@
             Size: =13
             Text: ="유형"
             Width: =109
-            X: =1370
+            X: =1422
             Y: =771
             ZIndex: =6
 
@@ -1515,7 +1546,7 @@
             ChevronHoverBackground: =RGBA(212, 212, 212, 1)
             ChevronHoverFill: =RGBA(33, 33, 33, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            Default: =DEFAULT_CATEGORY_VALUE
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1526,7 +1557,7 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |
                 =Distinct(
-                    colAgentManage,
+                    colAgentCategory,
                     Category_LV1
                 )
                 
@@ -1548,10 +1579,43 @@
                 */
             OnChange: |-
                 =//LV2를 뽑아오는 코드
+                /*
                 If(
                     Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value=DEFAULT_CATEGORY_VALUE,
                     Select(Button_SelectLV1All_FM_3),
                     Select(Button_SelectLV1_FM_3)
+                );
+                */
+                
+                // 검색 필터에 적용되는 Category_LV2 가져오기
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    //전체인 경우 모든 lv2 가져오기
+                    ClearCollect(
+                        colAgentCategory_LV2,
+                
+                        First(colAgentCategory), 
+                        
+                        SortByColumns(
+                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                                "Category_LV2",
+                                SortOrder.Ascending
+                            )
+                    );,
+                    //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
+                    ClearCollect(
+                    colAgentCategory_LV2,
+                
+                    First(colAgentCategory), //전체 - 전체
+                    
+                    SortByColumns(
+                        Filter(
+                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value=Category_LV1),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        )
+                );
                 );
                 
                 
@@ -1602,7 +1666,7 @@
             ChevronHoverBackground: =RGBA(212, 212, 212, 1)
             ChevronHoverFill: =RGBA(33, 33, 33, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            Default: =DEFAULT_CATEGORY_VALUE//DEFAULT_SELECT_CATEGORY_VALUE
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1613,7 +1677,7 @@
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
                 =Distinct(
-                    colAgentManage_LV2,
+                    colAgentCategory_LV2,
                     Category_LV2
                 )
                 
