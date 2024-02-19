@@ -4,58 +4,14 @@
         =ColorValue("#FAFAFA")
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |+
-        =Concurrent(
-        Set(AddPopUpBackground,false);,
-        UpdateContext({ AddPopUp:false });,
-        UpdateContext({lookUserVi:false});,
-        UpdateContext({AddTeamPopUpVi: false});,
-        UpdateContext({lookTeamVi:false});,
-        UpdateContext({testV:""}),
-        UpdateContext({AddMianCategory: false}),
-        UpdateContext({HisVi:false}),
-        Set(CategoryPopup, false);
-        );
+        =//0219 code+//
         
-        ClearCollect(
-            CategoryTable,
-            ShowColumns(
-                똑실이_Category_table,
-                "Title",
-                "Category_LV1",
-                "Category_LV2",
-                "LV1Order",
-                "LV2Order",
-                "Users",
-                "ID",
-                "History",
-                "Teams",
-                "FileCount",
-                "DocumentLanguage",
-                "Author"
-            )
-        );
-        Clear(delCate);
-        
-        ClearCollect(
-            Groups,
-            ForAll(
-                Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
-                {
-                    id: ThisRecord.Value.id,
-                    mail: Text(ThisRecord.Value.mail),
-                    displayName: Text(ThisRecord.Value.displayName),
-                    securityEnabled: Text(ThisRecord.Value.securityEnabled)
-                }
-            )
-        );
-        
-        
-        
-        //0219 code+//
-        
+        // colAICategory : AI 카테고리 조회 목록 가져오기
         ClearCollect(
             colAICategory,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
             SortByColumns(
+                Filter(
                 ForAll(
                     Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
                     {
@@ -71,11 +27,16 @@
         				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
         				
                     }
-                ),
+                ), 
+                CategoryType = "system" || IsBlank(CategoryType)),
                 "LV1Order",
+                SortOrder.Ascending,
+                "LV2Order",
                 SortOrder.Ascending
             )
         );
+        
+        Reset(Dropdown_SearchCategoryLV1_AICM);
         
 
     Button_Refresh_CategoryMenu_AICM As button:
@@ -99,24 +60,7 @@
             =ColorValue("#F5F5F5")
         OnSelect: |-
             =Refresh(똑실이_Category_table);
-            
-            ClearCollect(
-                CategoryTable,
-                ShowColumns(
-                    똑실이_Category_table,
-                    "Title",
-                    "Category_LV1",
-                    "Category_LV2",
-                    "LV1Order",
-                    "LV2Order",
-                    "Users",
-                    "ID",
-                    "History",
-                    "Teams",
-                    "FileCount",
-                    "DocumentLanguage"
-                )
-            );
+            Reset(Dropdown_SearchCategoryLV1_AICM);
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -150,115 +94,6 @@
         X: =343
         Y: =23
         ZIndex: =4
-
-    Button_CategoryMenuSAVEPatch_CategoryMenu_AICM As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |-
-            =ClearCollect(CategoryTable_Update,
-                ForAll(CategoryTable,
-                    {   Title:".",
-                        ID: If(ID in 똑실이_Category_table.ID, ThisRecord.ID, Blank()),
-                        History: ThisRecord.History,
-                        LV1Order:ThisRecord.LV1Order,
-                        LV2Order:ThisRecord.LV2Order,
-                        Category_LV1:Trim(ThisRecord.Category_LV1),
-                        Category_LV2:Trim(ThisRecord.Category_LV2),
-                        Users:ThisRecord.Users,
-                        Teams:ThisRecord.Teams,
-                        DocumentLanguage:ThisRecord.DocumentLanguage
-                        //Author:ThisRecord.Author
-                    }
-                )
-            );
-            
-            //Filter(CategoryTable,Not(ID in Category_table.ID), Patch(CategoryTable, Defaults(CategoryTable), {ID:Blank()}));
-            If(
-                CountRows(
-                    Filter(
-                        CategoryTable,
-                        Category_LV2 = "" || Category_LV2 = Blank()
-                    )
-                ) > 0,
-                Notify(
-                    "이름을 지정하지 않은 하위 메뉴가 있습니다.",
-                    NotificationType.Error,
-                    5000
-                ),
-                Patch(
-                    똑실이_Category_table,
-                    CategoryTable_Update
-                );
-                RemoveIf(똑실이_Category_table, ID in delCate.ID);
-                Notify(
-                    "저장하였습니다.",
-                    NotificationType.Success,
-                    5000
-                );
-            );
-            Clear(delCate);
-            ClearCollect(
-                CategoryTable,
-                ShowColumns(
-                    똑실이_Category_table,
-                    "Title",
-                    "Category_LV2",
-                    "Category_LV1",
-                    "LV1Order",
-                    "LV2Order",
-                    "Users",
-                    "ID",
-                    "History",
-                    "Teams",
-                    "DocumentLanguage",
-                    "Author"
-                )
-            );
-            //Patch(Category_table,CategoryTable)
-        PaddingLeft: =40
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        Size: =14
-        Text: ="Save"
-        Visible: =false
-        Width: =121
-        X: =1751
-        Y: =36
-        ZIndex: =5
-
-    Image_CategoryMenuSAVEPatch_CategoryMenu_AICM As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =25
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: =IconSave
-        OnSelect: =Select(Button_CategoryMenuSAVEPatch_CategoryMenu_AICM)
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =false
-        Width: =25
-        X: =1774
-        Y: =44
-        ZIndex: =6
 
     New_Component_GNB_CategoryMenu_AICM As New_Component_GNB:
         ZIndex: =7
@@ -330,13 +165,13 @@
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
             =Distinct(
-                    SortByColumns(
-                        colAICategory,
-                        "LV1Order",
-                        SortOrder.Ascending
-                    ),
-                    Category_LV1
-                )
+                SortByColumns(
+                    colAICategory,
+                    "LV1Order",
+                    SortOrder.Ascending
+                ),
+                Category_LV1
+            )
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -364,6 +199,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Dropdown_SearchCategoryLV1_AICM.Selected.Value = "전체", DisplayMode.Disabled, DisplayMode.Edit)
         Font: =Font.'Segoe UI'
         Height: =32
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -371,23 +207,25 @@
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
             =If(
-                Dropdown_SearchCategoryLV1_AICM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                Distinct(
-                    SortByColumns(
-                        colAICategory,
-                        "LV2Order",
-                        SortOrder.Ascending
-                    ),
-                    Category_LV2
-                )
-                ,
+                Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
                 Distinct(
                     SortByColumns(
                         Filter(
                             colAICategory,
-                            Dropdown_SearchCategoryLV1_AICM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                            Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV2
                         ),
-                        "LV2Order",
+                        "ID",
+                        SortOrder.Ascending
+                    ),
+                    Category_LV2
+                ),
+                Distinct(
+                    SortByColumns(
+                        Filter(
+                            colAICategory,
+                            Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV2
+                        ),
+                        "ID",
                         SortOrder.Ascending
                     ),
                     Category_LV2
@@ -427,22 +265,29 @@
         DelayItemLoading: =true
         Height: =843
         Items: |-
-            =//Sort(Distinct(Filter(똑실이_Category_table, CategoryType = "system"), Category_LV1),Value)
-            // CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
+            =// CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
             Distinct(
-                Filter(
                 Sort(
-                    colAICategory,
+                    Switch(
+                        Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, 
+                        "전체",
+                        Filter(
+                            colAICategory,
+                            !IsBlank(LV2Order)
+                        ),
+                       Filter(
+                            colAICategory,
+                            ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.SelectedText.Value
+                        )),
                     "LV1Order",
                     SortOrder.Ascending
-                ), 
-                CategoryType = "system" || IsBlank(CategoryType)
                 ),
                 Category_LV1
             )
         Layout: =Layout.Vertical
+        OnSelect: =
         ShowScrollbar: =false
-        TemplateSize: =417
+        TemplateSize: =418
         Width: =1469
         X: =387
         Y: =236
@@ -453,10 +298,19 @@
             DelayItemLoading: =true
             Height: =233
             Items: |-
-                =SortByColumns(
-                    Filter(
-                        colAICategory,
-                        Category_LV1 = ThisItem.Value
+                =// LV2 카테고리
+                SortByColumns(
+                    Switch(
+                        Dropdown_SearchCategoryLV2_AICM.SelectedText.Value,
+                        "전체",
+                        Filter(
+                            colAICategory,
+                            Category_LV1 = ThisItem.Value
+                        ),
+                        Filter(
+                            colAICategory,
+                            Category_LV2 = Dropdown_SearchCategoryLV2_AICM.SelectedText.Value
+                        )
                     ),
                     "LV2Order",
                     SortOrder.Ascending
@@ -929,7 +783,7 @@
                 Size: =13
                 Text: ="지원기능"
                 Visible: =If(lbl_TitleType_AICategory_AICM.Text = "AI Worker", true, false)
-                X: =1206
+                X: =1210
                 Y: =87
                 ZIndex: =9
 
@@ -949,7 +803,7 @@
                 Size: =13
                 Text: ="원본지원언어"
                 Visible: =If(lbl_TitleType_AICategory_AICM.Text <> "AI Worker", true, false)
-                X: =1215
+                X: =1210
                 Y: =87
                 ZIndex: =10
 
