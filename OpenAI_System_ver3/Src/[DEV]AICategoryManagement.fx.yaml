@@ -22,8 +22,9 @@
         
         ClearCollect(
             colAICategory,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
             SortByColumns(
+                Filter(
                 ForAll(
                     Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
                     {
@@ -39,7 +40,7 @@
         				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
         				
                     }
-                ),
+                ), CategoryType = "system" || IsBlank(CategoryType)),
                 "LV1Order",
                 SortOrder.Ascending,
                 "LV2Order",
@@ -303,10 +304,7 @@
         Items: |-
             =Distinct(
                 SortByColumns(
-                    Filter(
-                        colAICategory,
-                        CategoryType = "system" || IsBlank(CategoryType)
-                    ),
+                    colAICategory,
                     "LV1Order",
                     SortOrder.Ascending
                 ),
@@ -352,9 +350,9 @@
                     SortByColumns(
                         Filter(
                             colAICategory,
-                            CategoryType = "system" || IsBlank(CategoryType)
+                            CategoryType = "system" || IsBlank(CategoryType) || !IsBlank(LV2Order)
                         ),
-                        "LV2Order",
+                        "ID",
                         SortOrder.Ascending
                     ),
                     Category_LV2
@@ -365,7 +363,7 @@
                             colAICategory,
                             Dropdown_SearchCategoryLV1_AICM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
                         ),
-                        "LV2Order",
+                        "ID",
                         SortOrder.Ascending
                     ),
                     Category_LV2
@@ -405,20 +403,27 @@
         DelayItemLoading: =true
         Height: =843
         Items: |-
-            =//Sort(Distinct(Filter(똑실이_Category_table, CategoryType = "system"), Category_LV1),Value)
-            // CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
+            =// CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
             Distinct(
-                Filter(
                 Sort(
-                    colAICategory,
+                    Switch(
+                        Dropdown_SearchCategoryLV1_AICM.Selected.Value, 
+                        "전체",
+                        Filter(
+                            colAICategory,
+                            !IsBlank(LV2Order)
+                        ),
+                       Filter(
+                            colAICategory,
+                            ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.Selected.Value
+                        )),
                     "LV1Order",
                     SortOrder.Ascending
-                ), 
-                CategoryType = "system" || IsBlank(CategoryType) And !IsBlank(LV2Order)
                 ),
                 Category_LV1
             )
         Layout: =Layout.Vertical
+        OnSelect: =
         ShowScrollbar: =false
         TemplateSize: =418
         Width: =1469
@@ -432,9 +437,17 @@
             Height: =233
             Items: |-
                 =SortByColumns(
-                    Filter(
-                        colAICategory,
-                        Category_LV1 = ThisItem.Value
+                    Switch(
+                        Dropdown_SearchCategoryLV2_AICM.Selected.Value,
+                        "전체",
+                        Filter(
+                            colAICategory,
+                            Category_LV1 = ThisItem.Value
+                        ),
+                        Filter(
+                            colAICategory,
+                            ThisRecord.Category_LV2 = Dropdown_SearchCategoryLV2_AICM.Selected.Value
+                        )
                     ),
                     "LV2Order",
                     SortOrder.Ascending
