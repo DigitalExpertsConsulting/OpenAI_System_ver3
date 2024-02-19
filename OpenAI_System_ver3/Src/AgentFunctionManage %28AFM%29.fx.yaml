@@ -8,9 +8,129 @@
         //Agent 기능 관리 상세 화면에서 접속 시 onvisible 실행 안함
         If(gblStartPage="AgentFunctionManageDetail","",
         
+        //============================== << AgentManage 화면 접속 시 >> ==============================
+        
+        // 1. 로딩 이미지 활성화
+        Concurrent(   
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 활성
+            UpdateContext({locLoadingSpinnerBackground:true})
+        ); // 로딩 스피너 배경 이미지 활성 );
+        
+        // 2. 초기화
+        Concurrent(
+            Set(gblStartPage,"AgentMange"),
+            Refresh(똑실이_AgentFunction_table​),//DB REFRESH
+            UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
+            UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
+            Set(gblRequestBody,""), //Agent테이블Json변환 PA 출력값 변수 초기화
+            Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
+        );
         
         
         
+        // 3. 검색 핕터에 적용되는 Category 가져오기
+        
+        //Set(colAgentCategoryList, '똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category);
+        
+        ClearCollect(
+            colAgentCategoryList,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
+                    }
+                ),
+                "Category_LV1",
+                SortOrder.Ascending
+                //,
+                //"Category_LV2",
+               // SortOrder.Ascending
+            )
+        );
+        
+        // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (빈칸만)
+        ClearCollect(
+            colAgentCategory,
+            Filter(
+                colAgentCategoryList,
+                CategoryType = Blank()
+            )
+        );
+         
+        
+        // 검색 필터에 적용되는 Category_LV2 가져오기
+        ClearCollect(
+            colAgentCategory_LV2,
+            First(colAgentCategory),
+            SortByColumns(
+                    LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
+        
+        // 4. 기본 Type 컬렉션 설정
+        ClearCollect(
+            colAgentManageType,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+            ForAll(
+                똑실이_AgentFunction_table​,
+                If(
+                    Category_LV1 exactin colAgentCategory.Category_LV1 && Category_LV2 exactin colAgentCategory.Category_LV2,
+                    {
+                        Category_LV1: Text(ThisRecord.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Category_LV2),
+                        Type: Text(ThisRecord.Type)
+                    }        
+                )
+            )
+        );
+        
+        ClearCollect(
+            colAgentManageType_Type,
+        
+            First(colAgentManageType),
+            
+            SortByColumns(
+                    LastN(colAgentManageType,CountRows(colAgentManageType)-1),
+                    "Type",
+                    SortOrder.Ascending
+                )
+        );
+        
+        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
+        
+        Concurrent(
+        
+            Reset(TextInput_GalleryFilter_Name_AFM),  // 기능명 InputText 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_CategoryLV1_AFM),  // 카테고리lv1 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_CategoryLV2_AFM),  // 카테고리lv2 Dropbox 리셋(Agent 기능 필터)
+            Reset(Dropdown_GalleryFilter_Type_AFM),  // 유형 Dropbox 리셋(Agent 기능 필터)
+            Reset(Gallery_AgentFunction_AFM), // 겔러리 리셋
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성화
+            UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성화
+        );
+        );
+        
+        
+        
+        
+        
+        //============================== << 시작 페이지에 따라 onvisible 구분 >> ==============================
+        //Agent 기능 관리 상세 화면에서 접속 시 onvisible 실행 안함
+        /*If(gblStartPage="AgentFunctionManageDetail","",
+        
+        
+        
+        /*
         //============================== << Agent Function Manage 화면 최초 접속 시 >> ==============================
         // 1. 로딩 이미지 활성화
         Concurrent(
@@ -77,7 +197,7 @@
         );
         
         
-        /*
+        
         // 3. 할당된 권한 불러오기
         ClearCollect(
             colAgentManage,
@@ -102,7 +222,7 @@
                     SortOrder.Ascending
                 )
         );
-        */
+        
         
         // 4. 기본 Type 컬렉션 설정
         ClearCollect(
@@ -174,6 +294,7 @@
            
         );
         );
+        */
 
     Label_ScreenTitle_AFM As label:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -183,677 +304,18 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Bold
-        Height: =64
-        Size: =30
+        Height: =42
+        Size: =27
         Text: ="Agent 기능 관리"
-        Width: =691
+        Width: =600
         X: =329
         Y: =47
-        ZIndex: =2
-
-    Button_Refresh_AFM As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        Color: =RGBA(0, 0, 0, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: |-
-            =ColorValue("#C7C7C7")
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =/*ClearCollect(
-                colAgentManageType,
-                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
-                ForAll(
-                    똑실이_AgentFunction_table​,
-                    If(
-                        Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
-                        {
-                            Category_LV1: Text(ThisRecord.Category_LV1),
-                            Category_LV2: Text(ThisRecord.Category_LV2),
-                            Type: Text(ThisRecord.Type)
-                        }        
-                    )
-                )
-            );*/
-            
-            Concurrent(
-                Refresh(똑실이_Agent_table),
-                Refresh(똑실이_AgentFunction_table​),     //DB Refresh
-                Set(gblSelectedAgentFunctionItemID,0)    // gblSelectedAgentFunctionItemID 변수 초기화
-            );
-        PaddingLeft: =30
-        PressedBorderColor: |-
-            =ColorValue("#B3B3B3")
-        PressedColor: =Color.Black
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="새로고침"
-        Width: =121
-        X: =1746
-        Y: =47
-        ZIndex: =7
+        ZIndex: =1
 
     New_Component_GNB_AFM As New_Component_GNB:
-        ZIndex: =9
-
-    Image_Refresh_AFM As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =20
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: =TokenMenuRefresh
-        OnSelect: =Select(Button_Refresh_AFM)
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =20
-        X: =1763
-        Y: =58
-        ZIndex: =10
-
-    Icon_AddAgentFunction_AFM As icon.AddLibrary:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        Color: =RGBA(105, 121, 126, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(220, 220, 220, 1)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        Height: =28
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Icon: =Icon.AddLibrary
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =23
-        X: =1033
-        Y: =14
-        ZIndex: =21
-
-    Button_AddAgentFunction_AFM As button:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        BorderThickness: |
-            =1
-        Color: =RGBA(166, 166, 166, 1)
-        DisabledBorderColor: =RGBA(166, 166, 166, 1)
-        DisabledColor: |-
-            =ColorValue("#FFFFFF")
-        DisabledFill: |-
-            =ColorValue("#FFFFFF")
-        Fill: =RGBA(0, 0, 0, 0)
-        FocusedBorderColor: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =56
-        HoverBorderColor: =RGBA(128, 128, 128, 1)
-        HoverColor: =RGBA(128, 128, 128, 1)
-        HoverFill: =RGBA(166, 166, 166, 0.1)
-        OnSelect: |-
-            =Concurrent(
-                UpdateContext({locAgentFunctionAddPopup:true}),// Agent 기능 추가 팝업 활성화
-                UpdateContext({locPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
-            );
-        PressedBorderColor: =RGBA(74, 85, 88, 1)
-        PressedColor: =RGBA(74, 85, 88, 1)
-        PressedFill: =RGBA(166, 166, 166, 0.2)
-        Size: =15
-        Text: ="Agent 기능 추가"
-        Width: =1540
-        X: =380
-        ZIndex: =22
-
-    Background_Popup_AFM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        OnSelect: |-
-            =Distinct(
-                colAgentManage.Category_LV1,
-                Category_LV1
-            )
-        PressedFill: =
-        Visible: =locPopupBackground
-        Width: =1920
-        ZIndex: =24
-
-    Button_PopupAgentFunctionDelete_Cancel_AFM As button:
-        BorderColor: |-
-            =ColorValue("#D1D1D1")
-        BorderThickness: =1
-        Color: |-
-            =ColorValue("#242424")
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#FFFFFF")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        FocusedBorderThickness: =2
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =32
-        HoverBorderColor: |-
-            =ColorValue("#C7C7C7")
-        HoverColor: |-
-            =ColorValue("#242424")
-        HoverFill: |-
-            =ColorValue("#F5F5F5")
-        OnSelect: |-
-            =Concurrent(
-                UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
-                UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
-            );
-        PressedBorderColor: |-
-            =ColorValue("#B3B3B3")
-        PressedColor: |-
-            =ColorValue("#242424")
-        PressedFill: |-
-            =ColorValue("#E0E0E0")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="취소"
-        Visible: =locAgentFunctionDeletePopup
-        Width: =50
-        X: =1326
-        Y: =532
-        ZIndex: =26
-
-    GalleryFilter_AFM As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =27
-
-        Window_GalleryFilter_AFM As rectangle:
-            BorderColor: =RGBA(204, 204, 204, 1)
-            BorderStyle: =BorderStyle.None
-            DisabledFill: =RGBA(255, 255, 255, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FocusedBorderThickness: =4
-            Height: =67
-            HoverFill: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(255, 255, 255, 1)
-            Width: =1540
-            X: =327
-            Y: =129
-            ZIndex: =11
-
-        TextInput_GalleryFilter_Name_AFM As text:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(0, 0, 0, 1)
-            Default: =""
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =4
-            Height: =27
-            HintText: ="기능명을 입력하세요."
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =12
-            Tooltip: ="기능명을 입력해주세요"
-            Width: =297
-            X: =468
-            Y: =148
-            ZIndex: =12
-
-        Label_GalleryFilter_Name_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =28
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: ="기능명"
-            Width: =70
-            X: =388
-            Y: =148
-            ZIndex: =13
-
-        Label_GalleryFilter_Category_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =28
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: ="카테고리"
-            Width: =90
-            X: =813
-            Y: =148
-            ZIndex: =14
-
-        Dropdown_GalleryFilter_CategoryLV1_AFM As dropdown:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Font: =Font.'Segoe UI'
-            Height: =27
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =Distinct(
-                    colAgentCategory,
-                    Category_LV1
-                )
-                /*Distinct(
-                    SortByColumns(
-                    colAgentManage.Category_LV1,
-                    "Category_LV1",
-                    SortOrder.Ascending
-                    ),
-                    Category_LV1
-                )*/
-            OnChange: |-
-                =//LV2를 뽑아오는 코드
-                /*
-                If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
-                    Select(Button_SelectLV1All_FM_4),
-                    Select(Button_SelectLV1_FM_4)
-                );
-                */
-                // 검색 필터에 적용되는 Category_LV2 가져오기
-                If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
-                    //전체인 경우 모든 lv2 가져오기
-                    ClearCollect(
-                        colAgentCategory_LV2,
-                
-                        First(colAgentCategory), 
-                        
-                        SortByColumns(
-                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            )
-                    );,
-                    //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
-                    ClearCollect(
-                    colAgentCategory_LV2,
-                
-                    First(colAgentCategory), //전체 - 전체
-                    
-                    SortByColumns(
-                        Filter(
-                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
-                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=Category_LV1),
-                            "Category_LV2",
-                            SortOrder.Ascending
-                        )
-                );
-                );
-                
-                
-                //Type을 뽑아오는 코드
-                If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    // 둘다 전체 일때
-                    Select(Button_SelectLV1AllLV2All_FM_4),
-                   
-                
-                    // CategoryLv1만 선택됬을때
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                       Select(Button_SelectLV1LV2All_FM_4),
-                        // CategoryLv2만 선택됬을때
-                        If(
-                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                            Select(Button_SelectLV1AllLV2_FM_4),
-                            // CategoryLv1, CategoryLv2 선택됬을때
-                            Select(Button_SelectLV1LV2_FM_4)
-                       )
-                       
-                    )
-                )
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="카테고리 LV1을 선택해주세요"
-            Width: =240
-            X: =916
-            Y: |
-                =148
-            ZIndex: =15
-
-        Dropdown_GalleryFilter_CategoryLV2_AFM As dropdown:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Font: =Font.'Segoe UI'
-            Height: =27
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =Distinct(
-                    colAgentCategory_LV2,//colAgentManage_LV2
-                    Category_LV2
-                )
-                
-                /*If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    Distinct(
-                        SortByColumns(
-                        colAgentManage,
-                        "Category_LV2",
-                        SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    ),
-                    Distinct(
-                        SortByColumns(
-                        Filter(
-                            colAgentManage,
-                            Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
-                        ),
-                        "Category_LV2",
-                        SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    )
-                )*/
-            OnChange: |-
-                =//Type을 뽑아오는 코드
-                If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    // 둘다 전체 일때
-                    Select(Button_SelectLV1AllLV2All_FM_4),
-                   
-                
-                    // CategoryLv1만 선택됬을때
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                       Select(Button_SelectLV1LV2All_FM_4),
-                        // CategoryLv2만 선택됬을때
-                        If(
-                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                            Select(Button_SelectLV1AllLV2_FM_4),
-                            // CategoryLv1, CategoryLv2 선택됬을때
-                            Select(Button_SelectLV1LV2_FM_4)
-                       )
-                       
-                    )
-                )
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="카테고리 LV2을 선택해주세요"
-            Width: =240
-            X: =1213
-            Y: =148
-            ZIndex: =16
-
-        "'Label_GalleryFilter_>_AFM' As label":
-            Align: =Align.Center
-            BorderColor: =RGBA(0, 18, 107, 1)
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Font: =Font.'Segoe UI'
-            Height: =39
-            PaddingLeft: =0
-            PaddingRight: =0
-            Text: =">"
-            Width: =43
-            X: =1165
-            Y: =140
-            ZIndex: =17
-
-        Label_GalleryFilter_Type_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =28
-            Text: ="유형"
-            Width: =52
-            X: =1493
-            Y: =148
-            ZIndex: =18
-
-        Dropdown_GalleryFilter_Type_AFM As dropdown:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Font: =Font.'Segoe UI'
-            Height: =27
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =Distinct(
-                    colAgentManageType_Type,
-                    Type
-                )
-                
-                /*If(
-                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                    // 둘다 전체 일때
-                    Distinct(
-                        SortByColumns(
-                        colAgentManageType,
-                        "Type",
-                        SortOrder.Ascending),
-                        Type
-                    ),
-                    // CategoryLv1만 선택됬을때
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        Distinct(
-                            SortByColumns(
-                            Filter(
-                                colAgentManageType,
-                                Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
-                            ),
-                            "Type",
-                            SortOrder.Ascending
-                            ),
-                            Type
-                        ),
-                        // CategoryLv2만 선택됬을때
-                        Distinct(
-                            SortByColumns(
-                            Filter(
-                                colAgentManageType,
-                                Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value || Category_LV2 = DEFAULT_CATEGORY_VALUE
-                            ),
-                            "Type",
-                            SortOrder.Ascending
-                            ),
-                            Type
-                        )
-                    )
-                )*/
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="유형을 선택해주세요"
-            Width: =240
-            X: =1562
-            Y: =148
-            ZIndex: =19
-
-    Button_PopupAgentFunctionDelete_Delete_AFM As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: |-
-            =ColorValue("#0F6CBD")
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        Height: =32
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: |-
-            =ColorValue("#115EA3")
-        OnSelect: |
-            =RemoveIf(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID); // Agent 기능 삭제
-            
-            Refresh(똑실이_AgentFunction_table​); //DB Refresh
-            
-            Concurrent(
-                UpdateContext({locAgentFunctionDeletePopup:false}), // Agent 기능 삭제 팝업 비활성화
-                UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
-            );
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: |-
-            =ColorValue("#0C3B5E")
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Size: =11
-        Text: ="삭제"
-        Visible: =locAgentFunctionDeletePopup
-        Width: =50
-        X: =1268
-        Y: =532
-        ZIndex: =49
-
-    Background_LoadingSpinner_AFM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =locLoadingSpinnerBackground
-        Width: =1620
-        X: =300
-        ZIndex: =51
-
-    Image_LoadingSpinner_AFM As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =locLoadingSpinner
-        X: =957
-        Y: =454
-        ZIndex: =52
+        ZIndex: =3
 
     Button_SelectLV1All_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -892,7 +354,7 @@
         Visible: =false
         X: =694
         Y: =13
-        ZIndex: =53
+        ZIndex: =7
 
     Button_SelectLV1_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -908,13 +370,13 @@
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnSelect: |-
             =ClearCollect(
-                colAgentManage_LV2,
+                colAgentCategory_LV2,
             
-                First(colAgentManage),
+                First(colAgentCategory),
                 
                 SortByColumns(
                     Filter(
-                            LastN(colAgentManage,CountRows(colAgentManage)-1),
+                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
                             Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = Category_LV1
                         ),
                         "Category_LV2",
@@ -934,726 +396,7 @@
         Visible: =false
         X: =871
         Y: =12
-        ZIndex: =54
-
-    Popup_AgentFunction_Add_AFM As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =54
-
-        Window_PopupAgentFunctionAdd_AFM As button:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: |-
-                =ColorValue("#FFFFFF")
-            DisplayMode: =DisplayMode.View
-            Fill: |-
-                =ColorValue("#FFFFFF")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =687
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#FFFFFF")
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#FFFFFF")
-            RadiusBottomLeft: =8
-            RadiusBottomRight: =8
-            RadiusTopLeft: =8
-            RadiusTopRight: =8
-            Size: =15
-            Text: =""
-            Visible: =locAgentFunctionAddPopup
-            Width: =1052
-            X: =591
-            Y: =220
-            ZIndex: =30
-
-        Window_PopupAgentFunctionAdd_Item_AFM As button:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Color: =
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: =RGBA(0,0,0,0)
-            FocusedBorderColor: |-
-                =ColorValue("#D1D1D1")
-            FocusedBorderThickness: =1
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =491
-            HoverBorderColor: |-
-                =ColorValue("#D1D1D1")
-            HoverColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            PressedBorderColor: |-
-                =ColorValue("#D1D1D1")
-            PressedColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Size: =11
-            Text: =""
-            Visible: =locAgentFunctionAddPopup
-            Width: =929
-            X: =654
-            Y: =341
-            ZIndex: =31
-
-        Button_PopupAgentFunctionAdd_Cancel_AFM As button:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#242424")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#FFFFFF")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =35
-            HoverBorderColor: |-
-                =ColorValue("#C7C7C7")
-            HoverColor: |-
-                =ColorValue("#242424")
-            HoverFill: |-
-                =ColorValue("#F5F5F5")
-            OnSelect: |-
-                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
-                                
-                Concurrent(
-                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
-                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
-                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
-                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
-                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
-                );
-            PressedBorderColor: |-
-                =ColorValue("#B3B3B3")
-            PressedColor: |-
-                =ColorValue("#242424")
-            PressedFill: |-
-                =ColorValue("#E0E0E0")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =11
-            Text: ="취소"
-            Visible: =locAgentFunctionAddPopup
-            Width: =100
-            X: =1483
-            Y: =849
-            ZIndex: =32
-
-        Label_PopupAgentFunctionAdd_Title_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =57
-            Size: =16
-            Text: ="Agent 기능 추가"
-            Visible: =locAgentFunctionAddPopup
-            Width: =388
-            X: =649
-            Y: =271
-            ZIndex: =33
-
-        Label_PopupAgentFunctionAdd_Header_Category_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =30
-            Size: =10
-            Text: ="카테고리"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =680
-            Y: =357
-            ZIndex: =34
-
-        Image_PopupAgentFunctionAdd_Delete_AFM As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =51
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: =Exit
-            OnSelect: |-
-                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
-                                
-                Concurrent(
-                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
-                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
-                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
-                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
-                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
-                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
-                );
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =locAgentFunctionAddPopup
-            Width: =40
-            X: =1579
-            Y: =239
-            ZIndex: =35
-
-        Label_PopupAgentFunctionAdd_Header_Type_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =30
-            Size: =10
-            Text: ="기능유형"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =680
-            Y: =405
-            ZIndex: =36
-
-        Label_PopupAgentFunctionAdd_Header_FunctionID_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =33
-            Size: =10
-            Text: ="기능ID"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =1129
-            Y: =405
-            ZIndex: =37
-
-        Label_PopupAgentFunctionAdd_Header_Name_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =30
-            Size: =10
-            Text: ="기능명"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =680
-            Y: =453
-            ZIndex: =38
-
-        Label_PopupAgentFunctionAdd_Header_Description_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =30
-            Size: =10
-            Text: ="기능설명"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =680
-            Y: =498
-            ZIndex: =39
-
-        Label_PopupAgentFunctionAdd_Header_Config_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =30
-            Size: =10
-            Text: ="Schema"
-            Visible: =locAgentFunctionAddPopup
-            Width: =90
-            X: =680
-            Y: =590
-            ZIndex: =40
-
-        TextInput_PopupAgentFunctionAdd_Name_AFM As text:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Color: =RGBA(0, 0, 0, 1)
-            Default: =""
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Height: =30
-            HintText: ="기능명을 입력해주세요"
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =12
-            Tooltip: ="기능명을 입력해주세요"
-            Visible: =locAgentFunctionAddPopup
-            Width: =300
-            X: =790
-            Y: =453
-            ZIndex: =41
-
-        Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM As dropdown:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Font: =Font.'Segoe UI'
-            Height: =30
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =Distinct(
-                    colCategorySelect,
-                    Category_LV1
-                )
-            OnChange: =
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="카테고리 LV1을 선택해주세요"
-            Visible: =locAgentFunctionAddPopup
-            Width: =300
-            X: =790
-            Y: =357
-            ZIndex: =42
-
-        Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM As dropdown:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Font: =Font.'Segoe UI'
-            Height: =30
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =If(
-                    Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
-                    [DEFAULT_SELECT_CATEGORY_VALUE],
-                    Distinct(
-                        SortByColumns(
-                            Filter(
-                                colCategorySelect,
-                                Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
-                            ),
-                            "LV2Order",
-                            SortOrder.Ascending
-                        ),
-                        Category_LV2
-                    )
-                )
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="카테고리 LV2를 선택해주세요"
-            Visible: =locAgentFunctionAddPopup
-            Width: =300
-            X: =1234
-            Y: =357
-            ZIndex: =43
-
-        Dropdown__PopupAgentFunctionAdd_Type_AFM As dropdown:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            ChevronBackground: =RGBA(255, 255, 255, 1)
-            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-            ChevronFill: =RGBA(33, 33, 33, 1)
-            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-            ChevronHoverFill: =RGBA(33, 33, 33, 1)
-            Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Font: =Font.'Segoe UI'
-            Height: =30
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(51, 51, 51, 1)
-            HoverFill: =RGBA(212, 212, 212, 1)
-            Items: |-
-                =[DEFAULT_SELECT_CATEGORY_VALUE, "api_call", "const_text_data", "deny", "document_search", "system_instruction", 
-                ]
-            OnChange: =
-            PaddingBottom: =5
-            PaddingLeft: =12
-            PaddingRight: =5
-            PaddingTop: =5
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(105, 121, 126, 1)
-            SelectionFill: =RGBA(105, 121, 126, 1)
-            Size: =13
-            Tooltip: ="유형을 선택해주세요"
-            Visible: =locAgentFunctionAddPopup
-            Width: =300
-            X: =790
-            Y: =405
-            ZIndex: =44
-
-        "'Label_PopupAgentFunctionAdd__>_AFM' As label":
-            Align: =Align.Center
-            BorderColor: =RGBA(0, 18, 107, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =1.5
-            Font: =Font.'Segoe UI'
-            Height: =30
-            PaddingLeft: =0
-            PaddingRight: =0
-            Text: =">"
-            Visible: =locAgentFunctionAddPopup
-            Width: =43
-            X: =1125
-            Y: =357
-            ZIndex: =45
-
-        TextInput__PopupAgentFunctionAdd_FunctionID_AFM As text:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Color: =RGBA(0, 0, 0, 1)
-            Default: =""
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Height: =30
-            HintText: ="영어, 숫자, _ 만 입력가능합니다"
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =12
-            Tooltip: ="기능ID를 입력하세요."
-            Visible: =locAgentFunctionAddPopup
-            Width: =300
-            X: =1234
-            Y: =405
-            ZIndex: =46
-
-        TextInput_PopupAgentFunctionAdd_Description_AFM As text:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Color: =RGBA(0, 0, 0, 1)
-            Default: =""
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Height: =77
-            HintText: ="기능설명을 입력해주세요"
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            Mode: =TextMode.MultiLine
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =12
-            Tooltip: ="기능설명을 입력하세요."
-            Visible: =locAgentFunctionAddPopup
-            Width: =744
-            X: =790
-            Y: =498
-            ZIndex: =47
-
-        TextInput_PopupAgentFunctionAdd_Config_AFM As text:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            Color: =RGBA(0, 0, 0, 1)
-            Default: =""
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =1.5
-            Height: =223
-            HintText: ="Schema를 입력해주세요"
-            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(255, 255, 255, 1)
-            Mode: =TextMode.MultiLine
-            PressedBorderColor: =RGBA(105, 121, 126, 1)
-            PressedColor: =
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =12
-            Tooltip: ="Config 텍스트를 입력해주세요"
-            Visible: =locAgentFunctionAddPopup
-            Width: =744
-            X: =790
-            Y: =591
-            ZIndex: =48
-
-        Button_PopupAgentFunctionAdd_Add_AFM As button:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            BorderThickness: =1
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(244, 244, 244, 1)
-            Fill: |-
-                =ColorValue("#0F6CBD")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            FocusedBorderThickness: =2
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =35
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#115EA3")
-            OnSelect: |-
-                =// ========================= << Agent 기능 추가 >> =========================
-                
-                If(
-                    // 조건1: 모든 항목이 비어있지 않음
-                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value)&&
-                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value)&&
-                    !IsBlank(Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value)&&
-                    !IsBlank(TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text)&&
-                    !IsBlank(TextInput_PopupAgentFunctionAdd_Name_AFM.Text)&&
-                    !IsBlank(TextInput_PopupAgentFunctionAdd_Description_AFM.Text)&&
-                    !IsBlank(TextInput_PopupAgentFunctionAdd_Config_AFM.Text)&&
-                
-                    // 조건2: 드롭다운 컨트롤 값이 "----------(DEFAULT_SELECT_CATEGORY_VALUE)" 가 아님
-                    And(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE,
-                    Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE,
-                    Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE)&&
-                    
-                    // 조건3: 기능ID가 고유값인 경우
-                    CountRows(Filter(똑실이_AgentFunction_table​,Function_ID=TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text))<1 &&
-                
-                    // 조건4: 기능ID에 영어, 숫자, _ 만 있는지 확인
-                    IsMatch(TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text,"[a-zA-Z0-9_]*$")
-                    ,
-                    // 조건을 모두 만족할 경우
-                    Patch(똑실이_AgentFunction_table​, 
-                        {
-                        제목:"""""",
-                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                        Category_LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                        Type:Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value,
-                        Function_ID:TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text,
-                        Name:TextInput_PopupAgentFunctionAdd_Name_AFM.Text,
-                        Description:TextInput_PopupAgentFunctionAdd_Description_AFM.Text,
-                        Config:TextInput_PopupAgentFunctionAdd_Config_AFM.Text,
-                        //새로 추가한 열
-                        Category_LV1LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value & " > " & Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                        LV1LV2Order:Last(똑실이_AgentFunction_table​).LV1LV2Order + 1,
-                        NameOrder:If(!IsBlank(LookUp(똑실이_AgentFunction_table​,Category_LV1=Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.SelectedText.Value &&               
-                                    Category_LV2=Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.SelectedText.Value)),Last(똑실이_AgentFunction_table​).NameOrder+1,1)
-                        }
-                    );
-                    
-                    // 처음 등록한 Category_LV1 이거나 Category_LV2 인경우 컬렉션에 추가
-                    If(
-                        // Category_LV1이 처음 등록된 경우
-                        !(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value in colAgentManage.Category_LV1),
-                        Collect(
-                            colAgentManage,
-                            {
-                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                            }
-                        );
-                        Collect(
-                            colAgentManageType,
-                            {
-                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                            }
-                        ),
-                        If(
-                            // Category_LV2가 처음 등록된 경우
-                            !(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value in colAgentManage.Category_LV2),
-                            Collect(
-                                colAgentManage,
-                                {
-                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                                }
-                            );
-                            Collect(
-                                colAgentManageType,
-                                {
-                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                                }
-                            ),
-                            /*
-                                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
-                            */
-                            If(
-                                // Type만 새로 등록된 경우
-                                !(
-                                    {
-                                        Category_LV1: Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                                    } in colAgentManageType
-                                ),
-                                Collect(
-                                    colAgentManageType,
-                                    {
-                                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
-                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
-                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
-                                    }
-                                )
-                            )
-                        )   
-                    );
-                    
-                    // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
-                
-                    Concurrent(
-                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
-                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
-                        Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
-                        Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
-                        Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
-                        Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
-                        Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
-                        UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
-                        UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
-                    );
-                ,
-                
-                    // 조건을 모두 만족하지 않을 경우 안내 문구 출력
-                    Notify("기능 ID에 영어, 숫자, _ 이외의 문자가 있거나 중복되거나 입력하지 않은 항목이 존재합니다.",NotificationType.Error,5000)
-                    
-                );
-                
-                
-                Refresh(똑실이_AgentFunction_table​); //DB Refresh
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#0C3B5E")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Size: =11
-            Text: ="추가"
-            Tooltip: ="버튼 클릭 시 입력하신 Agent 기능이 추가됩니다"
-            Visible: =locAgentFunctionAddPopup
-            Width: =100
-            X: =1372
-            Y: =849
-            ZIndex: =50
+        ZIndex: =8
 
     Button_SelectLV1AllLV2All_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1694,110 +437,7 @@
         Visible: =false
         X: =1082
         Y: =12
-        ZIndex: =55
-
-    Popup_AgentFunction_Delete_AFM As group:
-        Height: =5
-        Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =55
-
-        Window_PopupAgentFunctionDelete_AFM As button:
-            BorderColor: |-
-                =ColorValue("#D1D1D1")
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: |-
-                =ColorValue("#FFFFFF")
-            DisplayMode: =DisplayMode.View
-            Fill: |-
-                =ColorValue("#FFFFFF")
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =160
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: |-
-                =ColorValue("#FFFFFF")
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: |-
-                =ColorValue("#FFFFFF")
-            RadiusBottomLeft: =8
-            RadiusBottomRight: =8
-            RadiusTopLeft: =8
-            RadiusTopRight: =8
-            Size: =15
-            Text: =""
-            Visible: =locAgentFunctionDeletePopup
-            Width: =600
-            X: =801
-            Y: =428
-            ZIndex: =25
-
-        Label_PopupAgentFunctionDelete_TitleText_AFM As label:
-            Align: =Align.Center
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =34
-            Size: =16
-            Text: ="삭제하시겠습니까?"
-            Visible: =locAgentFunctionDeletePopup
-            Width: =193
-            X: =818
-            Y: =449
-            ZIndex: =27
-
-        Label_PopupAgentFunctionDelete_SubTitleText_AFM As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Height: =24
-            Size: =10
-            Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
-            Visible: =locAgentFunctionDeletePopup
-            Width: =562
-            X: =820
-            Y: =490
-            ZIndex: =28
-
-        Image_PopupAgentFunctionDelete_Cancel_AFM As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =20
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: =Exit
-            OnSelect: |-
-                =Concurrent(
-                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
-                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
-                );
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =locAgentFunctionDeletePopup
-            Width: =20
-            X: =1358
-            Y: =452
-            ZIndex: =29
+        ZIndex: =9
 
     Button_SelectLV1LV2All_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1843,7 +483,7 @@
         Visible: =false
         X: =1288
         Y: =12
-        ZIndex: =56
+        ZIndex: =10
 
     Button_SelectLV1AllLV2_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1886,7 +526,7 @@
         Visible: =false
         X: =1483
         Y: =12
-        ZIndex: =57
+        ZIndex: =11
 
     Button_SelectLV1LV2_FM_4 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -1928,21 +568,25 @@
         Visible: =false
         X: =1493
         Y: =82
-        ZIndex: =58
+        ZIndex: =12
 
     conAgentFunctionManageList_AFM As groupContainer.manualLayoutContainer:
         BorderColor: =RGBA(0, 0, 0, 0)
-        DropShadow: =DropShadow.Light
+        DropShadow: =DropShadow.Semilight
         Fill: =RGBA(255, 255, 255, 1)
-        Height: =792
-        RadiusBottomLeft: =4
-        RadiusBottomRight: =4
-        RadiusTopLeft: =4
-        RadiusTopRight: =4
-        Width: =1514
+        Height: =820
+        PaddingBottom: =24
+        PaddingLeft: =32
+        PaddingRight: =32
+        PaddingTop: =24
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Width: =1540
         X: =340
-        Y: =239
-        ZIndex: =59
+        Y: =220
+        ZIndex: =13
 
         "Gallery_AgentFunction_AFM As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1957,27 +601,27 @@
                                     똑실이_AgentFunction_table​,
                                     ThisRecord.Category_LV1 exactin colAgentCategory.Category_LV1 && ThisRecord.Category_LV2 exactin colAgentCategory.Category_LV2
                                 ),
-                                TextInput_GalleryFilter_FunctionID_AM.Text,
+                                TextInput_GalleryFilter_Name_AFM.Text,
                                 "Name"
                             ),
                             If(//유형 드롭다운 필터
-                                Dropdown_GalleryFilter_Type_AM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
+                                Dropdown_GalleryFilter_Type_AFM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
                                 "",
-                                Dropdown_GalleryFilter_Type_AM.SelectedText.Value
+                                Dropdown_GalleryFilter_Type_AFM.SelectedText.Value
                             ),
                             "Type"
                         ),
                         If(// 카테고리 lv1 필터
-                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                             "",
-                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value
                         ),
                         "Category_LV1"
                     ),
                     If(
-                        Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                         "",
-                        Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value
+                        Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value
                     ),
                     "Category_LV2"
                 )
@@ -2176,406 +820,1573 @@
             Y: =40
             ZIndex: =6
 
-    Container3 As groupContainer.manualLayoutContainer:
-        DropShadow: =DropShadow.Light
+    conGalleryFilter_AFM As groupContainer.manualLayoutContainer:
+        DropShadow: =DropShadow.Semilight
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        PaddingBottom: =24
+        PaddingLeft: =32
+        PaddingRight: =32
+        PaddingTop: =24
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Width: =1540
+        X: =340
+        Y: =124
+        ZIndex: =14
+
+        TextInput_GalleryFilter_Name_AFM As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =4
+            Height: =32
+            HintText: ="기능명을 입력하세요."
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능명을 입력해주세요"
+            Width: =280
+            X: =Label_GalleryFilter_Name_AFM.X+Label_GalleryFilter_Name_AFM.Width+8
+            Y: =24
+            ZIndex: =2
+
+        Label_GalleryFilter_Name_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="기능명"
+            Width: =70
+            X: =32
+            Y: =24
+            ZIndex: =3
+
+        Label_GalleryFilter_Category_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: ="카테고리"
+            Width: =90
+            X: =TextInput_GalleryFilter_Name_AFM.X+TextInput_GalleryFilter_Name_AFM.Width+32
+            Y: =24
+            ZIndex: =4
+
+        Dropdown_GalleryFilter_CategoryLV1_AFM As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =Distinct(
+                    colAgentCategory,
+                    Category_LV1
+                )
+                
+                
+                
+                /*
+                Distinct(
+                    colAgentCategory,
+                    Category_LV1
+                )
+                Distinct(
+                    SortByColumns(
+                    colAgentManage.Category_LV1,
+                    "Category_LV1",
+                    SortOrder.Ascending
+                    ),
+                    Category_LV1
+                )*/
+            OnChange: |-
+                =// 검색 필터에 적용되는 Category_LV2 가져오기
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    //전체인 경우 모든 lv2 가져오기
+                    ClearCollect(
+                        colAgentCategory_LV2,
+                 
+                        First(colAgentCategory),
+                       
+                        SortByColumns(
+                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                                "Category_LV2",
+                                SortOrder.Ascending
+                            )
+                    );,
+                    //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
+                    ClearCollect(
+                    colAgentCategory_LV2,
+                 
+                    First(colAgentCategory), //전체 - 전체
+                   
+                    SortByColumns(
+                        Filter(
+                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=Category_LV1),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        )
+                );
+                );
+                 
+                
+                
+                //LV2를 뽑아오는 코드
+                /*
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    Select(Button_SelectLV1All_FM_4),
+                    Select(Button_SelectLV1_FM_4)
+                );
+                
+                // 검색 필터에 적용되는 Category_LV2 가져오기
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    //전체인 경우 모든 lv2 가져오기
+                    ClearCollect(
+                        colAgentCategory_LV2,
+                
+                        First(colAgentCategory), 
+                        
+                        SortByColumns(
+                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                                "Category_LV2",
+                                SortOrder.Ascending
+                            )
+                    );,
+                    //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
+                    ClearCollect(
+                    colAgentCategory_LV2,
+                
+                    First(colAgentCategory), //전체 - 전체
+                    
+                    SortByColumns(
+                        Filter(
+                            LastN(colAgentCategory,CountRows(colAgentCategory)-1),
+                            Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value=Category_LV1),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        )
+                );
+                );
+                */
+                
+                
+                //Type을 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Select(Button_SelectLV1AllLV2All_FM_4),
+                   
+                
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                       Select(Button_SelectLV1LV2All_FM_4),
+                        // CategoryLv2만 선택됬을때
+                        If(
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1AllLV2_FM_4),
+                            // CategoryLv1, CategoryLv2 선택됬을때
+                            Select(Button_SelectLV1LV2_FM_4)
+                       )
+                       
+                    )
+                )
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="카테고리 LV1을 선택해주세요"
+            Width: =240
+            X: =Label_GalleryFilter_Category_AFM.X+Label_GalleryFilter_Category_AFM.Width+8
+            Y: =24
+            ZIndex: =5
+
+        Dropdown_GalleryFilter_CategoryLV2_AFM As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =Distinct(
+                    colAgentCategory_LV2,
+                    Category_LV2
+                )
+                 
+                 
+                 /*Distinct(
+                    colAgentCategory_LV2,//colAgentManage_LV2
+                    Category_LV2
+                )*/
+                
+                /*If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    Distinct(
+                        SortByColumns(
+                        colAgentManage,
+                        "Category_LV2",
+                        SortOrder.Ascending
+                        ),
+                        Category_LV2
+                    ),
+                    Distinct(
+                        SortByColumns(
+                        Filter(
+                            colAgentManage,
+                            Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                        ),
+                        Category_LV2
+                    )
+                )*/
+            OnChange: |-
+                =//Type을 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Select(Button_SelectLV1AllLV2All_FM_4),
+                   
+                
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                       Select(Button_SelectLV1LV2All_FM_4),
+                        // CategoryLv2만 선택됬을때
+                        If(
+                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1AllLV2_FM_4),
+                            // CategoryLv1, CategoryLv2 선택됬을때
+                            Select(Button_SelectLV1LV2_FM_4)
+                       )
+                       
+                    )
+                );
+                Reset(Dropdown_GalleryFilter_Type_AFM);
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="카테고리 LV2을 선택해주세요"
+            Width: =240
+            X: =803
+            Y: =24
+            ZIndex: =6
+
+        "'Label_GalleryFilter_>_AFM' As label":
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            PaddingLeft: =0
+            PaddingRight: =0
+            Text: =">"
+            Width: =43
+            X: =760
+            Y: =24
+            ZIndex: =7
+
+        Label_GalleryFilter_Type_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            Text: ="유형"
+            Width: =52
+            X: =Dropdown_GalleryFilter_CategoryLV2_AFM.X+Dropdown_GalleryFilter_CategoryLV2_AFM.Width+32
+            Y: =24
+            ZIndex: =8
+
+        Dropdown_GalleryFilter_Type_AFM As dropdown:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Font: =Font.'Segoe UI'
+            Height: =32
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =Distinct(
+                    colAgentManageType_Type,
+                    Type
+                )
+                
+                /*If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Distinct(
+                        SortByColumns(
+                        colAgentManageType,
+                        "Type",
+                        SortOrder.Ascending),
+                        Type
+                    ),
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        Distinct(
+                            SortByColumns(
+                            Filter(
+                                colAgentManageType,
+                                Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            "Type",
+                            SortOrder.Ascending
+                            ),
+                            Type
+                        ),
+                        // CategoryLv2만 선택됬을때
+                        Distinct(
+                            SortByColumns(
+                            Filter(
+                                colAgentManageType,
+                                Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value || Category_LV2 = DEFAULT_CATEGORY_VALUE
+                            ),
+                            "Type",
+                            SortOrder.Ascending
+                            ),
+                            Type
+                        )
+                    )
+                )*/
+            OnChange: |-
+                =//Type을 뽑아오는 코드
+                If(
+                    Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                    // 둘다 전체 일때
+                    Select(Button_SelectLV1AllLV2All_FM_4),
+                   
+                
+                    // CategoryLv1만 선택됬을때
+                    If(
+                        Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                       Select(Button_SelectLV1LV2All_FM_4),
+                        // CategoryLv2만 선택됬을때
+                        If(
+                            Dropdown_GalleryFilter_CategoryLV1_AM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AM.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1AllLV2_FM_4),
+                            // CategoryLv1, CategoryLv2 선택됬을때    
+                            Select(Button_SelectLV1LV2_FM_4)
+                        )
+                       
+                    )
+                )
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="유형을 선택해주세요"
+            Width: =240
+            X: =Label_GalleryFilter_Type_AFM.X+Label_GalleryFilter_Type_AFM.Width+8
+            Y: =24
+            ZIndex: =9
+
+    Background_Popup_AFM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        OnSelect: |-
+            =Distinct(
+                colAgentManage.Category_LV1,
+                Category_LV1
+            )
+        PressedFill: =
+        Visible: =locPopupBackground
+        Width: =1920
+        ZIndex: =17
+
+    Button_PopupAgentFunctionDelete_Cancel_AFM As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: |-
+            =ColorValue("#242424")
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =32
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =Concurrent(
+                UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+            );
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: |-
+            =ColorValue("#242424")
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
         RadiusBottomLeft: =4
         RadiusBottomRight: =4
         RadiusTopLeft: =4
         RadiusTopRight: =4
-        Width: =1827
-        X: =46
-        Y: =233
-        ZIndex: =60
+        Size: =11
+        Text: ="취소"
+        Visible: =locAgentFunctionDeletePopup
+        Width: =50
+        X: =1326
+        Y: =532
+        ZIndex: =19
 
-        GalleryFilter_AFM_1 As group:
-            Height: =5
-            Width: =5
-            X: =-287
-            Y: =-89
-            ZIndex: =10
+    Button_PopupAgentFunctionDelete_Delete_AFM As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#0F6CBD")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =32
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#115EA3")
+        OnSelect: |
+            =RemoveIf(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID); // Agent 기능 삭제
+            
+            Refresh(똑실이_AgentFunction_table​); //DB Refresh
+            
+            Concurrent(
+                UpdateContext({locAgentFunctionDeletePopup:false}), // Agent 기능 삭제 팝업 비활성화
+                UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+            );
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#0C3B5E")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="삭제"
+        Visible: =locAgentFunctionDeletePopup
+        Width: =50
+        X: =1268
+        Y: =532
+        ZIndex: =42
 
-            Window_GalleryFilter_AFM_1 As rectangle:
-                BorderColor: =RGBA(204, 204, 204, 1)
-                BorderStyle: =BorderStyle.None
-                DisabledFill: =RGBA(255, 255, 255, 1)
-                Fill: =RGBA(255, 255, 255, 1)
-                FocusedBorderThickness: =4
-                Height: =67
-                HoverFill: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(255, 255, 255, 1)
-                Width: =1540
-                X: =40
-                Y: =40
-                ZIndex: =1
+    Background_LoadingSpinner_AFM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locLoadingSpinnerBackground
+        Width: =1620
+        X: =300
+        ZIndex: =44
 
-            TextInput_GalleryFilter_Name_AFM_1 As text:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                Color: =RGBA(0, 0, 0, 1)
-                Default: =""
-                DisabledBorderColor: =RGBA(166, 166, 166, 1)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                FocusedBorderThickness: =4
-                Height: =27
-                HintText: ="기능명을 입력하세요."
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(0, 0, 0, 1)
-                HoverFill: =RGBA(255, 255, 255, 1)
-                PressedBorderColor: =RGBA(105, 121, 126, 1)
-                PressedColor: =
-                RadiusBottomLeft: =0
-                RadiusBottomRight: =0
-                RadiusTopLeft: =0
-                RadiusTopRight: =0
-                Size: =12
-                Tooltip: ="기능명을 입력해주세요"
-                Width: =297
-                X: =181
-                Y: =59
-                ZIndex: =2
+    Image_LoadingSpinner_AFM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =957
+        Y: =454
+        ZIndex: =45
 
-            Label_GalleryFilter_Name_AFM_1 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =28
-                PaddingBottom: =0
-                PaddingLeft: =0
-                PaddingRight: =0
-                PaddingTop: =0
-                Text: ="기능명"
-                Width: =70
-                X: =101
-                Y: =59
-                ZIndex: =3
+    Group3 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =46
 
-            Label_GalleryFilter_Category_AFM_1 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =28
-                PaddingBottom: =0
-                PaddingLeft: =0
-                PaddingRight: =0
-                PaddingTop: =0
-                Text: ="카테고리"
-                Width: =90
-                X: =526
-                Y: =59
-                ZIndex: =4
-
-            Dropdown_GalleryFilter_CategoryLV1_AFM_1 As dropdown:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                BorderThickness: =1
-                ChevronBackground: =RGBA(255, 255, 255, 1)
-                ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-                ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-                ChevronFill: =RGBA(33, 33, 33, 1)
-                ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-                ChevronHoverFill: =RGBA(33, 33, 33, 1)
-                Color: =RGBA(51, 51, 51, 1)
-                Default: =DEFAULT_SELECT_CATEGORY_VALUE
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Font: =Font.'Segoe UI'
-                Height: =27
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(212, 212, 212, 1)
-                Items: |-
-                    =Distinct(
-                        colAgentCategory,
-                        Category_LV1
-                    )
-                    /*Distinct(
-                        SortByColumns(
-                        colAgentManage.Category_LV1,
-                        "Category_LV1",
-                        SortOrder.Ascending
-                        ),
-                        Category_LV1
-                    )*/
-                OnChange: |-
-                    =//LV2를 뽑아오는 코드
-                    /*
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value=DEFAULT_CATEGORY_VALUE,
-                        Select(Button_SelectLV1All_FM_4),
-                        Select(Button_SelectLV1_FM_4)
-                    );
-                    */
-                    // 검색 필터에 적용되는 Category_LV2 가져오기
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value=DEFAULT_CATEGORY_VALUE,
-                        //전체인 경우 모든 lv2 가져오기
-                        ClearCollect(
-                            colAgentCategory_LV2,
-                    
-                            First(colAgentCategory), 
-                            
-                            SortByColumns(
-                                    LastN(colAgentCategory,CountRows(colAgentCategory)-1),
-                                    "Category_LV2",
-                                    SortOrder.Ascending
-                                )
-                        );,
-                        //전체가 아닌경우, 해당하는 lv1에 속한 lv2만 가져오기
-                        ClearCollect(
-                        colAgentCategory_LV2,
-                    
-                        First(colAgentCategory), //전체 - 전체
-                        
-                        SortByColumns(
-                            Filter(
-                                LastN(colAgentCategory,CountRows(colAgentCategory)-1),
-                                Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value=Category_LV1),
-                                "Category_LV2",
-                                SortOrder.Ascending
-                            )
-                    );
-                    );
-                    
-                    
-                    //Type을 뽑아오는 코드
-                    If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // 둘다 전체 일때
-                        Select(Button_SelectLV1AllLV2All_FM_4),
-                       
-                    
-                        // CategoryLv1만 선택됬을때
+        Button_Refresh_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =/*ClearCollect(
+                    colAgentManageType,
+                    {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+                    ForAll(
+                        똑실이_AgentFunction_table​,
                         If(
-                            Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                           Select(Button_SelectLV1LV2All_FM_4),
-                            // CategoryLv2만 선택됬을때
-                            If(
-                                Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                                Select(Button_SelectLV1AllLV2_FM_4),
-                                // CategoryLv1, CategoryLv2 선택됬을때
-                                Select(Button_SelectLV1LV2_FM_4)
-                           )
-                           
+                            Category_LV1 exactin colAgentManage.Category_LV1 && Category_LV2 exactin colAgentManage.Category_LV2,
+                            {
+                                Category_LV1: Text(ThisRecord.Category_LV1),
+                                Category_LV2: Text(ThisRecord.Category_LV2),
+                                Type: Text(ThisRecord.Type)
+                            }        
                         )
                     )
-                PaddingBottom: =5
-                PaddingLeft: =12
-                PaddingRight: =5
-                PaddingTop: =5
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(105, 121, 126, 1)
-                SelectionFill: =RGBA(105, 121, 126, 1)
-                Size: =13
-                Tooltip: ="카테고리 LV1을 선택해주세요"
-                Width: =240
-                X: =629
-                Y: =59
-                ZIndex: =5
+                );*/
+                
+                Concurrent(
+                    Refresh(똑실이_Agent_table),
+                    Refresh(똑실이_AgentFunction_table​),     //DB Refresh
+                    Set(gblSelectedAgentFunctionItemID,0)    // gblSelectedAgentFunctionItemID 변수 초기화
+                );
+            PaddingLeft: =30
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: =Color.Black
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="새로고침"
+            Width: =121
+            X: =1759
+            Y: =48
+            ZIndex: =2
 
-            Dropdown_GalleryFilter_CategoryLV2_AFM_1 As dropdown:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                BorderThickness: =1
-                ChevronBackground: =RGBA(255, 255, 255, 1)
-                ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-                ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-                ChevronFill: =RGBA(33, 33, 33, 1)
-                ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-                ChevronHoverFill: =RGBA(33, 33, 33, 1)
-                Color: =RGBA(51, 51, 51, 1)
-                Default: =DEFAULT_SELECT_CATEGORY_VALUE
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Font: =Font.'Segoe UI'
-                Height: =27
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(212, 212, 212, 1)
-                Items: |-
-                    =Distinct(
-                        colAgentCategory_LV2,//colAgentManage_LV2
+        Image_Refresh_AFM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =TokenMenuRefresh
+            OnSelect: =Select(Button_Refresh_AFM)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =20
+            X: =1773
+            Y: =58
+            ZIndex: =4
+
+    Popup_AgentFunction_Add_AFM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =54
+
+        Window_PopupAgentFunctionAdd_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =687
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =locAgentFunctionAddPopup
+            Width: =1052
+            X: =591
+            Y: =220
+            ZIndex: =23
+
+        Window_PopupAgentFunctionAdd_Item_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: =
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0,0,0,0)
+            FocusedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            FocusedBorderThickness: =1
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =491
+            HoverBorderColor: |-
+                =ColorValue("#D1D1D1")
+            HoverColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedBorderColor: |-
+                =ColorValue("#D1D1D1")
+            PressedColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Size: =11
+            Text: =""
+            Visible: =locAgentFunctionAddPopup
+            Width: =929
+            X: =654
+            Y: =341
+            ZIndex: =24
+
+        Button_PopupAgentFunctionAdd_Cancel_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =35
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                                
+                Concurrent(
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =locAgentFunctionAddPopup
+            Width: =100
+            X: =1483
+            Y: =849
+            ZIndex: =25
+
+        Label_PopupAgentFunctionAdd_Title_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =57
+            Size: =16
+            Text: ="Agent 기능 추가"
+            Visible: =locAgentFunctionAddPopup
+            Width: =388
+            X: =649
+            Y: =271
+            ZIndex: =26
+
+        Label_PopupAgentFunctionAdd_Header_Category_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =30
+            Size: =10
+            Text: ="카테고리"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =680
+            Y: =357
+            ZIndex: =27
+
+        Image_PopupAgentFunctionAdd_Delete_AFM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =51
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =// ========================= <<컨트롤 리셋 및 비활성화>> =========================
+                                
+                Concurrent(
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                    Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                    Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                    Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                    Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                    UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locAgentFunctionAddPopup
+            Width: =40
+            X: =1579
+            Y: =239
+            ZIndex: =28
+
+        Label_PopupAgentFunctionAdd_Header_Type_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =30
+            Size: =10
+            Text: ="기능유형"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =680
+            Y: =405
+            ZIndex: =29
+
+        Label_PopupAgentFunctionAdd_Header_FunctionID_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =33
+            Size: =10
+            Text: ="기능ID"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =1129
+            Y: =405
+            ZIndex: =30
+
+        Label_PopupAgentFunctionAdd_Header_Name_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =30
+            Size: =10
+            Text: ="기능명"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =680
+            Y: =453
+            ZIndex: =31
+
+        Label_PopupAgentFunctionAdd_Header_Description_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =30
+            Size: =10
+            Text: ="기능설명"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =680
+            Y: =498
+            ZIndex: =32
+
+        Label_PopupAgentFunctionAdd_Header_Config_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =30
+            Size: =10
+            Text: ="Schema"
+            Visible: =locAgentFunctionAddPopup
+            Width: =90
+            X: =680
+            Y: =590
+            ZIndex: =33
+
+        TextInput_PopupAgentFunctionAdd_Name_AFM As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =30
+            HintText: ="기능명을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능명을 입력해주세요"
+            Visible: =locAgentFunctionAddPopup
+            Width: =300
+            X: =790
+            Y: =453
+            ZIndex: =34
+
+        Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM As dropdown:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Font: =Font.'Segoe UI'
+            Height: =30
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =Distinct(
+                    colCategorySelect,
+                    Category_LV1
+                )
+            OnChange: =
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="카테고리 LV1을 선택해주세요"
+            Visible: =locAgentFunctionAddPopup
+            Width: =300
+            X: =790
+            Y: =357
+            ZIndex: =35
+
+        Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM As dropdown:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Font: =Font.'Segoe UI'
+            Height: =30
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =If(
+                    Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
+                    [DEFAULT_SELECT_CATEGORY_VALUE],
+                    Distinct(
+                        SortByColumns(
+                            Filter(
+                                colCategorySelect,
+                                Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
+                            ),
+                            "LV2Order",
+                            SortOrder.Ascending
+                        ),
                         Category_LV2
                     )
+                )
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="카테고리 LV2를 선택해주세요"
+            Visible: =locAgentFunctionAddPopup
+            Width: =300
+            X: =1234
+            Y: =357
+            ZIndex: =36
+
+        Dropdown__PopupAgentFunctionAdd_Type_AFM As dropdown:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(33, 33, 33, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Color: =RGBA(51, 51, 51, 1)
+            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Font: =Font.'Segoe UI'
+            Height: =30
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: |-
+                =[DEFAULT_SELECT_CATEGORY_VALUE, "api_call", "const_text_data", "deny", "document_search", "system_instruction", 
+                ]
+            OnChange: =
+            PaddingBottom: =5
+            PaddingLeft: =12
+            PaddingRight: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(105, 121, 126, 1)
+            SelectionFill: =RGBA(105, 121, 126, 1)
+            Size: =13
+            Tooltip: ="유형을 선택해주세요"
+            Visible: =locAgentFunctionAddPopup
+            Width: =300
+            X: =790
+            Y: =405
+            ZIndex: =37
+
+        "'Label_PopupAgentFunctionAdd__>_AFM' As label":
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 18, 107, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =1.5
+            Font: =Font.'Segoe UI'
+            Height: =30
+            PaddingLeft: =0
+            PaddingRight: =0
+            Text: =">"
+            Visible: =locAgentFunctionAddPopup
+            Width: =43
+            X: =1125
+            Y: =357
+            ZIndex: =38
+
+        TextInput__PopupAgentFunctionAdd_FunctionID_AFM As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =30
+            HintText: ="영어, 숫자, _ 만 입력가능합니다"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능ID를 입력하세요."
+            Visible: =locAgentFunctionAddPopup
+            Width: =300
+            X: =1234
+            Y: =405
+            ZIndex: =39
+
+        TextInput_PopupAgentFunctionAdd_Description_AFM As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =77
+            HintText: ="기능설명을 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="기능설명을 입력하세요."
+            Visible: =locAgentFunctionAddPopup
+            Width: =744
+            X: =790
+            Y: =498
+            ZIndex: =40
+
+        TextInput_PopupAgentFunctionAdd_Config_AFM As text:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            Color: =RGBA(0, 0, 0, 1)
+            Default: =""
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            FocusedBorderThickness: =1.5
+            Height: =223
+            HintText: ="Schema를 입력해주세요"
+            HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverColor: =RGBA(0, 0, 0, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            Mode: =TextMode.MultiLine
+            PressedBorderColor: =RGBA(105, 121, 126, 1)
+            PressedColor: =
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =12
+            Tooltip: ="Config 텍스트를 입력해주세요"
+            Visible: =locAgentFunctionAddPopup
+            Width: =744
+            X: =790
+            Y: =591
+            ZIndex: =41
+
+        Button_PopupAgentFunctionAdd_Add_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =35
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =// ========================= << Agent 기능 추가 >> =========================
+                
+                If(
+                    // 조건1: 모든 항목이 비어있지 않음
+                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value)&&
+                    !IsBlank(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value)&&
+                    !IsBlank(Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value)&&
+                    !IsBlank(TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Name_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Description_AFM.Text)&&
+                    !IsBlank(TextInput_PopupAgentFunctionAdd_Config_AFM.Text)&&
+                
+                    // 조건2: 드롭다운 컨트롤 값이 "----------(DEFAULT_SELECT_CATEGORY_VALUE)" 가 아님
+                    And(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE,
+                    Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE,
+                    Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value<>DEFAULT_SELECT_CATEGORY_VALUE)&&
                     
-                    /*If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        Distinct(
-                            SortByColumns(
-                            colAgentManage,
-                            "Category_LV2",
-                            SortOrder.Ascending
-                            ),
-                            Category_LV2
-                        ),
-                        Distinct(
-                            SortByColumns(
-                            Filter(
-                                colAgentManage,
-                                Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
-                            ),
-                            "Category_LV2",
-                            SortOrder.Ascending
-                            ),
-                            Category_LV2
-                        )
-                    )*/
-                OnChange: |-
-                    =//Type을 뽑아오는 코드
+                    // 조건3: 기능ID가 고유값인 경우
+                    CountRows(Filter(똑실이_AgentFunction_table​,Function_ID=TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text))<1 &&
+                
+                    // 조건4: 기능ID에 영어, 숫자, _ 만 있는지 확인
+                    IsMatch(TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text,"[a-zA-Z0-9_]*$")
+                    ,
+                    // 조건을 모두 만족할 경우
+                    Patch(똑실이_AgentFunction_table​, 
+                        {
+                        제목:"""""",
+                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                        Category_LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                        Type:Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value,
+                        Function_ID:TextInput__PopupAgentFunctionAdd_FunctionID_AFM.Text,
+                        Name:TextInput_PopupAgentFunctionAdd_Name_AFM.Text,
+                        Description:TextInput_PopupAgentFunctionAdd_Description_AFM.Text,
+                        Config:TextInput_PopupAgentFunctionAdd_Config_AFM.Text,
+                        //새로 추가한 열
+                        Category_LV1LV2:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value & " > " & Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                        LV1LV2Order:Last(똑실이_AgentFunction_table​).LV1LV2Order + 1,
+                        NameOrder:If(!IsBlank(LookUp(똑실이_AgentFunction_table​,Category_LV1=Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.SelectedText.Value &&               
+                                    Category_LV2=Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.SelectedText.Value)),Last(똑실이_AgentFunction_table​).NameOrder+1,1)
+                        }
+                    );
+                    
+                    // 처음 등록한 Category_LV1 이거나 Category_LV2 인경우 컬렉션에 추가
                     If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // 둘다 전체 일때
-                        Select(Button_SelectLV1AllLV2All_FM_4),
-                       
-                    
-                        // CategoryLv1만 선택됬을때
-                        If(
-                            Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                           Select(Button_SelectLV1LV2All_FM_4),
-                            // CategoryLv2만 선택됬을때
-                            If(
-                                Dropdown_GalleryFilter_CategoryLV1_AFM_1.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM_1.Selected.Value <> DEFAULT_CATEGORY_VALUE,
-                                Select(Button_SelectLV1AllLV2_FM_4),
-                                // CategoryLv1, CategoryLv2 선택됬을때
-                                Select(Button_SelectLV1LV2_FM_4)
-                           )
-                           
-                        )
-                    )
-                PaddingBottom: =5
-                PaddingLeft: =12
-                PaddingRight: =5
-                PaddingTop: =5
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(105, 121, 126, 1)
-                SelectionFill: =RGBA(105, 121, 126, 1)
-                Size: =13
-                Tooltip: ="카테고리 LV2을 선택해주세요"
-                Width: =240
-                X: =926
-                Y: =59
-                ZIndex: =6
-
-            "'Label_GalleryFilter_>_AFM_1' As label":
-                Align: =Align.Center
-                BorderColor: =RGBA(0, 18, 107, 1)
-                Color: =RGBA(0, 0, 0, 1)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                Font: =Font.'Segoe UI'
-                Height: =39
-                PaddingLeft: =0
-                PaddingRight: =0
-                Text: =">"
-                Width: =43
-                X: =878
-                Y: =51
-                ZIndex: =7
-
-            Label_GalleryFilter_Type_AFM_1 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =28
-                Text: ="유형"
-                Width: =52
-                X: =1206
-                Y: =59
-                ZIndex: =8
-
-            Dropdown_GalleryFilter_Type_AFM_1 As dropdown:
-                BorderColor: =RGBA(166, 166, 166, 1)
-                BorderThickness: =1
-                ChevronBackground: =RGBA(255, 255, 255, 1)
-                ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-                ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-                ChevronFill: =RGBA(33, 33, 33, 1)
-                ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-                ChevronHoverFill: =RGBA(33, 33, 33, 1)
-                Color: =RGBA(51, 51, 51, 1)
-                Default: =DEFAULT_SELECT_CATEGORY_VALUE
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Font: =Font.'Segoe UI'
-                Height: =27
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(212, 212, 212, 1)
-                Items: |-
-                    =Distinct(
-                        colAgentManageType_Type,
-                        Type
-                    )
-                    
-                    /*If(
-                        Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                        // 둘다 전체 일때
-                        Distinct(
-                            SortByColumns(
+                        // Category_LV1이 처음 등록된 경우
+                        !(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value in colAgentManage.Category_LV1),
+                        Collect(
+                            colAgentManage,
+                            {
+                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                            }
+                        );
+                        Collect(
                             colAgentManageType,
-                            "Type",
-                            SortOrder.Ascending),
-                            Type
+                            {
+                                Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                            }
                         ),
-                        // CategoryLv1만 선택됬을때
                         If(
-                            Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value = DEFAULT_CATEGORY_VALUE,
-                            Distinct(
-                                SortByColumns(
-                                Filter(
-                                    colAgentManageType,
-                                    Category_LV1 = Dropdown_GalleryFilter_CategoryLV1_AFM.Selected.Value || Category_LV1 = DEFAULT_CATEGORY_VALUE
-                                ),
-                                "Type",
-                                SortOrder.Ascending
-                                ),
-                                Type
+                            // Category_LV2가 처음 등록된 경우
+                            !(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value in colAgentManage.Category_LV2),
+                            Collect(
+                                colAgentManage,
+                                {
+                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                }
+                            );
+                            Collect(
+                                colAgentManageType,
+                                {
+                                    Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                    Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                    Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                }
                             ),
-                            // CategoryLv2만 선택됬을때
-                            Distinct(
-                                SortByColumns(
-                                Filter(
+                            /*
+                                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
+                            */
+                            If(
+                                // Type만 새로 등록된 경우
+                                !(
+                                    {
+                                        Category_LV1: Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                    } in colAgentManageType
+                                ),
+                                Collect(
                                     colAgentManageType,
-                                    Category_LV2 = Dropdown_GalleryFilter_CategoryLV2_AFM.Selected.Value || Category_LV2 = DEFAULT_CATEGORY_VALUE
-                                ),
-                                "Type",
-                                SortOrder.Ascending
-                                ),
-                                Type
+                                    {
+                                        Category_LV1:Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM.Selected.Value,
+                                        Category_LV2: Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM.Selected.Value,
+                                        Type: Dropdown__PopupAgentFunctionAdd_Type_AFM.Selected.Value
+                                    }
+                                )
                             )
-                        )
-                    )*/
-                PaddingBottom: =5
-                PaddingLeft: =12
-                PaddingRight: =5
-                PaddingTop: =5
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(105, 121, 126, 1)
-                SelectionFill: =RGBA(105, 121, 126, 1)
-                Size: =13
-                Tooltip: ="유형을 선택해주세요"
-                Width: =240
-                X: =1275
-                Y: =59
-                ZIndex: =9
+                        )   
+                    );
+                    
+                    // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
+                
+                    Concurrent(
+                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV1_AFM);, // Agent 기능 추가 입력 컨트롤 리셋
+                        Reset(Dropdown_PopupAgentFunctionAdd_CategoryLV2_AFM);,
+                        Reset(Dropdown__PopupAgentFunctionAdd_Type_AFM);,
+                        Reset(TextInput__PopupAgentFunctionAdd_FunctionID_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Name_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Description_AFM);,
+                        Reset(TextInput_PopupAgentFunctionAdd_Config_AFM);,
+                        UpdateContext({locAgentFunctionAddPopup:false}),// Agent 기능 추가 팝업 비활성화
+                        UpdateContext({locPopupBackground:false})// Agent 기능 추가 팝업 배경 이미지 비활성화
+                    );
+                ,
+                
+                    // 조건을 모두 만족하지 않을 경우 안내 문구 출력
+                    Notify("기능 ID에 영어, 숫자, _ 이외의 문자가 있거나 중복되거나 입력하지 않은 항목이 존재합니다.",NotificationType.Error,5000)
+                    
+                );
+                
+                
+                Refresh(똑실이_AgentFunction_table​); //DB Refresh
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="추가"
+            Tooltip: ="버튼 클릭 시 입력하신 Agent 기능이 추가됩니다"
+            Visible: =locAgentFunctionAddPopup
+            Width: =100
+            X: =1372
+            Y: =849
+            ZIndex: =43
+
+    Popup_AgentFunction_Delete_AFM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =55
+
+        Window_PopupAgentFunctionDelete_AFM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =160
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =locAgentFunctionDeletePopup
+            Width: =600
+            X: =801
+            Y: =428
+            ZIndex: =18
+
+        Label_PopupAgentFunctionDelete_TitleText_AFM As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =34
+            Size: =16
+            Text: ="삭제하시겠습니까?"
+            Visible: =locAgentFunctionDeletePopup
+            Width: =193
+            X: =818
+            Y: =449
+            ZIndex: =20
+
+        Label_PopupAgentFunctionDelete_SubTitleText_AFM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =10
+            Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
+            Visible: =locAgentFunctionDeletePopup
+            Width: =562
+            X: =820
+            Y: =490
+            ZIndex: =21
+
+        Image_PopupAgentFunctionDelete_Cancel_AFM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+                    UpdateContext({locPopupBackground:false})// 팝업 배경 이미지 비활성화
+                );
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locAgentFunctionDeletePopup
+            Width: =20
+            X: =1358
+            Y: =452
+            ZIndex: =22
+
+    grpAddAgentFuction_AFM As group:
+        Height: =5
+        Width: =5
+        X: =-30
+        Y: =40
+        ZIndex: =63
+
+        Button_AddButton_FM_3 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentFunctionAddPopup:true}),// Agent 기능 추가 팝업 활성화
+                    UpdateContext({locPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
+                );
+            PaddingLeft: =20
+            PaddingRight: =6
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="기능추가"
+            Width: =111
+            X: =conGalleryFilter_AFM.X+conGalleryFilter_AFM.Width-Self.Width-32
+            Y: =148
+            ZIndex: =15
+
+        Image_AddFile_FM_3 As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =plus
+            OnSelect: |-
+                =Concurrent(
+                    UpdateContext({locAgentFunctionAddPopup:true}),// Agent 기능 추가 팝업 활성화
+                    UpdateContext({locPopupBackground:true})// Agent 기능 추가 팝업 배경 이미지 활성화
+                );
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =20
+            X: =1746
+            Y: =154
+            ZIndex: =16
 
