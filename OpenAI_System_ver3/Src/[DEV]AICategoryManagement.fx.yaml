@@ -2,7 +2,6 @@
     BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     Fill: |-
         =ColorValue("#FAFAFA")
-    LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |+
         =Concurrent(
@@ -17,45 +16,13 @@
         Set(CategoryPopup, false);
         );
         
-        ClearCollect(
-            CategoryTable,
-            ShowColumns(
-                똑실이_Category_table,
-                "Title",
-                "Category_LV1",
-                "Category_LV2",
-                "LV1Order",
-                "LV2Order",
-                "Users",
-                "ID",
-                "History",
-                "Teams",
-                "FileCount",
-                "DocumentLanguage",
-                "Author"
-            )
-        );
-        Clear(delCate);
-        
-        ClearCollect(
-            Groups,
-            ForAll(
-                Table(ParseJSON('똑실이-[Apps]오피스365그룹검색'.Run("").output)),
-                {
-                    id: ThisRecord.Value.id,
-                    mail: Text(ThisRecord.Value.mail),
-                    displayName: Text(ThisRecord.Value.displayName),
-                    securityEnabled: Text(ThisRecord.Value.securityEnabled)
-                }
-            )
-        );
-        
         
         
         //0219 code+//
         
         ClearCollect(
             colAICategory,
+            {Category_LV1: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
             SortByColumns(
                 ForAll(
                     Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
@@ -74,9 +41,13 @@
                     }
                 ),
                 "LV1Order",
+                SortOrder.Ascending,
+                "LV2Order",
                 SortOrder.Ascending
             )
         );
+        
+        Reset(Dropdown_SearchCategoryLV1_AICM);
         
 
     Button_Refresh_CategoryMenu_AICM As button:
@@ -331,13 +302,16 @@
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
             =Distinct(
-                    SortByColumns(
+                SortByColumns(
+                    Filter(
                         colAICategory,
-                        "LV1Order",
-                        SortOrder.Ascending
+                        CategoryType = "system" || IsBlank(CategoryType)
                     ),
-                    Category_LV1
-                )
+                    "LV1Order",
+                    SortOrder.Ascending
+                ),
+                Category_LV1
+            )
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -365,6 +339,7 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Dropdown_SearchCategoryLV1_AICM.Selected.Value = "전체", DisplayMode.Disabled, DisplayMode.Edit)
         Font: =Font.'Segoe UI'
         Height: =32
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -375,13 +350,15 @@
                 Dropdown_SearchCategoryLV1_AICM.Selected.Value = DEFAULT_CATEGORY_VALUE,
                 Distinct(
                     SortByColumns(
-                        colAICategory,
+                        Filter(
+                            colAICategory,
+                            CategoryType = "system" || IsBlank(CategoryType)
+                        ),
                         "LV2Order",
                         SortOrder.Ascending
                     ),
                     Category_LV2
-                )
-                ,
+                ),
                 Distinct(
                     SortByColumns(
                         Filter(
@@ -437,14 +414,13 @@
                     "LV1Order",
                     SortOrder.Ascending
                 ), 
-                CategoryType = "system" || IsBlank(CategoryType)
+                CategoryType = "system" || IsBlank(CategoryType) And !IsBlank(LV2Order)
                 ),
                 Category_LV1
             )
         Layout: =Layout.Vertical
-        LoadingSpinner: =LoadingSpinner.Data
         ShowScrollbar: =false
-        TemplateSize: =417
+        TemplateSize: =418
         Width: =1469
         X: =387
         Y: =236
@@ -464,7 +440,6 @@
                     SortOrder.Ascending
                 )
             Layout: =Layout.Vertical
-            LoadingSpinner: =LoadingSpinner.Data
             ShowScrollbar: =false
             TemplateSize: =71
             Width: =1408
