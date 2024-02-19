@@ -4,7 +4,7 @@
         =ColorValue("#FAFAFA")
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -49,6 +49,42 @@
                 }
             )
         );
+        
+        
+        
+        //0219 code+//
+        
+        ClearCollect(
+            colAICategory,
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+        				LV1Order: Text(ThisRecord.Value.LV1Order),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        CategoryType: Text(ThisRecord.Value.CategoryType),
+        				AnswerModel: Text(ThisRecord.Value.AnswerModel),
+        				AnswerMode: Text(ThisRecord.Value.AnswerMode),
+        				ChatMode: Text(ThisRecord.Value.ChatMode),
+        				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
+        				
+                    }
+                ),
+                "LV1Order",
+                SortOrder.Ascending
+            )
+        );
+        
+        
+        UpdateContext(
+            {
+                ViewTopContent:First(colAICategory).LV1Order
+            }
+        );
+        
 
     Component_Container_AICM As Component_Container:
         Height: =29
@@ -408,7 +444,7 @@
             =//Sort(Distinct(Filter(똑실이_Category_table, CategoryType = "system"), Category_LV1),Value)
             Distinct(
                 Sort(
-                    똑실이_Category_table,
+                    colAICategory,
                     LV1Order,
                     SortOrder.Ascending
                 ),
@@ -433,7 +469,10 @@
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Bold
             Height: =42
-            OnSelect: =Select(Parent)
+            OnSelect: |-
+                =UpdateContext(
+                    {ViewTopContent:ThisItem.Value}
+                );
             Size: =15
             Text: =ThisItem.Value
             Width: =1350
@@ -444,8 +483,13 @@
         Gallery_AICategory_SubSystem_AICM As gallery.galleryVertical:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
-            Height: =248
-            Items: =Filter(똑실이_Category_table, CategoryType = "system")
+            Height: =236
+            Items: |-
+                =Sort(
+                        똑실이_Category_table,
+                        LV2Order,
+                        SortOrder.Ascending
+                )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =71
