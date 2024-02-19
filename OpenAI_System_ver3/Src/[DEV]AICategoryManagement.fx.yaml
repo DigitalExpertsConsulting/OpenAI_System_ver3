@@ -1,9 +1,10 @@
 "'[DEV]AICategoryManagement' As screen":
     BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-    Fill: =RGBA(245, 245, 245, 1)
+    Fill: |-
+        =ColorValue("#FAFAFA")
     LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |-
+    OnVisible: |+
         =Concurrent(
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
@@ -48,12 +49,48 @@
                 }
             )
         );
+        
+        
+        
+        //0219 code+//
+        
+        ClearCollect(
+            colAICategory,
+            SortByColumns(
+                ForAll(
+                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                    {
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+        				LV1Order: Text(ThisRecord.Value.LV1Order),
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        CategoryType: Text(ThisRecord.Value.CategoryType),
+        				AnswerModel: Text(ThisRecord.Value.AnswerModel),
+        				AnswerMode: Text(ThisRecord.Value.AnswerMode),
+        				ChatMode: Text(ThisRecord.Value.ChatMode),
+        				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
+        				
+                    }
+                ),
+                "LV1Order",
+                SortOrder.Ascending
+            )
+        );
+        
+        
+        UpdateContext(
+            {
+                ViewTopContent:First(colAICategory).LV1Order
+            }
+        );
+        
 
     Component_Container_AICM As Component_Container:
-        Height: =870
+        Height: =29
         Width: =1549
-        X: =348
-        Y: =198
+        X: =371
+        Y: =1051
 
     Button_Refresh_CategoryMenu_AICM As button:
         BorderColor: |-
@@ -407,7 +444,7 @@
             =//Sort(Distinct(Filter(똑실이_Category_table, CategoryType = "system"), Category_LV1),Value)
             Distinct(
                 Sort(
-                    똑실이_Category_table,
+                    colAICategory,
                     LV1Order,
                     SortOrder.Ascending
                 ),
@@ -415,8 +452,7 @@
             )
         Layout: =Layout.Vertical
         LoadingSpinner: =LoadingSpinner.Data
-        ShowScrollbar: =false
-        TemplateSize: =403
+        TemplateSize: =417
         Width: =1490
         X: =375
         Y: =217
@@ -431,28 +467,36 @@
             DisabledColor: =RGBA(166, 166, 166, 1)
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
+            FontWeight: =FontWeight.Bold
             Height: =42
-            OnSelect: =Select(Parent)
+            OnSelect: |-
+                =UpdateContext(
+                    {ViewTopContent:ThisItem.Value}
+                );
             Size: =15
             Text: =ThisItem.Value
             Width: =1350
             X: =39
             Y: =18
-            ZIndex: =1
+            ZIndex: =3
 
         Gallery_AICategory_SubSystem_AICM As gallery.galleryVertical:
             BorderColor: =RGBA(166, 166, 166, 1)
             DelayItemLoading: =true
-            Height: =248
-            Items: =Filter(똑실이_Category_table, CategoryType = "system")
+            Height: =236
+            Items: |-
+                =Sort(
+                        똑실이_Category_table,
+                        LV2Order,
+                        SortOrder.Ascending
+                )
             Layout: =Layout.Vertical
             LoadingSpinner: =LoadingSpinner.Data
             TemplateSize: =71
             Width: =1408
             X: =38
             Y: =117
-            ZIndex: =2
+            ZIndex: =4
 
             btn_Background_Color_LV2_AICM As button:
                 BorderColor: |-
@@ -479,36 +523,15 @@
                 PressedBorderColor: =
                 PressedColor: =
                 PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
                 Size: =15
                 Text: =""
                 Width: =1398
                 Y: =3
                 ZIndex: =1
-
-            btn_Background_Color_AnswerModel_AICM As button:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                Fill: =RGBA(249, 194, 255, 1)
-                FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =lbl_SubSystem_AnswerModel_AICategory_AICM.Height
-                HoverBorderColor: =RGBA(0, 0, 0, 0)
-                HoverColor: =RGBA(255, 255, 255, 1)
-                HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-                OnSelect: =
-                PressedBorderColor: =
-                PressedColor: =
-                PressedFill: =
-                Size: =15
-                Text: =""
-                Width: =lbl_SubSystem_AnswerModel_AICategory_AICM.Width
-                X: =642
-                Y: |
-                    =13
-                ZIndex: =2
 
             lbl_SubSystem_ChatMode_AICategory_AICM As label:
                 Align: =Align.Center
@@ -521,7 +544,7 @@
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Size: =13
+                Size: =12
                 Text: |-
                     =Substitute(
                         Substitute(
@@ -540,7 +563,7 @@
                 X: =1160
                 Y: |
                     =13
-                ZIndex: =3
+                ZIndex: =2
 
             lbl_SubSystem_LV2_AICategory_AICM As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -551,12 +574,50 @@
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
                 Height: =43
                 OnSelect: =Select(Parent)
-                Size: =13
+                Size: =12
                 Text: =ThisItem.Category_LV2
                 Width: =500
                 X: =31
+                Y: |
+                    =13
+                ZIndex: =3
+
+            btn_Background_Color_AnswerModel_AICM As button:
+                BorderColor: |-
+                    =ColorValue("#C1E6C1")
+                Color: |-
+                    =ColorValue("#C1E6C1")
+                DisabledBorderColor: |-
+                    =ColorValue("#C1E6C1")
+                DisabledColor: |-
+                    =ColorValue("#C1E6C1")
+                DisabledFill: |-
+                    =ColorValue("#C1E6C1")
+                Fill: |-
+                    =ColorValue("#C1E6C1")
+                FocusedBorderColor: |-
+                    =ColorValue("#C1E6C1")
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =lbl_SubSystem_AnswerModel_AICategory_AICM.Height
+                HoverBorderColor: =
+                HoverColor: =
+                HoverFill: =
+                OnSelect: =
+                PressedBorderColor: =
+                PressedColor: =
+                PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
+                Size: =15
+                Text: =""
+                Width: =lbl_SubSystem_AnswerModel_AICategory_AICM.Width
+                X: =702
                 Y: |
                     =13
                 ZIndex: =4
@@ -572,7 +633,7 @@
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Size: =13
+                Size: =12
                 Text: |
                     =Substitute(
                         Substitute(
@@ -583,10 +644,46 @@
                         "chat", 
                         "GPT-3.5"
                     )
-                X: =642
+                X: =702
                 Y: |
                     =13
                 ZIndex: =5
+
+            btn_Background_Color_AnswerMode_AICM As button:
+                BorderColor: |-
+                    =ColorValue("#FFE5A8")
+                Color: |-
+                    =ColorValue("#FFE5A8")
+                DisabledBorderColor: |-
+                    =ColorValue("#FFE5A8")
+                DisabledColor: |-
+                    =ColorValue("#FFE5A8")
+                DisabledFill: |-
+                    =ColorValue("#FFE5A8")
+                Fill: |-
+                    =ColorValue("#FFE5A8")
+                FocusedBorderColor: |-
+                    =ColorValue("#FFE5A8")
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =lbl_SubSystem_AnswerMode_AICategory_AICM.Height
+                HoverBorderColor: =
+                HoverColor: =
+                HoverFill: =
+                OnSelect: =
+                PressedBorderColor: =
+                PressedColor: =
+                PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
+                Size: =15
+                Text: =""
+                Width: =lbl_SubSystem_AnswerMode_AICategory_AICM.Width
+                X: =963
+                Y: =lbl_SubSystem_AnswerMode_AICategory_AICM.Y
+                ZIndex: =6
 
             lbl_SubSystem_AnswerMode_AICategory_AICM As label:
                 Align: =Align.Center
@@ -599,7 +696,7 @@
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Size: =13
+                Size: =12
                 Text: |-
                     =Substitute(
                         Substitute(
@@ -610,10 +707,10 @@
                         "retrieval", 
                         "정해진답변"
                     )
-                X: =913
+                X: =963
                 Y: |
                     =13
-                ZIndex: =6
+                ZIndex: =7
 
             lbl_SubSystem_DocumentLanguage_AICategory_AICM As label:
                 Align: =Align.Center
@@ -626,7 +723,7 @@
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 OnSelect: =Select(Parent)
-                Size: =13
+                Size: =12
                 Text: |-
                     =Substitute(
                         Substitute(
@@ -649,7 +746,7 @@
                 X: =1160
                 Y: |
                     =13
-                ZIndex: =7
+                ZIndex: =8
 
         grp_Gallery_AICategory_LV2_Title_AICM As group:
             Height: =5
@@ -680,12 +777,16 @@
                 PressedBorderColor: =
                 PressedColor: =
                 PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
                 Size: =15
                 Text: =""
                 Width: =1407
                 X: =39
                 Y: =67
-                ZIndex: =3
+                ZIndex: =5
 
             lbl_TitleType_AICategory_AICM_1 As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
@@ -704,7 +805,7 @@
                 Width: =506
                 X: =75
                 Y: =69
-                ZIndex: =4
+                ZIndex: =6
 
             lbl_TitleAnswerModel_AICategory_AICM As label:
                 Align: =Align.Center
@@ -722,9 +823,9 @@
                 Size: =13
                 Text: ="답변모델"
                 Width: =152
-                X: =666
+                X: =746
                 Y: =69
-                ZIndex: =5
+                ZIndex: =7
 
             lbl_TitleAnswerMode_AICategory_AICM As label:
                 Align: =Align.Center
@@ -742,9 +843,9 @@
                 Size: =13
                 Text: ="답변방식"
                 Width: =152
-                X: =936
+                X: =1006
                 Y: =69
-                ZIndex: =6
+                ZIndex: =8
 
             lbl_TitleChatMode_AICategory_AICM As label:
                 Align: =Align.Center
@@ -765,7 +866,7 @@
                 Width: =152
                 X: =1197
                 Y: =69
-                ZIndex: =7
+                ZIndex: =9
 
             lbl_TitleValue_DocumentLanguage_AICategory_AICM_1 As label:
                 Align: =Align.Center
@@ -786,5 +887,83 @@
                 Width: =152
                 X: =1197
                 Y: =69
-                ZIndex: =8
+                ZIndex: =10
+
+        grp_ColorBackgournd_AICM As group:
+            Height: =5
+            Width: =5
+            X: =40
+            Y: =40
+            ZIndex: =11
+
+            btn_backgournd_Color_AICM As button:
+                BorderColor: |-
+                    =ColorValue("#DBDBDB")
+                Color: |-
+                    =ColorValue("#FFFFFF")
+                DisabledBorderColor: |-
+                    =ColorValue("#DBDBDB")
+                DisabledColor: |-
+                    =ColorValue("#FFFFFF")
+                DisabledFill: |-
+                    =ColorValue("#FFFFFF")
+                DisplayMode: =DisplayMode.Disabled
+                Fill: |-
+                    =ColorValue("#FFFFFF")
+                FocusedBorderColor: =
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =390
+                HoverBorderColor: =
+                HoverColor: =
+                HoverFill: =
+                OnSelect: =
+                PressedBorderColor: =
+                PressedColor: =
+                PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
+                Size: =15
+                Text: =""
+                Width: =1470
+                X: =1
+                ZIndex: =1
+
+            btn_Background_Color_AICM As button:
+                BorderColor: |-
+                    =ColorValue("#DBDBDB")
+                Color: |-
+                    =ColorValue("#F5F5F5")
+                DisabledBorderColor: |-
+                    =ColorValue("#DBDBDB")
+                DisabledColor: |-
+                    =ColorValue("#F5F5F5")
+                DisabledFill: |-
+                    =ColorValue("#F5F5F5")
+                DisplayMode: =DisplayMode.Disabled
+                Fill: |-
+                    =ColorValue("#F5F5F5")
+                FocusedBorderColor: =
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =390
+                HoverBorderColor: =
+                HoverColor: =
+                HoverFill: =
+                OnSelect: =
+                PressedBorderColor: =
+                PressedColor: =
+                PressedFill: =
+                RadiusBottomLeft: =8
+                RadiusBottomRight: =8
+                RadiusTopLeft: =8
+                RadiusTopRight: =8
+                Size: =15
+                Text: =""
+                Visible: =If(ThisItem.Value = "AI Worker", true,false)
+                Width: =1470
+                X: =1
+                ZIndex: =2
 
