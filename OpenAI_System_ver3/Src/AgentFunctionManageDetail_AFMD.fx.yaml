@@ -1,0 +1,132 @@
+AgentFunctionManageDetail_AFMD As screen:
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnVisible: |+
+        =//============================== << AgentFunctionManageDetail 화면 접속 시 >> ==============================
+        // 1. 로딩 이미지 활성화
+        Concurrent(   
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:true}) // 로딩 스피너 배경 이미지 비활성 
+            ); 
+        
+        // 2. 초기화
+        Concurrent(
+            Set(gblStartPage,"AgentFunctionManageDetail"), // gblStartPage 변수 설정
+            Refresh(똑실이_AgentFunctionData_table),//DB REFRESH
+            Refresh(똑실이_FileUpload_table),//DB REFRESH
+            UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
+            UpdateContext({locAgentDataAddPopup:false}),// Agent Data 추가 팝업 비활성화
+            UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
+            UpdateContext({locSelectedAgentDataItemID:0}), // locSelectedAgentDataItemID 변수 초기화 -> 선택한 Agent Data ID
+            UpdateContext({locAPICall:false}), //Agent Data Visible 변수 초기화
+            UpdateContext({locDocumentSearch:false}) //Agent Data Visible 변수 초기화
+        );
+        
+        // 3. Agent Data Visible 변수 값 할당
+        
+        /* Agent Data(화면우측에 존재)은 사용자가 선택하는 Agent Function의 유형에 따라 표시되는 컨트롤(헤더&갤러리)이 달라짐
+            1. api_call: Agent에 사용하는 Data -> 똑실이_AgentFunctionData_table(DB)
+            2. document_search: 카테고리에 포함되어있는 문서 리스트 -> 똑실이_FileUpload_table(DB)
+            3. 그 외: 미표시 */
+        
+        If( 
+            // 3-1. api_call인 경우
+            gblSelectedAgentFunctionItemType="api_call", 
+            UpdateContext({locAPICall:true}),
+            // 3-2. document_search인 경우
+            gblSelectedAgentFunctionItemType="document_search",
+            UpdateContext({locDocumentSearch:true}));
+        
+        // 4. 로딩 이미지 비활성화
+        Concurrent(   
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
+            UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성 
+            ); 
+        
+        
+
+    Shape_AgentFunctionDetailSeparator_AFMD As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: |-
+            =ColorValue("#CCCCCC")
+        FocusedBorderThickness: =4
+        Height: =1
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Width: =694
+        X: =361
+        Y: =192
+        ZIndex: =78
+
+    Window_SelectedAgentFunctionAgentData_AFMD As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: |-
+            =ColorValue("#FFFFFF")
+        DisplayMode: =DisplayMode.View
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =916
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: |-
+            =ColorValue("#FFFFFF")
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: |-
+            =ColorValue("#FFFFFF")
+        RadiusBottomLeft: =8
+        RadiusBottomRight: =8
+        RadiusTopLeft: =8
+        RadiusTopRight: =8
+        Size: =15
+        Text: =""
+        Width: =758
+        X: =1122
+        Y: =128
+        ZIndex: =79
+
+    Label_ScreenSubTitle_FunctionID_AFMD_1 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =32
+        Size: =15
+        Text: ="Agent Data"
+        Width: =370
+        X: =1154
+        Y: =148
+        ZIndex: =80
+
+    Shape_AgentDataSeparator_AFMD_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =RGBA(166, 166, 166, 1)
+        DisplayMode: =DisplayMode.View
+        Fill: |-
+            =ColorValue("#CCCCCC")
+        FocusedBorderThickness: =4
+        Height: =1
+        HoverFill: =RGBA(105, 121, 126, 1)
+        PressedFill: =RGBA(105, 121, 126, 1)
+        Width: =694
+        X: =1154
+        Y: =191
+        ZIndex: =81
+
