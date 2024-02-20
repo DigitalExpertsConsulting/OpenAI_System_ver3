@@ -61,6 +61,7 @@
         OnSelect: |-
             =Refresh(똑실이_Category_table);
             Reset(Dropdown_SearchCategoryLV1_AICM);
+            Reset(Dropdown_SearchCategoryLV2_AICM);
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -199,20 +200,21 @@
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =If(Dropdown_SearchCategoryLV1_AICM.Selected.Value = "전체", DisplayMode.Disabled, DisplayMode.Edit)
         Font: =Font.'Segoe UI'
         Height: =32
         HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
-            =If(
+            =// ID 기준 정렬(전체 최상단)
+            If(
                 Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
                 Distinct(
                     SortByColumns(
                         Filter(
                             colAICategory,
-                            Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV2
+                            //Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = 
+                            Category_LV2
                         ),
                         "ID",
                         SortOrder.Ascending
@@ -263,7 +265,8 @@
     Gallery_AICategory_TopSystem_AICM As gallery.galleryVertical:
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        Height: =843
+        DisplayMode: =DisplayMode.View
+        Height: =834
         Items: |-
             =// CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
             Distinct(
@@ -285,12 +288,14 @@
                 Category_LV1
             )
         Layout: =Layout.Vertical
+        NavigationStep: =2
         OnSelect: =
+        ShowNavigation: =true
         ShowScrollbar: =false
         TemplateSize: =418
-        Width: =1469
+        Width: =1478
         X: =387
-        Y: =218
+        Y: =205
         ZIndex: =11
 
         Gallery_AICategory_SubSystem_AICM As gallery.galleryVertical:
@@ -317,7 +322,6 @@
                     SortOrder.Ascending
                 )
             Layout: =Layout.Vertical
-            ShowScrollbar: =false
             TemplateSize: =71
             Width: =1408
             X: =38
