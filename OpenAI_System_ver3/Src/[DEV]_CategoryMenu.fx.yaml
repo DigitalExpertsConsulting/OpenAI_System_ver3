@@ -2762,11 +2762,11 @@
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =Set(CategoryVal2, Split(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1.SelectedText.Value, "")); 
-                Set(CategoryVal3, Split(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_1.Text, ""));
+                =Set(CategoryVal2, Split(DataCardValue26.SelectedText.Value, "")); 
+                Set(CategoryVal3, Split(DataCardValue10.Text, ""));
                 
                 If( //이거맞나 // 에러처리, Lv1 드롭다운 빈칸 일 때 에러 
-                     Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1.SelectedText.Value = DEFAULT_SELECT_CATEGORY_VALUE,     
+                     DataCardValue26.SelectedText.Value = DEFAULT_SELECT_CATEGORY_VALUE,     
                     Notify(
                         "메인 카테고리를 선택해주세요.",
                         NotificationType.Error,
@@ -2775,7 +2775,7 @@
                 
                 
                 If( //이거맞나 // 에러처리, Lv2 이름 입력창이 빈칸 일 때 에러
-                     TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_1.Text = "",
+                     DataCardValue10.Text = "",
                      //TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text = "" || TextInput_AddMainCategoryNameSub_CategoryMenu_Lv2PopUp.Text = "",     
                     Notify(
                         "이름을 지정하지 않은 하위 메뉴가 있습니다.",
@@ -2793,36 +2793,41 @@
                 
                 
                     // If(!IsBlank(LookUp(똑실이_Category_table, Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text)), // (모든 LV1 카테고리에서 조회함)
-                    If(!IsBlank(LookUp(똑실이_Category_table, Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1.Selected.Value && Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_1.Text)),
+                    If(!IsBlank(LookUp(똑실이_Category_table, Category_LV1=DataCardValue26.Selected.Value && Category_LV2=DataCardValue10.Text)),
                     
                      Notify(
                         "중복된 카테고리명입니다",
                         NotificationType.Error,
                         5000
                     ),
+                    /*
                     Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용
                         똑실이_Category_table,
                         {
                             제목: ".",
                             //Category_LV1: Trim(TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text),
-                            Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1.SelectedText.Value), 
+                            Category_LV1: Trim(DataCardValue26.SelectedText.Value), 
                             //"새 메뉴" & Last(똑실이_Category_table).ID + 1,
-                            Category_LV2: Trim(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_1.Text),
+                            Category_LV2: Trim(DataCardValue10.Text),
                             //ID: Last(똑실이_Category_table).ID + 1,
                             //LV1Order: Last(똑실이_Category_table).LV1Order + 1, 
                             //LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text)),Last(똑실이_Category_table).LV2Order+1,1), //이거맞나 //아래로 바꿈
                             LV1Order: Last(똑실이_Category_table).ID + 1, 
-                            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),
+                            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=DataCardValue26.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),
                             //DocumentLanguage:If(RadioToggle_AddDocumentLanguage_CategoryMenu.Selected.Value="한국어","ko","en")
                             DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_1.Selected.Value,"한국어","ko","English","en","日本語","ja")
                         }
                     );
+                    */
+                    
+                    
+                    
                     Notify(
                         "저장하였습니다.",
                         NotificationType.Success,
                         5000
                     ); Refresh(똑실이_Category_table);
-                    UpdateContext({AddLv2Category: false}); Reset(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_1);Reset(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_1);
+                    UpdateContext({AddLv2Category: false}); Reset(DataCardValue26);Reset(DataCardValue10);
                 
                 ););););
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -5309,3 +5314,4 @@
             X: =1331
             Y: =462
             ZIndex: =50
+
