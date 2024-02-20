@@ -568,7 +568,7 @@
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             DisplayMode: |-
-                =DisplayMode.Edit//If(!IsBlank(gblRequestBody), DisplayMode.Edit, DisplayMode.Disabled)
+                =If(!IsBlank(gblRequestBody), DisplayMode.Edit, DisplayMode.Disabled)
                 //gblRequestBody 변수가 비어있지 않을 때만 버튼 활성화
             Fill: |-
                 =ColorValue("#0F6CBD")
@@ -802,33 +802,6 @@
         Y: =38
         ZIndex: =31
 
-    Button1_1 As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: ='[DEV]-똑실이-[Apps]PA호출'.Run(gblRequestBody)
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        Visible: =false
-        X: =1433
-        Y: =38
-        ZIndex: =32
-
     Group1 As group:
         Height: =5
         Width: =5
@@ -1005,8 +978,7 @@
                 
                 //에이전트 서버 업로드 PA 실행
                 
-                /* 20231227 차지영 과장님 요청으로 주석처리 및 Apps에서 흐름 삭제
-                IfError('똑실이-[Apps]Agent테이블서버업로드'.Run(gblRequestBody), 
+                IfError('[DEV]-똑실이-[Apps]PA호출'.Run(gblRequestBody), 
                 
                         // PA 에러 시 실패 알림창 로드
                         Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error),
@@ -1021,13 +993,10 @@
                         ); 
                         Notify("서버 업로드 완료하였습니다.",NotificationType.Success);
                 );
-                */
-                
-                '[DEV]-똑실이-[Apps]PA호출'.Run(gblRequestBody);
                 
                 // 변수 초기화 및 로딩창 비활성화
                     Concurrent(
-                    //Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
                     Set(gblServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
                     UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
                     UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
