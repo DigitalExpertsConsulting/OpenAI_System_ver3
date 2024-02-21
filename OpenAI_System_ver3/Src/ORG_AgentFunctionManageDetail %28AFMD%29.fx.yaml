@@ -12,8 +12,12 @@
         // 2. 초기화
         Concurrent(
             Set(gblStartPage,"AgentFunctionManageDetail"), // gblStartPage 변수 설정
-            Refresh(똑실이_AgentFunctionData_table),//DB REFRESH
-            Refresh(똑실이_FileUpload_table),//DB REFRESH
+            If( 
+            //api_call인 경우 AgentFunctionData_table refresh
+            gblSelectedAgentFunctionItemType="document_search", 
+            Refresh(똑실이_FileUpload_table),
+            Refresh(똑실이_FileUpload_table)
+           );,
             UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
             UpdateContext({locAgentDataAddPopup:false}),// Agent Data 추가 팝업 비활성화
             UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
@@ -84,11 +88,12 @@
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Bold
+        Height: =45
         Size: =27
         Text: ="Agent 기능 관리"
         Width: =338
-        X: =348
-        Y: =48
+        X: =340
+        Y: =47
         ZIndex: =2
 
     Button_Refresh_AFMD_2 As button:
@@ -111,8 +116,23 @@
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |
-            =
-                Refresh(똑실이_AgentFunctionData_table)   //DB Refresh
+            =Refresh(똑실이_AgentFunction_table​);
+            
+            If( 
+                //api_call인 경우 AgentFunctionData_table refresh
+                gblSelectedAgentFunctionItemType="document_search", 
+                Refresh(똑실이_FileUpload_table),
+                Refresh(똑실이_AgentFunctionData_table)
+               );
+            
+            
+            //화면 내 컨트롤 리셋
+            Concurrent(
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2),
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2),
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2)
+            );
+                
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
