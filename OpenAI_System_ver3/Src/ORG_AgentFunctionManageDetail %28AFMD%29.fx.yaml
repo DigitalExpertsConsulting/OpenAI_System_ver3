@@ -12,8 +12,12 @@
         // 2. 초기화
         Concurrent(
             Set(gblStartPage,"AgentFunctionManageDetail"), // gblStartPage 변수 설정
-            Refresh(똑실이_AgentFunctionData_table),//DB REFRESH
-            Refresh(똑실이_FileUpload_table),//DB REFRESH
+            If( 
+            //api_call인 경우 AgentFunctionData_table refresh
+            gblSelectedAgentFunctionItemType="document_search", 
+            Refresh(똑실이_FileUpload_table),
+            Refresh(똑실이_FileUpload_table)
+           );,
             UpdateContext({locAgentFunctionDeletePopup:false}),// Agent 기능 삭제 팝업 비활성화
             UpdateContext({locAgentDataAddPopup:false}),// Agent Data 추가 팝업 비활성화
             UpdateContext({locPopupBackground:false}),// 팝업 배경 이미지 비활성화
@@ -45,7 +49,7 @@
         
         
 
-    Button1 As button:
+    Button_AgentData_AFMD_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -84,11 +88,12 @@
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Bold
+        Height: =45
         Size: =27
         Text: ="Agent 기능 관리"
         Width: =338
-        X: =348
-        Y: =48
+        X: =340
+        Y: =47
         ZIndex: =2
 
     Button_Refresh_AFMD_2 As button:
@@ -111,8 +116,23 @@
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |
-            =
-                Refresh(똑실이_AgentFunctionData_table)   //DB Refresh
+            =Refresh(똑실이_AgentFunction_table​);
+            
+            If( 
+                //api_call인 경우 AgentFunctionData_table refresh
+                gblSelectedAgentFunctionItemType="document_search", 
+                Refresh(똑실이_FileUpload_table),
+                Refresh(똑실이_AgentFunctionData_table)
+               );
+            
+            
+            //화면 내 컨트롤 리셋
+            Concurrent(
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2),
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2),
+                Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2)
+            );
+                
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -1556,7 +1576,7 @@
                     UpdateContext({locAgentDataAddPopup:true}),// Agent Data 추가 팝업 활성화
                     UpdateContext({locPopupBackground:true})// Agent Data 추가 팝업 배경 이미지 활성화
                 );
-            PaddingLeft: =15
+            PaddingLeft: =20
             PressedBorderColor: =RGBA(74, 85, 88, 1)
             PressedColor: =RGBA(74, 85, 88, 1)
             PressedFill: =RGBA(166, 166, 166, 0.2)
@@ -1585,13 +1605,14 @@
             HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Add
+            OnSelect: =Select(Button_AgentDataAPICall_AddAgentData_AFMD_2)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =locAPICall
             Width: =15
-            X: =1782
-            Y: =156
+            X: =1785
+            Y: =155
             ZIndex: =7
 
         "Gallery_AgentDataAPICall_AFMD_2 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
@@ -1601,7 +1622,7 @@
             Items: =Filter(똑실이_AgentFunctionData_table,Function_ID=LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID).Function_ID)
             Layout: =Layout.Vertical
             TemplatePadding: =0
-            TemplateSize: =38
+            TemplateSize: =40
             Visible: =locAPICall
             Width: =694
             X: =1154
@@ -1614,7 +1635,7 @@
                 Height: =1
                 OnSelect: =Select(Parent)
                 Width: =694
-                Y: =Parent.TemplateHeight-Self.Height
+                Y: =39
                 ZIndex: =5
 
             Label_GalleryAgentDataAPICall_Source_AFMD_2 As label:
@@ -1662,6 +1683,12 @@
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
                 Height: =30
+                OnSelect: |
+                    =Concurrent(
+                        UpdateContext({locAgentDataModifyPopup:true}),// 현재 Agent 기능에서 선택한 Agent Data삭제 팝업 활성화
+                        UpdateContext({locPopupBackground:true}),// 팝업 배경 이미지 활성화
+                        UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
+                    );
                 Overflow: =Overflow.Scroll
                 Size: =10
                 Text: =ThisItem.Description
@@ -1672,7 +1699,7 @@
 
             Icon_GalleryAgentDataAPICall_Delete_AFMD_2 As image:
                 BorderColor: =RGBA(224, 224, 224, 1)
-                BorderThickness: =2
+                BorderThickness: =1
                 DisabledBorderColor: =RGBA(0, 0, 0, 0)
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 DisplayMode: |-
@@ -1683,7 +1710,7 @@
                     DisplayMode.Edit
                 Fill: =RGBA(255, 255, 255, 1)
                 FocusedBorderThickness: =4
-                Height: =20
+                Height: =24
                 HoverBorderColor: =RGBA(224, 224, 224, 1)
                 HoverFill: |-
                     =ColorValue("#F5F5F5")
@@ -1695,7 +1722,7 @@
                         UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
                     );
                 PaddingBottom: =2
-                PaddingLeft: =2
+                PaddingLeft: =3
                 PaddingRight: =2
                 PaddingTop: =2
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
@@ -1706,7 +1733,7 @@
                 RadiusTopLeft: =4
                 RadiusTopRight: =4
                 Transparency: =If(Icon_GalleryAgentDataAPICall_Delete_AFMD_2.DisplayMode = DisplayMode.Disabled,0.5,0)
-                Width: =20
+                Width: =24
                 X: =654
                 Y: =8
                 ZIndex: =10
@@ -1718,7 +1745,7 @@
                 DisabledFill: =RGBA(0, 0, 0, 0)
                 Fill: =RGBA(0, 0, 0, 0)
                 FocusedBorderThickness: =4
-                Height: =38
+                Height: =40
                 HoverFill: =RGBA(0, 0, 0, 0)
                 OnSelect: |
                     =Concurrent(
@@ -1727,7 +1754,7 @@
                         UpdateContext({locSelectedAgentDataItemID:ThisItem.ID})//현재 Agent 기능에서 선택한 Agent Data 항목의 ID값 locSelectedAgentDataItemID 변수에 할당
                     );
                 PressedFill: =RGBA(0, 0, 0, 0)
-                Width: =662
+                Width: =282
                 ZIndex: =11
 
         Label_AgentDataAPICall_Header_Source_AFMD_2 As label:
@@ -1810,11 +1837,11 @@
             Layout: =Layout.Vertical
             ShowScrollbar: =false
             TemplatePadding: =0
-            TemplateSize: =64
+            TemplateSize: =40
             Visible: =locDocumentSearch
-            Width: =725
-            X: =1118
-            Y: =302
+            Width: =694
+            X: =1154
+            Y: =254
             ZIndex: =28
 
             Separator_GalleryAgentDocumentSearch_AFMD_2 As rectangle:
@@ -1822,8 +1849,8 @@
                 Fill: =RGBA(230, 230, 230, 1)
                 Height: =1
                 OnSelect: =Select(Parent)
-                Width: =Parent.TemplateWidth
-                Y: =Parent.TemplateHeight-Self.Height
+                Width: =694
+                Y: =39
                 ZIndex: =5
 
             Label_GalleryAgentDocumentSearch_FileName_AFMD_2 As label:
@@ -1835,12 +1862,15 @@
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
-                Height: =60
+                Height: =32
+                PaddingBottom: =8
+                PaddingLeft: =8
+                PaddingRight: =8
+                PaddingTop: =0
                 Size: =10
                 Text: =ThisItem.File_Name
-                Width: =353
-                X: =25
-                Y: =2
+                Width: =395
+                Y: =8
                 ZIndex: =7
 
             Label_GalleryAgentDocumentSearch_UploadDate_AFMD_2 As label:
@@ -1852,12 +1882,16 @@
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
-                Height: =60
+                Height: =32
+                PaddingBottom: =8
+                PaddingLeft: =8
+                PaddingRight: =8
+                PaddingTop: =0
                 Size: =10
                 Text: =ThisItem.Upload_Date
-                Width: =185
-                X: =398
-                Y: =2
+                Width: =159
+                X: =395
+                Y: =8
                 ZIndex: =8
 
             Label_GalleryAgentDocumentSearch_IndexStatus_AFMD_2 As label:
@@ -1869,12 +1903,16 @@
                 DisabledColor: =RGBA(166, 166, 166, 1)
                 FocusedBorderThickness: =4
                 Font: =Font.'Segoe UI'
-                Height: =60
+                Height: =32
+                PaddingBottom: =8
+                PaddingLeft: =8
+                PaddingRight: =8
+                PaddingTop: =0
                 Size: =10
                 Text: =ThisItem.Index_Status
-                Width: =103
-                X: =598
-                Y: =2
+                Width: =140
+                X: =554
+                Y: =8
                 ZIndex: =9
 
         Label_AgentDataDocumentSearch_Header_FileName_AFMD_2 As label:
@@ -1887,13 +1925,14 @@
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =56
+            PaddingLeft: =8
+            PaddingRight: =8
             Size: =11
             Text: ="파일명"
             Visible: =locDocumentSearch
-            Width: =249
-            X: =1141
-            Y: =232
+            Width: =395
+            X: =1154
+            Y: =205
             ZIndex: =31
 
         Label_AgentDataDocumentSearch_Header_UploadDate_AFMD_2 As label:
@@ -1906,13 +1945,14 @@
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =56
+            PaddingLeft: =8
+            PaddingRight: =8
             Size: =11
             Text: ="업로드 일시"
             Visible: =locDocumentSearch
-            Width: =131
-            X: =1513
-            Y: =234
+            Width: =159
+            X: =1549
+            Y: =205
             ZIndex: =32
 
         Label_AgentDataDocumentSearch_Header_IndexStatus_AFMD_2 As label:
@@ -1925,24 +1965,25 @@
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =56
+            PaddingLeft: =7
+            PaddingRight: =8
             Size: =11
             Text: ="인덱스 여부"
             Visible: =locDocumentSearch
-            Width: =131
-            X: =1693
-            Y: =232
+            Width: =140
+            X: =1708
+            Y: =205
             ZIndex: =33
 
         Separator_AgentDataDocumentSearch_Header_Line_AFMD_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             Fill: =RGBA(149, 149, 149, 1)
-            Height: =1.5
+            Height: =1
             OnSelect: =//
             Visible: =locDocumentSearch
-            Width: =725
-            X: =1118
-            Y: =295
+            Width: =694
+            X: =1154
+            Y: =253
             ZIndex: =34
 
     Shape_SeparatorAgentFunctionDetail As rectangle:
