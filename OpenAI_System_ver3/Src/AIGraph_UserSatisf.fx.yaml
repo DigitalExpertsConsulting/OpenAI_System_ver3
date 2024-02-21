@@ -52,7 +52,7 @@ AIGraph_UserSatisf As screen:
             Reset(DatePicker_LastDate_AIGraph_UserSatisf)
         );
         
-        Select(Button_LV1Category_Filtering_AIGraph_UserSatisf);
+        Select(Button_Table_Filtering_AIGraph_UserSatisf);
         
         Concurrent(
             UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성
@@ -478,22 +478,9 @@ AIGraph_UserSatisf As screen:
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |-
-            =If(
-                Dropdown_AxisPicker_AIGraph_UserSatisf.Selected.Value <> "GPT 버전",
-                Filter(
-                    Distinct(
-                        AICategory_Default,
-                        Category_LV1
-                    ),
-                    Value <> Blank()
-                ),
-                Filter(
-                    Distinct(
-                        Filter(AICategory_Default, Token_Model<>Blank() Or Category_LV1 = "전체"),
-                        Category_LV1
-                    ),
-                    Value <> Blank()
-                )
+            =Distinct(
+                colCategoryAdmin,
+                Category_LV1
             )
         OnChange: |-
             =If(Self.Selected.Value = "카테고리 미선택", Set(SelectedLV1_AIGraph, "카테고리"), Set(SelectedLV1_AIGraph, Self.Selected.Value));
@@ -541,7 +528,7 @@ AIGraph_UserSatisf As screen:
                     SelectedLV1_AIGraph = DEFAULT_CATEGORY_VALUE,
                     // 카테고리 LV1 이 전체로 선택되어 있을경우
                     Distinct(
-                        colCategoryAdmin_New,
+                        colCategoryAdmin,
                         Category_LV2
                     ),
                     // 카테고리 LV1 이 전체가 아닌 다른걸로 선택되어 있을경우
@@ -549,14 +536,14 @@ AIGraph_UserSatisf As screen:
                         SelectedLV1_AIGraph = "카테고리",
                         Distinct(
                             Filter(
-                                colCategoryAdmin_New,
+                                colCategoryAdmin,
                                 Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = "카테고리 미선택"
                             ),
                             Category_LV2
                         ),
                         Distinct(
                             Filter(
-                                colCategoryAdmin_New,
+                                colCategoryAdmin,
                                 Category_LV1 = DEFAULT_CATEGORY_VALUE || Category_LV1 = SelectedLV1_AIGraph
                             ),
                             Category_LV2
@@ -3590,97 +3577,6 @@ AIGraph_UserSatisf As screen:
         X: =1086
         Y: =78
         ZIndex: =56
-
-    Button_LV1Category_Filtering_AIGraph_UserSatisf As button:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        Fill: =RGBA(105, 121, 126, 1)
-        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-        Font: =Font.'Segoe UI'
-        FontWeight: =FontWeight.Semibold
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnSelect: |-
-            =UpdateContext({ 
-                locLoadingSpinner: true
-            });
-            
-            Concurrent(
-                Set(AIGraphStartDate,
-                    Text(If(
-                            DatePickerSetting = false,
-                            Switch(
-                                Dropdown_DatePicker_AIGraph_UserSatisf.SelectedText.Value,
-                                "1개월", DateAdd(Today(),-1,TimeUnit.Months),
-                                "3개월", DateAdd(Today(),-3,TimeUnit.Months),
-                                "6개월", DateAdd(Today(),-6,TimeUnit.Months),
-                                "1년", DateAdd(Today(),-12,TimeUnit.Months)
-                            ), DatePicker_FirstDate_AIGraph_UserSatisf.SelectedDate
-                        ), "yyyy-mm-dd"
-                    )
-                ),
-                Set(AIGraphEndDate,
-                    Text(If(
-                        DatePickerSetting = false,
-                        DateAdd(Today(),-0,TimeUnit.Months),
-                        DatePicker_LastDate_AIGraph_UserSatisf.SelectedDate
-                    ), "yyyy-mm-dd"))
-            );
-            
-            UpdateContext({AIGraphGPTvUserSatisfRes: '[DEV]똑실이-[Apps]AIGraphQALog분석V2'.Run(
-                "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point","")
-                    ,{
-                    // StartDate
-                    text_1: "2000-01-01",
-                    // EndDate
-                    text_2: "2999-12-31"
-                }).result_json
-            });
-            
-            ClearCollect(
-                AIGraphGPTvUserSatisfResponse,
-                ForAll(
-                    Table(ParseJSON(AIGraphGPTvUserSatisfRes)),
-                    {
-                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
-                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV2)),
-                        Date: Date(Year(ThisRecord.Value.Date), Month(ThisRecord.Value.Date), Day(ThisRecord.Value.Date)),
-                        IsGood: Text(ThisRecord.Value.LikeT_x002f_F),
-                        IsBad: Text(ThisRecord.Value.HateT_x002f_F),
-                        Token_Model: Text(ThisRecord.Value.AnswerModel),
-                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
-                        ID: Int(ThisRecord.Value.ID)
-                    }
-                )
-            );
-            
-            ClearCollect(
-                AICategory_Default,
-                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order: 0, CategoryType: "None"},
-                AIGraphGPTvUserSatisfResponse
-            );
-            
-            UpdateContext({ 
-                locLoadingSpinner: false
-            });
-            
-            Select(Button_Table_Filtering_AIGraph_UserSatisf);
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        RadiusBottomLeft: =0
-        RadiusBottomRight: =0
-        RadiusTopLeft: =0
-        RadiusTopRight: =0
-        Size: =15
-        Text: ="버튼"
-        Visible: =false
-        X: =1231
-        Y: =1040
-        ZIndex: =57
 
     Value_BarChart_GPTv_UsageTotal_Daily_AIGraph_UserSatisf As label:
         BorderColor: =RGBA(0, 0, 0, 0)
