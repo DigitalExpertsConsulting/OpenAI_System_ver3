@@ -1,6 +1,5 @@
 "'newDesign_AgentManage (AM)' As screen":
     Fill: =RGBA(245, 245, 245, 1)
-    LoadingSpinner: =LoadingSpinner.Data
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnHidden: =Set(gblStartPage,"AgentMange")
     OnVisible: |-
@@ -19,7 +18,7 @@
         // 2. 초기화
         Concurrent(
             Set(gblStartPage,"AgentMange"),
-            Refresh(똑실이_AgentFunction_table​),//DB REFRESH
+            Refresh(똑실이_Agent_table),//DB REFRESH
             UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
             UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
             Set(gblRequestBody,""), //Agent테이블Json변환 PA 출력값 변수 초기화
@@ -27,84 +26,6 @@
         );
         
         
-        
-        // 3. 검색 핕터에 적용되는 Category 가져오기
-        
-        //Set(colAgentCategoryList, '똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category);
-        
-        ClearCollect(
-            colAgentCategoryList,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
-            SortByColumns(
-                ForAll(
-                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
-                    {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order),
-                        ID: Text(ThisRecord.Value.ID),
-                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
-                        CategoryType: Text(ThisRecord.Value.CategoryType)
-                    }
-                ),
-                "Category_LV1",
-                SortOrder.Ascending
-                //,
-                //"Category_LV2",
-               // SortOrder.Ascending
-            )
-        );
-        
-        // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (빈칸만)
-        ClearCollect(
-            colAgentCategory,
-            Filter(
-                colAgentCategoryList,
-                CategoryType = Blank()
-            )
-        );
-         
-        
-        // 검색 필터에 적용되는 Category_LV2 가져오기
-        ClearCollect(
-            colAgentCategory_LV2,
-            First(colAgentCategory),
-            SortByColumns(
-                    LastN(colAgentCategory,CountRows(colAgentCategory)-1),
-                    "Category_LV2",
-                    SortOrder.Ascending
-                )
-        );
-        
-        
-        // 4. 기본 Type 컬렉션 설정
-        ClearCollect(
-            colAgentManageType,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Type: DEFAULT_CATEGORY_VALUE},
-            ForAll(
-                똑실이_AgentFunction_table​,
-                If(
-                    Category_LV1 exactin colAgentCategory.Category_LV1 && Category_LV2 exactin colAgentCategory.Category_LV2,
-                    {
-                        Category_LV1: Text(ThisRecord.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Category_LV2),
-                        Type: Text(ThisRecord.Type)
-                    }        
-                )
-            )
-        );
-        
-        ClearCollect(
-            colAgentManageType_Type,
-        
-            First(colAgentManageType),
-            
-            SortByColumns(
-                    LastN(colAgentManageType,CountRows(colAgentManageType)-1),
-                    "Type",
-                    SortOrder.Ascending
-                )
-        );
         
         //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
         
@@ -661,6 +582,7 @@
         FocusedBorderThickness: =4
         Font: =Font.'Segoe UI'
         FontWeight: =FontWeight.Bold
+        Height: =45
         Size: =27
         Text: |-
             ="Agent 관리
@@ -829,11 +751,17 @@
             HoverFill: |-
                 =ColorValue("#F5F5F5")
             OnSelect: |-
-                =Concurrent(
-                    Refresh(똑실이_Agent_table),
-                    Refresh(똑실이_AgentFunction_table​)); //DB REFRESH
+                =
+                Refresh(똑실이_Agent_table);//DB REFRESH
                 
-                Concurrent(Reset(TextInput_PublishedVersion_AM_1),Reset(TextInput_Version_AM_1),Reset(TextInput_Name_AM_1),Reset(TextInput_Description_AM_1),Reset(TextInput_FallbackFunction_AM_1));
+                //화면 내 컨트롤 초기화
+                Concurrent(
+                    Reset(TextInput_PublishedVersion_AM_1),
+                    Reset(TextInput_Version_AM_1),
+                    Reset(TextInput_Name_AM_1),
+                    Reset(TextInput_Description_AM_1),
+                    Reset(TextInput_FallbackFunction_AM_1)
+                );
             PaddingLeft: =30
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
