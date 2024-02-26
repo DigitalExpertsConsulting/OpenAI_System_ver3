@@ -1,0 +1,406 @@
+"'newDesign_AgentManage (newAM)' As screen":
+    Fill: =RGBA(245, 245, 245, 1)
+    LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
+    OnHidden: =Set(gblStartPage,"AgentMange")
+    OnVisible: |-
+        =//============================== << 시작 페이지에 따라 onvisible 구분 >> ==============================
+        //Agent 기능 관리 상세 화면에서 접속 시 onvisible 실행 안함
+        If(gblStartPage="AgentFunctionManageDetail","",
+        
+        //============================== << AgentManage 화면 접속 시 >> ==============================
+        
+        // 1. 로딩 이미지 활성화
+        Concurrent(   
+            UpdateContext({locLoadingSpinner:true}), // 로딩 스피너 이미지 활성
+            UpdateContext({locLoadingSpinnerBackground:true})
+        ); // 로딩 스피너 배경 이미지 활성 );
+        
+        // 2. 초기화
+        Concurrent(
+            Set(gblStartPage,"AgentMange"),
+            Refresh(똑실이_Agent_table),//DB REFRESH
+            UpdateContext({locServerUploadPopup: false}),  // 서버 업로드 팝업 visible 변수 초기화
+            UpdateContext({locPopupBackground: false}),  // 팝업 배경 visible 변수 초기화
+            Set(gblRequestBody,""), //Agent테이블Json변환 PA 출력값 변수 초기화
+            Set(gblServerUploadPAResult,"") // Agent서버업로드 PA 결과값 변수 초기화
+        );
+        
+        
+        
+        //============================== << Agent 기능 필터 초기화 및 로딩이미지 비활성화 >> ==============================
+        
+        Concurrent(
+            UpdateContext({locLoadingSpinner:false}), // 로딩 스피너 이미지 비활성화
+            UpdateContext({locLoadingSpinnerBackground:false}) // 로딩 스피너 배경 이미지 비활성화
+        );
+        );
+
+    Label_ScreenTitle_newAM As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: |-
+            =ColorValue("#242424")
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Bold
+        Height: =45
+        Size: =27
+        Text: |-
+            ="Agent 관리
+            "
+        Width: =297
+        X: =348
+        Y: =48
+        ZIndex: =2
+
+    New_Component_GNB_newAM As New_Component_GNB:
+        ZIndex: =4
+
+    Background_Popup_newAM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locPopupBackground
+        Width: =1620
+        X: =300
+        ZIndex: =21
+
+    Background_LoadingSpinner_newAM As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =locLoadingSpinnerBackground
+        Width: =1620
+        X: =300
+        ZIndex: =28
+
+    Image_LoadingSpinner_newAM As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: ='6-dots-rotate'
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =locLoadingSpinner
+        X: =957
+        Y: =454
+        ZIndex: =29
+
+    group_Refresh_newAM As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =33
+
+        Button_Refresh_newAM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            FontWeight: =FontWeight.Semibold
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =
+                Refresh(똑실이_Agent_table);//DB REFRESH
+                
+                //화면 내 컨트롤 초기화
+                Concurrent(
+                    Reset(TextInput_PublishedVersion_AM_1),
+                    Reset(TextInput_Version_AM_1),
+                    Reset(TextInput_Name_AM_1),
+                    Reset(TextInput_Description_AM_1),
+                    Reset(TextInput_FallbackFunction_AM_1)
+                );
+            PaddingLeft: =30
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: =Color.Black
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="새로고침"
+            Width: =121
+            X: =1758
+            Y: =48
+            ZIndex: =3
+
+        Image_Refresh_newAM As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =24
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =TokenMenuRefresh
+            OnSelect: =Select(Button_Refresh_newAM)
+            PaddingLeft: =3
+            PaddingTop: =3
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =24
+            X: =1773
+            Y: =55
+            ZIndex: =5
+
+    Popup_ServerUpload_newAM As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =49
+
+        Window_PopupServerUpload__newAM As rectangle:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
+            Height: =783
+            HoverFill: =
+            PressedFill: =
+            Visible: =locServerUploadPopup
+            Width: =986
+            X: =529
+            Y: =143
+            ZIndex: =22
+
+        Button_PopupServerUpload_Close_newAM As icon.Cancel:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =39
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =Concurrent(
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                    UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                    UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =locServerUploadPopup
+            Width: =52
+            X: =1447
+            Y: =169
+            ZIndex: =23
+
+        Label_PopupServerUpload_Title_newAM As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =55
+            Size: =20
+            Text: ="서버 업로드"
+            Visible: =locServerUploadPopup
+            Width: =645
+            X: =609
+            Y: =180
+            ZIndex: =24
+
+        Button_PopupServerUpload_Submit_newAM As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =If(!IsBlank(gblRequestBody),DisplayMode.Edit,DisplayMode.Disabled) // PA 출력값이 비어있지 않을때만 활성화
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =37
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =/*
+                Concurrent(
+                UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                );
+                */
+                
+                
+                /*
+                // 로딩창 활성화
+                Concurrent(
+                    UpdateContext({locLoadingSpinnerBackground:true}), // 로딩스피너 배경 이미지 활성화
+                    UpdateContext({locLoadingSpinner:true}) // 로딩 스피너 활성화
+                );
+                
+                
+                
+                //에이전트 서버 업로드 PA 실행
+                
+                IfError('[DEV]-똑실이-[Apps]PA호출'.Run(gblRequestBody), 
+                
+                        // PA 에러 시 실패 알림창 로드
+                        Notify("서버 업로드에 실패하였습니다. 재시도 해주시기 바랍니다.",NotificationType.Error),
+                
+                        // PA 성공 시 패치 후 성공 알림창 로드
+                        Patch(똑실이_Agent_table,
+                        Last(똑실이_Agent_table),
+                            {
+                            제목:"""""",
+                            Published_Version:Last(똑실이_Agent_table).Version // 똑실이_Agent_table에서 Published_Version을 현재 Agent 버전으로 패치
+                            }
+                        ); 
+                        Notify("서버 업로드 완료하였습니다.",NotificationType.Success);
+                );
+                
+                // 변수 초기화 및 로딩창 비활성화
+                    Concurrent(
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화    
+                    Set(gblServerUploadPAResult, ""), // Agent테이블서버업로드 PA 출력 변수 초기화
+                    UpdateContext({locLoadingSpinnerBackground:false}), // 로딩스피너 배경 이미지 비활성화
+                    UpdateContext({locLoadingSpinner:false}) // 로딩 스피너 비활성화
+                    );
+                
+                Concurrent(
+                    UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                    UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
+                
+                */
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Text: ="확인"
+            Visible: =locServerUploadPopup
+            Width: =100
+            X: =1221
+            Y: =813
+            ZIndex: =25
+
+        Button_PopupServerUpload_Cancel_newAM As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =37
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =Concurrent(
+                    Set(gblRequestBody,""), // Agent테이블Json변환 PA 출력값 변수 초기화
+                    UpdateContext({locServerUploadPopup:false});, // 서버 업로드 팝업 비활성화
+                    UpdateContext({locPopupBackground:false}) // 서버 업로드 팝업 배경 이미지 비활성화
+                )
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Text: ="취소"
+            Visible: =locServerUploadPopup
+            Width: =100
+            X: =1333
+            Y: =813
+            ZIndex: =26
+
+        Label_PopupServerUpload_json_newAM As label:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =0.5
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =557
+            Overflow: =Overflow.Scroll
+            PaddingBottom: =10
+            PaddingLeft: =10
+            PaddingRight: =10
+            PaddingTop: =10
+            Size: =13
+            Text: =gblRequestBody
+            Visible: =locServerUploadPopup
+            Width: =823
+            X: =609
+            Y: =240
+            ZIndex: =27
+
