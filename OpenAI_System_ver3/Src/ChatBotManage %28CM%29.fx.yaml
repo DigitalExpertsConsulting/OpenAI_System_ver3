@@ -1555,11 +1555,21 @@
         Y: =911
         ZIndex: =60
 
-    RadioGroupCanvas3 As 라디오.pcfdataset:
+    RadioGroupCanvas_AnswerMode_CM As 라디오.pcfdataset:
+        DefaultSelectedItems: |-
+            ={Value : "생성형 답변"}
         DisplayMode: =DisplayMode.Edit
         Height: =62
-        Items: =["Item 1", "Item 2"]
+        Items: =["생성형 답변", "정해진 답변"]
         Layout: ='RadioGroupCanvas.Layout'.Horizontal
+        OnChange: |-
+            =UpdateIf(똑실이_Category_table,CategoryType="default",{AnswerModel: If(RadioGroupCanvas_AnswerMode_CM.Selected.Value = "생성형 답변","generative","retrieval")});
+            
+            Notify(
+                "답변방식이 " & Char(34) & RadioGroupCanvas_AnswerMode_CM.Selected.Value & Char(34) &"로 변경되었습니다.",
+                NotificationType.Success,
+                5000
+            );
         Width: =311
         X: =667
         Y: =915
