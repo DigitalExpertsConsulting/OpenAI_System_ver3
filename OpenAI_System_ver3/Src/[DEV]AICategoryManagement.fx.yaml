@@ -670,12 +670,11 @@
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Image: =Icon_Settings
                 OnSelect: |
-                    =UpdateContext({SettingLv2Category:true});
-                    ClearCollect(
-                        CategoryOnlyLv1List, 
-                        {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
-                        AssignedCategoryManagerTable
-                    );
+                    =Set(gblSelectedEditSettingItemID, ThisItem.ID);
+                    UpdateContext({gblSelectedEditSettingItemID: true});
+                    
+                    UpdateContext({ShowCategorySettingModal: true});
+                    UpdateContext({CategorySettingModelAICM: ThisItem});
                 PressedBorderColor: =RGBA(0, 0, 0, 0)
                 PressedFill: =RGBA(0, 0, 0, 0)
                 Visible: =If(lbl_TitleType_AICategory_AICM.Text <> "AI Worker", true, false)
@@ -914,8 +913,8 @@
             Size: =15
             Text: =ThisItem.Value
             Width: =1302
-            X: =51
-            Y: =38
+            X: =58
+            Y: =33
             ZIndex: =12
 
     shp_BackGround_Setting_AICM As rectangle:
@@ -964,9 +963,7 @@
             RadiusTopRight: =8
             Size: =15
             Text: =""
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =730
             X: =732
             Y: =298
@@ -985,9 +982,7 @@
             Height: =58
             Size: =16
             Text: ="카테고리 수정"
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =239
             X: =773
             Y: =308
@@ -1004,9 +999,7 @@
             Height: =224
             HoverFill: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =643
             X: =777
             Y: =366
@@ -1041,7 +1034,7 @@
                 
                 UpdateContext({
                     ShowCategorySettingModal: false,
-                    CategorySettingModalItem: Blank()
+                    CategorySettingModelAICM: Blank()
                 });
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -1053,9 +1046,7 @@
             RadiusTopRight: =4
             Size: =11
             Text: ="확인"
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =49
             X: =1304
             Y: =759
@@ -1086,7 +1077,7 @@
             OnSelect: |-
                 =UpdateContext({
                     ShowCategorySettingModal: false,
-                    CategorySettingModalItem: Blank()
+                    CategorySettingModelAICM: Blank()
                 });
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
@@ -1100,9 +1091,7 @@
             RadiusTopRight: =4
             Size: =11
             Text: ="취소"
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =49
             X: =1371
             Y: =759
@@ -1122,13 +1111,11 @@
             OnSelect: |-
                 =UpdateContext({
                     ShowCategorySettingModal: false,
-                    CategorySettingModalItem: Blank()
+                    CategorySettingModelAICM: Blank()
                 });
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =19
             X: =1417
             Y: =318
@@ -1145,9 +1132,7 @@
             Height: =135
             HoverFill: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =643
             X: =777
             Y: =608
@@ -1155,12 +1140,10 @@
 
         frm_LV2CategoryEdit_Box_PopUp_AICM As form:
             BorderColor: =RGBA(166, 166, 166, 1)
-            DataSource: =똑실이_Category_table
+            DataSource: =colAICategory
             Height: =392
-            Item: =CategorySettingModalItem
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Item: =CategorySettingModelAICM
+            Visible: =true//ShowCategorySettingModal
             Width: =671
             X: =771
             Y: =373
@@ -1318,7 +1301,7 @@
                 DisplayMode: =DisplayMode.Disabled
                 DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"DocumentLanguage")
                 Fill: =RGBA(0, 0, 0, 0)
-                Height: =126
+                Height: =129
                 Required: =false
                 Update: =DataCardValue42_1.Selected.Value
                 Width: =669
@@ -1360,7 +1343,7 @@
                     DisabledFill: =RGBA(244, 244, 244, 1)
                     DisplayMode: =Parent.DisplayMode
                     Font: =Font.'Segoe UI'
-                    Height: =42
+                    Height: =37
                     HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
@@ -1375,7 +1358,7 @@
                     SelectionFill: =RGBA(105, 121, 126, 1)
                     Size: =13
                     Tooltip: =Parent.DisplayName
-                    Width: =271
+                    Width: =472
                     X: =152
                     Y: =16
                     ZIndex: =2
@@ -1618,9 +1601,7 @@
             Height: =21
             Size: =11
             Text: ="※ 위 영역의 설정은 카테고리 추가 후 변경 불가​"
-            Visible: |-
-                =true
-                //ShowCategorySettingModal
+            Visible: =true//ShowCategorySettingModal
             Width: =511
             X: =793
             Y: =559
