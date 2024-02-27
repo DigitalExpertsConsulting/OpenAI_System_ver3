@@ -541,6 +541,7 @@ Edit_CategoryMenu_JunTest_1 As screen:
         ChevronHoverBackground: =RGBA(212, 212, 212, 1)
         ChevronHoverFill: =RGBA(33, 33, 33, 1)
         Color: =RGBA(51, 51, 51, 1)
+        Default: =If(IsBlank(Var_CategoryLV1),"전체",Var_CategoryLV1)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
@@ -765,7 +766,7 @@ Edit_CategoryMenu_JunTest_1 As screen:
                 ),
                 "LV2Order",
                 SortOrder.Ascending
-            ), Filter(똑실이_Category_table,Category_LV2 = Dropdown1_2.SelectedText.Value))
+            ), Filter(똑실이_Category_table,Category_LV2 = Dropdown1_2.SelectedText.Value && Category_LV1 = Var_CategoryLV1 )) // 드롭다운에 해당되는 내용만 출력
         Layout: =Layout.Vertical
         OnSelect: =Set(Var_CategoryLV2Fill,ThisItem.ID)
         ShowScrollbar: =false
@@ -2505,21 +2506,6 @@ Edit_CategoryMenu_JunTest_1 As screen:
             X: =557
             Y: =33
             ZIndex: =3
-
-        Label10 As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            Font: =Font.'Segoe UI'
-            Size: =13
-            Text: =CountRows(Gallery_CategoryPopup_CategoryMenu_6.AllItems)
-            X: =348
-            Y: =23
-            ZIndex: =4
 
     Image_Refresh__CategoryMenu_3 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
@@ -5001,7 +4987,29 @@ Edit_CategoryMenu_JunTest_1 As screen:
                         5000
                     ); 
                     Select(Button_Refresh_CategoryMenu_5);
+                    
+                    // Var_CategoryLV1에 현재 아이템 Category_LV1명 저장
+                    Set(Var_CategoryLV1,TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp_3.Text);
+                
+                    // 카테고리 LV2 드롭다운 항목 생성
+                    ClearCollect(
+                        Col_CategoryLV2Dropdown,
+                        {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                        SortByColumns(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = Var_CategoryLV1
+                            ),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        ).Category_LV2
+                    ); 
+                
                     UpdateContext({AddLv1Category: false}); Reset(TextInput_AddMainCategoryNameMain_CategoryMenu_in_Lv1PopUp_3);
+                
+                    //LV2 카테고리 목록 드롭다운 초기화
+                    Reset(Dropdown1_2);
+                
                 
                 
                 );););
@@ -5458,6 +5466,10 @@ Edit_CategoryMenu_JunTest_1 As screen:
                         Category_LV1 = AddPopUpCategory
                     );
                     Select(Button_Refresh_CategoryMenu_5);
+                
+                    // Var_CategoryLV1변수 초기화
+                    Set(Var_CategoryLV1,Blank());
+                  
                     ,   
                     RemoveIf(
                         똑실이_Category_table,
@@ -6473,6 +6485,21 @@ Edit_CategoryMenu_JunTest_1 As screen:
                     
                     Reset(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_5); Reset(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_6); Reset(RadioGroupCanvas2_1);
                 
+                    // 카테고리 LV2 드롭다운 항목 생성
+                ClearCollect(
+                    Col_CategoryLV2Dropdown,
+                    {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                    SortByColumns(
+                        Filter(
+                            똑실이_Category_table,
+                            Category_LV1 = Var_CategoryLV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    ).Category_LV2
+                ); 
+                
+                
                 ););););
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -6677,7 +6704,7 @@ Edit_CategoryMenu_JunTest_1 As screen:
             ChevronHoverBackground: =RGBA(212, 212, 212, 1)
             ChevronHoverFill: =RGBA(33, 33, 33, 1)
             Color: =RGBA(51, 51, 51, 1)
-            Default: =DEFAULT_SELECT_CATEGORY_VALUE
+            Default: =Var_CategoryLV1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -6703,8 +6730,8 @@ Edit_CategoryMenu_JunTest_1 As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Visible: =AddLv2Category
-            Width: =447
-            X: =926
+            Width: =459
+            X: =921
             Y: =405
             ZIndex: =120
 
