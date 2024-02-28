@@ -1,44 +1,22 @@
-"'[BackUp]QALog' As screen":
+"'[Backup]QALog' As screen":
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnVisible: |+
-        =UpdateContext({LodingPopup:true});
+    OnVisible: |-
+        =Clear(CheckedItems);
+        Set(DeleteCheckBox,false);
         Concurrent(
-        Refresh(똑실이_QA_table),
-        Set(CheckedID, Blank()),
-        Set(QuestionPopup,false),
-        Set(AnswerPopup,false),
-        Reset(TextInput_SearchUser_QALog),
-        Reset(TextInput_SearchQuestion_QALog),
-        UpdateContext({ShowLike: false}),
-        Reset(DatePicker_SearchDateMax_QALog),
-        Reset(DatePicker_SearchDateMin_QALog)
-        );
-        UpdateContext({LodingPopup:false});
+        Set(CheckedID, Blank());,
+        Set(EditQuestionPopup,false);,
+        Set(EditAnswerPopup,false);,
         
+        Set(delPopUp_QA,false);
+        );
+        
+        Set(DeleteCheckBox,false);
+        UpdateContext({QALogEditVisible:false});
+        UpdateContext({ShowLike: false});
 
-    Label_QALogMain_QALog As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        FontWeight: =FontWeight.Semibold
-        Height: =64
-        PaddingBottom: =0
-        PaddingLeft: =0
-        PaddingRight: =0
-        PaddingTop: =0
-        Size: =32
-        Text: ="질의응답"
-        Width: =691
-        X: =343
-        Y: =23
-        ZIndex: =2
-
-    Rectangle_QAGallery_QALog As rectangle:
+    Rectangle_QAGallery_QALogEdit As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -48,13 +26,30 @@
         FocusedBorderThickness: =4
         Height: =820
         HoverFill: =RGBA(255, 255, 255, 1)
-        PressedFill: =RGBA(255, 255, 255, 1)
+        PressedFill: =RGBA(0, 0, 0, 0)
         Width: =1540
         X: =340
         Y: =220
-        ZIndex: =14
+        ZIndex: =1
 
-    "Gallery_QAGallery_QALog As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+    Label_QALogMain_QALogEdit As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        FontWeight: =FontWeight.Bold
+        Height: =64
+        Size: =30
+        Text: ="QA 관리"
+        Width: =691
+        X: =343
+        Y: =23
+        ZIndex: =2
+
+    "Gallery_QAGallery_QALogEdit As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(0, 18, 107, 1)
         DelayItemLoading: =true
         Height: =718
@@ -65,34 +60,25 @@
                     "ID",
                     SortOrder.Descending
                 ),
-                Or(
-                    IsBlank(TextInput_SearchUser_QALog.Text),
-                    TextInput_SearchUser_QALog.Text in Name
-                ) && Or(
-                    IsBlank(TextInput_SearchQuestion_QALog.Text),
-                    TextInput_SearchQuestion_QALog.Text in Question
-                ) && (!ShowLike || 'LikeT/F')
-                 && (Date >= DatePicker_SearchDateMin_QALog.SelectedDate) && (Date <= DatePicker_SearchDateMax_QALog.SelectedDate)
+                (IsBlank(TextInput_SearchUser_QALogEdit.Text) || TextInput_SearchUser_QALogEdit.Text in Name) &&
+                (IsBlank(TextInput_SearchQuestion_QALogEdit.Text) || TextInput_SearchQuestion_QALogEdit.Text in Question) &&
+                (!ShowLike ||'LikeT/F') &&
+                (Date >= DatePicker_SearchDateMin_QALogEdit.SelectedDate) &&
+                (Date <= DatePicker_SearchDateMax_QALogEdit.SelectedDate)
             )
             
-            /*SortByColumns(
+            /*
+            SortByColumns(
                 Filter(
-                    QA_table,
-                    Or(IsBlank(TextInput_SearchUser_QALog.Text), TextInput_SearchUser_QALog.Text in field_4) &&
-                    Or(IsBlank(TextInput_SearchQuestion_QALog.Text),TextInput_SearchQuestion_QALog.Text in Question) &&
+                    똑실이_QA_table,
+                    (IsBlank(TextInput_SearchUser_QALogEdit.Text) || TextInput_SearchUser_QALogEdit.Text in Name) &&
+                    (IsBlank(TextInput_SearchQuestion_QALogEdit.Text) || TextInput_SearchQuestion_QALogEdit.Text in Question) &&
                     (!ShowLike ||'LikeT/F') &&
-                    (Date >= DatePicker_SearchDateMin_QALog.SelectedDate) &&
-                    (Date <= DatePicker_SearchDateMax_QALog.SelectedDate)
-                ),
+                    (Date >= DatePicker_SearchDateMin_QALogEdit.SelectedDate) &&
+                    (Date <= DatePicker_SearchDateMax_QALogEdit.SelectedDate)
+                    ),
                 "ID",
                 SortOrder.Descending
-            )*/
-            /*
-            Filter(QA_table,
-            (IsBlank(TextInput_SearchUser_QALog.Text) || TextInput_SearchUser_QALog.Text in Name) &&
-            (IsBlank(TextInput_SearchQuestion_QALog.Text) || TextInput_SearchQuestion_QALog.Text in Question)&&
-            (!ShowLike || 'LikeT/F')&&
-            (Date >= DatePicker_SearchDateMin_QALog.SelectedDate) && (Date <= DatePicker_SearchDateMax_QALog.SelectedDate)
             )
             */
         Layout: =Layout.Vertical
@@ -105,97 +91,17 @@
         Y: =304
         ZIndex: =15
 
-        Rectangle_QAGalleryHate_QALog As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =65
-            OnSelect: =Select(Parent)
-            Width: =73
-            X: =1453
-            ZIndex: =1
-
-        Circle_QAGalleryHate_QALog As circle:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledFill: =RGBA(105, 121, 126, 1)
-            Fill: |-
-                =If(Icon_QAGalleryHate_QALog.Color=Color.Red,
-                
-                ColorValue("#FFCCCC"),RGBA(0,0,0,0)
-                )
-            Height: =47
-            OnSelect: =Select(Parent)
-            Visible: =false
-            Width: =63
-            X: =1445
-            Y: =11
-            ZIndex: =2
-
-        Image_QAGalleryHate_QALog As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =57
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: ='빨간 따봉_1'
-            OnSelect: =Select(Parent)
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =false
-            Width: =43
-            X: =1483
-            Y: =7
-            ZIndex: =3
-
-        Rectangle_QAGalleryLike_QALog As rectangle:
-            BorderColor: =RGBA(0, 0, 0, 1)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Fill: =RGBA(255, 255, 255, 1)
-            Height: =57
-            OnSelect: =Select(Parent)
-            Width: =53
-            X: =1283
-            ZIndex: =4
-
-        Image_QAGalleryLike_QALog As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =57
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: ='굿 파란색'
-            OnSelect: =Select(Parent)
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =false
-            Width: =43
-            X: =1426
-            Y: =8
-            ZIndex: =5
-
-        Separator_QAGalleryBody_QALog As rectangle:
+        Separator_QAGalleryBody_QALogEdit As rectangle:
             BorderColor: =RGBA(0, 18, 107, 1)
             Fill: =RGBA(219, 219, 219, 1)
             Height: =1
             OnSelect: =Select(Parent)
-            Width: =1500
-            X: =35
-            Y: =72
-            ZIndex: =6
+            Width: =1460
+            X: =58
+            Y: =64
+            ZIndex: =1
 
-        Label_QAGalleryQusetion_QALog As label:
+        Label_QAGalleryQusetion_QALogEdit As label:
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
             Color: |-
@@ -205,8 +111,8 @@
             Height: =45
             OnSelect: |-
                 =Select(Parent);
-                Set(QuestionPopup , true);
-                UpdateContext({QALogVisible: true});
+                Set(EditQuestionPopup , true);
+                UpdateContext({QALogEditVisible: true});
             PaddingBottom: =10
             PaddingLeft: =15
             PaddingRight: =23
@@ -214,34 +120,34 @@
             Size: =12
             Text: =ThisItem.Question
             Tooltip: =ThisItem.Question
-            Width: =350
+            Width: =295
             Wrap: =false
             X: =265
             Y: =12
-            ZIndex: =7
+            ZIndex: =2
 
-        Label_QAGalleryAnswer_QALog As label:
+        Label_QAGalleryAnswer_QALogEdit As label:
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
             Color: =RGBA(0, 0, 0, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             Height: =48
-            OnSelect: |-
-                =Set(AnswerPopup , true);
+            OnSelect: |
+                =Set(EditAnswerPopup , true);
                 Select(Parent);
-                UpdateContext({QALogVisible: true});
+                UpdateContext({QALogEditVisible: true});
             PaddingLeft: =15
             PaddingTop: =25
             Size: =12
             Text: =ThisItem.Answer
             Tooltip: =ThisItem.Answer
             VerticalAlign: =VerticalAlign.Top
-            Width: =390
+            Width: =475
             Wrap: =false
-            X: =580
-            ZIndex: =8
+            X: =561
+            ZIndex: =3
 
-        Label_QAGalleryDate_QALog As label:
+        Label_QAGalleryDate_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -252,11 +158,11 @@
             Size: =12
             Text: =Text(ThisItem.Date,"yyyy-mm-dd")
             Width: =94
-            X: =1025
+            X: =1035
             Y: =12
-            ZIndex: =9
+            ZIndex: =4
 
-        Label_QAGalleryName_QALog As label:
+        Label_QAGalleryName_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -265,265 +171,14 @@
             Height: =45
             OnSelect: =Select(Parent)
             Size: =12
-            Text: =ThisItem.Name
+            Text: |
+                =ThisItem.Name
             Width: =Label_Name_QALog.Width
-            X: =1173
+            X: =1155
             Y: =12
-            ZIndex: =10
+            ZIndex: =5
 
-        "'(삭제예정)Button_QAGalleryCopy_QALog' As button":
-            BorderColor: =RGBA(0, 0, 0, 0)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: =RGBA(0, 0, 0, 0)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
-            Height: =23
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            OnSelect: |-
-                =Copy(Label_QAGalleryQusetion_QALog.Text);
-                Patch(
-                    똑실이_QA_table,
-                    LookUp(
-                        똑실이_QA_table,
-                        ID = ThisItem.ID
-                    ),
-                    {
-                        CopyCount: If(IsBlank(ThisItem.CopyCount),1,ThisItem.CopyCount + 1)
-                    }
-                );
-                //Patch(QA_table, {CopyCount: ThisItem.CopyCount + 1});
-                Notify(
-                    "질문이 클립보드에 복사되었습니다.",
-                    NotificationType.Success,5000
-                );
-                Set(
-                    Copytest,
-                    ThisItem.ID
-                );
-            PressedBorderColor: =Color.White
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            RadiusBottomLeft: =0
-            RadiusBottomRight: =0
-            RadiusTopLeft: =0
-            RadiusTopRight: =0
-            Size: =15
-            Text: =""
-            Visible: |-
-                =//true
-                false
-            Width: =32
-            X: =40
-            Y: =24
-            ZIndex: =11
-
-        Icon_QAGalleryHate_QALog As icon.ThumbsDown:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: |
-                =If(
-                    ThisItem.'HateT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.HatePeople,  
-                        Color.Red,
-                        Color.Gray
-                    ),
-                    Color.Gray
-                )
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =29
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.ThumbsDown
-            OnSelect: |-
-                =ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': If(Office365사용자.MyProfile().Mail in ThisItem.HatePeople,false,!ThisItem.'HateT/F'),
-                        HateCount: If(
-                            ThisItem.'HateT/F' && Office365사용자.MyProfile().Mail in ThisItem.HatePeople ,
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople: If(
-                            ThisItem.'HateT/F'&& Office365사용자.MyProfile().Mail in ThisItem.HatePeople,
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = false,true,If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = true,true)),
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-                
-                
-                
-                
-                
-                
-                /*
-                ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': !ThisItem.'HateT/F',
-                        HateCount: If(
-                            ThisItem.'HateT/F',
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople1: If(
-                            ThisItem.'HateT/F',
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        QA_table,
-                        LookUp(QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': HateTable[@'HateT/F'],
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople1]
-                        }
-                    )
-                )
-                */
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =false
-            Width: =31
-            X: =1489
-            Y: =23
-            ZIndex: =12
-
-        Icon_QAGalleryLike_QALog As icon.ThumbsUp:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: |
-                =//If( IsLiked, Color.Coral, Color.Gray)
-                //If( ThisItem.'LikeT/F', Color.Coral, Color.Gray)
-                If(
-                    ThisItem.'LikeT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
-                        Color.Blue,
-                        Color.Gray
-                    ),
-                    Color.Gray
-                )
-            DisabledBorderColor: =RGBA(166, 166, 166, 1)
-            DisabledColor: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =4
-            Height: =29
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            Icon: =Icon.ThumbsUp
-            OnSelect: |+
-                =/*
-                Select(Parent);
-                Set(IsLiked, !IsLiked);
-                */
-                
-                /*
-                Patch(QA_table, ThisItem, {'LikeT/F': !ThisItem.'LikeT/F',
-                                           LikeCount: If(ThisItem.'LikeT/F' = true, ThisItem.LikeCount -1 ,ThisItem.LikeCount +1) ,
-                                           LikePeople1 : Office365사용자.MyProfile().Mail })
-                */
-                
-                
-                
-                ClearCollect(
-                    LikeTable,
-                    {
-                        ID: ThisItem.ID,
-                        'LikeT/F': If(Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,false,!ThisItem.'LikeT/F'),
-                        LikeCount: If(
-                            ThisItem.'LikeT/F' && Office365사용자.MyProfile().Mail in ThisItem.LikePeople1 ,
-                            ThisItem.LikeCount - 1,
-                            ThisItem.LikeCount + 1
-                        ),
-                        LikePeople1: If(
-                            ThisItem.'LikeT/F'&& Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,
-                            Substitute(ThisItem.LikePeople1, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.LikePeople1, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                ForAll(
-                    LikeTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = LikeTable[@ID]),
-                        {
-                            'LikeT/F': If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = false, true,
-                                                If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = true, true
-                                                    )
-                                            ),
-                            LikeCount: LikeTable[@LikeCount],
-                            LikePeople1:LikeTable[@LikePeople1]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-                
-                
-                
-            Visible: =false
-            Width: =31
-            X: =1432
-            Y: =20
-            ZIndex: =13
-
-        "'(삭제예정)Label_QAGalleryCopyCount_QALog' As label":
-            Align: =Align.Center
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Color: =RGBA(0, 0, 0, 1)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Height: =45
-            OnSelect: =Select(Parent)
-            Size: =12
-            Text: |-
-                =If(
-                ThisItem.CopyCount = 0 || IsBlank(ThisItem.CopyCount), 0, ThisItem.CopyCount)
-            Visible: =false
-            Width: =70
-            X: =1211
-            Y: =12
-            ZIndex: =14
-
-        Label_QAGalleryLikeCount_QALog As label:
+        Label_QAGalleryLikeCount_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -536,11 +191,11 @@
                 =If(
                 ThisItem.LikeCount = 0 || IsBlank(ThisItem.LikeCount), 0, ThisItem.LikeCount)
             Width: =70
-            X: =1285
+            X: =1275
             Y: =12
-            ZIndex: =15
+            ZIndex: =7
 
-        Label_QAGalleryHateCount_QALog As label:
+        Label_QAGalleryHateCount_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -553,67 +208,11 @@
                 =If(
                 ThisItem.HateCount = 0 || IsBlank(ThisItem.HateCount), 0, ThisItem.HateCount)
             Width: =70
-            X: =1370
+            X: =1364
             Y: =12
-            ZIndex: =16
+            ZIndex: =8
 
-        Label_QAGalleryCategory_QALog As label:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            Color: =RGBA(51, 51, 51, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            FocusedBorderThickness: =4
-            OnSelect: =Select(Parent)
-            PaddingBottom: =10
-            PaddingLeft: =15
-            PaddingTop: =18
-            Size: =12
-            Text: |-
-                =If(!IsBlank(ThisItem.Category_LV1),
-                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
-                    ""
-                )
-            Tooltip: |-
-                =If(!IsBlank(ThisItem.Category_LV1),
-                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
-                    ""
-                )
-            Width: =180
-            Wrap: =false
-            X: =50
-            Y: =12
-            ZIndex: =17
-
-        "'(삭제예정)Icon_QAGalleryCopy_QALog' As icon.Copy":
-            BorderColor: =RGBA(166, 166, 166, 1)
-            Color: =RGBA(105, 121, 126, 1)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(220, 220, 220, 1)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =23
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Copy
-            OnSelect: |
-                =Copy(Label_QAGalleryQusetion_QALog.Text);
-                Patch(똑실이_QA_table, LookUp(똑실이_QA_table, Question=ThisItem.Question), {CopyCount:ThisItem.CopyCount+1});
-                //Patch(QA_table, {CopyCount: ThisItem.CopyCount + 1});
-                Notify("질문이 클립보드에 복사되었습니다.", NotificationType.Success,5000);
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Tooltip: ="질문 퍼가기"
-            Visible: =false
-            Width: =40
-            X: =35
-            Y: =22
-            ZIndex: =18
-
-        Icon_QAGalleryAnswerPopup_QALog As icon.ZoomIn:
+        Icon_QAGalleryAnswerPopup_QALogEdit As icon.ZoomIn:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -636,9 +235,9 @@
             Width: =25
             X: =961
             Y: =4
-            ZIndex: =19
+            ZIndex: =9
 
-        Icon_QAGalleryQuestionPopup_QALog As icon.ZoomIn:
+        Icon_QAGalleryQuestionPopup_QALogEdit As icon.ZoomIn:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -661,468 +260,208 @@
             Width: =25
             X: =330
             Y: =5
-            ZIndex: =20
+            ZIndex: =10
 
-        "'(삭제예정)Image_QAGalleryCopy_QALog' As image":
-            BorderColor: =RGBA(0, 0, 0, 0)
+        Checkbox_QAGalleryCheck_QALogEdit As checkbox:
             BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =20
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: =Icon_Copy
-            OnSelect: |-
-                =IfError(
-                    Copy(Label_QAGalleryQusetion_QALog.Text),
-                    Notify("Teams 안에선 복사가 지원되지 않습니다.", NotificationType.Warning,5000),
-                    Patch(똑실이_QA_table, LookUp(똑실이_QA_table, ID=ThisItem.ID), {CopyCount:ThisItem.CopyCount+1});
-                    //Patch(QA_table, {CopyCount: ThisItem.CopyCount + 1});
-                    Notify("질문이 클립보드에 복사되었습니다.", NotificationType.Success,5000);
-                    Set(Copytest,ThisItem.ID);
-                )
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: |-
-                =//If(ThisItem.ID = Copytest ,false,true)
-                false
-            Width: =20
-            X: =40
-            Y: =26
-            ZIndex: =21
-
-        "'(삭제예정)Image_QAGalleryCopyOK_QALog' As image":
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =2
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =20
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: =Icon_Copy2
-            OnSelect: =Select(Parent)
-            PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: |-
-                =//If(ThisItem.ID = Copytest ,true,false)
-                false
-            Width: =20
-            X: =40
-            Y: =26
-            ZIndex: =22
-
-        Image_QAGalleryLikeFig_QALog As image:
-            BorderColor: |-
-                =ColorValue("#9FD89F")
             BorderThickness: =1
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            FocusedBorderThickness: =4
-            Height: =25
-            HoverBorderColor: |-
-                =ColorValue("#107C10")
-            HoverFill: |-
-                =ColorValue("#F1FAF1")
-            Image: |
-                =Icon_Like
+            CheckboxSize: =25
+            Color: =RGBA(0, 0, 0, 1)
+            Default: |
+                =DeleteCheckBox
+            Height: =36
+            HoverColor: =RGBA(0, 18, 107, 1)
+            OnCheck: |+
+                =//UpdateContext({SelectCheck: true});
+                //Set(CheckedID, LookUp(QA_table, ID=ThisItem.ID, ID));
+                Collect(CheckedItems, ThisItem.ID);
+                
             OnSelect: |
+                =//Select(Parent);
+                //Set(CheckedID, LookUp(QA_table, ID=ThisItem.ID, ID));
+            OnUncheck: |-
+                =//UpdateContext({SelectCheck: false});
+                //Set(CheckedID, Blank());
+                RemoveIf(CheckedItems, Value = ThisItem.ID)
+            Reset: =
+            Size: =13
+            Text: =""
+            Width: =23
+            X: =40
+            Y: =16
+            ZIndex: =11
+
+        Button_Delete_QALogEdit As button:
+            BorderColor: |-
                 =
-                ClearCollect(
-                    LikeTable,
-                    {
-                        ID: ThisItem.ID,
-                        'LikeT/F': If(Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,false,!ThisItem.'LikeT/F'),
-                        LikeCount: If(
-                            ThisItem.'LikeT/F' && Office365사용자.MyProfile().Mail in ThisItem.LikePeople1 ,
-                            ThisItem.LikeCount - 1,
-                            ThisItem.LikeCount + 1
-                        ),
-                        LikePeople1: If(
-                            ThisItem.'LikeT/F'&& Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,
-                            Substitute(ThisItem.LikePeople1, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.LikePeople1, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
                 
-                
-                ForAll(
-                    LikeTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = LikeTable[@ID]),
-                        {
-                            'LikeT/F': If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = false, true,
-                                                If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = true, true
-                                                    )
-                                            ),
-                            LikeCount: LikeTable[@LikeCount],
-                            LikePeople1:LikeTable[@LikePeople1]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-            PaddingBottom: =2
-            PaddingLeft: =2
-            PaddingRight: =2
-            PaddingTop: =2
-            PressedBorderColor: |-
-                =ColorValue("#107C10")
-            PressedFill: |-
-                =ColorValue("#F1FAF1")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Visible: |
-                =If(
-                    ThisItem.'LikeT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
-                        false,
-                        true
-                    ),
-                    true
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(230, 230, 230, 1),
+                    Color.White
                 )
-            Width: =25
-            X: =1461
-            Y: =22
-            ZIndex: =23
-
-        Image_QAGalleryLikeOKFig_QALog As image:
-            BorderColor: |-
-                =ColorValue("#107C10")
-            BorderThickness: =1
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: |-
-                =ColorValue("#107C10")
-            FocusedBorderThickness: =4
-            Height: =25
-            HoverBorderColor: |-
-                =ColorValue("#107C10")
+            Color: =RGBA(0, 0, 0, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =2
+            FontWeight: =FontWeight.Semibold
+            Height: =35
+            HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: |-
-                =ColorValue("#129912") 
-            Image: =Icon_Like2
-            OnSelect: |+
-                =/*
-                Select(Parent);
-                Set(IsLiked, !IsLiked);
-                */
+                =If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+            OnSelect: |
+                =Select(Parent);
                 
+                Set(delPopUp_QA,true);
                 /*
-                Patch(QA_table, ThisItem, {'LikeT/F': !ThisItem.'LikeT/F',
-                                           LikeCount: If(ThisItem.'LikeT/F' = true, ThisItem.LikeCount -1 ,ThisItem.LikeCount +1) ,
-                                           LikePeople1 : Office365사용자.MyProfile().Mail })
-                */
-                
-                
-                
-                ClearCollect(
-                    LikeTable,
-                    {
-                        ID: ThisItem.ID,
-                        'LikeT/F': If(Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,false,!ThisItem.'LikeT/F'),
-                        LikeCount: If(
-                            ThisItem.'LikeT/F' && Office365사용자.MyProfile().Mail in ThisItem.LikePeople1 ,
-                            ThisItem.LikeCount - 1,
-                            ThisItem.LikeCount + 1
-                        ),
-                        LikePeople1: If(
-                            ThisItem.'LikeT/F'&& Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,
-                            Substitute(ThisItem.LikePeople1, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.LikePeople1, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                ForAll(
-                    LikeTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = LikeTable[@ID]),
-                        {
-                            'LikeT/F': If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = false, true,
-                                                If(Office365사용자.MyProfile().Mail in LikePeople1 && 'LikeT/F' = true, true
-                                                    )
-                                            ),
-                            LikeCount: LikeTable[@LikeCount],
-                            LikePeople1:LikeTable[@LikePeople1]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-                
-                
-                
-            PaddingBottom: =2
-            PaddingLeft: =2
-            PaddingRight: =2
-            PaddingTop: =2
-            PressedBorderColor: |-
-                =ColorValue("#107C10")
-            PressedFill: |-
-                =ColorValue("#107C10")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Visible: |
-                =If(
-                    ThisItem.'LikeT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
-                        true,
-                        false
-                    ),
-                    false
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
                 )
-            Width: =25
-            X: =1461
-            Y: =22
-            ZIndex: =24
+                */
+            PressedFill: |-
+                =
+                
+                
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+            Size: =14
+            Text: =""
+            Width: =35
+            X: =1458
+            Y: =16
+            ZIndex: =12
 
-        Image_QAGalleryHateFig_QALog As image:
+        Image_Delete_QALog As image:
             BorderColor: |-
-                =ColorValue("#F1BBBC")
-            BorderThickness: =1
+                =
+                
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(230, 230, 230, 1),
+                    Color.White
+                )
+            BorderThickness: =2
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: |-
+                =If(
+                    ThisItem.ID in CheckedItems ,
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
+            Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
-            Height: =25
-            HoverBorderColor: |-
-                =ColorValue("#D13438")
+            Height: =35
             HoverFill: |-
-                =ColorValue("#FDF6F6")
-            Image: =Icon_Hate
+                =If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
+                )
+            Image: =Delete
             OnSelect: |-
-                =ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': If(Office365사용자.MyProfile().Mail in ThisItem.HatePeople,false,!ThisItem.'HateT/F'),
-                        HateCount: If(
-                            ThisItem.'HateT/F' && Office365사용자.MyProfile().Mail in ThisItem.HatePeople ,
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople: If(
-                            ThisItem.'HateT/F'&& Office365사용자.MyProfile().Mail in ThisItem.HatePeople,
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
+                =Select(Parent);
                 
+                Set(delPopUp_QA,true);
                 
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = false,true,If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = true,true)),
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-                
-                
-                
-                
-                
-                
-                /*
-                ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': !ThisItem.'HateT/F',
-                        HateCount: If(
-                            ThisItem.'HateT/F',
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople1: If(
-                            ThisItem.'HateT/F',
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        QA_table,
-                        LookUp(QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': HateTable[@'HateT/F'],
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople1]
-                        }
-                    )
-                )
-                */
-            PaddingBottom: =2
-            PaddingLeft: =2
-            PaddingRight: =2
-            PaddingTop: =2
-            PressedBorderColor: |-
-                =ColorValue("#D13438")
-            PressedFill: |-
-                =ColorValue("#FDF6F6")
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Visible: |
-                =If(
-                    ThisItem.'HateT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.LikePeople1,  
-                        false,
-                        true
-                    ),
-                    true
-                )
-            Width: =25
-            X: =1495
-            Y: =22
-            ZIndex: =25
-
-        Image_QAGalleryHateOKFig_QALog As image:
-            BorderColor: |-
-                =ColorValue("#D13438")
-            BorderThickness: =1
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledFill: =RGBA(0, 0, 0, 0)
-            Fill: |-
-                =ColorValue("#D13438")
-            FocusedBorderThickness: =4
-            Height: =25
-            HoverBorderColor: |-
-                =ColorValue("#D13438")
-            HoverFill: |-
-                =ColorValue("#e64549")
-            Image: =Icon_Hate2
-            OnSelect: |-
-                =ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': If(Office365사용자.MyProfile().Mail in ThisItem.HatePeople,false,!ThisItem.'HateT/F'),
-                        HateCount: If(
-                            ThisItem.'HateT/F' && Office365사용자.MyProfile().Mail in ThisItem.HatePeople ,
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople: If(
-                            ThisItem.'HateT/F'&& Office365사용자.MyProfile().Mail in ThisItem.HatePeople,
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        똑실이_QA_table,
-                        LookUp(똑실이_QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = false,true,If(Office365사용자.MyProfile().Mail in HatePeople && 'HateT/F' = true,true)),
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople]
-                        }
-                    )
-                );
-                
-                Refresh(똑실이_QA_table);
-                
-                
-                
-                
-                
-                
-                /*
-                ClearCollect(
-                    HateTable,
-                    {
-                        ID: ThisItem.ID,
-                        'HateT/F': !ThisItem.'HateT/F',
-                        HateCount: If(
-                            ThisItem.'HateT/F',
-                            ThisItem.HateCount - 1,
-                            ThisItem.HateCount + 1
-                        ),
-                        HatePeople1: If(
-                            ThisItem.'HateT/F',
-                            Substitute(ThisItem.HatePeople, Concatenate(Office365사용자.MyProfile().Mail, ","), ""),
-                            Concatenate(ThisItem.HatePeople, Office365사용자.MyProfile().Mail, ",")
-                        )
-                    }
-                );
-                
-                
-                ForAll(
-                    HateTable,
-                    Patch(
-                        QA_table,
-                        LookUp(QA_table, ID = HateTable[@ID]),
-                        {
-                            'HateT/F': HateTable[@'HateT/F'],
-                            HateCount: HateTable[@HateCount],
-                            HatePeople:HateTable[@HatePeople1]
-                        }
-                    )
-                )
-                */
+                UpdateContext({QALogEditVisible: true});
+            PaddingBottom: =05
+            PaddingLeft: =05
+            PaddingRight: =05
+            PaddingTop: =05
             PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            RadiusBottomLeft: =4
-            RadiusBottomRight: =4
-            RadiusTopLeft: =4
-            RadiusTopRight: =4
-            Visible: |
-                =If(
-                    ThisItem.'HateT/F',
-                    If(
-                        Office365사용자.MyProfile().Mail in ThisItem.HatePeople,  
-                        true,
-                        false
-                    ),
-                    false
+            PressedFill: |-
+                =
+                
+                
+                If(
+                    ThisItem.ID in CheckedItems ,
+                    RGBA(219, 219, 219, 1),
+                    RGBA(0, 0, 0, 0)
                 )
-            Width: =25
-            X: =1495
-            Y: =22
-            ZIndex: =26
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Transparency: |-
+                =If(
+                    ThisItem.ID in CheckedItems ,
+                    0,
+                    0.5
+                )
+            Width: =35
+            X: =1458
+            Y: =15
+            ZIndex: =13
 
-    Separator_QALogGalleryMain_QALog As rectangle:
+        Label_QAGalleryHateCount_Category As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            OnSelect: =Select(Parent)
+            PaddingTop: =15
+            Size: =12
+            Text: |-
+                =If(!IsBlank(ThisItem.Category_LV1),
+                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+                    ""
+                )
+            Tooltip: |-
+                =If(!IsBlank(ThisItem.Category_LV1),
+                    Text(ThisItem.Category_LV1)&">"&Text(ThisItem.Category_LV2),
+                    ""
+                )
+            Width: =185
+            Wrap: =false
+            X: =65
+            Y: =12
+            ZIndex: =14
+
+    Separator_QALogGalleryMain_QALogEdit As rectangle:
         BorderColor: =RGBA(0, 0, 0, 1)
         Fill: =RGBA(230, 230, 230, 1)
         Height: =1
-        Width: =1486
-        X: =374
-        Y: =304
+        Width: =1460
+        X: =392
+        Y: =312
         ZIndex: =24
 
-    Button_Refresh_QALog As button:
+    Image_CheckBoxHeader_QALogEdit As image:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        DisplayMode: =DisplayMode.Disabled
+        FocusedBorderThickness: =4
+        Height: =30
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Image: =CheckBox
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Visible: =false
+        Width: =30
+        X: =392
+        Y: =269
+        ZIndex: =25
+
+    Button_Refresh_QALogEdit As button:
         BorderColor: |-
             =ColorValue("#D1D1D1")
         BorderThickness: =1
@@ -1141,7 +480,66 @@
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(똑실이_QA_table)
+        OnSelect: |-
+            =Refresh(똑실이_QA_table);
+            Clear(CheckedItems);
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="새로고침"
+        Width: =121
+        X: =1759
+        Y: =41
+        ZIndex: =26
+
+    Button_CSV_Download_QALogEdit As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =UpdateContext({LodingPopup:true});
+            Notify("CSV 다운로드 중입니다");
+            
+            /*UpdateContext({output_csv:'[Backup]똑실이-[Apps]질의응답CSV임시파일생성'.Run(TextInput_SearchUser_QALogEdit.Text,TextInput_SearchQuestion_QALogEdit.Text,DatePicker_SearchDateMin_QALogEdit.SelectedDate,DatePicker_SearchDateMax_QALogEdit.SelectedDate,Checkbox_LikeCheck_QALogEdit.Value, User().Email)});
+            
+            UpdateContext({download_link:output_csv.download_link});
+            
+            UpdateContext({onedrive_file_id:output_csv.onedrive_file_id});
+            
+            If(
+                IsBlank(output_csv.download_link),
+                Notify("일시적인 문제가 발생했습니다 다시 시도해주세요",NotificationType.Error,0),
+                Launch(download_link);
+                Notify("CSV 다운로드 완료 만약 다운로드가 되지 않았다면 오른쪽 위 리다이렉트 권한을 허용해주세요.",NotificationType.Success,0)
+            );
+            
+            '똑실이-[Apps]질의응답CSV임시파일삭제'.Run(onedrive_file_id);
+            
+            UpdateContext({LodingPopup:false});
+            */
         PaddingBottom: =8
         PaddingLeft: =46
         PaddingRight: =16
@@ -1156,35 +554,33 @@
         RadiusTopLeft: =4
         RadiusTopRight: =4
         Size: =11
-        Text: ="새로고침"
-        Width: =131
-        X: =1749
-        Y: =47
-        ZIndex: =25
+        Text: ="CSV 다운로드"
+        Width: =165
+        X: =1572
+        Y: =41
+        ZIndex: =27
 
-    Image_Refresh_QALog As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
+    Icon_CSV_Download_QALogEdit As icon.Download:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =Color.Black
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
         DisabledFill: =RGBA(0, 0, 0, 0)
         FocusedBorderThickness: =4
         Height: =24
         HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         HoverFill: =RGBA(0, 0, 0, 0)
-        Image: =TokenMenuRefresh
-        OnSelect: =Select(Button_Refresh_QALog)
+        Icon: =Icon.Download
         PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         PressedFill: =RGBA(0, 0, 0, 0)
-        Width: =24
-        X: =1764
-        Y: =55
-        ZIndex: =26
+        Width: =28
+        X: =1585
+        Y: =48
+        ZIndex: =28
 
-    New_Component_GNB_QALog As New_Component_GNB:
-        ZIndex: =27
-
-    Background_Modal_QALog As rectangle:
+    Background_Modal_QALogEdit As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1194,52 +590,41 @@
         Height: =1080
         HoverFill: =
         PressedFill: =
-        Visible: =QALogVisible
-        Width: =1620
-        X: =300
-        ZIndex: =30
+        Visible: =QALogEditVisible
+        Width: =1919
+        X: =1
+        ZIndex: =29
 
-    Background_Loding_QALog As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =Image_Loding_QALog.Visible
-        Width: =1920
-        ZIndex: =39
-
-    Image_Loding_QALog As image:
+    Image_Refresh_QALogEdit As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledFill: =RGBA(0, 0, 0, 0)
         FocusedBorderThickness: =4
-        Height: =64
+        Height: =20
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
+        Image: =TokenMenuRefresh
+        OnSelect: =Select(Button_Refresh_QALogEdit)
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =LodingPopup
-        Width: =64
-        X: =1012
-        Y: =477
-        ZIndex: =40
+        Width: =20
+        X: =1776
+        Y: =51
+        ZIndex: =30
 
-    Group_QuestionPopup_QALog As group:
+    New_Component_GNB_QALogEdit As New_Component_GNB:
+        ZIndex: =31
+
+    Group_QuestionPopup_QALogEdit As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =40
 
-        Button_QuestionPopup_QALog As button:
+        Button_QuestionPopup_QALogEdit As button:
             BorderColor: =RGBA(230, 230, 230, 1)
             BorderThickness: =1
             DisabledBorderColor: |-
@@ -1252,7 +637,7 @@
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =680
+            Height: =696
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -1265,30 +650,30 @@
             RadiusTopRight: =8
             Size: =15
             Text: =""
-            Visible: =QuestionPopup
-            Width: =600
-            X: =734
-            Y: =272
-            ZIndex: =31
+            Visible: =EditQuestionPopup
+            Width: =634
+            X: =700
+            Y: =255
+            ZIndex: =42
 
-        Gallery_QuestionPopup_QALog As gallery.galleryVertical:
+        Gallery_QuestionPopup_QALogEdit As gallery.galleryVertical:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
             DelayItemLoading: =true
             Fill: |-
                 =ColorValue("#FFFFFF")
-            Height: =592
+            Height: =605
             Items: =Filter(똑실이_QA_table, ID= CheckedID)
             Layout: =Layout.Vertical
             TemplateSize: =566
-            Visible: =QuestionPopup
-            Width: =552
-            X: =758
-            Y: =334
-            ZIndex: =32
+            Visible: =EditQuestionPopup
+            Width: =583
+            X: =725
+            Y: =318
+            ZIndex: =43
 
-            Label_QuestionPopup_QALog As label:
+            Label_QuestionPopup_QALogEdit As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -1307,48 +692,232 @@
                 Y: =15
                 ZIndex: =1
 
-        Label_QuestionPopupTitle_QALog As label:
+        Label_QuestionPopupTitle_QALogEdit As label:
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             FontWeight: =FontWeight.Bold
-            Height: =34
+            Height: =58
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
             Size: =16
             Text: ="질문"
-            Visible: =QuestionPopup
-            Width: =202
-            X: =762
-            Y: =290
-            ZIndex: =33
+            Visible: =EditQuestionPopup
+            Width: =213
+            X: =730
+            Y: =260
+            ZIndex: =44
 
-        Icon_QuestionPopupClose_QALog As icon.Cancel:
+        Icon_QuestionPopupClose_QALogEdit As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(244, 244, 244, 1)
             Height: =20
             Icon: =Icon.Cancel
             OnSelect: |-
-                =Set(QuestionPopup,false);
+                =Set(EditQuestionPopup,false);
                 Set(CheckedID, Blank());
-                UpdateContext({QALogVisible: false});
-            Visible: =QuestionPopup
-            Width: =20
-            X: =1291
-            Y: =297
-            ZIndex: =34
+                UpdateContext({QALogEditVisible: false});
+            Visible: =EditQuestionPopup
+            Width: =21
+            X: =1289
+            Y: =282
+            ZIndex: =45
 
-    Group_QALogGalleryHeader_QALog As group:
+    Group_DeleteQA_QALogEdit As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
-        ZIndex: =41
+        ZIndex: =43
 
-        "'(삭제예정)Label_CopyCount_QALog' As label":
+        Button_DeleteQA_QALogEdit As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: |-
+                =ColorValue("#FFFFFF")
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =160
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#FFFFFF")
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#FFFFFF")
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =delPopUp_QA
+            Width: =600
+            X: =810
+            Y: =419
+            ZIndex: =32
+
+        Button_OKDeleteQA_QALogEdit As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |-
+                =ForAll(
+                    CheckedItems,
+                    Remove(똑실이_QA_table, LookUp(똑실이_QA_table,ID = Value))
+                );
+                 
+                Refresh(똑실이_QA_table);
+                Set(delPopUp_QA,false);
+                UpdateContext({QALogEditVisible: false});
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="삭제"
+            Visible: =delPopUp_QA
+            Width: =50
+            X: =1277
+            Y: =523
+            ZIndex: =33
+
+        Button_CancleDeleteQA_QALogEdit As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =Set(delPopUp_QA,false);
+                UpdateContext({QALogEditVisible: false});
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =delPopUp_QA
+            Width: =50
+            X: =1335
+            Y: =523
+            ZIndex: =34
+
+        Label_DeleteQA_QALogEdit As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =34
+            Size: =16
+            Text: ="삭제하시겠습니까?"
+            Visible: =delPopUp_QA
+            Width: =193
+            X: =827
+            Y: =440
+            ZIndex: =35
+
+        Label_DeleteQASub_QALogEdit As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =24
+            Size: =10
+            Text: ="삭제할 경우 해당 항목을 영구적으로 사용할 수 없습니다. 삭제하시겠습니까?"
+            Visible: =delPopUp_QA
+            Width: =562
+            X: =829
+            Y: =481
+            ZIndex: =36
+
+        Image_DeleteQAExit_QALogEdit As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =Set(delPopUp_QA,false);
+                UpdateContext({QALogEditVisible: false});
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =delPopUp_QA
+            Width: =20
+            X: =1367
+            Y: =443
+            ZIndex: =37
+
+    Group_QALogGalleryHeader_QALogEdit As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =44
+
+        Label_Question_QALogEdit As label:
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
             Color: |-
@@ -1357,34 +926,13 @@
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
             Height: =32
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
-            Text: ="스크랩"
-            Visible: =false
-            Width: =57
-            X: =1553
-            Y: =Label_Question_QALog.Y
-            ZIndex: =16
-
-        Label_Question_QALog As label:
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#BDBDBD")
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FontWeight: =FontWeight.Bold
-            Height: =32
-            PaddingLeft: =30
             Text: ="질문"
-            Width: =90
-            X: =580
+            Width: =85
+            X: =610
             Y: =268
             ZIndex: =17
 
-        Label_Category_QALog As label:
+        Label_Answer_QALogEdit As label:
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
             Color: |-
@@ -1393,30 +941,14 @@
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
             Height: =32
-            PaddingLeft: =15
-            Text: ="카테고리"
-            Width: =100
-            X: =382
-            Y: =Label_Question_QALog.Y
-            ZIndex: =18
-
-        Label_Answer_QALog As label:
-            BorderStyle: =BorderStyle.None
-            BorderThickness: =1
-            Color: |-
-                =ColorValue("#BDBDBD")
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            Fill: =RGBA(255, 255, 255, 1)
-            FontWeight: =FontWeight.Bold
-            Height: =32
-            PaddingLeft: =15
+            PaddingLeft: =10
             Text: ="답변"
             Width: =85
-            X: =915
-            Y: =Label_Question_QALog.Y
-            ZIndex: =19
+            X: =900
+            Y: =Label_Question_QALogEdit.Y
+            ZIndex: =18
 
-        Label_Date_QALog As label:
+        Label_Date_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -1428,9 +960,9 @@
             Height: =32
             Text: ="작성일"
             Width: =85
-            X: =1362
-            Y: =Label_Question_QALog.Y
-            ZIndex: =20
+            X: =1369
+            Y: =Label_Question_QALogEdit.Y
+            ZIndex: =19
 
         Label_Name_QALog As label:
             Align: =Align.Center
@@ -1443,12 +975,12 @@
             FontWeight: =FontWeight.Bold
             Height: =32
             Text: ="작성자"
-            Width: =81
-            X: =1507
-            Y: =Label_Question_QALog.Y
-            ZIndex: =21
+            Width: =85
+            X: =1487
+            Y: =Label_Question_QALogEdit.Y
+            ZIndex: =20
 
-        Label_Like_QALog As label:
+        Label_Like_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -1458,17 +990,13 @@
             Fill: =RGBA(255, 255, 255, 1)
             FontWeight: =FontWeight.Bold
             Height: =32
-            PaddingBottom: =0
-            PaddingLeft: =0
-            PaddingRight: =0
-            PaddingTop: =0
             Text: ="좋아요"
-            Width: =59
-            X: =1625
-            Y: =Label_Question_QALog.Y
-            ZIndex: =22
+            Width: =85
+            X: =1600
+            Y: =Label_Question_QALogEdit.Y
+            ZIndex: =21
 
-        Label_Hate_QALog As label:
+        Label_Hate_QALogEdit As label:
             Align: =Align.Center
             BorderStyle: =BorderStyle.None
             BorderThickness: =1
@@ -1479,19 +1007,35 @@
             FontWeight: =FontWeight.Bold
             Height: =32
             Text: ="싫어요"
-            Width: =75
-            X: =1703
-            Y: =Label_Question_QALog.Y
+            Width: =85
+            X: =1695
+            Y: =Label_Question_QALogEdit.Y
+            ZIndex: =22
+
+        Label_Category_QALogEdit As label:
+            Align: =Align.Center
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#BDBDBD")
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =32
+            Text: ="카테고리"
+            Width: =100
+            X: =390
+            Y: =268
             ZIndex: =23
 
-    Group_AnswerPopup_QALog As group:
+    Group_AnswerPopup_QALogEdit As group:
         Height: =5
         Width: =5
         X: =20
         Y: =20
         ZIndex: =45
 
-        Button_AnswerPopup_QALog As button:
+        Button_AnswerPopup_QALogEdit As button:
             BorderColor: =RGBA(230, 230, 230, 1)
             BorderThickness: =1
             DisabledBorderColor: |-
@@ -1504,7 +1048,7 @@
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
             Font: =Font.'Segoe UI'
             FontWeight: =FontWeight.Semibold
-            Height: =689
+            Height: =688
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
@@ -1517,30 +1061,30 @@
             RadiusTopRight: =8
             Size: =15
             Text: =""
-            Visible: =AnswerPopup
-            Width: =600
-            X: =734
-            Y: =268
-            ZIndex: =35
+            Visible: =EditAnswerPopup
+            Width: =634
+            X: =700
+            Y: =269
+            ZIndex: =38
 
-        Gallery_AnswerPopup_QALog As gallery.galleryVertical:
+        Gallery_AnswerPopup_QALogEdit As gallery.galleryVertical:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
             DelayItemLoading: =true
             Fill: |-
                 =ColorValue("#FFFFFF")
-            Height: =600
+            Height: =599
             Items: =Filter(똑실이_QA_table, ID= CheckedID)
             Layout: =Layout.Vertical
             TemplateSize: =566
-            Visible: =AnswerPopup
-            Width: =552
-            X: =758
-            Y: =331
-            ZIndex: =36
+            Visible: =EditAnswerPopup
+            Width: =584
+            X: =729
+            Y: =332
+            ZIndex: =39
 
-            Label_AnswerPopup_QALog As label:
+            Label_AnswerPopup_QALogEdit As label:
                 BorderColor: =RGBA(0, 0, 0, 0)
                 BorderStyle: =BorderStyle.None
                 BorderThickness: =2
@@ -1556,81 +1100,66 @@
                 Text: =ThisItem.Answer
                 Width: =517
                 X: =12
-                Y: =16
+                Y: =15
                 ZIndex: =1
 
-        Label_AnswerPopupTitle_QALog As label:
+        Label_AnswerPopupTitle_QALogEdit As label:
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             FontWeight: =FontWeight.Bold
-            Height: =34
+            Height: =58
             PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
             PaddingTop: =0
             Size: =16
             Text: ="답변"
-            Visible: =AnswerPopup
-            Width: =202
-            X: =762
-            Y: =288
-            ZIndex: =37
+            Visible: =EditAnswerPopup
+            Width: =213
+            X: =725
+            Y: =274
+            ZIndex: =40
 
-        Icon_AnswerPopup_QALog As icon.Cancel:
+        Icon_AnswerPopup_QALogEdit As icon.Cancel:
             BorderColor: =RGBA(0, 18, 107, 1)
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(244, 244, 244, 1)
             Height: =20
             Icon: =Icon.Cancel
             OnSelect: |-
-                =Set(AnswerPopup,false);
+                =Set(EditAnswerPopup,false);
                 Set(CheckedID, Blank());
-                UpdateContext({QALogVisible: false});
-                UpdateContext({PopupAnswer: ""});
-            Visible: =AnswerPopup
-            Width: =20
-            X: =1291
-            Y: =291
-            ZIndex: =38
+                UpdateContext({QALogEditVisible: false});
+            Visible: =EditAnswerPopup
+            Width: =21
+            X: =1300
+            Y: =280
+            ZIndex: =41
 
-    Group_SherchQAGallery_QALog As group:
+    Group_SherchQAGallery_QALogEdit As group:
         Height: =5
         Width: =5
-        X: =40
-        Y: =40
-        ZIndex: =47
+        X: =20
+        Y: =20
+        ZIndex: =50
 
-        Button_QAGallerySherch_QALog As button:
+        Rectangle_QAGallerySherch_QALogEdit As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
-            DisabledBorderColor: =RGBA(0, 0, 0, 0)
-            DisabledColor: =RGBA(166, 166, 166, 1)
-            DisabledFill: |-
-                =ColorValue("#FFFFFF")
-            DisplayMode: =DisplayMode.Disabled
-            Fill: =RGBA(105, 121, 126, 1)
-            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
-            Font: =Font.'Segoe UI'
-            FontWeight: =FontWeight.Semibold
+            BorderThickness: =2
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =4
             Height: =80
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverColor: =RGBA(255, 255, 255, 1)
-            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
-            PressedColor: =RGBA(255, 255, 255, 1)
-            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            RadiusBottomLeft: =8
-            RadiusBottomRight: =8
-            RadiusTopLeft: =8
-            RadiusTopRight: =8
-            Size: =15
-            Text: =""
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
             Width: =1540
             X: =340
             Y: =124
-            ZIndex: =1
+            ZIndex: =3
 
-        DatePicker_SearchDateMin_QALog As datepicker:
+        DatePicker_SearchDateMin_QALogEdit As datepicker:
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
@@ -1649,10 +1178,10 @@
             Size: =12
             Width: =180
             X: =1080
-            Y: =148
-            ZIndex: =3
+            Y: =147
+            ZIndex: =4
 
-        DatePicker_SearchDateMax_QALog As datepicker:
+        DatePicker_SearchDateMax_QALogEdit As datepicker:
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
@@ -1672,10 +1201,10 @@
                 =true
             Width: =180
             X: =1292
-            Y: =148
-            ZIndex: =4
+            Y: =147
+            ZIndex: =5
 
-        Label_SearchDate_QALog As label:
+        Label_SearchDate_QALogEdit As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
@@ -1687,18 +1216,17 @@
             Text: ="~"
             Width: =43
             X: =1255
-            Y: =138
-            ZIndex: =5
+            Y: =137
+            ZIndex: =6
 
-        TextInput_SearchUser_QALog As text:
+        TextInput_SearchUser_QALogEdit As text:
             BorderColor: =RGBA(230, 230, 230, 1)
-            BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =4
+            FocusedBorderThickness: =2
             Height: =32
             HintText: ="이름을 입력하세요."
             HoverBorderColor: =RGBA(0, 0, 0, 1)
@@ -1712,20 +1240,19 @@
             Size: =12
             Width: =172
             X: =445
-            Y: =148
-            ZIndex: =6
+            Y: =147
+            ZIndex: =7
 
-        TextInput_SearchQuestion_QALog As text:
+        TextInput_SearchQuestion_QALogEdit As text:
             BorderColor: =RGBA(230, 230, 230, 1)
-            BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
-            FocusedBorderThickness: =4
+            FocusedBorderThickness: =2
             Height: =32
-            HintText: ="내용을 입력하세요."
+            HintText: ="내용을 입력하세요"
             HoverBorderColor: =RGBA(0, 0, 0, 1)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
@@ -1737,10 +1264,10 @@
             Size: =12
             Width: =300
             X: =706
-            Y: =148
-            ZIndex: =7
+            Y: =147
+            ZIndex: =8
 
-        Button_SerchRefresh_QALog As button:
+        Button_SerchRefresh_QALogEdit As button:
             BorderColor: =RGBA(230, 230, 230, 1)
             BorderThickness: =1
             Color: =RGBA(0, 0, 0, 1)
@@ -1748,20 +1275,23 @@
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
             Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: |-
+                =ColorValue("#B3B3B3")
             FocusedBorderThickness: =2
             FontWeight: =FontWeight.Semibold
             Height: =32
             HoverBorderColor: |-
                 =ColorValue("#C7C7C7")
             HoverColor: =RGBA(0, 0, 0, 1)
-            HoverFill: =RGBA(219, 219, 219, 1)
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
             OnSelect: |-
                 =Concurrent(
-                Reset(TextInput_SearchUser_QALog);,
-                Reset(TextInput_SearchQuestion_QALog);,
+                Reset(TextInput_SearchUser_QALogEdit);,
+                Reset(TextInput_SearchQuestion_QALogEdit);,
                 UpdateContext({ShowLike: false});,
-                Reset(DatePicker_SearchDateMax_QALog);,
-                Reset(DatePicker_SearchDateMin_QALog);
+                Reset(DatePicker_SearchDateMax_QALogEdit);,
+                Reset(DatePicker_SearchDateMin_QALogEdit);
                 );
             PressedBorderColor: |-
                 =ColorValue("#B3B3B3")
@@ -1777,9 +1307,9 @@
             Width: =68
             X: =1790
             Y: =148
-            ZIndex: =8
+            ZIndex: =9
 
-        Label_LikeCheck_QALog As label:
+        Label_LikeCheck_QALogEdit As label:
             BorderColor: =RGBA(230, 230, 230, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1791,15 +1321,15 @@
             Text: ="좋아요"
             Width: =89
             X: =1539
-            Y: =148
-            ZIndex: =9
+            Y: =147
+            ZIndex: =10
 
-        Checkbox_LikeCheck_QALog As checkbox:
+        Checkbox_LikeCheck_QALogEdit As checkbox:
             BorderColor: =
             CheckboxBackgroundFill: |-
-                =If(Checkbox_LikeCheck_QALog.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
+                =If(Checkbox_LikeCheck_QALogEdit.Value= true,ColorValue("#0F6CBD"),ColorValue("#FFFFFF"))
             CheckboxBorderColor: |-
-                =If(Checkbox_LikeCheck_QALog.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
+                =If(Checkbox_LikeCheck_QALogEdit.Value= true,ColorValue("#0F6CBD"),RGBA(230, 230, 230, 1))
             CheckmarkFill: |-
                 =ColorValue("#FFFFFF")
             Color: =RGBA(0, 0, 0, 1)
@@ -1812,6 +1342,7 @@
                 =UpdateContext({ShowLike: true})
             OnUncheck: |-
                 =UpdateContext({ShowLike: false})
+            PaddingBottom: =5
             PressedBorderColor: |-
                 =ColorValue("#0F6CBD")
             PressedColor: =RGBA(255, 255, 255, 1)
@@ -1820,11 +1351,11 @@
             Size: =13
             Text: =""
             Width: =40
-            X: =1506
-            Y: =142
-            ZIndex: =10
+            X: =1503
+            Y: =141
+            ZIndex: =11
 
-        Label_UserName_QALog As label:
+        Label_UserName_QALogEdit As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1841,11 +1372,11 @@
             PaddingTop: =0
             Text: ="작성자"
             Width: =67
-            X: =375
-            Y: =148
-            ZIndex: =11
+            X: =374
+            Y: =147
+            ZIndex: =12
 
-        Label_Questionlabel_QALog As label:
+        Label_Questionlabel_QALogEdit As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1859,10 +1390,10 @@
             Text: ="질문"
             Width: =52
             X: =650
-            Y: =148
-            ZIndex: =12
+            Y: =147
+            ZIndex: =13
 
-        Label_Datelabel_QALog As label:
+        Label_Datelabel_QALogEdit As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1876,6 +1407,6 @@
             Text: ="기간"
             Width: =52
             X: =1023
-            Y: =148
-            ZIndex: =13
+            Y: =147
+            ZIndex: =14
 

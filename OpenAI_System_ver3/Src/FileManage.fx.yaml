@@ -2,30 +2,48 @@ FileManage As screen:
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
     OnVisible: |
-        =Concurrent(
-            UpdateContext({ ModalVisible: false }),
-            UpdateContext({ LogModalVisible: false }),
-            UpdateContext({ DelModalVisible: false }),
-            UpdateContext({ locLoadingSpinner: true }), // 로딩 스피너 활성화
-            Set(delPopUp_File,false),
-            Set(FileUploadLoding,false),
-            Reset(Dropdown_SearchCategoryLV1_FM), // 카테고리1 드롭박스 리셋
-            Reset(Dropdown_SearchCategoryLV2_FM), // 카테고리2 드롭박스 리셋
-            Reset(Gallery_FileList_FM) // 갤러리 드롭박스 리셋
+        =UpdateContext({
+            locLoadingSpinner: true,
+            fileSearchTimerStart: false
+        });
+        
+        Concurrent(
+            ClearCollect(FileSearchStack_FM_1, []),
+            ClearCollect(FileSearchResult_FM_1, [])
+        );
+        
+        Concurrent(
+            UpdateContext({
+                ModalVisible: false,
+                LogModalVisible: false,
+                DelModalVisible: false
+            }),
+            Set(delPopUp_File, false),
+            Set(FileUploadLoding, false),
+            Reset(TextInput_SearchFileName_FM_2),
+            Reset(DatePicker_SearchDateMin_FM_2),
+            Reset(DatePicker_SearchDateMax_FM_2),
+            Reset(Dropdown_SearchCategoryLV1_FM_3), // 카테고리1 드롭박스 리셋
+            Reset(Dropdown_SearchCategoryLV2_FM_3), // 카테고리2 드롭박스 리셋
+            Reset(Gallery_FileList_FM_2) // 갤러리 드롭박스 리셋
         );
         
         Set(categoryList, '똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category);
         
+        // 검색 핕터에 적용되는 Category
         ClearCollect(
             colCategory,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0"},
+            {Category_LV1: DEFAULT_CATEGORY_VALUE,Category_LV2: DEFAULT_CATEGORY_VALUE, LV2Order:"0", ID:"-1", Category_LV1LV2:"first"},
             SortByColumns(
                 ForAll(
                     Table(ParseJSON(categoryList)),
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        ID: Text(ThisRecord.Value.ID),
+                        Category_LV1LV2: Text(ThisRecord.Value.Category_LV1) & "/" & Text(ThisRecord.Value.Category_LV2),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -35,6 +53,21 @@ FileManage As screen:
             )
         );
         
+        
+        ClearCollect(
+            colCategory_LV2,
+        
+            First(colCategory),
+            
+            SortByColumns(
+                    LastN(colCategory,CountRows(colCategory)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
+        
+        // 파일추가 파업에 적용되는 Category
         ClearCollect(
             colCategorySelect,
             {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE,Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE, LV2Order:"0"},
@@ -44,7 +77,8 @@ FileManage As screen:
                     {
                         Category_LV1: Text(ThisRecord.Value.Category_LV1),
                         Category_LV2: Text(ThisRecord.Value.Category_LV2),
-                        LV2Order: Text(ThisRecord.Value.LV2Order)
+                        LV2Order: Text(ThisRecord.Value.LV2Order),
+                        CategoryType: Text(ThisRecord.Value.CategoryType)
                     }
                 ),
                 "Category_LV1",
@@ -54,9 +88,22 @@ FileManage As screen:
             )
         );
         
-        UpdateContext({ locLoadingSpinner: false }) // 로딩 스피너 비활성화
+        
+        ClearCollect(
+            colCategorySelect_LV2,
+        
+            First(colCategorySelect),
+            
+            SortByColumns(
+                    LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                )
+        );
+        
+        Select(ResetFileSearchButton_FM_2);
 
-    Button_AddButton_FM As button:
+    Button_AddButton_FM_2 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
         DisabledColor: =RGBA(166, 166, 166, 1)
@@ -71,8 +118,9 @@ FileManage As screen:
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: |-
             =ColorValue("#115EA3")
-        OnSelect: |-
+        OnSelect: |
             =Set(FileRefresh,false);
+            ResetForm(Form_FileUpload_FM_2);
             UpdateContext({ModalVisible: true});
         PaddingLeft: =35
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -90,7 +138,7 @@ FileManage As screen:
         Y: =42
         ZIndex: =12
 
-    Image_AddFile_FM As image:
+    Image_AddFile_FM_2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -101,7 +149,7 @@ FileManage As screen:
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverFill: =RGBA(0, 0, 0, 0)
         Image: =plus
-        OnSelect: =Select(Button_AddButton_FM)
+        OnSelect: =Select(Button_AddButton_FM_2)
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
@@ -109,7 +157,7 @@ FileManage As screen:
         Y: =53
         ZIndex: =13
 
-    Title_Header_FM As label:
+    Title_Header_FM_2 As label:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -124,49 +172,15 @@ FileManage As screen:
             ="파일 관리
             "
         Width: =691
-        X: =343
+        X: =349
         Y: =23
         ZIndex: =15
 
-    "Gallery_FileList_FM As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+    "Gallery_FileList_FM_2 As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
         BorderColor: =RGBA(166, 166, 166, 1)
         DelayItemLoading: =true
-        Height: =718
-        Items: |-
-            =Filter(
-                SortByColumns(
-                    똑실이_FileUpload_table,"ID",
-                    SortOrder.Descending
-                    ),
-            
-                Or(
-                    IsBlank(TextInput_SearchFileName_FM.Text),
-                    TextInput_SearchFileName_FM.Text in File_Name
-                )
-                
-                &&
-            
-                Or(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1,
-                    If(Dropdown_SearchCategoryLV1_FM.Selected.Value = DEFAULT_CATEGORY_VALUE, Category_LV1 in colCategory.Category_LV1)
-                )
-            
-            
-                &&
-            
-                Or(
-                    Dropdown_SearchCategoryLV2_FM.Selected.Value = Category_LV2,
-                    If(Dropdown_SearchCategoryLV2_FM.Selected.Value = DEFAULT_CATEGORY_VALUE, Category_LV2 in colCategory.Category_LV2)
-                )
-                &&
-            
-                (Upload_Date >= DatePicker_SearchDateMin_FM.SelectedDate)
-                
-                &&
-            
-                (Upload_Date < DatePicker_SearchDateMax_FM.SelectedDate + 1)
-            
-            )
+        Height: =635
+        Items: =FileSearchResult_FM_1
         Layout: =Layout.Vertical
         LoadingSpinnerColor: =RGBA(0, 18, 107, 1)
         ShowScrollbar: =false
@@ -178,7 +192,7 @@ FileManage As screen:
         Y: =300
         ZIndex: =16
 
-        Separator_FileList_FM As rectangle:
+        Separator_FileList_FM_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             Fill: =RGBA(219, 219, 219, 1)
             Height: =1
@@ -188,7 +202,7 @@ FileManage As screen:
             Y: =59
             ZIndex: =1
 
-        Label_Gallery_FileName_FM As label:
+        Label_Gallery_FileName_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -205,7 +219,7 @@ FileManage As screen:
             Y: =10
             ZIndex: =2
 
-        Label_Gallery_Category_FM As label:
+        Label_Gallery_Category_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -222,19 +236,20 @@ FileManage As screen:
             Y: =10
             ZIndex: =3
 
-        Button_Gallery_FileList_IndexRequest_FM As button:
+        Button_Gallery_FileList_IndexRequest_FM_2 As button:
             BorderColor: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#B4D6FA"),
                     "생성중", ColorValue("#F9C4A6"),
                     "삭제중",ColorValue("#F1BBBC"),
-                    "생성완료",ColorValue("#9FD89F")
+                    "생성완료",ColorValue("#9FD89F"),
+                    ColorValue(CSS_COMMON.colors.stroke_dark)
                 )
             Color: |-
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
@@ -267,10 +282,11 @@ FileManage As screen:
                 =ColorValue("#FFFFFF")
             FocusedBorderColor: =ColorFade(Self.Fill, -75%)
             Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Lighter
             Height: =35
             HoverBorderColor: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#B4D6FA"),
                     "생성중", ColorValue("#F9C4A6"),
@@ -279,7 +295,7 @@ FileManage As screen:
                 )
             HoverColor: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
@@ -288,14 +304,18 @@ FileManage As screen:
                 )
             HoverFill: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "생성", ColorValue("#EBF3FC"),
                     "생성중", ColorValue("#FFF8F3"),
                     "삭제중",ColorValue("#FDF6F6"),
                     "생성완료",ColorValue("#F1FAF1")
                 )
-            OnSelect: |
-                =Patch(
+            OnSelect: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                
+                Patch(
                     똑실이_FileUpload_table,
                     LookUp(똑실이_FileUpload_table, ID = ThisItem.ID),
                     {
@@ -314,13 +334,15 @@ FileManage As screen:
                         file_id: ThisItem.ID, 
                         filename: ThisItem.File_Name
                     }
-                )
+                );
                 
                 //'똑실이-파일인덱스생성'.Run(ThisItem.File_Name, ThisItem.Lv1, ThisItem.ID, ThisItem.Category);
+                
+                Select(Button_Refresh_FM_2);
             PaddingLeft: =30
             PressedBorderColor: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "업로드중", ColorValue("#B3B3B3"),
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
@@ -329,7 +351,7 @@ FileManage As screen:
                 )
             PressedColor: |-
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "생성", ColorValue("#0F6CBD"),
                     "생성중", ColorValue("#E9835E"),
                     "삭제중",ColorValue("#D13438"),
@@ -353,7 +375,7 @@ FileManage As screen:
                 */
             PressedFill: |
                 =Switch(
-                    Button_Gallery_FileList_IndexRequest_FM.Text,
+                    Button_Gallery_FileList_IndexRequest_FM_2.Text,
                     "생성", ColorValue("#CFE4FA"),
                     "생성중", ColorValue("#FFD6BE"),
                     "삭제중",ColorValue("#F1BBBC"),
@@ -378,7 +400,7 @@ FileManage As screen:
             Y: =13
             ZIndex: =4
 
-        Label_Date_Gallery_Category_FM As label:
+        Label_Date_Gallery_Category_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -396,7 +418,7 @@ FileManage As screen:
             Y: =10
             ZIndex: =5
 
-        Image_Green_FM As image:
+        Image_Green_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -407,16 +429,16 @@ FileManage As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =GreenFile
-            OnSelect: =Select(Button_Gallery_FileList_IndexRequest_FM)
+            OnSelect: =Select(Button_Gallery_FileList_IndexRequest_FM_2)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text ="생성완료" , true, false)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text ="생성완료" , true, false)
             Width: =30
             X: =1263
             Y: =15
             ZIndex: =6
 
-        Image_Blue_FM As image:
+        Image_Blue_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -427,16 +449,16 @@ FileManage As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverFill: =RGBA(0, 0, 0, 0)
             Image: =BlueFile
-            OnSelect: =Select(Button_Gallery_FileList_IndexRequest_FM)
+            OnSelect: =Select(Button_Gallery_FileList_IndexRequest_FM_2)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text = "생성" , true, false)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text = "생성" , true, false)
             Width: =30
             X: =1263
             Y: =15
             ZIndex: =7
 
-        Image_Orange_FM As image:
+        Image_Orange_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -450,13 +472,13 @@ FileManage As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text = "생성중", true, false)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text = "생성중", true, false)
             Width: =20
             X: =1268
             Y: =19
             ZIndex: =8
 
-        Image_Delete_Gallery_FileList_FM As image:
+        Image_Delete_Gallery_FileList_FM_2 As image:
             BorderColor: |-
                 =RGBA(230, 230, 230, 1)
                 /*
@@ -471,7 +493,27 @@ FileManage As screen:
             DisabledFill: =RGBA(0, 0, 0, 0)
             DisplayMode: |-
                 =DisplayMode.Edit
+                
                 /*
+                
+                If(
+                    Office365사용자.MyProfile().Mail in LookUp(
+                        똑실이_SuperAdmin_table,
+                        Office365사용자.MyProfile().Mail in SuperUsers.Email
+                    ).SuperUsers.Email,
+                    "슈퍼사용자",
+                    If(
+                        Office365사용자.MyProfile().Mail = LookUp(
+                            똑실이_FileUpload_table,
+                            ID = 2174).'만든 사람'.Email,
+                        "가능",
+                        "불가능"
+                    )
+                )
+                
+                
+                
+                
                 If(
                     Office365사용자.MyProfile().Mail in LookUp(
                         똑실이_SuperAdmin_table,
@@ -479,11 +521,12 @@ FileManage As screen:
                     ).SuperUsers.Email,
                     DisplayMode.Edit,
                     If(
-                        Office365사용자.MyProfile().Mail in ThisItem.'만든 사람'.Email,
+                        Office365사용자.MyProfile().Mail = LookUp(똑실이_FileUpload_table,ID = ThisItem.ID).'만든 사람'.Email,
                         DisplayMode.Edit,
                         DisplayMode.Disabled
                     )
                 )
+                
                 */
             Fill: =RGBA(255, 255, 255, 1)
             FocusedBorderThickness: =4
@@ -574,36 +617,49 @@ FileManage As screen:
             RadiusBottomRight: =10
             RadiusTopLeft: =10
             RadiusTopRight: =10
-            Transparency: =If(Image_Delete_Gallery_FileList_FM.DisplayMode = DisplayMode.Disabled, 0.5,0)
+            Tooltip: |-
+                =If(
+                    Self.DisplayMode = DisplayMode.Disabled,
+                    "삭제할 수 있는 권한이 없습니다"
+                )
+            Transparency: =If(Image_Delete_Gallery_FileList_FM_2.DisplayMode = DisplayMode.Disabled, 0.5,0)
             Width: =35
             X: =1464
             Y: =11
             ZIndex: =9
 
-        Image_IndexLog_FM As image:
-            BorderColor: =RGBA(0, 0, 0, 0)
-            BorderStyle: =BorderStyle.None
+        Image_IndexLog_FM_2 As image:
+            BorderColor: =RGBA(230, 230, 230, 1)
             BorderThickness: =2
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledFill: =RGBA(0, 0, 0, 0)
             FocusedBorderThickness: =4
             Height: =35
-            HoverBorderColor: =RGBA(0, 0, 0, 0)
-            HoverFill: =RGBA(0, 0, 0, 0)
-            Image: =Icon_Info
+            HoverFill: =RGBA(219, 219, 219, 1)
+            Image: |-
+                =If(ThisItem.Index_Status="error",Icon_Warning,Icon_Info)
+                //Icon_Info
             OnSelect: |-
                 =UpdateContext({
                     LogModalVisible: true,
                     LogContent: ThisItem.Index_Log
                 })
+            PaddingBottom: =4
+            PaddingLeft: =4
+            PaddingRight: =4
+            PaddingTop: =4
             PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(219, 219, 219, 1)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
             Width: =35
             X: =1402
             Y: =11
             ZIndex: =10
 
-        Image_Red_FM As image:
+        Image_Red_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -617,13 +673,13 @@ FileManage As screen:
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text = "삭제중", true, false)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text = "삭제중", true, false)
             Width: =20
             X: =1268
             Y: =19
             ZIndex: =11
 
-        Icon_Gray_FM As icon.Sync:
+        Icon_Gray_FM_2 As icon.Sync:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -637,15 +693,15 @@ FileManage As screen:
             Icon: =Icon.Sync
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
-            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-            PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text = "업로드중" , true, false)
+            PressedColor: =
+            PressedFill: =
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text = "업로드중" , true, false)
             Width: =20
             X: =1266
             Y: =21
             ZIndex: =12
 
-        Icon_Error_FM As icon.Error:
+        Icon_Error_FM_2 As icon.Error:
             BorderColor: =RGBA(166, 166, 166, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(220, 220, 220, 1)
@@ -655,25 +711,25 @@ FileManage As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 0)
             HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverFill: =RGBA(0, 0, 0, 0)
-            Icon: =Icon.Error
+            Icon: =Icon.Warning
             OnSelect: =Select(Parent)
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
-            Visible: =If(Button_Gallery_FileList_IndexRequest_FM.Text ="확인필요" , true, false)
+            Visible: =If(Button_Gallery_FileList_IndexRequest_FM_2.Text ="확인필요" , true, false)
             Width: =20
             X: =1266
             Y: =21
             ZIndex: =13
 
-    Group_FileList_FM As group:
+    Group_FileList_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =20
 
-        Rectangle_FileList_FM As rectangle:
+        Rectangle_FileList_FM_2 As rectangle:
             BorderColor: =RGBA(112, 112, 112, 1)
             DisabledFill: =RGBA(255, 255, 255, 1)
             DisplayMode: =DisplayMode.View
@@ -687,7 +743,7 @@ FileManage As screen:
             Y: =220
             ZIndex: =14
 
-        Label_FileName_FM As label:
+        Label_FileName_FM_2 As label:
             Color: |-
                 =ColorValue("#BDBDBD")
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -708,7 +764,7 @@ FileManage As screen:
                 =250
             ZIndex: =17
 
-        Label_Date_FM As label:
+        Label_Date_FM_2 As label:
             Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
@@ -724,10 +780,10 @@ FileManage As screen:
             Text: ="업로드 일시"
             Width: =109
             X: =1378
-            Y: =Label_FileName_FM.Y
+            Y: =Label_FileName_FM_2.Y
             ZIndex: =18
 
-        Label_Category_FM As label:
+        Label_Category_FM_2 As label:
             Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
@@ -743,10 +799,10 @@ FileManage As screen:
             Text: ="카테고리"
             Width: =82
             X: =1040
-            Y: =Label_FileName_FM.Y
+            Y: =Label_FileName_FM_2.Y
             ZIndex: =19
 
-        Label_Indexed_FM As label:
+        Label_Indexed_FM_2 As label:
             Align: =Align.Center
             Color: |-
                 =ColorValue("#BDBDBD")
@@ -762,10 +818,10 @@ FileManage As screen:
             Text: ="인덱스 여부"
             Width: =105
             X: =1613
-            Y: =Label_FileName_FM.Y
+            Y: =Label_FileName_FM_2.Y
             ZIndex: =20
 
-    Button_Refresh_FM As button:
+    Button_Refresh_FM_2 As button:
         BorderColor: |-
             =ColorValue("#D1D1D1")
         BorderThickness: =1
@@ -784,7 +840,14 @@ FileManage As screen:
             =ColorValue("#242424")
         HoverFill: |-
             =ColorValue("#F5F5F5")
-        OnSelect: =Refresh(똑실이_FileUpload_table)
+        OnSelect: |-
+            =UpdateContext({
+                locLoadingSpinner: true,
+                fileSearchTimerStart: false
+            });
+            
+            Reset(FileSearchTimer_FM_2);
+            UpdateContext({fileSearchTimerStart: true});
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -802,7 +865,103 @@ FileManage As screen:
         Y: =42
         ZIndex: =21
 
-    Background_Modal_FileUpload_FM As rectangle:
+    PrevPageButton_FM_2 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(Count(FileSearchStack_FM_1) > 0 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
+                Remove(FileSearchStack_FM_1, Last(FileSearchStack_FM_1)),
+                false
+            );
+            
+            UpdateContext({
+                fileSearchLastId: Coalesce(Last(FileSearchStack_FM_1).Value, 0)
+            });
+            
+            UpdateContext({
+                locLoadingSpinner: true
+            });
+            
+            Select(Button_Refresh_FM_2);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="< 이전 페이지"
+        Width: =121
+        X: =906
+        Y: =950
+        ZIndex: =22
+
+    NextPageButton_FM_2 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        DisplayMode: =If(CountRows(FileSearchResult_FM_1) >= 10 && locLoadingSpinner = false, DisplayMode.Edit, DisplayMode.Disabled)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =If(
+                Last(FileSearchResult_FM_1).ID <> fileSearchLastId,
+                Collect(FileSearchStack_FM_1, Coalesce(Last(FileSearchResult_FM_1).ID, 0)),
+                false
+            );
+            
+            UpdateContext({
+                fileSearchLastId: Coalesce(Last(FileSearchResult_FM_1).ID, 0)
+            });
+            
+            Select(Button_Refresh_FM_2);
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="다음 페이지 >"
+        Width: =128
+        X: =1076
+        Y: =950
+        ZIndex: =23
+
+    Background_Modal_FileUpload_FM_2 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -814,22 +973,22 @@ FileManage As screen:
         PressedFill: =
         Visible: =Or(ModalVisible, LogModalVisible, DelModalVisible)
         Width: =1920
-        ZIndex: =22
+        ZIndex: =24
 
-    Separator_Main_FM As rectangle:
+    Separator_Main_FM_2 As rectangle:
         BorderColor: =RGBA(0, 0, 0, 0)
         Fill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
         Height: =1
         OnSelect: =
         Width: =1491
         X: =364
-        Y: =Label_FileName_FM.Y + Label_FileName_FM.Height + 10
-        ZIndex: =23
+        Y: =Label_FileName_FM_2.Y + Label_FileName_FM_2.Height + 10
+        ZIndex: =25
 
-    New_Component_GNB_FM As New_Component_GNB:
-        ZIndex: =24
+    New_Component_GNB_FM_2 As New_Component_GNB:
+        ZIndex: =26
 
-    Image_Refresh_FM As image:
+    Image_Refresh_FM_2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -840,47 +999,22 @@ FileManage As screen:
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         HoverFill: =RGBA(0, 0, 0, 0)
         Image: =TokenMenuRefresh
-        OnSelect: =Select(Button_Refresh_FM)
+        OnSelect: =Select(Button_Refresh_FM_2)
         PressedBorderColor: =RGBA(0, 0, 0, 0)
         PressedFill: =RGBA(0, 0, 0, 0)
         Width: =20
         X: =1616
         Y: =53
-        ZIndex: =25
+        ZIndex: =27
 
-    RefreshTimer_FM As timer:
-        AutoPause: =false
-        AutoStart: =true
-        BorderColor: =RGBA(105, 121, 126, 1)
-        BorderStyle: =BorderStyle.None
-        DisabledBorderColor: =RGBA(244, 244, 244, 1)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        DisabledFill: =RGBA(244, 244, 244, 1)
-        DisplayMode: =DisplayMode.View
-        Fill: =RGBA(105, 121, 126, 1)
-        Font: =Font.'Segoe UI'
-        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        HoverColor: =RGBA(255, 255, 255, 1)
-        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
-        OnTimerEnd: =Refresh(똑실이_FileUpload_table);
-        OnTimerStart: =
-        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        PressedColor: =RGBA(255, 255, 255, 1)
-        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-        Repeat: =true
-        Visible: =false
-        X: =1258
-        Y: =35
-        ZIndex: =26
-
-    IndexLogModal_Group_FM As group:
+    IndexLogModal_Group_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =30
 
-        Background_ModalDialog_IndexLog_FM As rectangle:
+        Background_ModalDialog_IndexLog_FM_2 As rectangle:
             BorderColor: =RGBA(255, 255, 255, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -894,9 +1028,9 @@ FileManage As screen:
             Width: =912
             X: =639
             Y: =206
-            ZIndex: =27
+            ZIndex: =28
 
-        CloseButton_ModalDialog_IndexLog_FM As icon.Cancel:
+        CloseButton_ModalDialog_IndexLog_FM_2 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -917,9 +1051,9 @@ FileManage As screen:
             Width: =34
             X: =1492
             Y: =229
-            ZIndex: =28
+            ZIndex: =29
 
-        Label_ModalDialog_IndexLog_Title_FM As label:
+        Label_ModalDialog_IndexLog_Title_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -937,9 +1071,9 @@ FileManage As screen:
             Width: =595
             X: =664
             Y: =221
-            ZIndex: =29
+            ZIndex: =30
 
-        TextInput_IndexLogModal_Content_FM As text:
+        TextInput_IndexLogModal_Content_FM_2 As text:
             BorderColor: =RGBA(9, 33, 98, 1)
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
@@ -968,16 +1102,35 @@ FileManage As screen:
             Width: =862
             X: =664
             Y: =284
-            ZIndex: =30
+            ZIndex: =31
 
-    ModalDialog_FileUpload_FM As group:
+    NoDataLabel_FM_2 As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Height: =43
+        Size: =13
+        Text: ="검색된 파일이 없습니다."
+        Visible: =(CountRows(FileSearchResult_FM_1) = 0) && (locLoadingSpinner = false)
+        Width: =298
+        X: =932
+        Y: =308
+        ZIndex: =32
+
+    ModalDialog_FileUpload_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =32
 
-        Background_ModalDialog_FM As rectangle:
+        Background_ModalDialog_FM_2 As rectangle:
             BorderColor: =RGBA(255, 255, 255, 1)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -990,10 +1143,10 @@ FileManage As screen:
             Visible: =ModalVisible
             Width: =642
             X: =685
-            Y: =336
-            ZIndex: =31
+            Y: =323
+            ZIndex: =38
 
-        CloseButton_Modal_FM As icon.Cancel:
+        CloseButton_Modal_FM_2 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
             Color: =RGBA(105, 121, 126, 1)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1006,18 +1159,17 @@ FileManage As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Cancel
             OnSelect: |-
-                =UpdateContext({ModalVisible: false });
-                ResetForm(Form_FileUpload_FM);
+                =UpdateContext({ModalVisible: false})
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =ModalVisible
             Width: =34
             X: =1271
-            Y: =351
-            ZIndex: =32
+            Y: =338
+            ZIndex: =39
 
-        Form_FileUpload_FM As form:
+        Form_FileUpload_FM_2 As form:
             BorderColor: =RGBA(166, 166, 166, 1)
             DataSource: =똑실이_FileUpload_table
             DefaultMode: =FormMode.New
@@ -1027,10 +1179,10 @@ FileManage As screen:
             Visible: =ModalVisible
             Width: =594
             X: =710
-            Y: =410
-            ZIndex: =33
+            Y: =397
+            ZIndex: =40
 
-            DataCard_Category_FileUpload_FM As typedDataCard.textualEditCard:
+            DataCard_Category_FileUpload_FM_2 As typedDataCard.textualEditCard:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.Solid
                 DataField: ="Category"
@@ -1041,13 +1193,13 @@ FileManage As screen:
                 Height: =181
                 MaxLength: =DataSourceInfo([@똑실이_FileUpload_table], DataSourceInfo.MaxLength, "Category_LV2")
                 Required: =false
-                Update: =Dropdown_LV2Category_FileUpload_FM.Selected.Value
+                Update: =Dropdown_LV2Category_FileUpload_FM_2.Selected.Value
                 Width: =294
                 X: =0
                 Y: =0
                 ZIndex: =1
 
-                DataCardKey_Category_FileUpload_FM As label:
+                DataCardKey_Category_FileUpload_FM_2 As label:
                     AutoHeight: =true
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1070,7 +1222,7 @@ FileManage As screen:
                     Y: =10
                     ZIndex: =1
 
-                ErrorMessage_Category_FileUpload_FM As label:
+                ErrorMessage_Category_FileUpload_FM_2 As label:
                     AutoHeight: =true
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1092,10 +1244,10 @@ FileManage As screen:
                     Visible: =Parent.DisplayMode=DisplayMode.Edit
                     Width: =Parent.Width - 60
                     X: =30
-                    Y: =Dropdown_LV2Category_FileUpload_FM.Y + Dropdown_LV2Category_FileUpload_FM.Height
+                    Y: =Dropdown_LV2Category_FileUpload_FM_2.Y + Dropdown_LV2Category_FileUpload_FM_2.Height
                     ZIndex: =3
 
-                StarVisible_Category_FileUpload_FM As label:
+                StarVisible_Category_FileUpload_FM_2 As label:
                     Align: =Align.Center
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1106,17 +1258,17 @@ FileManage As screen:
                     FocusedBorderThickness: =4
                     Font: =Font.'Segoe UI'
                     FontWeight: =FontWeight.Semibold
-                    Height: =DataCardKey_Category_FileUpload_FM.Height
+                    Height: =DataCardKey_Category_FileUpload_FM_2.Height
                     PaddingLeft: =0
                     Size: =13
                     Text: ="*"
                     Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
                     Width: =30
                     Wrap: =false
-                    Y: =DataCardKey_Category_FileUpload_FM.Y
+                    Y: =DataCardKey_Category_FileUpload_FM_2.Y
                     ZIndex: =4
 
-                Dropdown_LV1Category_FileUpload_FM As dropdown:
+                Dropdown_LV1Category_FileUpload_FM_2 As dropdown:
                     BorderColor: =RGBA(166, 166, 166, 1)
                     BorderThickness: =1
                     ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -1137,8 +1289,18 @@ FileManage As screen:
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
                         =Distinct(
-                            colCategorySelect,
+                            SortByColumns(
+                            Filter(colCategorySelect,CategoryType = Blank()),
+                            "Category_LV1",
+                            SortOrder.Ascending
+                            ),
                             Category_LV1
+                        )
+                    OnChange: |
+                        =If(
+                            Dropdown_LV1Category_FileUpload_FM_2.Selected.Value=DEFAULT_SELECT_CATEGORY_VALUE,
+                            Select(Button_SelectLV1All_FileUpload_FM_2),
+                            Select(Button_SelectLV1_FileUpload_FM_2)
                         )
                     PaddingBottom: =5
                     PaddingLeft: =12
@@ -1154,7 +1316,7 @@ FileManage As screen:
                     Y: =51
                     ZIndex: =6
 
-                Dropdown_LV2Category_FileUpload_FM As dropdown:
+                Dropdown_LV2Category_FileUpload_FM_2 As dropdown:
                     BorderColor: =RGBA(166, 166, 166, 1)
                     BorderThickness: =1
                     ChevronBackground: =RGBA(255, 255, 255, 1)
@@ -1174,21 +1336,29 @@ FileManage As screen:
                     HoverColor: =RGBA(51, 51, 51, 1)
                     HoverFill: =RGBA(212, 212, 212, 1)
                     Items: |-
-                        =If(
-                            Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
+                        =
+                        Distinct(
+                                Filter(colCategorySelect_LV2,CategoryType = Blank()),
+                                Category_LV2
+                        )
+                        /*
+                        If(
+                            Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE,
                             [DEFAULT_SELECT_CATEGORY_VALUE],
                             Distinct(
                                 SortByColumns(
                                     Filter(
                                         colCategorySelect,
-                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
+                                        Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = Category_LV1 Or DEFAULT_SELECT_CATEGORY_VALUE = Category_LV1
                                     ),
-                                    "LV2Order",
+                                    //"LV2Order",
+                                    "Category_LV2",
                                     SortOrder.Ascending
                                 ),
                                 Category_LV2
                             )
                         )
+                        */
                     PaddingBottom: =5
                     PaddingLeft: =12
                     PaddingRight: =5
@@ -1200,26 +1370,26 @@ FileManage As screen:
                     Size: =13
                     Width: =214
                     X: =30
-                    Y: =122
+                    Y: =139
                     ZIndex: =7
 
-            DataCard_Attachment_FileUpload_FM As typedDataCard.attachmentsEditCard:
+            DataCard_Attachment_FileUpload_FM_2 As typedDataCard.attachmentsEditCard:
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.Solid
                 DataField: ="{Attachments}"
-                Default: =ThisItem.'첨부 파일'
+                Default: =
                 DisplayMode: =Parent.DisplayMode
                 DisplayName: =DataSourceInfo([@똑실이_FileUpload_table],DataSourceInfo.DisplayName,"{Attachments}")
                 Fill: =RGBA(0, 0, 0, 0)
                 Height: =176
                 Required: =false
-                Update: =DataCardValue_Attachment_FileUpload_FM.Attachments
+                Update: =DataCardValue_Attachment_FileUpload_FM_2.Attachments
                 Width: =300
                 X: =1
                 Y: =0
                 ZIndex: =1
 
-                DataCardKey_Attachment_FileUpload_FM As label:
+                DataCardKey_Attachment_FileUpload_FM_2 As label:
                     AutoHeight: =true
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1240,7 +1410,7 @@ FileManage As screen:
                     Y: =10
                     ZIndex: =1
 
-                DataCardValue_Attachment_FileUpload_FM As attachments:
+                DataCardValue_Attachment_FileUpload_FM_2 As attachments:
                     BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
                     BorderStyle: =BorderStyle.None
                     BorderThickness: =2
@@ -1268,8 +1438,8 @@ FileManage As screen:
                     NoAttachmentsText: ="업로드 가능한 파일 수는 1개입니다"
                     OnAddFile: |-
                         =Set(File_extensions,
-                        Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name, ".")));
-                        Set(gblFileNameNoExtension,Left(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,Len(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name)-Len(Last(Split(First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,".")).Value)-1))
+                        Last(Split(First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name, ".")));
+                        Set(gblFileNameNoExtension,Left(First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name,Len(First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name)-Len(Last(Split(First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name,".")).Value)-1))
                     OnRemoveFile: =
                     PaddingBottom: =5
                     PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
@@ -1282,7 +1452,7 @@ FileManage As screen:
                     Y: =43
                     ZIndex: =2
 
-                ErrorMessage_Attachment_FileUpload_FM As label:
+                ErrorMessage_Attachment_FileUpload_FM_2 As label:
                     AutoHeight: =true
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1304,10 +1474,10 @@ FileManage As screen:
                     Visible: =Parent.DisplayMode=DisplayMode.Edit
                     Width: =Parent.Width - 60
                     X: =30
-                    Y: =DataCardValue_Attachment_FileUpload_FM.Y + DataCardValue_Attachment_FileUpload_FM.Height
+                    Y: =DataCardValue_Attachment_FileUpload_FM_2.Y + DataCardValue_Attachment_FileUpload_FM_2.Height
                     ZIndex: =3
 
-                StarVisible_Attachment_FileUpload_FM As label:
+                StarVisible_Attachment_FileUpload_FM_2 As label:
                     Align: =Align.Center
                     BorderColor: =RGBA(0, 0, 0, 0)
                     BorderStyle: =BorderStyle.None
@@ -1318,17 +1488,17 @@ FileManage As screen:
                     FocusedBorderThickness: =4
                     Font: =Font.'Segoe UI'
                     FontWeight: =FontWeight.Semibold
-                    Height: =DataCardKey_Attachment_FileUpload_FM.Height
+                    Height: =DataCardKey_Attachment_FileUpload_FM_2.Height
                     PaddingLeft: =0
                     Size: =13
                     Text: ="*"
                     Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
                     Width: =30
                     Wrap: =false
-                    Y: =DataCardKey_Attachment_FileUpload_FM.Y
+                    Y: =DataCardKey_Attachment_FileUpload_FM_2.Y
                     ZIndex: =4
 
-        Label_FileUploadForm_Title_FM As label:
+        Label_FileUploadForm_Title_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1345,10 +1515,10 @@ FileManage As screen:
             Visible: =ModalVisible
             Width: =419
             X: =730
-            Y: =351
-            ZIndex: =34
+            Y: =338
+            ZIndex: =41
 
-        SubmitButton_FM As button:
+        SubmitButton_FM_2 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderThickness: =1
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1373,19 +1543,19 @@ FileManage As screen:
                 });
                 // 첫번째 if => if()
                 If(
-                    Dropdown_LV1Category_FileUpload_FM.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
+                    Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = DEFAULT_SELECT_CATEGORY_VALUE || Dropdown_LV2Category_FileUpload_FM_2.Selected.Value =DEFAULT_SELECT_CATEGORY_VALUE,
                     UpdateContext({
                         FileUploadSuccess: false,
                         FileUploadMsg: "할당된 카테고리가 없습니다."
                     }),
                     // 두번째 if => if(if())
-                    If(IsEmpty(DataCardValue_Attachment_FileUpload_FM.Attachments),
+                    If(IsEmpty(DataCardValue_Attachment_FileUpload_FM_2.Attachments),
                         UpdateContext({
                             FileUploadSuccess: false,
                             FileUploadMsg: "첨부 파일 등록은 필수입니다."
                         }),
                         // 세번째 if => if(if(if()))
-                        If(Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM.Selected.Value && FileNameNoExtension = gblFileNameNoExtension))),
+                        If(Not(IsBlank(LookUp(똑실이_FileUpload_table,Category_LV1=Dropdown_LV1Category_FileUpload_FM_2.Selected.Value && Category_LV2=Dropdown_LV2Category_FileUpload_FM_2.Selected.Value && FileNameNoExtension = gblFileNameNoExtension))),
                             UpdateContext({
                                 FileUploadSuccess: false,
                                 FileUploadMsg: "동일한 파일이 이미 존재합니다."
@@ -1393,12 +1563,12 @@ FileManage As screen:
                            UpdateContext({
                                 FileUploadResult: 
                                     IfError( '똑실이-[Apps]파일업로드'.Run(
-                                        Dropdown_LV1Category_FileUpload_FM.Selected.Value,
-                                        Dropdown_LV2Category_FileUpload_FM.Selected.Value,
+                                        Dropdown_LV1Category_FileUpload_FM_2.Selected.Value,
+                                        Dropdown_LV2Category_FileUpload_FM_2.Selected.Value,
                                             {
                                                 file: {
-                                                    name: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Name,
-                                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM.Attachments).Value
+                                                    name: First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Name,
+                                                    contentBytes: First(DataCardValue_Attachment_FileUpload_FM_2.Attachments).Value
                                                 }
                                             }
                                         ).filename,
@@ -1414,11 +1584,11 @@ FileManage As screen:
                 
                 If(
                     FileUploadSuccess,
-                    Select(Button_Refresh_FM);
-                    UpdateContext({ModalVisible: false });
-                    ResetForm(Form_FileUpload_FM);,
+                    Select(Button_Refresh_FM_2),
                     Notify(FileUploadMsg,NotificationType.Error,5000)
                 );
+                
+                UpdateContext({ModalVisible: false });
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1430,11 +1600,11 @@ FileManage As screen:
             Text: ="업로드"
             Visible: =ModalVisible
             Width: =65
-            X: =1159
-            Y: =608
-            ZIndex: =35
+            X: =1166
+            Y: =595
+            ZIndex: =42
 
-        CancleButton_FM As button:
+        CancleButton_FM_2 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -1473,17 +1643,17 @@ FileManage As screen:
             Visible: =ModalVisible
             Width: =65
             X: =1240
-            Y: =608
-            ZIndex: =42
+            Y: =595
+            ZIndex: =43
 
-    Group_DeleteQA_FM As group:
+    Group_DeleteQA_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =36
 
-        Button_DeleteFile_FM As button:
+        Button_DeleteFile_FM_2 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -1515,9 +1685,9 @@ FileManage As screen:
             Width: =600
             X: =810
             Y: =419
-            ZIndex: =36
+            ZIndex: =33
 
-        Button_OKDeleteFile_FM As button:
+        Button_OKDeleteFile_FM_2 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
             DisabledBorderColor: =RGBA(0, 0, 0, 0)
             DisabledColor: =RGBA(166, 166, 166, 1)
@@ -1533,7 +1703,10 @@ FileManage As screen:
             HoverFill: |-
                 =ColorValue("#115EA3")
             OnSelect: |-
-                =
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                
                 Patch(
                     똑실이_Index_Remove,
                     {
@@ -1567,6 +1740,8 @@ FileManage As screen:
                 
                 Set(delPopUp_File,false);
                 UpdateContext({DelModalVisible : false});
+                
+                Select(Button_Refresh_FM_2);
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
             PressedColor: =RGBA(255, 255, 255, 1)
             PressedFill: |-
@@ -1581,9 +1756,9 @@ FileManage As screen:
             Width: =50
             X: =1277
             Y: =523
-            ZIndex: =37
+            ZIndex: =34
 
-        Button_CancleDeleteFile_FM As button:
+        Button_CancleDeleteFile_FM_2 As button:
             BorderColor: |-
                 =ColorValue("#D1D1D1")
             BorderThickness: =1
@@ -1625,9 +1800,9 @@ FileManage As screen:
             Width: =50
             X: =1335
             Y: =523
-            ZIndex: =38
+            ZIndex: =35
 
-        Label_DeleteFile_FM As label:
+        Label_DeleteFile_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
@@ -1645,9 +1820,9 @@ FileManage As screen:
             Width: =193
             X: =827
             Y: =440
-            ZIndex: =39
+            ZIndex: =36
 
-        Label_DeleteFileSub_FM As label:
+        Label_DeleteFileSub_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1663,9 +1838,9 @@ FileManage As screen:
             Width: =562
             X: =829
             Y: =481
-            ZIndex: =40
+            ZIndex: =37
 
-        Image_DeleteFileExit_FM As image:
+        Image_DeleteFileExit_FM_2 As image:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1686,41 +1861,9 @@ FileManage As screen:
             Width: =20
             X: =1367
             Y: =443
-            ZIndex: =41
+            ZIndex: =44
 
-    Background_Modal_PAUpload_FM As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =FileUploadLoding
-        Width: =1620
-        X: =300
-        ZIndex: =43
-
-    Image_PALoding_FM As image:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledFill: =RGBA(0, 0, 0, 0)
-        FocusedBorderThickness: =4
-        HoverBorderColor: =RGBA(0, 0, 0, 0)
-        HoverFill: =RGBA(0, 0, 0, 0)
-        Image: ='6-dots-rotate'
-        PressedBorderColor: =RGBA(0, 0, 0, 0)
-        PressedFill: =RGBA(0, 0, 0, 0)
-        Visible: =FileUploadLoding
-        X: =957
-        Y: =454
-        ZIndex: =44
-
-    Image_LoadingSpinner_FM As image:
+    Image_LoadingSpinner_FM_2 As image:
         BorderColor: =RGBA(0, 0, 0, 0)
         BorderStyle: =BorderStyle.None
         BorderThickness: =2
@@ -1737,14 +1880,133 @@ FileManage As screen:
         Y: =474
         ZIndex: =45
 
-    Group_Search_FM As group:
+    FileSearchTimer_FM_2 As timer:
+        BorderColor: =RGBA(105, 121, 126, 1)
+        BorderStyle: =BorderStyle.None
+        DisabledBorderColor: =RGBA(244, 244, 244, 1)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Duration: =10000
+        Fill: =RGBA(105, 121, 126, 1)
+        Font: =Font.'Segoe UI'
+        HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnTimerStart: |
+            =
+            
+            
+            UpdateContext({
+                // fileSearchResponse: '똑실이-[Apps]파일검색_V2'.Run(
+                fileSearchResponse: '똑실이-[Apps]파일검색_V3'.Run(
+                    If(
+                        Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                        // LV1=전체 LV2=전체 일경우
+                        Substitute(Substitute(Concatenate(Concat(Distinct(colCategory, Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),"first?",""),
+                        // 카테고리LV1만 선택한 경우
+                        If(
+                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV1 = Text(Dropdown_SearchCategoryLV1_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE && Dropdown_SearchCategoryLV2_FM_3.Selected.Value <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Distinct(Filter(colCategory,Category_LV2 = Text(Dropdown_SearchCategoryLV2_FM_3.Selected.Value)), Category_LV1LV2), Value & "?"),"delete_point"),"?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value & "/" & Dropdown_SearchCategoryLV2_FM_3.Selected.Value
+                            )
+                        )
+                    )
+                    ,{
+                    // 스킵 ID
+                    number: Coalesce(fileSearchLastId, 0),
+                    // 파일명
+                    text_1: TextInput_SearchFileName_FM_2.Text,
+                    // StartDate
+                    text_2: Text(DatePicker_SearchDateMin_FM_2.SelectedDate, "yyyy-mm-dd"),
+                    // EndDate
+                    text_3: Text(DatePicker_SearchDateMax_FM_2.SelectedDate, "yyyy-mm-dd")
+                }).result_json
+            });
+            
+            ClearCollect(
+                FileSearchResult_FM_1,
+                ForAll(
+                    Table(ParseJSON(fileSearchResponse)),
+                    {
+                        ID: Int(ThisRecord.Value.ID),
+                        File_Name: Text(ThisRecord.Value.File_Name),
+                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
+                        Upload_Date: DateTimeValue(ThisRecord.Value.Upload_Date),
+                        Index_Status: Text(ThisRecord.Value.Index_Status),
+                        Index_Log: Text(ThisRecord.Value.Index_Log)
+                    }
+                )
+            );
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        Repeat: =true
+        Start: =fileSearchTimerStart
+        Visible: =false
+        X: =1175
+        Y: =42
+        ZIndex: =46
+
+    ClearStartDateButton_FM_2 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMin_FM_2);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1565
+        Y: =152
+        ZIndex: =47
+
+    ClearEndDateButton_FM_2 As icon.Cancel:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Color: =RGBA(105, 121, 126, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(220, 220, 220, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        FocusedBorderThickness: =4
+        Height: =22
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        HoverFill: =RGBA(0, 0, 0, 0)
+        Icon: =Icon.Cancel
+        OnSelect: =Reset(DatePicker_SearchDateMax_FM_2);
+        PressedBorderColor: =RGBA(0, 0, 0, 0)
+        PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        PressedFill: =RGBA(0, 0, 0, 0)
+        Width: =22
+        X: =1801
+        Y: =152
+        ZIndex: =48
+
+    Group_Search_FM_2 As group:
         Height: =5
         Width: =5
         X: =40
         Y: =40
         ZIndex: =48
 
-        Rectangle_SearchBar_FM As rectangle:
+        Rectangle_SearchBar_FM_2 As rectangle:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1759,11 +2021,12 @@ FileManage As screen:
             Y: =124
             ZIndex: =1
 
-        TextInput_SearchFileName_FM As text:
+        TextInput_SearchFileName_FM_2 As text:
             BorderColor: =RGBA(230, 230, 230, 1)
             BorderThickness: =2
             Color: =RGBA(0, 0, 0, 1)
             Default: =""
+            DelayOutput: =true
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1773,6 +2036,11 @@ FileManage As screen:
             HoverBorderColor: =RGBA(0, 0, 0, 1)
             HoverColor: =RGBA(0, 0, 0, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_FM_2);
             PressedColor: =
             RadiusBottomLeft: =0
             RadiusBottomRight: =0
@@ -1784,7 +2052,7 @@ FileManage As screen:
             Y: =148
             ZIndex: =2
 
-        Label_SearchFileName_FM As label:
+        Label_SearchFileName_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1805,7 +2073,7 @@ FileManage As screen:
             Y: =148
             ZIndex: =3
 
-        Label_SearchCategory_FM As label:
+        Label_SearchCategory_FM_3 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1826,7 +2094,7 @@ FileManage As screen:
             Y: =148
             ZIndex: =4
 
-        Dropdown_SearchCategoryLV1_FM As dropdown:
+        Dropdown_SearchCategoryLV1_FM_3 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
             ChevronBackground: =RGBA(255, 255, 255, 1)
             ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
@@ -1845,10 +2113,27 @@ FileManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =Distinct(
-                    colCategory,
+                =// AIWorker 카테고리 필터링 후 LV1 중복값 제거
+                Distinct(
+                    Filter(colCategory,CategoryType = Blank()),
                     Category_LV1
                 )
+            OnChange: |+
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_FM_2);
+                
+                If(
+                    Dropdown_SearchCategoryLV1_FM_3.Selected.Value=DEFAULT_CATEGORY_VALUE,
+                    Select(Button_SelectLV1All_FM_2),
+                    Select(Button_SelectLV1_FM_2)
+                )
+                
+                
+                
+                
+            OnSelect: =
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -1859,11 +2144,11 @@ FileManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =Label_SearchCategory_FM.X + Label_SearchCategory_FM.Width
+            X: =Label_SearchCategory_FM_3.X + Label_SearchCategory_FM_3.Width
             Y: =148
             ZIndex: =5
 
-        Dropdown_SearchCategoryLV2_FM As dropdown:
+        Dropdown_SearchCategoryLV2_FM_3 As dropdown:
             BorderColor: =RGBA(166, 166, 166, 1)
             ChevronBackground: =RGBA(255, 255, 255, 1)
             ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
@@ -1882,12 +2167,18 @@ FileManage As screen:
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(212, 212, 212, 1)
             Items: |-
-                =If(
-                    Dropdown_SearchCategoryLV1_FM.Selected.Value = DEFAULT_CATEGORY_VALUE,
+                =
+                Distinct(
+                        Filter(colCategory_LV2,CategoryType = Blank()),
+                        Category_LV2
+                )
+                
+                /*If(
+                    Dropdown_SearchCategoryLV1_FM_3.Selected.Value = DEFAULT_CATEGORY_VALUE,
                     Distinct(
                         SortByColumns(
                             colCategory,
-                            "LV2Order",
+                            "Category_LV2",
                             SortOrder.Ascending
                         ),
                         Category_LV2
@@ -1897,14 +2188,20 @@ FileManage As screen:
                         SortByColumns(
                             Filter(
                                 colCategory,
-                                Dropdown_SearchCategoryLV1_FM.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
+                                Dropdown_SearchCategoryLV1_FM_3.Selected.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV1
                             ),
-                            "LV2Order",
+                            //"LV2Order",
+                            "Category_LV2",
                             SortOrder.Ascending
                         ),
                         Category_LV2
                     )
-                )
+                )*/
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_FM_2);
             PaddingBottom: =5
             PaddingLeft: =12
             PaddingRight: =5
@@ -1915,33 +2212,37 @@ FileManage As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Width: =240
-            X: =Label_SearchCategoryArrow_FM.X + Label_SearchCategoryArrow_FM.Width
-            Y: =148
+            X: =Label_SearchCategoryArrow_FM_3.X + Label_SearchCategoryArrow_FM_3.Width
+            Y: |
+                =148
             ZIndex: =6
 
-        Label_SearchCategoryArrow_FM As label:
+        Label_SearchCategoryArrow_FM_3 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             Font: =Font.'Segoe UI'
-            Height: =47
+            Height: =42
+            PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
+            PaddingTop: =0
             Text: =">"
-            Width: =43
-            X: =Dropdown_SearchCategoryLV1_FM.X + Dropdown_SearchCategoryLV1_FM.Width
-            Y: =138
+            Width: =42
+            X: =Dropdown_SearchCategoryLV1_FM_3.X + Dropdown_SearchCategoryLV1_FM_3.Width
+            Y: =143
             ZIndex: =7
 
-        DatePicker_SearchDateMin_FM As datepicker:
+        DatePicker_SearchDateMin_FM_2 As datepicker:
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
-            DefaultDate: =Today() - 7
+            DefaultDate: =
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
+            EndYear: =
             Fill: =Color.White
             Font: =Font.'Segoe UI'
             Format: ="yyyy년 mm월 dd일"
@@ -1949,17 +2250,24 @@ FileManage As screen:
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_FM_2);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
-            Width: =180
-            X: =1446
+            StartYear: =
+            Width: =195
+            X: =1423
             Y: =148
             ZIndex: =8
 
-        DatePicker_SearchDateMax_FM As datepicker:
+        DatePicker_SearchDateMax_FM_2 As datepicker:
             BorderColor: =RGBA(221, 221, 221, 1)
             CalendarHeaderFill: =RGBA(56, 96, 178, 1)
             Color: =RGBA(0, 0, 0, 1)
+            DefaultDate: =
             DisabledBorderColor: =RGBA(166, 166, 166, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(244, 244, 244, 1)
@@ -1970,31 +2278,39 @@ FileManage As screen:
             HoverDateFill: =RGBA(186, 202, 226, 1)
             IconBackground: =RGBA(0,0,0,0)
             IconFill: =RGBA(51,51,51,1)
+            InputTextPlaceholder: =If(IsBlank(Self.SelectedDate), Text(Today(), Self.Format, Self.Language))
+            OnChange: |-
+                =UpdateContext({
+                    locLoadingSpinner: true
+                });
+                Select(ResetFileSearchButton_FM_2);
             SelectedDateFill: =RGBA(56, 96, 178, 1)
             Size: =12
             Visible: |
                 =true
-            Width: =180
-            X: =1665
+            Width: =195
+            X: =1660
             Y: =148
             ZIndex: =9
 
-        Label_SearchDate_FM As label:
+        Label_SearchDate_FM_2 As label:
             Align: =Align.Center
             BorderColor: =RGBA(0, 18, 107, 1)
             Color: =RGBA(0, 0, 0, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             Font: =Font.'Segoe UI'
-            Height: =47
+            Height: =42
+            PaddingBottom: =0
             PaddingLeft: =0
             PaddingRight: =0
+            PaddingTop: =0
             Text: ="~"
-            Width: =43
-            X: =1622
-            Y: =140
+            Width: =42
+            X: =1618
+            Y: =143
             ZIndex: =10
 
-        Label_Datelabel_FM As label:
+        Label_Datelabel_FM_2 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -2007,7 +2323,222 @@ FileManage As screen:
             Height: =33
             Text: ="기간"
             Width: =52
-            X: =1391
+            X: =1372
             Y: =148
             ZIndex: =11
+
+    ResetFileSearchButton_FM_2 As button:
+        BorderColor: |-
+            =ColorValue("#D1D1D1")
+        BorderThickness: =1
+        Color: =RGBA(0, 0, 0, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: |-
+            =ColorValue("#FFFFFF")
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        FocusedBorderThickness: =2
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: |-
+            =ColorValue("#C7C7C7")
+        HoverColor: |-
+            =ColorValue("#242424")
+        HoverFill: |-
+            =ColorValue("#F5F5F5")
+        OnSelect: |-
+            =Concurrent(
+                ClearCollect(FileSearchStack_FM_1, []),
+                ClearCollect(FileSearchResult_FM_1, [])
+            );
+            
+            UpdateContext({
+                fileSearchLastId: 0,
+                fileSearchTimerStart: false
+            });
+            
+            Reset(FileSearchTimer_FM_2);
+            
+            UpdateContext({
+                fileSearchTimerStart: true
+            });
+        PaddingLeft: =30
+        PressedBorderColor: |-
+            =ColorValue("#B3B3B3")
+        PressedColor: =Color.Black
+        PressedFill: |-
+            =ColorValue("#E0E0E0")
+        RadiusBottomLeft: =4
+        RadiusBottomRight: =4
+        RadiusTopLeft: =4
+        RadiusTopRight: =4
+        Size: =11
+        Text: ="ResetFileSearch"
+        Visible: =false
+        Width: =192
+        X: =1372
+        Y: =42
+        ZIndex: =49
+
+    Button_SelectLV1_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategory_LV2,
+            
+                First(colCategory),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colCategory,CountRows(colCategory)-1),
+                            Dropdown_SearchCategoryLV1_FM_3.Selected.Value = Category_LV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(선택)"
+        Visible: =false
+        X: =735
+        Y: =42
+        ZIndex: =50
+
+    Button_SelectLV1All_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategory_LV2,
+            
+                First(colCategory),
+                
+                SortByColumns(
+                        LastN(colCategory,CountRows(colCategory)-1),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(전체)"
+        Visible: =false
+        X: =558
+        Y: =43
+        ZIndex: =51
+
+    Button_SelectLV1All_FileUpload_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategorySelect_LV2,
+            
+                First(colCategorySelect),
+                
+                SortByColumns(
+                        LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(전체)"
+        Visible: =false
+        X: =949
+        Y: =42
+        ZIndex: =52
+
+    Button_SelectLV1_FileUpload_FM_2 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =ClearCollect(
+                colCategorySelect_LV2,
+            
+                First(colCategorySelect),
+                
+                SortByColumns(
+                    Filter(
+                            LastN(colCategorySelect,CountRows(colCategorySelect)-1),
+                            Dropdown_LV1Category_FileUpload_FM_2.Selected.Value = Category_LV1
+                        ),
+                        "Category_LV2",
+                        SortOrder.Ascending
+                    )
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: |-
+            ="LV2:LV1(선택)"
+        Visible: =false
+        X: =1146
+        Y: =42
+        ZIndex: =53
 
