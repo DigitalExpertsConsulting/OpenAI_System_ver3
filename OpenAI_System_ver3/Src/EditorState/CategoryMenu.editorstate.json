@@ -14795,7 +14795,14 @@
     "Button_SaveAddCategory_CategoryMenu_in_Lv2PopUp_5": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        "OnSelect",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "Set(CategoryVal2, Split(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4.SelectedText.Value, \"\")); \nSet(CategoryVal3, Split(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_4.Text, \"\"));\n\nIf( //이거맞나 // 에러처리, Lv1 드롭다운 빈칸 일 때 에러 \n     Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4.SelectedText.Value = DEFAULT_SELECT_CATEGORY_VALUE,     \n    Notify(\n        \"메인 카테고리를 선택해주세요.\",\n        NotificationType.Error,\n        5000\n    ),\n\n\nIf( //이거맞나 // 에러처리, Lv2 이름 입력창이 빈칸 일 때 에러\n     TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_4.Text = \"\",\n     //TextInput_AddMainCategoryNameMain_CategoryMenu_Lv2PopUp.Text = \"\" || TextInput_AddMainCategoryNameSub_CategoryMenu_Lv2PopUp.Text = \"\",     \n    Notify(\n        \"이름을 지정하지 않은 하위 메뉴가 있습니다.\",\n        NotificationType.Error,\n        5000\n    ),\n\nIf(\n    CountRows(Filter(CategoryVal2, Value in CategoryVal.Value)) > 0 || CountRows(Filter(CategoryVal3, Value in CategoryVal.Value)) > 0,\n    Notify(\n        Char(34) & \"* : < > ? / \\ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요\",\n        NotificationType.Error,\n        5000\n    ),\n\n\n    // If(!IsBlank(LookUp(똑실이_Category_table, Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp.Text)), // (모든 LV1 카테고리에서 조회함)\n    If(!IsBlank(LookUp(똑실이_Category_table, Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4.Selected.Value && Category_LV2=TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_4.Text)),\n    \n     Notify(\n        \"중복된 카테고리명입니다\",\n        NotificationType.Error,\n        5000\n    ),\n    Collect( //이거맞나//똑실이_Category_table 원본 데이터에 저장사항 적용\n        똑실이_Category_table,\n        {\n            제목: \".\",\n            Category_LV1: Trim(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4.SelectedText.Value),\n            Category_LV2: Trim(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_4.Text),\n            LV1Order: Last(똑실이_Category_table).ID + 1, \n            LV2Order: If(!IsBlank(LookUp(똑실이_Category_table,Category_LV1=Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4.SelectedText.Value)),Last(똑실이_Category_table).LV2Order+1,1),\n            DocumentLanguage : Switch(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_5.Selected.Value,\"한국어\",\"ko\",\"English\",\"en\",\"日本語\",\"ja\"),\n            AnswerModel : Switch(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_6.Selected.Value, \"GPT-3.5​\", \"chat\", \"GPT-4​\", \"chat_gpt4​\"),\n            AnswerMode : Switch(RadioGroupCanvas2_1.Selected.Value, \"생성형 답변\", \"generative\", \"정해진 답변\", \"retrieval\")\n        }\n    );\n    Notify(\n        \"저장하였습니다.\",\n        NotificationType.Success,\n        5000\n    ); Refresh(똑실이_Category_table);\n    UpdateContext({AddLv2Category: false}); Reset(Dropdown_CategoryLV1List_CategoryMenu_in_Lv2PopUp_4);Reset(TextInput_AddMainCategoryName_CategoryMenu_in_Lv2PopUp_4); \n    \n    Reset(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_5); Reset(Dropdown_AddDocumentLanguage_Lv2CategoryMenu_in_Lv2PopUp_6); Reset(RadioGroupCanvas2_1);\n\n    // 카테고리 LV2 드롭다운 항목 생성\nClearCollect(\n    Col_CategoryLV2Dropdown,\n    {Category_LV2: DEFAULT_CATEGORY_VALUE},\n    SortByColumns(\n        Filter(\n            똑실이_Category_table,\n            Category_LV1 = Var_CategoryLV1\n        ),\n        \"Category_LV2\",\n        SortOrder.Ascending\n    ).Category_LV2\n); \n\n\n););););",
+          "InvariantPropertyName": "OnSelect",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        },
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -15102,7 +15109,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultButtonStyle",
