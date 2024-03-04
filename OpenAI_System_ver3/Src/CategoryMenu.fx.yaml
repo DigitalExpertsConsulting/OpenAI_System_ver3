@@ -612,7 +612,8 @@ CategoryMenu As screen:
             =ColorValue("#FAFAFA")
         Height: =700
         Items: |+
-            =If(
+            =
+            If(
                 Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
                 AssignedCategoryManagerTable,
                 Filter(AssignedCategoryManagerTable, Category_LV1 = Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1')
@@ -771,7 +772,6 @@ CategoryMenu As screen:
             ), Filter(똑실이_Category_table,Category_LV2 = Dropdown1_2.SelectedText.Value && Category_LV1 = Var_CategoryLV1 )) // 드롭다운에 해당되는 내용만 출력
         Layout: =Layout.Vertical
         OnSelect: =Set(Var_CategoryLV2Fill,ThisItem.ID)
-        ShowScrollbar: =false
         TemplatePadding: =0
         TemplateSize: =287
         Visible: |-
@@ -5597,6 +5597,45 @@ CategoryMenu As screen:
             Y: =462
             ZIndex: =106
 
+    Button1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        OnSelect: |-
+            =Set(var_test,
+                    If(Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
+            
+                        FirstN(AssignedCategoryManagerTable.Category_LV1),
+            
+                        FirstN(
+                        Filter(
+                            AssignedCategoryManagerTable,
+                            Category_LV1 = Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1'
+                        ).Category_LV1)
+                    )
+                
+            )
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =0
+        RadiusBottomRight: =0
+        RadiusTopLeft: =0
+        RadiusTopRight: =0
+        Size: =15
+        Text: ="버튼"
+        X: =791
+        Y: =47
+        ZIndex: =136
+
     Group_Edit_CategoryLv2_Popup_1 As group:
         Height: =5
         Width: =5
@@ -5630,8 +5669,8 @@ CategoryMenu As screen:
             Text: =""
             Visible: =ShowCategorySettingModal
             Width: =730
-            X: =752
-            Y: =318
+            X: =720
+            Y: =312
             ZIndex: =127
 
         Label_AddMainCategory_CategoryMenu_in_Lv2PopUp_CE_1 As label:
@@ -5649,8 +5688,8 @@ CategoryMenu As screen:
             Text: ="카테고리 수정"
             Visible: =ShowCategorySettingModal
             Width: =239
-            X: =793
-            Y: =328
+            X: =761
+            Y: =322
             ZIndex: =128
 
         Rectangle_CategoryAdit_CategoryMenu_in_Lv2PopUp_CE_1 As rectangle:
@@ -5666,8 +5705,8 @@ CategoryMenu As screen:
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =ShowCategorySettingModal
             Width: =643
-            X: =797
-            Y: =386
+            X: =765
+            Y: =380
             ZIndex: =129
 
         Button_SaveAddCategory_CategoryMenu_in_Lv2PopUp_CE_1 As button:
@@ -5713,8 +5752,8 @@ CategoryMenu As screen:
             Text: ="확인"
             Visible: =ShowCategorySettingModal
             Width: =49
-            X: =1324
-            Y: =779
+            X: =1292
+            Y: =773
             ZIndex: =130
 
         Button_CancleAddCategory_CategoryMenu_in_Lv2PopUp_CE_1 As button:
@@ -5758,8 +5797,8 @@ CategoryMenu As screen:
             Text: ="취소"
             Visible: =ShowCategorySettingModal
             Width: =49
-            X: =1391
-            Y: =779
+            X: =1359
+            Y: =773
             ZIndex: =131
 
         Image_AddCategoryExit_CategoryMenu_in_Lv2PopUp_CE_1 As image:
@@ -5782,8 +5821,8 @@ CategoryMenu As screen:
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =ShowCategorySettingModal
             Width: =19
-            X: =1437
-            Y: =338
+            X: =1405
+            Y: =332
             ZIndex: =132
 
         Rectangle_CategoryEdit_CategoryMenu_in_Lv2PopUp_CE_1 As rectangle:
@@ -5799,8 +5838,8 @@ CategoryMenu As screen:
             PressedFill: =RGBA(0, 0, 0, 0)
             Visible: =ShowCategorySettingModal
             Width: =643
-            X: =797
-            Y: =628
+            X: =765
+            Y: =622
             ZIndex: =133
 
         Form2_1 As form:
@@ -5810,8 +5849,8 @@ CategoryMenu As screen:
             Item: =CategorySettingModalItem
             Visible: =ShowCategorySettingModal
             Width: =671
-            X: =791
-            Y: =393
+            X: =759
+            Y: =387
             ZIndex: =134
 
             Category_LV1_DataCard7_1 As typedDataCard.textualEditCard:
@@ -6248,7 +6287,10 @@ CategoryMenu As screen:
                     AccessibleLabel: =""
                     DefaultSelectedItems: |-
                         =If(ThisItem.AnswerMode = "generative", {Text: "생성형 답변", Value: "generative"}, {Text: "정해진 답변", Value: "retrieval"})
-                    DisplayMode: =DisplayMode.Edit
+                    DisplayMode: |
+                        =// 라이센스가 있을시에만 답변방식 선택 가능
+                        If(LookUp(똑실이_License_table,!IsBlank(RetrievalAnswer)).RetrievalAnswer = false,
+                        DisplayMode.Disabled,DisplayMode.Edit)
                     Height: =46
                     Items: =Parent.AllowedValues
                     Layout: ='RadioGroupCanvas.Layout'.Horizontal
@@ -6280,8 +6322,8 @@ CategoryMenu As screen:
             Text: ="※ 위 영역의 설정은 카테고리 추가 후 변경 불가​"
             Visible: =ShowCategorySettingModal
             Width: =511
-            X: =813
-            Y: =579
+            X: =781
+            Y: =573
             ZIndex: =135
 
     Group_Add_CategoryLv2_Popup_5 As group:
@@ -6865,7 +6907,10 @@ CategoryMenu As screen:
         RadioGroupCanvas2_1 As 라디오.pcfdataset:
             DefaultSelectedItems: |-
                 ={Value : "생성형 답변"}
-            DisplayMode: =DisplayMode.Edit
+            DisplayMode: |-
+                =// 라이센스가 있을시에만 답변방식 선택 가능
+                If(LookUp(똑실이_License_table,!IsBlank(RetrievalAnswer)).RetrievalAnswer = false,
+                DisplayMode.Disabled,DisplayMode.Edit)
             Height: =40
             Items: =["생성형 답변", "정해진 답변"]
             Layout: ='RadioGroupCanvas.Layout'.Horizontal
