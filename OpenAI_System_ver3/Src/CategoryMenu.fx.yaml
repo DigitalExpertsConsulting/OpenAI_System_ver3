@@ -2,9 +2,15 @@ CategoryMenu As screen:
     BackgroundImage: =                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     Fill: =RGBA(245, 245, 245, 1)
     LoadingSpinnerColor: =RGBA(105, 121, 126, 1)
-    OnHidden: |-
+    OnHidden: |
         =//LV1 검색드롭다운 리셋
-        Reset(Dropdown1_1)
+        Reset(Dropdown1_1);
+        
+        // 팝업창 닫기
+        UpdateContext({ShowCategorySettingModal:false});
+        
+        // LV1 카테고리 이름 저장 변수초기화
+        Set(Var_CategoryLV1,Blank());
     OnVisible: |+
         =UpdateContext({locLoadingSpinner: true});
         
@@ -26,9 +32,11 @@ CategoryMenu As screen:
         
         Select(Button_Refresh_CategoryMenu_5),
         
+        /*
         // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
         ClearCollect(Col_CategoryLV2Dropdown,{Category_LV2:DEFAULT_SELECT_CATEGORY_VALUE}),
         Set(Var_CategoryLV1, Blank());,
+        */
         
         // 카테고리 LV2 선택영역 Fill(사각형 visible) 초기화
         Set(Var_CategoryLV2Fill,Blank());
@@ -49,6 +57,22 @@ CategoryMenu As screen:
             )
         );
         
+        // 초기 카테고리 LV1 검색 드롭다운 아이템 설정
+        Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
+        
+        // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
+        ClearCollect(
+            Col_CategoryLV2Dropdown,
+            {Category_LV2: DEFAULT_CATEGORY_VALUE},
+            SortByColumns(
+                Filter(
+                    똑실이_Category_table,
+                    Category_LV1 = Var_CategoryLV1
+                ),
+                "Category_LV2",
+                SortOrder.Ascending
+            ).Category_LV2
+        ); 
         UpdateContext({locLoadingSpinner: false});
         
         
@@ -6292,7 +6316,7 @@ CategoryMenu As screen:
         Width: =5
         X: =40
         Y: =40
-        ZIndex: =140
+        ZIndex: =143
 
         Button_AddMainCategoryPopup_CategoryMenu_in_Lv2PopUp_5 As button:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -6860,12 +6884,13 @@ CategoryMenu As screen:
             SelectionFill: =RGBA(105, 121, 126, 1)
             Size: =13
             Visible: =AddLv2Category
-            Width: =255
+            Width: =259
             X: =921
-            Y: =657
+            Y: =654
             ZIndex: =125
 
         RadioGroupCanvas2_1 As 라디오.pcfdataset:
+            ContentLanguage: =""
             DefaultSelectedItems: |-
                 ={Value : "생성형 답변"}
             DisplayMode: |-
@@ -6878,7 +6903,7 @@ CategoryMenu As screen:
             Visible: =AddLv2Category
             Width: =320
             X: =911
-            Y: =715
+            Y: =717
             ZIndex: =126
 
         Rectangle2 As rectangle:
@@ -6897,18 +6922,6 @@ CategoryMenu As screen:
             X: =770
             Y: =280
             ZIndex: =136
-
-        "'warnning icon' As '정보 버튼'":
-            BasePaletteColor: =
-            DisplayMode: =DisplayMode.Edit
-            FontColor: =
-            Height: =35
-            IconSize: ='InfoButtonCanvas.IconSize'.Large
-            Visible: =AddLv2Category
-            Width: =33
-            X: =778
-            Y: =284
-            ZIndex: =137
 
         "'warnning Title' As label":
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -6946,4 +6959,77 @@ CategoryMenu As screen:
             X: =784
             Y: =315
             ZIndex: =139
+
+        Image_WarnningIcon_CategoryMenu As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =25
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Icon_Info
+            PaddingBottom: =3
+            PaddingLeft: =3
+            PaddingRight: =3
+            PaddingTop: =3
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =AddLv2Category
+            Width: =25
+            X: =781
+            Y: =292
+            ZIndex: =140
+
+        Icon_RetrievalAnswer_CategoryMenu As icon.Information:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Information
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: |
+                =Char(34) & "정해진 답변"  & Char(34) &  " AddOn 모듈을 추가 하셔야 변경 가능합니다."
+            Visible: |-
+                =// 라이센스가 없으면 노출
+                If(RadioGroupCanvas2_1.DisplayMode = DisplayMode.Disabled && AddLv2Category, true,false)
+            Width: =20
+            X: =873
+            Y: =725
+            ZIndex: =141
+
+        Icon_RetrievalAnswerEdit_CategoryMenu As icon.Information:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Color: =RGBA(105, 121, 126, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(220, 220, 220, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.Information
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Tooltip: |
+                =Char(34) & "정해진 답변"  & Char(34) &  " AddOn 모듈을 추가 하셔야 변경 가능합니다."
+            Visible: |-
+                =// 라이센스가 없으면 노출
+                If(RadioGroupCanvas2_1.DisplayMode = DisplayMode.Disabled && ShowCategorySettingModal, true,false)
+            Width: =20
+            X: =870
+            Y: =705
+            ZIndex: =142
 
