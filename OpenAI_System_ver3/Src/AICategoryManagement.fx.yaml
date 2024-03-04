@@ -66,9 +66,40 @@ AICategoryManagement As screen:
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =Refresh(똑실이_Category_table);
-            Reset(Dropdown_SearchCategoryLV1_AICM);
-            Reset(Dropdown_SearchCategoryLV2_AICM);
+            =UpdateContext({locLoadingSpinner: true});
+            Refresh(똑실이_Category_table);
+            // colAICategory : AI 카테고리 조회 목록 가져오기
+            ClearCollect(
+                colAICategory,
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
+                SortByColumns(
+                    Filter(
+                    ForAll(
+                        Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                        {
+                            Category_LV1: Text(ThisRecord.Value.Category_LV1),
+                            Category_LV2: Text(ThisRecord.Value.Category_LV2),
+            				LV1Order: Text(ThisRecord.Value.LV1Order),
+                            LV2Order: Text(ThisRecord.Value.LV2Order),
+                            ID: Text(ThisRecord.Value.ID),
+                            CategoryType: Text(ThisRecord.Value.CategoryType),
+            				AnswerModel: Text(ThisRecord.Value.AnswerModel),
+            				AnswerMode: Text(ThisRecord.Value.AnswerMode),
+            				ChatMode: Text(ThisRecord.Value.ChatMode),
+            				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
+            				
+                        }
+                    ), 
+                    CategoryType = "system" || IsBlank(CategoryType)),
+                    "LV1Order",
+                    SortOrder.Ascending,
+                    "LV2Order",
+                    SortOrder.Ascending
+                )
+            );
+            
+            UpdateContext({SettingLv2Category: false});
+            UpdateContext({locLoadingSpinner: false});
         PaddingLeft: =30
         PressedBorderColor: |-
             =ColorValue("#B3B3B3")
@@ -181,8 +212,6 @@ AICategoryManagement As screen:
                 Category_LV1
             )
             
-            
-            
         PaddingBottom: =5
         PaddingLeft: =12
         PaddingRight: =5
@@ -278,9 +307,9 @@ AICategoryManagement As screen:
         BorderStyle: =
         DelayItemLoading: =true
         Height: =834
-        Items: |-
+        Items: |
             =// CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)
-            Distinct(
+            /*Distinct(
                 Sort(
                     Switch(
                         Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, 
@@ -289,10 +318,38 @@ AICategoryManagement As screen:
                             colAICategory,
                             !IsBlank(LV2Order)
                         ),
-                       Filter(
+                    Filter(
                             colAICategory,
                             ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.SelectedText.Value
                         )),
+                    "LV1Order",
+                    SortOrder.Ascending
+                ),
+                Category_LV1
+            )*/
+            Distinct(
+                Sort(
+                    With(
+                        {Lv1Filter:Switch(
+                                Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, 
+                                "전체",
+                                Filter(
+                                    colAICategory,
+                                    !IsBlank(LV2Order)
+                                ),
+                                Filter(
+                                        colAICategory,
+                                        ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.SelectedText.Value
+                                )
+                            )
+                        },
+                        Switch(
+                            Dropdown_SearchCategoryLV2_AICM.SelectedText.Value, 
+                            "전체",
+                            Lv1Filter,
+                            Filter(Lv1Filter, Category_LV2 = Dropdown_SearchCategoryLV2_AICM.SelectedText.Value)
+                        )
+                    ),
                     "LV1Order",
                     SortOrder.Ascending
                 ),
@@ -583,7 +640,7 @@ AICategoryManagement As screen:
                                 "openai_answer",
                                 "OpenAI"
                             ),
-                            "bing_search",
+                            "bing_answer",
                             "Bing"
                         ),
                         "document_answer",
@@ -1559,10 +1616,29 @@ AICategoryManagement As screen:
 
             AnswerMode_DataCard_PopUp_AICM As typedDataCard.allowedValuesStringEditCard:
                 AllowedValues: |-
-                    =[
-                        {Text: "생성형 답변", Value: "generative"},
-                        {Text: "정해진 답변", Value: "retrieval"}
-                    ]
+                    =If(
+                        ThisItem.ChatMode = "openai_answer",
+                        [
+                            {
+                                Text: "상세답변",
+                                Value: "full"
+                            },
+                            {
+                                Text: "간단답변",
+                                Value: "simple"
+                            }
+                        ],
+                        [
+                            {
+                                Text: "생성형 답변",
+                                Value: "generative"
+                            },
+                            {
+                                Text: "정해진 답변",
+                                Value: "retrieval"
+                            }
+                        ]
+                    )
                 BorderColor: =RGBA(166, 166, 166, 1)
                 BorderStyle: =BorderStyle.Solid
                 DataField: ="AnswerMode"
@@ -1623,15 +1699,21 @@ AICategoryManagement As screen:
                     AccessibleLabel: =""
                     DefaultSelectedItems: |-
                         =If(ThisItem.AnswerMode = "generative", {Text: "생성형 답변", Value: "generative"}, {Text: "정해진 답변", Value: "retrieval"})
-                    DisplayMode: |
+                    DisplayMode: |-
                         =// 라이센스가 있을시에만 답변방식 선택 가능
-                        If(LookUp(똑실이_License_table,!IsBlank(RetrievalAnswer)).RetrievalAnswer = false,
-                        DisplayMode.Disabled,DisplayMode.Edit)
-                    Height: =46
+                        If(
+                            LookUp(
+                                똑실이_License_table,
+                                !IsBlank(RetrievalAnswer)
+                            ).RetrievalAnswer = false And IsBlank(ThisItem.CategoryType),
+                            DisplayMode.Disabled,
+                            DisplayMode.Edit
+                        )
+                    Height: =50
                     Items: =Parent.AllowedValues
                     Layout: ='RadioGroupCanvas.Layout'.Horizontal
                     Visible: =true
-                    Width: =360
+                    Width: =336
                     X: =146
                     Y: =9
                     ZIndex: =5
@@ -1683,7 +1765,7 @@ AICategoryManagement As screen:
                 =// 라이센스가 없으면 노출
                 If(RadioGroupCanvas2_1.DisplayMode = DisplayMode.Disabled &&ShowCategorySettingModal, true,false)
             Width: =20
-            X: =1161
+            X: =1261
             Y: =693
             ZIndex: =22
 
