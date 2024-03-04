@@ -1016,38 +1016,60 @@ BadWordManage As screen:
             HoverColor: =RGBA(255, 255, 255, 1)
             HoverFill: |-
                 =ColorValue("#1141A3")
-            OnSelect: |-
-                =If(IsBlank(TextInput_EditBadWord_BWM_1.Text) && IsBlank(TextInput_EditBadWordType_BWM_1.Text),
-                   Notify(
+            OnSelect: |
+                =If(
+                    IsBlank(TextInput_EditBadWord_BWM_1.Text) && IsBlank(TextInput_EditBadWordType_BWM_1.Text),
+                    Notify(
                         "금칙어와 유형을 모두 입력해주세요.",
                         NotificationType.Error,
                         5000
-                    );,
-                
+                    );
+                    ,
                     !IsBlank(TextInput_EditBadWord_BWM_1.Text) && IsBlank(TextInput_EditBadWordType_BWM_1.Text),
                     Notify(
                         "금칙어 유형을 입력해주세요.",
                         NotificationType.Error,
                         5000
-                    );,
-                
+                    );
+                    ,
                     IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text),
                     Notify(
                         "금칙어를 입력해주세요.",
                         NotificationType.Error,
                         5000
-                    );,
-                
-                    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text) && CountRows(Filter(Gallery_BadWordGallery_BWM_1.AllItems, BadWords = TextInput_EditBadWord_BWM_1.Text)) > 0,
+                    );
+                    ,
+                /*
+                    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text) && CountRows(
+                        Filter(
+                            Gallery_BadWordGallery_BWM_1.AllItems, 
+                            BadWords = TextInput_EditBadWord_BWM_1.Text
+                            )
+                        ) > 0,
                     Notify(
                         "중복된 값이 있습니다.",
                         NotificationType.Error,
                         5000
                     );,
-                
-                        Patch(
+                    */
+                //BadWords가 BadWords_Type에 종속되도록 수정
+                    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text) && CountRows(
+                        Filter(
+                            Gallery_BadWordGallery_BWM_1.AllItems,
+                            BadWords = TextInput_EditBadWord_BWM_1.Text && BadWords_Type = TextInput_EditBadWordType_BWM_1.Text
+                        )
+                    ) > 0,
+                    Notify(
+                        "중복된 값이 있습니다.",
+                        NotificationType.Error,
+                        5000
+                    ),
+                    Patch(
                         똑실이_BadWords_table,
-                        LookUp(똑실이_BadWords_table, ID = Gallery_BadWordGallery_BWM_1.Selected.ID),
+                        LookUp(
+                            똑실이_BadWords_table,
+                            ID = Gallery_BadWordGallery_BWM_1.Selected.ID
+                        ),
                         {
                             제목: ".",
                             BadWords: TextInput_EditBadWord_BWM_1.Text,
@@ -1064,7 +1086,6 @@ BadWordManage As screen:
                         delPopupBackground_BWM,
                         false
                     );
-                
                     ClearCollect(
                         BadWordsType,
                         {Value: "직접입력"},
