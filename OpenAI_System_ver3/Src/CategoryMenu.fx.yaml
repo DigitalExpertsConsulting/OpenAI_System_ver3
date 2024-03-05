@@ -1329,10 +1329,21 @@ CategoryMenu As screen:
             Icon: =Icon.Settings
             OnSelect: |
                 =Select(Parent);
-                UpdateContext({
-                    ShowCategorySettingModal: true,
-                    CategorySettingModalItem: ThisItem
-                });
+                If(
+                    ThisItem.CategoryType = "system",
+                    UpdateContext(
+                        {
+                            CategorySettingModelAIWorker: ThisItem,
+                            ShowCategorySettingModalAIWorker: true
+                        }
+                    ),
+                    UpdateContext(
+                        {
+                            CategorySettingModalItem: ThisItem,
+                            ShowCategorySettingModal: true
+                        }
+                    )
+                );
                 ResetForm(Form2_1);
             PaddingBottom: =7
             PaddingLeft: =7
@@ -2174,7 +2185,7 @@ CategoryMenu As screen:
         Height: =1080
         HoverFill: =
         PressedFill: =
-        Visible: =AddPopUpBackground Or CategoryPopup_Blank Or ShowCategorySettingModal
+        Visible: =AddPopUpBackground Or CategoryPopup_Blank Or ShowCategorySettingModal Or ShowCategorySettingModalAIWorker
         Width: =1620
         X: =300
         ZIndex: =16
@@ -7069,4 +7080,758 @@ CategoryMenu As screen:
             X: =1150
             Y: =713
             ZIndex: =142
+
+    grp_LV2CategoryEdit_PopUp_AICM_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =152
+
+        btn_LV2CategoryEdit_PopUp_AICM_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =520
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+            RadiusBottomLeft: =8
+            RadiusBottomRight: =8
+            RadiusTopLeft: =8
+            RadiusTopRight: =8
+            Size: =15
+            Text: =""
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =730
+            X: =720
+            Y: =286
+            ZIndex: =143
+
+        lbl_Title_LV2CategoryEdit_PopUp_AICM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(51, 51, 51, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =58
+            Size: =16
+            Text: ="카테고리 수정"
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =239
+            X: =761
+            Y: =296
+            ZIndex: =144
+
+        shp_TopBox_LV2CategoryEdit_PopUp_AICM_1 As rectangle:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =224
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =643
+            X: =765
+            Y: =354
+            ZIndex: =145
+
+        btn_Selected_LV2CategoryEdit_PopUp_AICM_1 As button:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#0F6CBD")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =32
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+                =ColorValue("#115EA3")
+            OnSelect: |+
+                =SubmitForm(frm_LV2CategoryEdit_Box_PopUp_AICM_1);
+                
+                Notify(
+                    "저장하였습니다.",
+                    NotificationType.Success,
+                    5000
+                );
+                
+                Refresh(똑실이_Category_table);
+                Select(Button_Refresh_CategoryMenu_5);
+                
+                UpdateContext({
+                    ShowCategorySettingModalAIWorker: false,
+                    CategorySettingModelAIWorker: Blank()
+                });
+                
+            PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: |-
+                =ColorValue("#0C3B5E")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="확인"
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =49
+            X: =1292
+            Y: =747
+            ZIndex: =146
+
+        btn_Cancel_LV2CategoryEdit_PopUp_AICM_1 As button:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            Color: |-
+                =ColorValue("#242424")
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            DisabledFill: =RGBA(244, 244, 244, 1)
+            Fill: |-
+                =ColorValue("#FFFFFF")
+            FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+            FocusedBorderThickness: =2
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            HoverBorderColor: |-
+                =ColorValue("#C7C7C7")
+            HoverColor: |-
+                =ColorValue("#242424")
+            HoverFill: |-
+                =ColorValue("#F5F5F5")
+            OnSelect: |-
+                =UpdateContext({
+                    ShowCategorySettingModalAIWorker: false,
+                    CategorySettingModelAIWorker: Blank()
+                });
+            PressedBorderColor: |-
+                =ColorValue("#B3B3B3")
+            PressedColor: |-
+                =ColorValue("#242424")
+            PressedFill: |-
+                =ColorValue("#E0E0E0")
+            RadiusBottomLeft: =4
+            RadiusBottomRight: =4
+            RadiusTopLeft: =4
+            RadiusTopRight: =4
+            Size: =11
+            Text: ="취소"
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =49
+            X: =1359
+            Y: =747
+            ZIndex: =147
+
+        img_LV2CategoryEdit_Cancel_PopUp_AICM_1 As image:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =20
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Image: =Exit
+            OnSelect: |-
+                =UpdateContext({
+                    ShowCategorySettingModalAIWorker: false,
+                    CategorySettingModelAIWorker: Blank()
+                });
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =19
+            X: =1405
+            Y: =306
+            ZIndex: =148
+
+        shp_DataCard_LV2CategoryEdit_PopUp_AICM_1 As rectangle:
+            BorderColor: |-
+                =ColorValue("#D1D1D1")
+            BorderThickness: =1
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =135
+            HoverFill: =RGBA(0, 0, 0, 0)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =643
+            X: =765
+            Y: =596
+            ZIndex: =149
+
+        frm_LV2CategoryEdit_Box_PopUp_AICM_1 As form:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            DataSource: =똑실이_Category_table
+            Height: =370
+            Item: =CategorySettingModelAIWorker
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =646
+            X: =759
+            Y: =361
+            ZIndex: =150
+
+            Category_LV1_DataCard_PopUp_AICM_1 As typedDataCard.textualEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="Category_LV1"
+                Default: =ThisItem.Category_LV1
+                DisplayMode: =DisplayMode.Disabled
+                DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"Category_LV1")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =50
+                MaxLength: =DataSourceInfo([@똑실이_Category_table], DataSourceInfo.MaxLength, "Category_LV1")
+                Required: =true
+                Update: =DataCardValue39_3.Text
+                Width: =645
+                X: =0
+                Y: =0
+                ZIndex: =1
+
+                DataCardKey40_3 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =33
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="메인 카테고리"
+                    Width: =148
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                DataCardValue39_3 As text:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    Default: =Parent.Default
+                    DelayOutput: =true
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =42
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(255, 255, 255, 1)
+                    MaxLength: =Parent.MaxLength
+                    PaddingLeft: =5
+                    PressedBorderColor: =RGBA(105, 121, 126, 1)
+                    PressedColor: =RGBA(51, 51, 51, 1)
+                    PressedFill: =RGBA(255, 255, 255, 1)
+                    RadiusBottomLeft: =0
+                    RadiusBottomRight: =0
+                    RadiusTopLeft: =0
+                    RadiusTopRight: =0
+                    Size: =13
+                    Tooltip: =Parent.DisplayName
+                    Width: =463
+                    X: =155
+                    Y: =8
+                    ZIndex: =2
+
+            Category_LV2_DataCard_PopUp_AICM_1 As typedDataCard.textualEditCard:
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="Category_LV2"
+                Default: =ThisItem.Category_LV2
+                DisplayMode: =DisplayMode.Disabled
+                DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"Category_LV2")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =64
+                MaxLength: =DataSourceInfo([@똑실이_Category_table], DataSourceInfo.MaxLength, "Category_LV2")
+                Required: =true
+                Update: =DataCardValue35_3.Text
+                Width: =645
+                X: =0
+                Y: =1
+                ZIndex: =1
+
+                DataCardKey36_3 As label:
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =26
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="서브 카테고리"
+                    Width: =132
+                    Wrap: =false
+                    X: =30
+                    Y: =23
+                    ZIndex: =1
+
+                DataCardValue35_3 As text:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    Default: =Parent.Default
+                    DelayOutput: =true
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =42
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(255, 255, 255, 1)
+                    MaxLength: =Parent.MaxLength
+                    PaddingLeft: =5
+                    PressedBorderColor: =RGBA(105, 121, 126, 1)
+                    PressedColor: =RGBA(51, 51, 51, 1)
+                    PressedFill: =RGBA(255, 255, 255, 1)
+                    RadiusBottomLeft: =0
+                    RadiusBottomRight: =0
+                    RadiusTopLeft: =0
+                    RadiusTopRight: =0
+                    Size: =13
+                    Tooltip: =Parent.DisplayName
+                    Width: =463
+                    X: =155
+                    Y: =15
+                    ZIndex: =2
+
+            DocumentLanguage_DataCard_PopUp_AICM_1 As typedDataCard.allowedValuesStringEditCard:
+                AllowedValues: |-
+                    =[
+                        {Text: "한국어", Value: "ko"},
+                        {Text: "English", Value: "en"},
+                        {Text: "日本語​", Value: "ja"},
+                        {Text: "다국어​", Value: "vector"}
+                    ]
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="DocumentLanguage"
+                Default: =ThisItem.DocumentLanguage
+                DisplayMode: =DisplayMode.Disabled
+                DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"DocumentLanguage")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =129
+                Required: =false
+                Update: =DataCardValue42_3.Selected.Value
+                Visible: =true
+                Width: =645
+                X: =0
+                Y: =2
+                ZIndex: =1
+
+                DataCardKey43_3 As label:
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =33
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="내부 문서 언어"
+                    Visible: =ThisItem.CategoryType <> "system"
+                    Width: =122
+                    Wrap: =false
+                    X: =30
+                    Y: =20
+                    ZIndex: =1
+
+                DataCardValue42_3 As dropdown:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+                    ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+                    ChevronFill: =RGBA(33, 33, 33, 1)
+                    ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+                    ChevronHoverFill: =RGBA(33, 33, 33, 1)
+                    Color: =RGBA(51, 51, 51, 1)
+                    Default: |-
+                        =Switch(
+                            Parent.Default,
+                            "ko",
+                            "한국어",
+                            "en",
+                            "English",
+                            "ja",
+                            "日本語",
+                            "vector",
+                            "다국어"
+                        )
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    Font: =Font.'Segoe UI'
+                    Height: =37
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    Items: =Parent.AllowedValues
+                    PaddingBottom: =5
+                    PaddingLeft: =12
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    SelectionFill: =RGBA(105, 121, 126, 1)
+                    Size: =13
+                    Tooltip: =Parent.DisplayName
+                    Visible: =ThisItem.CategoryType <> "system"
+                    Width: =472
+                    X: =152
+                    Y: =16
+                    ZIndex: =2
+
+                StarVisible35_3 As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey43_3.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey43_3.Y
+                    ZIndex: =4
+
+            AnswerModel_DataCard_PopUp_AICM_1 As typedDataCard.allowedValuesStringEditCard:
+                AllowedValues: |-
+                    =[
+                        {Text: "GPT-3.5", Value: "chat"},
+                        {Text: "GPT-4", Value: "chat_gpt4"}
+                    ]
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="AnswerModel"
+                Default: =ThisItem.AnswerModel
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"AnswerModel")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =50
+                Required: =false
+                Update: =DataCardValue8_3.Selected.Value
+                Width: =645
+                X: =0
+                Y: =3
+                ZIndex: =1
+
+                DataCardKey8_3 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =33
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="답변 모델"
+                    Width: =127
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                DataCardValue8_3 As dropdown:
+                    BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+                    ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+                    ChevronFill: =RGBA(33, 33, 33, 1)
+                    ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+                    ChevronHoverFill: =RGBA(33, 33, 33, 1)
+                    Color: =RGBA(51, 51, 51, 1)
+                    Default: =Switch(Parent.Default,"chat_gpt4","GPT-4","chat","GPT-3.5")
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    DisabledFill: =RGBA(244, 244, 244, 1)
+                    DisplayMode: =Parent.DisplayMode
+                    Font: =Font.'Segoe UI'
+                    HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverColor: =RGBA(51, 51, 51, 1)
+                    HoverFill: =RGBA(212, 212, 212, 1)
+                    Items: =Parent.AllowedValues
+                    PaddingBottom: =5
+                    PaddingLeft: =12
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    PressedColor: =RGBA(255, 255, 255, 1)
+                    PressedFill: =RGBA(105, 121, 126, 1)
+                    SelectionFill: =RGBA(105, 121, 126, 1)
+                    Size: =13
+                    Tooltip: =Parent.DisplayName
+                    Width: =379
+                    X: =152
+                    Y: =10
+                    ZIndex: =2
+
+                ErrorMessage8_3 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(168, 0, 0, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(168, 0, 0, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =10
+                    Live: =Live.Assertive
+                    PaddingBottom: =0
+                    PaddingLeft: =0
+                    PaddingRight: =0
+                    PaddingTop: =0
+                    Size: =13
+                    Text: =Parent.Error
+                    Visible: =Parent.DisplayMode=DisplayMode.Edit
+                    Width: =Parent.Width - 60
+                    X: =30
+                    Y: =DataCardValue8_3.Y + DataCardValue8_3.Height
+                    ZIndex: =3
+
+                StarVisible8_3 As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey8_3.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey8_3.Y
+                    ZIndex: =4
+
+            AnswerMode_DataCard_PopUp_AICM_1 As typedDataCard.allowedValuesStringEditCard:
+                AllowedValues: |-
+                    =If(
+                        ThisItem.ChatMode = "openai_answer",
+                        [
+                            {
+                                Text: "상세답변",
+                                Value: "full"
+                            },
+                            {
+                                Text: "간단답변",
+                                Value: "simple"
+                            }
+                        ],
+                        ThisItem.ChatMode = "bing_answer",
+                      
+                        [
+                            {
+                                Text: "생성형 답변",
+                                Value: "generative"
+                            },
+                            {
+                                Text: "일반 답변",
+                                Value: "retrieval"
+                            }
+                        ]
+                    )
+                BorderColor: =RGBA(166, 166, 166, 1)
+                BorderStyle: =BorderStyle.Solid
+                DataField: ="AnswerMode"
+                Default: =ThisItem.AnswerMode
+                DisplayMode: =Parent.DisplayMode
+                DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"AnswerMode")
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =61
+                Required: =false
+                Update: =RadioGroupCanvas3_3.Selected.Value
+                Width: =645
+                X: =0
+                Y: =4
+                ZIndex: =1
+
+                DataCardKey10_3 As label:
+                    AutoHeight: =true
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    Height: =33
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="답변 방식"
+                    Width: =113
+                    Wrap: =false
+                    X: =30
+                    Y: =10
+                    ZIndex: =1
+
+                StarVisible10_3 As label:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =2
+                    Color: =RGBA(51, 51, 51, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(166, 166, 166, 1)
+                    FocusedBorderThickness: =4
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =DataCardKey10_3.Height
+                    PaddingLeft: =0
+                    Size: =13
+                    Text: ="*"
+                    Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
+                    Width: =30
+                    Wrap: =false
+                    Y: =DataCardKey10_3.Y
+                    ZIndex: =4
+
+                RadioGroupCanvas3_3 As 라디오.pcfdataset:
+                    AccessibleLabel: =""
+                    DefaultSelectedItems: |
+                        ={
+                            Value: ThisItem.AnswerMode
+                        }
+                    DisplayMode: |-
+                        =// 라이센스가 있을시에만 답변방식 선택 가능
+                        If(
+                            LookUp(
+                                똑실이_License_table,
+                                !IsBlank(RetrievalAnswer)
+                            ).RetrievalAnswer = false And IsBlank(ThisItem.CategoryType),
+                            DisplayMode.Disabled,
+                            DisplayMode.Edit
+                        )
+                    Height: =50
+                    Items: =Parent.AllowedValues
+                    Layout: ='RadioGroupCanvas.Layout'.Horizontal
+                    Visible: =true
+                    Width: =336
+                    X: =146
+                    Y: =9
+                    ZIndex: =5
+
+                    TextInput2_3 As pcfDataField.textualColumn:
+                        FieldDisplayName: ="Text"
+                        FieldName: ="Text"
+                        FieldType: ="s"
+                        FieldVariantName: ="textualColumn"
+                        Order: =1
+                        ZIndex: =81
+
+                Icon_RetrievalAnswer_AICM_1 As icon.Information:
+                    BorderColor: =RGBA(166, 166, 166, 1)
+                    Color: =RGBA(105, 121, 126, 1)
+                    DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                    DisabledColor: =RGBA(220, 220, 220, 1)
+                    DisabledFill: =RGBA(0, 0, 0, 0)
+                    FocusedBorderThickness: =4
+                    Height: =20
+                    HoverBorderColor: =RGBA(0, 0, 0, 0)
+                    HoverColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    HoverFill: =RGBA(0, 0, 0, 0)
+                    Icon: =Icon.Information
+                    PressedBorderColor: =RGBA(0, 0, 0, 0)
+                    PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+                    PressedFill: =RGBA(0, 0, 0, 0)
+                    Tooltip: |
+                        =Char(34) & "정해진 답변"  & Char(34) &  " AddOn 모듈을 추가 하셔야 변경 가능합니다."
+                    Visible: |-
+                        =// 라이센스가 없으면 노출
+                        If(
+                            LookUp(
+                                똑실이_License_table,
+                                !IsBlank(RetrievalAnswer)
+                            ).RetrievalAnswer = false And IsBlank(ThisItem.CategoryType),
+                            true,
+                            false
+                        )
+                    Width: =20
+                    X: =402
+                    Y: =20
+                    ZIndex: =6
+
+        lbl_Explanation_PopUp_AICM_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(53, 61, 63, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(166, 166, 166, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            Height: =21
+            Size: =11
+            Text: ="※ 위 영역의 설정은 카테고리 추가 후 변경 불가​"
+            Visible: =ShowCategorySettingModalAIWorker
+            Width: =511
+            X: =781
+            Y: =547
+            ZIndex: =151
 
