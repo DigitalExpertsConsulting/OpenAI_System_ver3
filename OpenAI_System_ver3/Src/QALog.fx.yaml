@@ -1565,6 +1565,21 @@ QALog As screen:
         Width: =300
         X: =883
         Y: =293
+        ZIndex: =54
+
+    Background_Modal_CSVPopup_1 As rectangle:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledFill: =
+        Fill: =RGBA(0, 0, 0, 0.2)
+        FocusedBorderThickness: =4
+        Height: =1080
+        HoverFill: =
+        PressedFill: =
+        Visible: =csv_popup
+        Width: =1620
+        X: =300
         ZIndex: =55
 
     Modal_Edit_CSVPopup_1 As group:
@@ -1588,7 +1603,7 @@ QALog As screen:
             Width: =1068
             X: =593
             Y: =162
-            ZIndex: =58
+            ZIndex: =56
 
         Background_ModalEdit_Border_CSVPopup_1 As rectangle:
             BorderColor: =RGBA(189, 189, 189, 1)
@@ -1603,7 +1618,7 @@ QALog As screen:
             Width: =1035
             X: =610
             Y: =242
-            ZIndex: =59
+            ZIndex: =57
 
         Label_ModalEditTitle_CSVPopup_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
@@ -1616,24 +1631,13 @@ QALog As screen:
             FontWeight: =FontWeight.Bold
             Height: =42
             Size: =20
-            Text: |-
-                =//modalSelected & " - Edit"
-                Switch(
-                    modalSelected,
-                    "BotName", Label_BotName_CM.Text,
-                    "BotCallName", Label_BotCallName_CM.Text,
-                    "WelcomeMSG", Label_WelcomeMSG_CM.Text,
-                    "StartMSG", Label_StartMSG_CM.Text,
-                    "BadWordMSG", Label_BadWordMSG_CM.Text,
-                    "QuestionMSG", Label_QuestionMSG_CM.Text,
-                    "MoreQuestionMSG", Label_MoreQuestion_CM.Text
-                ) & " 수정"
+            Text: ="CSV 다운로드 임시내역"
             Visible: =csv_popup
             Width: =900
             Wrap: =false
             X: =613
             Y: =182
-            ZIndex: =60
+            ZIndex: =58
 
         Icon_ModalEditClose_CSVPopup_1 As icon.Cancel:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1648,8 +1652,8 @@ QALog As screen:
             HoverFill: =RGBA(0, 0, 0, 0)
             Icon: =Icon.Cancel
             OnSelect: |-
-                =UpdateContext({editModal:false});
-                UpdateContext({twoLineTextInput:DisplayMode.Edit});
+                ='똑실이-[Apps]질의응답CSV임시파일삭제'.Run(onedrive_file_id);
+                UpdateContext({csv_popup:false});
                 Reset(TextInput_EditMSG_CSVPopup_1);
             PressedBorderColor: =RGBA(0, 0, 0, 0)
             PressedColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
@@ -1658,41 +1662,23 @@ QALog As screen:
             Width: =45
             X: =1593
             Y: =179
-            ZIndex: =61
+            ZIndex: =59
 
         TextInput_EditMSG_CSVPopup_1 As text:
             BorderColor: =RGBA(189, 189, 189, 1)
             BorderThickness: =2
             Color: =RGBA(51, 51, 51, 1)
-            Default: |-
-                =Switch(
-                    modalSelected,
-                    "WelcomeMSG", TextInput_WelcomeMSG_CM.Text,
-                    "StartMSG", TextInput_StartMSG_CM.Text,
-                    "BadWordMSG", TextInput_BadWordMSG_CM.Text,
-                    "QuestionMSG", TextInput_QuestionMSG_CM.Text,
-                    "MoreQuestionMSG", TextInput_MoreQuestion_CM.Text
-                )
-                /*Switch(
-                    modalSelected,
-                    "BotName",TextInput_BotName_CM.Text,
-                    "BotCallName", TextInput_BotCallName_CM.Text,
-                    "WelcomeMSG", TextInput_WelcomeMSG_CM.Text,
-                    "StartMSG", TextInput_StartMSG_CM.Text,
-                    "BadWordMSG", TextInput_BadWordMSG_CM.Text,
-                    "QuestionMSG", TextInput_QuestionMSG_CM.Text,
-                    "MoreQuestionMSG", TextInput_MoreQuestion_CM.Text
-                )*/
+            Default: =""
             DisabledBorderColor: =RGBA(189, 189, 189, 1)
             DisabledColor: =RGBA(166, 166, 166, 1)
             DisabledFill: =RGBA(255, 255, 255, 1)
-            DisplayMode: =twoLineTextInput
+            DisplayMode: =DisplayMode.Disabled
             FocusedBorderThickness: =4
             Font: =Font.'Segoe UI'
             Height: |-
                 =//279
                 782-TextInput_EditMSG_CSVPopup_1.Y
-            HintText: ="내용을 입력해주세요."
+            HintText: =""
             HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
             HoverColor: =RGBA(51, 51, 51, 1)
             HoverFill: =RGBA(255, 255, 255, 1)
@@ -1709,7 +1695,7 @@ QALog As screen:
             Width: =982
             X: =636
             Y: =270+Label_Example_CSVPopup_1.Height+40+28
-            ZIndex: =62
+            ZIndex: =60
 
         Background_Label_Example_CSVPopup_1 As text:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1741,7 +1727,7 @@ QALog As screen:
             Width: =982
             X: =636
             Y: =270
-            ZIndex: =64
+            ZIndex: =61
 
         Label_Example_CSVPopup_1 As label:
             AutoHeight: =true
@@ -1756,7 +1742,8 @@ QALog As screen:
             Height: =185
             LineHeight: =1.5
             Text: |-
-                =Char(7) & "  " &
+                =/*
+                Char(7) & "  " &
                 Switch(
                     modalSelected,
                     "BotName", "봇 이름에 해당하는 변수 입니다." & Char(10) & Char(7) & "  " & "다른 메시지에서 %BOT_NAME% 이 아래 값으로 치환 됩니다." & Char(10) & Char(7) & "  " & "봇이름 예시 : 똑실이" & Char(10),
@@ -1774,14 +1761,20 @@ QALog As screen:
                     "MoreQuestionMSG", "질문에 대한 답변 이후, 나오는 메시지 입니다." & Char(10) & Char(7) & "  " & "%CATEGORY%는 선택하신 카테고리로 치환 됩니다." & Char(10) & Char(7) & "  " & "메시지 예시 : " & "%CATEGORY% 더 궁금하신 사항이 있으신가요?" & Char(10) & Char(7) & "  " & "미리보기 예시 : [카테고리1>카테고리2] 더 궁금하신 사항이 있으신가요?" & Char(10) & Char(7) & "  " & "줄바꿈은 엔터를 두번 입력해야 챗봇에서 1줄바꿈이 적용됩니다. (한줄을 공백으로 비워주세요.)" & Char(10) & Char(7) & "  " & "빈칸 설정 시 해당 메시지는 보이지 않습니다."
                 
                 )
+                */
+                
+                Char(7) & "  " &
+                "일부 기기에서 " & Char(34) & "파일다운로드" & Char(34) & "가 동작하지 않을 수 있습니다." &
+                Char(10) & Char(7) &
+                "  " & "본 팝업을 닫을 시 OneDrive에 저장된 임시파일이 삭제됩니다."
             VerticalAlign: =VerticalAlign.Top
             Visible: =csv_popup
             Width: =957
             X: =661
             Y: =305
-            ZIndex: =65
+            ZIndex: =62
 
-        Label_Example_Text_CM_1 As label:
+        Label_Example_Text_CSVPopup_1 As label:
             BorderColor: =RGBA(0, 0, 0, 0)
             BorderStyle: =BorderStyle.None
             BorderThickness: =2
@@ -1797,7 +1790,7 @@ QALog As screen:
             Width: =200
             X: =680
             Y: =270
-            ZIndex: =66
+            ZIndex: =63
 
         Icon_ExampleMSG_CSVPopup_1 As icon.Information:
             BorderColor: =RGBA(166, 166, 166, 1)
@@ -1818,22 +1811,7 @@ QALog As screen:
             Width: =38
             X: =648
             Y: =278
-            ZIndex: =67
-
-    Background_Modal_CSVPopup_1 As rectangle:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        DisabledFill: =
-        Fill: =RGBA(0, 0, 0, 0.2)
-        FocusedBorderThickness: =4
-        Height: =1080
-        HoverFill: =
-        PressedFill: =
-        Visible: =csv_popup
-        Width: =1620
-        X: =300
-        ZIndex: =57
+            ZIndex: =64
 
     Group_SherchQAGallery_QALogEdit_1 As group:
         Height: =5
@@ -2266,6 +2244,60 @@ QALog As screen:
             Y: =147
             ZIndex: =19
 
+    Button_Download_File_CSVPopup_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =71
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =2
+        RadiusBottomRight: =2
+        RadiusTopLeft: =2
+        RadiusTopRight: =2
+        Size: =15
+        Text: ="파일 다운로드"
+        Width: =861
+        X: =696
+        Y: =432
+        ZIndex: =65
+
+    Button_View_File_CSVPopup_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        DisabledFill: =RGBA(244, 244, 244, 1)
+        Fill: =RGBA(105, 121, 126, 1)
+        FocusedBorderColor: =ColorFade(Self.Fill, -75%)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Semibold
+        Height: =71
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =RGBA(255, 255, 255, 1)
+        HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
+        PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
+        RadiusBottomLeft: =2
+        RadiusBottomRight: =2
+        RadiusTopLeft: =2
+        RadiusTopRight: =2
+        Size: =15
+        Text: ="파일 다운로드"
+        Width: =861
+        X: =693
+        Y: =574
+        ZIndex: =66
+
     ButtonCanvas1test As 버튼:
         DisplayMode: =DisplayMode.Edit
         Height: =32
@@ -2274,5 +2306,5 @@ QALog As screen:
         Width: =96
         X: =733
         Y: =0
-        ZIndex: =69
+        ZIndex: =67
 
