@@ -66,7 +66,9 @@ AICategoryManagement As screen:
         HoverFill: |-
             =ColorValue("#F5F5F5")
         OnSelect: |-
-            =UpdateContext({locLoadingSpinner: true});
+            =// 새로고침
+            
+            UpdateContext({locLoadingSpinner: true});
             Refresh(똑실이_Category_table);
             // colAICategory : AI 카테고리 조회 목록 가져오기
             ClearCollect(
@@ -203,7 +205,8 @@ AICategoryManagement As screen:
         HoverColor: =RGBA(51, 51, 51, 1)
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |+
-            =Distinct(
+            =// LV1 카테고리 드롭다운 정렬 및 중복값 제거
+            Distinct(
                 SortByColumns(
                     colAICategory,
                     "LV1Order",
@@ -246,6 +249,7 @@ AICategoryManagement As screen:
         HoverFill: =RGBA(212, 212, 212, 1)
         Items: |+
             =// ID 기준 정렬(전체 최상단)
+            // LV2 카테고리 드롭다운 정렬 및 중복값 제거
             
             If(
                 Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
@@ -327,15 +331,17 @@ AICategoryManagement As screen:
                 ),
                 Category_LV1
             )*/
+            
+            //LV1 카테고리 메인 갤러리
             Distinct(
                 Sort(
                     With(
-                        {Lv1Filter:Switch(
+                        {Lv1Filter:Switch( //선택한 Dropdown_SearchCategoryLV1_AICM 값에 따라 필터링
                                 Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, 
                                 "전체",
                                 Filter(
-                                    colAICategory,
-                                    !IsBlank(LV2Order)
+                                    colAICategory, // ("전체")DEFAULT_CATEGORY_VALUE 변수를 포함한 똑실이_Category_table 컬렉션
+                                    !IsBlank(LV2Order) //LV2Order열이 비어있지 않는 값
                                 ),
                                 Filter(
                                         colAICategory,
@@ -346,7 +352,7 @@ AICategoryManagement As screen:
                         Switch(
                             Dropdown_SearchCategoryLV2_AICM.SelectedText.Value, 
                             "전체",
-                            Lv1Filter,
+                            Lv1Filter, // "전체"일 경우
                             Filter(Lv1Filter, Category_LV2 = Dropdown_SearchCategoryLV2_AICM.SelectedText.Value)
                         )
                     ),
@@ -372,7 +378,7 @@ AICategoryManagement As screen:
             DelayItemLoading: =true
             Height: =242
             Items: |-
-                =// LV2 카테고리
+                =// LV2 카테고리 서브 갤러리
                 SortByColumns(
                     Switch(
                         Dropdown_SearchCategoryLV2_AICM.SelectedText.Value,
@@ -504,16 +510,7 @@ AICategoryManagement As screen:
                 OnSelect: =Select(Parent)
                 Size: =12
                 Text: |
-                    =/* Substitute(
-                        Substitute(
-                            ThisItem.AnswerModel, 
-                            "chat_gpt4", 
-                            "GPT-4"
-                        ),
-                        "chat", 
-                        "GPT-3.5"
-                    )*/
-                    
+                    =// 답변모델 Sharepoint - Apps 단어 변환
                     Switch(
                         ThisItem.AnswerModel,
                         "chat_gpt4", "GPT-4",
@@ -574,35 +571,19 @@ AICategoryManagement As screen:
                 OnSelect: =Select(Parent)
                 Size: =12
                 Text: |-
-                    =/*Substitute(
-                        Substitute(
-                            Substitute(
-                                Substitute(
-                                    ThisItem.AnswerMode,
-                                    "generative",
-                                    "생성형답변"
-                                ),
-                                "retrieval",
-                                "정해진답변"
-                            ),
-                            "full",
-                            "상세답변"
-                        ),
-                        "simple",
-                        "간단답변"
-                    )*/
+                    =// 답변방식 Sharepoint - Apps 단어 변환
                     If(ThisItem.ChatMode="bing_answer",
                     Switch(
                         ThisItem.AnswerMode,
-                        "generative", "요약검색",
-                        "retrieval", "일반검색"
+                        "generative", "생성형 답변",
+                        "retrieval", "일반 답변"
                     ),
                     Switch(
                         ThisItem.AnswerMode,
-                        "generative", "생성형답변",
-                        "retrieval", "정해진답변",
-                        "full","상세답변",
-                        "simple", "간단답변"
+                        "generative", "생성형 답변",
+                        "retrieval", "정해진 답변",
+                        "full","상세 답변",
+                        "simple", "간단 답변"
                     ))
                 Width: =lbl_SubSystem_AnswerModel_AICategory_AICM.Width
                 X: =972
@@ -660,20 +641,7 @@ AICategoryManagement As screen:
                 OnSelect: =Select(Parent)
                 Size: =12
                 Text: |-
-                    =/*Substitute(
-                        Substitute(
-                            Substitute(
-                                ThisItem.ChatMode,
-                                "openai_answer",
-                                "OpenAI"
-                            ),
-                            "bing_answer",
-                            "Bing"
-                        ),
-                        "document_answer",
-                        "내부문서"
-                    )
-                    */
+                    =// 지원언어 Sharepoint - Apps 단어 변환
                     Switch(
                         ThisItem.ChatMode,
                         "openai_answer",
@@ -744,24 +712,7 @@ AICategoryManagement As screen:
                 OnSelect: =Select(Parent)
                 Size: =12
                 Text: |-
-                    =/*
-                    Substitute(
-                        Substitute(
-                            Substitute(
-                                Substitute(
-                                    ThisItem.DocumentLanguage,
-                                    "ko",
-                                    "한국어"
-                                ),
-                                "en",
-                                "English"
-                            ),
-                            "ja",
-                            "日本語"
-                        ),
-                        "vector",
-                        "다국어"
-                    )*/
+                    =// 원본지원언어 Sharepoint - Apps 단어 변환
                     Switch(
                         ThisItem.DocumentLanguage,
                         "ko",
@@ -797,7 +748,9 @@ AICategoryManagement As screen:
                 HoverFill: =RGBA(0, 0, 0, 0)
                 Icon: =Icon.Settings
                 OnSelect: |
-                    =UpdateContext({
+                    =// 카테고리 설정 수정 버튼
+                    
+                    UpdateContext({
                         ShowCategorySettingModal: true,
                         CategorySettingModelAICM: ThisItem
                     });
@@ -1043,7 +996,9 @@ AICategoryManagement As screen:
             FontWeight: =FontWeight.Bold
             OnSelect: =
             Size: =15
-            Text: =ThisItem.Value
+            Text: |-
+                =// LV1 카테고리명
+                ThisItem.Value
             Width: =1302
             X: =58
             Y: =33
@@ -1671,25 +1626,25 @@ AICategoryManagement As screen:
             AnswerMode_DataCard_PopUp_AICM As typedDataCard.allowedValuesStringEditCard:
                 AllowedValues: |-
                     =If(
-                        ThisItem.ChatMode = "openai_answer",
+                        ThisItem.ChatMode = "openai_answer", //OpenAI
                         [
                             {
-                                Text: "상세답변",
+                                Text: "상세 답변",
                                 Value: "full"
                             },
                             {
-                                Text: "간단답변",
+                                Text: "간단 답변",
                                 Value: "simple"
                             }
                         ],
-                        ThisItem.ChatMode = "bing_answer",
+                        ThisItem.ChatMode = "bing_answer", //Bing
                         [
                             {
-                                Text: "요약검색",
+                                Text: "생성형 답변",
                                 Value: "generative"
                             },
                             {
-                                Text: "일반검색",
+                                Text: "일반 답변",
                                 Value: "retrieval"
                             }
                         ],
