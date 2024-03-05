@@ -3832,14 +3832,7 @@
     "Button_Refresh_CategoryMenu_AICM": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "UpdateContext({locLoadingSpinner: true});\nRefresh(똑실이_Category_table);\n// colAICategory : AI 카테고리 조회 목록 가져오기\nClearCollect(\n    colAICategory,\n    {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order:\"-1\", ID:\"-3\"},\n    SortByColumns(\n        Filter(\n        ForAll(\n            Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),\n            {\n                Category_LV1: Text(ThisRecord.Value.Category_LV1),\n                Category_LV2: Text(ThisRecord.Value.Category_LV2),\n\t\t\t\tLV1Order: Text(ThisRecord.Value.LV1Order),\n                LV2Order: Text(ThisRecord.Value.LV2Order),\n                ID: Text(ThisRecord.Value.ID),\n                CategoryType: Text(ThisRecord.Value.CategoryType),\n\t\t\t\tAnswerModel: Text(ThisRecord.Value.AnswerModel),\n\t\t\t\tAnswerMode: Text(ThisRecord.Value.AnswerMode),\n\t\t\t\tChatMode: Text(ThisRecord.Value.ChatMode),\n\t\t\t\tDocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)\n\t\t\t\t\n            }\n        ), \n        CategoryType = \"system\" || IsBlank(CategoryType)),\n        \"LV1Order\",\n        SortOrder.Ascending,\n        \"LV2Order\",\n        SortOrder.Ascending\n    )\n);\n\nUpdateContext({SettingLv2Category: false});\nUpdateContext({locLoadingSpinner: false});",
-          "InvariantPropertyName": "OnSelect",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "OnSelect",
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -4146,7 +4139,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "User"
+          "RuleProviderType": "Unknown"
         }
       ],
       "StyleName": "defaultButtonStyle",
@@ -7696,14 +7689,7 @@
     "Dropdown_SearchCategoryLV1_AICM": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "Distinct(\n    SortByColumns(\n        colAICategory,\n        \"LV1Order\",\n        SortOrder.Ascending\n    ),\n    Category_LV1\n)\n\n",
-          "InvariantPropertyName": "Items",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "Items",
         "Default",
         "Reset",
         "AllowEmptySelection",
@@ -8068,14 +8054,7 @@
     "Dropdown_SearchCategoryLV2_AICM": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "// ID 기준 정렬(전체 최상단)\n\nIf(\n    Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = DEFAULT_CATEGORY_VALUE,\n    Distinct(\n        SortByColumns(\n            Filter(\n                colAICategory, //Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = \n                Category_LV2\n            ),\n            \"ID\",\n            SortOrder.Ascending\n        ),\n        Category_LV2\n    ),\n    Distinct(\n        SortByColumns(\n            Filter(\n                colAICategory,\n                Dropdown_SearchCategoryLV1_AICM.SelectedText.Value = Category_LV1 Or DEFAULT_CATEGORY_VALUE = Category_LV2\n            ),\n            \"ID\",\n            SortOrder.Ascending\n        ),\n        Category_LV2\n    )\n)\n\n",
-          "InvariantPropertyName": "Items",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "Items",
         "Default",
         "Reset",
         "AllowEmptySelection",
@@ -8958,14 +8937,7 @@
     "Gallery_AICategory_SubSystem_AICM": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "// LV2 카테고리\nSortByColumns(\n    Switch(\n        Dropdown_SearchCategoryLV2_AICM.SelectedText.Value,\n        \"전체\",\n        Filter(\n            똑실이_Category_table,\n            Category_LV1 = ThisItem.Value\n        ),\n        Filter(\n            똑실이_Category_table,\n            Category_LV2 = Dropdown_SearchCategoryLV2_AICM.SelectedText.Value,\n            Category_LV1 = ThisItem.Value\n        )\n    ),\n    \"LV2Order\",\n    SortOrder.Ascending\n)",
-          "InvariantPropertyName": "Items",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "Items",
         "Default",
         "WrapCount",
         "Selectable",
@@ -9298,14 +9270,7 @@
     "Gallery_AICategory_TopSystem_AICM": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "// CategoryType default 제외한 나머지 값 출력(AI Worker 최상단)\n/*Distinct(\n    Sort(\n        Switch(\n            Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, \n            \"전체\",\n            Filter(\n                colAICategory,\n                !IsBlank(LV2Order)\n            ),\n        Filter(\n                colAICategory,\n                ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.SelectedText.Value\n            )),\n        \"LV1Order\",\n        SortOrder.Ascending\n    ),\n    Category_LV1\n)*/\nDistinct(\n    Sort(\n        With(\n            {Lv1Filter:Switch(\n                    Dropdown_SearchCategoryLV1_AICM.SelectedText.Value, \n                    \"전체\",\n                    Filter(\n                        colAICategory,\n                        !IsBlank(LV2Order)\n                    ),\n                    Filter(\n                            colAICategory,\n                            ThisRecord.Category_LV1 = Dropdown_SearchCategoryLV1_AICM.SelectedText.Value\n                    )\n                )\n            },\n            Switch(\n                Dropdown_SearchCategoryLV2_AICM.SelectedText.Value, \n                \"전체\",\n                Lv1Filter,\n                Filter(Lv1Filter, Category_LV2 = Dropdown_SearchCategoryLV2_AICM.SelectedText.Value)\n            )\n        ),\n        \"LV1Order\",\n        SortOrder.Ascending\n    ),\n    Category_LV1\n)\n",
-          "InvariantPropertyName": "Items",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "Items",
         "Default",
         "WrapCount",
         "Selectable",
@@ -10069,14 +10034,7 @@
         "BorderThickness",
         "FocusedBorderColor",
         "FocusedBorderThickness",
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "UpdateContext({\n    ShowCategorySettingModal: true,\n    CategorySettingModelAICM: ThisItem\n});\nResetForm(frm_LV2CategoryEdit_Box_PopUp_AICM);\n",
-          "InvariantPropertyName": "OnSelect",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "OnSelect",
         "minimumWidth",
         "minimumHeight",
         "maximumWidth",
@@ -10296,7 +10254,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "User"
+          "RuleProviderType": "Unknown"
         }
       ],
       "StyleName": "defaultIconStyle",
@@ -15396,14 +15354,7 @@
         "AutoHeight",
         "Wrap",
         "IsErrorMessage",
-        {
-          "AFDDataSourceName": "",
-          "AutoRuleBindingEnabled": false,
-          "AutoRuleBindingString": "ThisItem.Value",
-          "InvariantPropertyName": "Text",
-          "IsLockable": false,
-          "NameMapSourceSchema": "?"
-        },
+        "Text",
         "Tooltip",
         "Role",
         "ContentLanguage",
@@ -15466,7 +15417,7 @@
         {
           "Category": "Data",
           "PropertyName": "Text",
-          "RuleProviderType": "User"
+          "RuleProviderType": "Unknown"
         },
         {
           "Category": "Data",
