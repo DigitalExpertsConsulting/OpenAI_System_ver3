@@ -34,6 +34,9 @@ CategoryMenu As screen:
         
         UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 버튼 클릭
         UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 버튼 클릭
+        UpdateContext({DEFAULT_MAIN_CATEGORY_VALUE: "메인카테고리"}), // 메인카테고리 텍스트
+        UpdateContext({DEFAULT_SUB_CATEGORY_VALUE: "서브카테고리"}), // 서브카테고리 텍스트
+        
         
         Select(Button_Refresh_CategoryMenu_5),
         
@@ -524,7 +527,7 @@ CategoryMenu As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
         DisplayMode: |-
-            =If(IsBlank(Var_CategoryLV1) && Dropdown1_1.SelectedText.Value = DEFAULT_CATEGORY_VALUE, DisplayMode.Disabled,
+            =If(IsBlank(Var_CategoryLV1) && Dropdown1_1.SelectedText.Value = DEFAULT_MAIN_CATEGORY_VALUE, DisplayMode.Disabled,
             DisplayMode.Edit)
         FocusedBorderColor: |-
             =ColorValue("#BDBDBD")
@@ -580,14 +583,14 @@ CategoryMenu As screen:
         OnChange: |-
             =// 카테고리 LV1 검색 드롭다운이 "전체"이면, Var_CategoryLV1 공백, 아니면 카테고리LV1 선택항목 Var_CategoryLV1에 저장
             If(
-                Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
+                Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_MAIN_CATEGORY_VALUE,
                 Set(Var_CategoryLV1,Blank()),
                 Set(Var_CategoryLV1,Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1')
             );
             
             // 카테고리 LV2 검색드롭다운 컬렉션 생성
             If(
-                IsBlank(Var_CategoryLV1) && Self.SelectedText.Value = DEFAULT_CATEGORY_VALUE, // LV1 드롭다운이 "전체"이고, 선택된 LV1이 없으면
+                IsBlank(Var_CategoryLV1) && Self.SelectedText.Value = DEFAULT_MAIN_CATEGORY_VALUE, // LV1 드롭다운이 "메인카테고리"이고, 선택된 LV1이 없으면
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
                     {Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE}
@@ -595,7 +598,7 @@ CategoryMenu As screen:
             
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
-                    {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                    {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                     SortByColumns(
                         Filter(
                             똑실이_Category_table,
@@ -633,7 +636,7 @@ CategoryMenu As screen:
         Height: =700
         Items: |+
             =If(
-                Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
+                Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_MAIN_CATEGORY_VALUE,
                 
                 AssignedCategoryManagerTable,
             
@@ -651,7 +654,7 @@ CategoryMenu As screen:
             // 카테고리 LV2 드롭다운 항목 생성
             ClearCollect(
                 Col_CategoryLV2Dropdown,
-                {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                 SortByColumns(
                     Filter(
                         똑실이_Category_table,
@@ -774,7 +777,7 @@ CategoryMenu As screen:
         Height: =573
         Items: |-
             =If(
-                Dropdown1_2.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
+                Dropdown1_2.SelectedText.Value = DEFAULT_SUB_CATEGORY_VALUE,
             
             SortByColumns(
                 With(
@@ -1919,7 +1922,7 @@ CategoryMenu As screen:
             
             // 카테고리LV1 검색 필터 드롭다운 아이템 생성
             ClearCollect(Col_CategoryLV1Dropdown,
-                            {Category_LV1:DEFAULT_CATEGORY_VALUE},
+                            {Category_LV1:DEFAULT_MAIN_CATEGORY_VALUE},
             
                                 SortByColumns(
                                     Filter(AssignedCategoryManagerTable,!IsBlank(Category_LV1)),"Category_LV1",SortOrder.Ascending
@@ -1932,7 +1935,7 @@ CategoryMenu As screen:
             // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
             ClearCollect(
                 Col_CategoryLV2Dropdown,
-                {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                 SortByColumns(
                     Filter(
                         똑실이_Category_table,
@@ -5081,7 +5084,7 @@ CategoryMenu As screen:
                     // 카테고리 LV2 드롭다운 항목 생성
                     ClearCollect(
                         Col_CategoryLV2Dropdown,
-                        {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                        {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                         SortByColumns(
                             Filter(
                                 똑실이_Category_table,
@@ -6590,7 +6593,7 @@ CategoryMenu As screen:
                     // 카테고리 LV2 드롭다운 항목 생성
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
-                    {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                    {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                     SortByColumns(
                         Filter(
                             똑실이_Category_table,
