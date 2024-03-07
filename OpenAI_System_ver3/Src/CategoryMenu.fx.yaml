@@ -34,6 +34,9 @@ CategoryMenu As screen:
         
         UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 버튼 클릭
         UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 버튼 클릭
+        UpdateContext({DEFAULT_MAIN_CATEGORY_VALUE: "메인카테고리"}), // 메인카테고리 텍스트
+        UpdateContext({DEFAULT_SUB_CATEGORY_VALUE: "서브카테고리"}), // 서브카테고리 텍스트
+        
         
         Select(Button_Refresh_CategoryMenu_5),
         
@@ -524,7 +527,7 @@ CategoryMenu As screen:
         DisabledColor: =RGBA(166, 166, 166, 1)
         DisabledFill: =RGBA(244, 244, 244, 1)
         DisplayMode: |-
-            =If(IsBlank(Var_CategoryLV1) && Dropdown1_1.SelectedText.Value = DEFAULT_CATEGORY_VALUE, DisplayMode.Disabled,
+            =If(IsBlank(Var_CategoryLV1) && Dropdown1_1.SelectedText.Value = DEFAULT_MAIN_CATEGORY_VALUE, DisplayMode.Disabled,
             DisplayMode.Edit)
         FocusedBorderColor: |-
             =ColorValue("#BDBDBD")
@@ -580,14 +583,14 @@ CategoryMenu As screen:
         OnChange: |-
             =// 카테고리 LV1 검색 드롭다운이 "전체"이면, Var_CategoryLV1 공백, 아니면 카테고리LV1 선택항목 Var_CategoryLV1에 저장
             If(
-                Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
+                Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_MAIN_CATEGORY_VALUE,
                 Set(Var_CategoryLV1,Blank()),
                 Set(Var_CategoryLV1,Self.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1')
             );
             
             // 카테고리 LV2 검색드롭다운 컬렉션 생성
             If(
-                IsBlank(Var_CategoryLV1) && Self.SelectedText.Value = DEFAULT_CATEGORY_VALUE, // LV1 드롭다운이 "전체"이고, 선택된 LV1이 없으면
+                IsBlank(Var_CategoryLV1) && Self.SelectedText.Value = DEFAULT_MAIN_CATEGORY_VALUE, // LV1 드롭다운이 "메인카테고리"이고, 선택된 LV1이 없으면
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
                     {Category_LV2: DEFAULT_SELECT_CATEGORY_VALUE}
@@ -595,7 +598,7 @@ CategoryMenu As screen:
             
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
-                    {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                    {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                     SortByColumns(
                         Filter(
                             똑실이_Category_table,
@@ -633,7 +636,7 @@ CategoryMenu As screen:
         Height: =700
         Items: |+
             =If(
-                Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_CATEGORY_VALUE,
+                Dropdown1_1.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BCategory_LV1' = DEFAULT_MAIN_CATEGORY_VALUE,
                 
                 AssignedCategoryManagerTable,
             
@@ -651,7 +654,7 @@ CategoryMenu As screen:
             // 카테고리 LV2 드롭다운 항목 생성
             ClearCollect(
                 Col_CategoryLV2Dropdown,
-                {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                 SortByColumns(
                     Filter(
                         똑실이_Category_table,
@@ -774,7 +777,7 @@ CategoryMenu As screen:
         Height: =573
         Items: |-
             =If(
-                Dropdown1_2.SelectedText.Value = DEFAULT_CATEGORY_VALUE,
+                Dropdown1_2.SelectedText.Value = DEFAULT_SUB_CATEGORY_VALUE,
             
             SortByColumns(
                 With(
@@ -1919,7 +1922,7 @@ CategoryMenu As screen:
             
             // 카테고리LV1 검색 필터 드롭다운 아이템 생성
             ClearCollect(Col_CategoryLV1Dropdown,
-                            {Category_LV1:DEFAULT_CATEGORY_VALUE},
+                            {Category_LV1:DEFAULT_MAIN_CATEGORY_VALUE},
             
                                 SortByColumns(
                                     Filter(AssignedCategoryManagerTable,!IsBlank(Category_LV1)),"Category_LV1",SortOrder.Ascending
@@ -1932,7 +1935,7 @@ CategoryMenu As screen:
             // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
             ClearCollect(
                 Col_CategoryLV2Dropdown,
-                {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                 SortByColumns(
                     Filter(
                         똑실이_Category_table,
@@ -5081,7 +5084,7 @@ CategoryMenu As screen:
                     // 카테고리 LV2 드롭다운 항목 생성
                     ClearCollect(
                         Col_CategoryLV2Dropdown,
-                        {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                        {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                         SortByColumns(
                             Filter(
                                 똑실이_Category_table,
@@ -6125,7 +6128,7 @@ CategoryMenu As screen:
                     // 카테고리 LV2 드롭다운 항목 생성
                 ClearCollect(
                     Col_CategoryLV2Dropdown,
-                    {Category_LV2: DEFAULT_CATEGORY_VALUE},
+                    {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
                     SortByColumns(
                         Filter(
                             똑실이_Category_table,
@@ -6603,469 +6606,6 @@ CategoryMenu As screen:
             X: =1153
             Y: =725
             ZIndex: =141
-
-    Form2_1 As form:
-        BorderColor: =RGBA(166, 166, 166, 1)
-        DataSource: =똑실이_Category_table
-        Height: =380
-        Item: =CategorySettingModalItem
-        Visible: =ShowCategorySettingModal
-        Width: =640
-        X: =774
-        Y: =390
-        ZIndex: =152
-
-        Category_LV1_DataCard7_1 As typedDataCard.textualEditCard:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.Solid
-            DataField: ="Category_LV1"
-            Default: =ThisItem.Category_LV1
-            DisplayMode: =DisplayMode.Disabled
-            DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"Category_LV1")
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =50
-            MaxLength: =DataSourceInfo([@똑실이_Category_table], DataSourceInfo.MaxLength, "Category_LV1")
-            Required: =true
-            Update: =DataCardValue39_2.Text
-            Width: =645
-            X: =0
-            Y: =0
-            ZIndex: =1
-
-            DataCardKey40_2 As label:
-                AutoHeight: =true
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                PaddingLeft: =0
-                Size: =13
-                Text: ="메인 카테고리"
-                Width: =130
-                Wrap: =false
-                X: =20
-                Y: =10
-                ZIndex: =1
-
-            DataCardValue39_2 As text:
-                BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                Default: =Parent.Default
-                DelayOutput: =true
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                DisplayMode: =Parent.DisplayMode
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(255, 255, 255, 1)
-                MaxLength: =Parent.MaxLength
-                PressedBorderColor: =RGBA(105, 121, 126, 1)
-                PressedColor: =RGBA(51, 51, 51, 1)
-                PressedFill: =RGBA(255, 255, 255, 1)
-                RadiusBottomLeft: =0
-                RadiusBottomRight: =0
-                RadiusTopLeft: =0
-                RadiusTopRight: =0
-                Size: =13
-                Tooltip: =Parent.DisplayName
-                Width: =470
-                X: =150
-                Y: =8
-                ZIndex: =2
-
-        Category_LV2_DataCard4_1 As typedDataCard.textualEditCard:
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.Solid
-            DataField: ="Category_LV2"
-            Default: =ThisItem.Category_LV2
-            DisplayMode: =DisplayMode.Disabled
-            DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"Category_LV2")
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =64
-            MaxLength: =DataSourceInfo([@똑실이_Category_table], DataSourceInfo.MaxLength, "Category_LV2")
-            Required: =true
-            Update: =DataCardValue35_2.Text
-            Width: =645
-            X: =0
-            Y: =1
-            ZIndex: =1
-
-            DataCardKey36_2 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =26
-                PaddingLeft: =0
-                Size: =13
-                Text: ="서브 카테고리"
-                Width: =132
-                Wrap: =false
-                X: =20
-                Y: =23
-                ZIndex: =1
-
-            DataCardValue35_2 As text:
-                BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                Default: =Parent.Default
-                DelayOutput: =true
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                DisplayMode: =Parent.DisplayMode
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(255, 255, 255, 1)
-                MaxLength: =Parent.MaxLength
-                PressedBorderColor: =RGBA(105, 121, 126, 1)
-                PressedColor: =RGBA(51, 51, 51, 1)
-                PressedFill: =RGBA(255, 255, 255, 1)
-                RadiusBottomLeft: =0
-                RadiusBottomRight: =0
-                RadiusTopLeft: =0
-                RadiusTopRight: =0
-                Size: =13
-                Tooltip: =Parent.DisplayName
-                Width: =470
-                X: =150
-                Y: =15
-                ZIndex: =2
-
-        DocumentLanguage_DataCard7_1 As typedDataCard.allowedValuesStringEditCard:
-            AllowedValues: |-
-                =[
-                    {Text: "한국어", Value: "ko"},
-                    {Text: "English", Value: "en"},
-                    {Text: "日本語​", Value: "ja"},
-                    {Text: "다국어​", Value: "vector"}
-                ]
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.Solid
-            DataField: ="DocumentLanguage"
-            Default: =ThisItem.DocumentLanguage
-            DisplayMode: =DisplayMode.Disabled
-            DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"DocumentLanguage")
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =135
-            Required: =false
-            Update: =DataCardValue42_2.Selected.Value
-            Width: =645
-            X: =0
-            Y: =2
-            ZIndex: =1
-
-            DataCardKey43_2 As label:
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =33
-                PaddingLeft: =0
-                Size: =13
-                Text: ="내부 문서 언어"
-                Visible: =ThisItem.CategoryType <> "system"
-                Width: =130
-                Wrap: =false
-                X: =20
-                Y: =20
-                ZIndex: =1
-
-            DataCardValue42_2 As dropdown:
-                BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                ChevronBackground: =RGBA(255, 255, 255, 1)
-                ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-                ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-                ChevronFill: =RGBA(33, 33, 33, 1)
-                ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-                ChevronHoverFill: =RGBA(33, 33, 33, 1)
-                Color: =RGBA(51, 51, 51, 1)
-                Default: |-
-                    =Switch(
-                        Parent.Default,
-                        "ko",
-                        "한국어",
-                        "en",
-                        "English",
-                        "ja",
-                        "日本語",
-                        "vector",
-                        "다국어"
-                    )
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                DisplayMode: =Parent.DisplayMode
-                Font: =Font.'Segoe UI'
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(212, 212, 212, 1)
-                Items: =Parent.AllowedValues
-                PaddingBottom: =5
-                PaddingLeft: =12
-                PaddingRight: =5
-                PaddingTop: =5
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(105, 121, 126, 1)
-                SelectionFill: =RGBA(105, 121, 126, 1)
-                Size: =13
-                Tooltip: =Parent.DisplayName
-                Visible: =ThisItem.CategoryType <> "system"
-                Width: =266
-                X: =150
-                Y: =16
-                ZIndex: =2
-
-            StarVisible35_2 As label:
-                Align: =Align.Center
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =DataCardKey43_2.Height
-                PaddingLeft: =0
-                Size: =13
-                Text: ="*"
-                Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                Width: =30
-                Wrap: =false
-                Y: =DataCardKey43_2.Y
-                ZIndex: =4
-
-        AnswerModel_DataCard3_1 As typedDataCard.allowedValuesStringEditCard:
-            AllowedValues: |-
-                =[
-                    {Text: "GPT-3.5", Value: "chat"},
-                    {Text: "GPT-4", Value: "chat_gpt4"}
-                ]
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.Solid
-            DataField: ="AnswerModel"
-            Default: =ThisItem.AnswerModel
-            DisplayMode: =Parent.DisplayMode
-            DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"AnswerModel")
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =50
-            Required: =false
-            Update: =DataCardValue8_2.Selected.Value
-            Width: =645
-            X: =0
-            Y: =3
-            ZIndex: =1
-
-            DataCardKey8_2 As label:
-                AutoHeight: =true
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =33
-                PaddingLeft: =0
-                Size: =13
-                Text: ="답변 모델"
-                Width: =127
-                Wrap: =false
-                X: =20
-                Y: =10
-                ZIndex: =1
-
-            DataCardValue8_2 As dropdown:
-                BorderColor: =If(IsBlank(Parent.Error), Parent.BorderColor, Color.Red)
-                BorderThickness: =1
-                ChevronBackground: =RGBA(255, 255, 255, 1)
-                ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
-                ChevronDisabledFill: =RGBA(166, 166, 166, 1)
-                ChevronFill: =RGBA(33, 33, 33, 1)
-                ChevronHoverBackground: =RGBA(212, 212, 212, 1)
-                ChevronHoverFill: =RGBA(33, 33, 33, 1)
-                Color: =RGBA(51, 51, 51, 1)
-                Default: |
-                    =Switch(Parent.Default,"chat_gpt4","GPT-4","chat","GPT-3.5")
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                DisabledFill: =RGBA(244, 244, 244, 1)
-                DisplayMode: =Parent.DisplayMode
-                FocusedBorderThickness: =2
-                Font: =Font.'Segoe UI'
-                HoverBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                HoverColor: =RGBA(51, 51, 51, 1)
-                HoverFill: =RGBA(212, 212, 212, 1)
-                Items: =Parent.AllowedValues
-                PaddingBottom: =5
-                PaddingLeft: =12
-                PaddingRight: =5
-                PaddingTop: =5
-                PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -30%)
-                PressedColor: =RGBA(255, 255, 255, 1)
-                PressedFill: =RGBA(105, 121, 126, 1)
-                SelectionFill: =RGBA(105, 121, 126, 1)
-                Size: =13
-                Tooltip: =Parent.DisplayName
-                Width: =266
-                X: =150
-                Y: =10
-                ZIndex: =2
-
-            ErrorMessage8_2 As label:
-                AutoHeight: =true
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(168, 0, 0, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(168, 0, 0, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =10
-                Live: =Live.Assertive
-                PaddingBottom: =0
-                PaddingLeft: =0
-                PaddingRight: =0
-                PaddingTop: =0
-                Size: =13
-                Text: =Parent.Error
-                Visible: =Parent.DisplayMode=DisplayMode.Edit
-                Width: =Parent.Width - 60
-                X: =30
-                Y: =DataCardValue8_2.Y + DataCardValue8_2.Height
-                ZIndex: =3
-
-            StarVisible8_2 As label:
-                Align: =Align.Center
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =DataCardKey8_2.Height
-                PaddingLeft: =0
-                Size: =13
-                Text: ="*"
-                Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                Width: =30
-                Wrap: =false
-                Y: =DataCardKey8_2.Y
-                ZIndex: =4
-
-        AnswerMode_DataCard3_1 As typedDataCard.allowedValuesStringEditCard:
-            AllowedValues: |-
-                =[
-                    {Text: "생성형 답변", Value: "generative"},
-                    {Text: "정해진 답변", Value: "retrieval"}
-                ]
-            BorderColor: =RGBA(166, 166, 166, 1)
-            BorderStyle: =BorderStyle.Solid
-            DataField: ="AnswerMode"
-            Default: =ThisItem.AnswerMode
-            DisplayMode: =Parent.DisplayMode
-            DisplayName: =DataSourceInfo([@똑실이_Category_table],DataSourceInfo.DisplayName,"AnswerMode")
-            Fill: =RGBA(0, 0, 0, 0)
-            Height: =61
-            Required: =false
-            Update: =RadioGroupCanvas3_2.Selected.Value
-            Width: =645
-            X: =0
-            Y: =4
-            ZIndex: =1
-
-            DataCardKey10_2 As label:
-                AutoHeight: =true
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                Height: =33
-                PaddingLeft: =0
-                Size: =13
-                Text: ="답변 방식"
-                Width: =113
-                Wrap: =false
-                X: =20
-                Y: =10
-                ZIndex: =1
-
-            StarVisible10_2 As label:
-                Align: =Align.Center
-                BorderColor: =RGBA(0, 0, 0, 0)
-                BorderStyle: =BorderStyle.None
-                BorderThickness: =2
-                Color: =RGBA(51, 51, 51, 1)
-                DisabledBorderColor: =RGBA(0, 0, 0, 0)
-                DisabledColor: =RGBA(166, 166, 166, 1)
-                FocusedBorderThickness: =4
-                Font: =Font.'Segoe UI'
-                FontWeight: =FontWeight.Semibold
-                Height: =DataCardKey10_2.Height
-                PaddingLeft: =0
-                Size: =13
-                Text: ="*"
-                Visible: =And(Parent.Required, Parent.DisplayMode=DisplayMode.Edit)
-                Width: =30
-                Wrap: =false
-                Y: =DataCardKey10_2.Y
-                ZIndex: =4
-
-            RadioGroupCanvas3_2 As 라디오.pcfdataset:
-                AccessibleLabel: =""
-                DefaultSelectedItems: |-
-                    =If(ThisItem.AnswerMode = "generative", {Text: "생성형 답변", Value: "generative"}, {Text: "정해진 답변", Value: "retrieval"})
-                DisplayMode: |
-                    =// 라이센스가 있을시에만 답변방식 선택 가능
-                    If(gblRetrievalAnswer,DisplayMode.Edit,DisplayMode.Disabled)
-                Height: =46
-                Items: =Parent.AllowedValues
-                Layout: ='RadioGroupCanvas.Layout'.Horizontal
-                Visible: =true
-                Width: =333
-                X: =156
-                Y: =9
-                ZIndex: =5
-
-                TextInput2_2 As pcfDataField.textualColumn:
-                    FieldDisplayName: ="Text"
-                    FieldName: ="Text"
-                    FieldType: ="s"
-                    FieldVariantName: ="textualColumn"
-                    Order: =1
-                    ZIndex: =81
 
     Group_AIWorkerCategoryEdit_PopUp_Category As group:
         Height: =5
@@ -7814,6 +7354,17 @@ CategoryMenu As screen:
             X: =781
             Y: =547
             ZIndex: =151
+
+    Form2_1 As form:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        DataSource: =똑실이_Category_table
+        Height: =380
+        Item: =CategorySettingModalItem
+        Visible: =ShowCategorySettingModal
+        Width: =640
+        X: =774
+        Y: =390
+        ZIndex: =152
 
     Icon_RetrievalAnswerEdit_CategoryMenu_1 As icon.Information:
         BorderColor: =RGBA(166, 166, 166, 1)
