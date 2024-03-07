@@ -457,6 +457,10 @@ CategoryMenu As screen:
                 =ColorValue("#F5F5F5")
             OnSelect: |
                 =UpdateContext({AddLv2Category:true});
+                
+                Refresh(똑실이_License_table);
+                Set(gblRetrievalAnswer,Last(똑실이_License_table).RetrievalAnswer);//라이센스 값 할당, 팝업 내 답변방식 displaymode값
+                
                 ClearCollect(
                     CategoryOnlyLv1List, 
                     {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
@@ -1334,6 +1338,10 @@ CategoryMenu As screen:
             Icon: =Icon.Settings
             OnSelect: |
                 =Select(Parent);
+                
+                Refresh(똑실이_License_table);
+                Set(gblRetrievalAnswer,Last(똑실이_License_table).RetrievalAnswer);//라이센스 값 할당, 팝업 내 답변방식 displaymode값
+                
                 If(
                     ThisItem.CategoryType = "system",
                     UpdateContext(
@@ -6327,8 +6335,7 @@ CategoryMenu As screen:
                         =If(ThisItem.AnswerMode = "generative", {Text: "생성형 답변", Value: "generative"}, {Text: "정해진 답변", Value: "retrieval"})
                     DisplayMode: |
                         =// 라이센스가 있을시에만 답변방식 선택 가능
-                        If(Last(똑실이_License_table).RetrievalAnswer = false,
-                        DisplayMode.Disabled,DisplayMode.Edit)
+                        If(gblRetrievalAnswer,DisplayMode.Edit,DisplayMode.Disabled)
                     Height: =46
                     Items: =Parent.AllowedValues
                     Layout: ='RadioGroupCanvas.Layout'.Horizontal
@@ -6948,8 +6955,7 @@ CategoryMenu As screen:
                 ={Value : "생성형 답변"}
             DisplayMode: |-
                 =// 라이센스가 있을시에만 답변방식 선택 가능
-                If(Last(똑실이_License_table).RetrievalAnswer = false,
-                DisplayMode.Disabled,DisplayMode.Edit)
+                If(gblRetrievalAnswer,DisplayMode.Edit,DisplayMode.Disabled)
             Height: =40
             Items: =["생성형 답변", "정해진 답변"]
             Layout: ='RadioGroupCanvas.Layout'.Horizontal
@@ -7080,7 +7086,7 @@ CategoryMenu As screen:
                 =Char(34) & "정해진 답변"  & Char(34) &  " AddOn 모듈을 추가 하셔야 변경 가능합니다."
             Visible: |-
                 =// 라이센스가 없으면 노출
-                If(RadioGroupCanvas2_1.DisplayMode = DisplayMode.Disabled && ShowCategorySettingModal, true,false)
+                If(RadioGroupCanvas3_2.DisplayMode = DisplayMode.Disabled && ShowCategorySettingModal, true,false)
             Width: =20
             X: =1150
             Y: =713
