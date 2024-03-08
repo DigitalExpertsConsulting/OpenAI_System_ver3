@@ -2318,7 +2318,14 @@
     "Button_EditRegisterBadWordPopup_BWM_1": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        "OnSelect",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "If(\n    IsBlank(TextInput_EditBadWord_BWM_1.Text) && IsBlank(TextInput_EditBadWordType_BWM_1.Text),\n    Notify(\n        \"금칙어와 유형을 모두 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );\n    ,\n    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && IsBlank(TextInput_EditBadWordType_BWM_1.Text),\n    Notify(\n        \"금칙어 유형을 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );\n    ,\n    IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text),\n    Notify(\n        \"금칙어를 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );\n    ,\n/*\n    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text) && CountRows(\n        Filter(\n            Gallery_BadWordGallery_BWM_1.AllItems, \n            BadWords = TextInput_EditBadWord_BWM_1.Text\n            )\n        ) > 0,\n    Notify(\n        \"중복된 값이 있습니다.\",\n        NotificationType.Error,\n        5000\n    );,\n    */\n//BadWords가 BadWords_Type에 종속되도록 수정\n    !IsBlank(TextInput_EditBadWord_BWM_1.Text) && !IsBlank(TextInput_EditBadWordType_BWM_1.Text) && CountRows(\n        Filter(\n            Gallery_BadWordGallery_BWM_1.AllItems,\n            BadWords = TextInput_EditBadWord_BWM_1.Text && BadWords_Type = TextInput_EditBadWordType_BWM_1.Text\n        )\n    ) > 0,\n    Notify(\n        \"중복된 값이 있습니다.\",\n        NotificationType.Error,\n        5000\n    ),\n    Patch(\n        똑실이_BadWords_table,\n        LookUp(\n            똑실이_BadWords_table,\n            ID = Gallery_BadWordGallery_BWM_1.Selected.ID\n        ),\n        {\n            제목: \".\",\n            BadWords: TextInput_EditBadWord_BWM_1.Text,\n            BadWords_Type: TextInput_EditBadWordType_BWM_1.Text,\n            Edit_Date: Now(),\n            Adder_Name: Office365사용자.MyProfile().DisplayName\n        }\n    );\n    Set(\n        EditPopUpBadWord,\n        false\n    );\n    Set(\n        delPopupBackground_BWM,\n        false\n    );\n    ClearCollect(\n        BadWordsType,\n        {Value: \"직접입력\"},\n        Distinct(\n            똑실이_BadWords_table,\n            BadWords_Type\n        )\n    );\n    \n);\n",
+          "InvariantPropertyName": "OnSelect",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        },
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -2625,7 +2632,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultButtonStyle",
@@ -3273,7 +3280,14 @@
     "Button_RegisterBadWordPopup_BWM_1": {
       "AllowAccessToGlobals": true,
       "ControlPropertyState": [
-        "OnSelect",
+        {
+          "AFDDataSourceName": "",
+          "AutoRuleBindingEnabled": false,
+          "AutoRuleBindingString": "If(IsBlank(TextInput_BadWord_BWM_1.Text) && IsBlank(TextInput_BadWordType_BWM_1.Text),\n   Notify(\n        \"금칙어와 유형을 모두 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );,\n\n    !IsBlank(TextInput_BadWord_BWM_1.Text) && IsBlank(TextInput_BadWordType_BWM_1.Text),\n    Notify(\n        \"금칙어 유형을 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );,\n\n    IsBlank(TextInput_BadWord_BWM_1.Text) && !IsBlank(TextInput_BadWordType_BWM_1.Text),\n    Notify(\n        \"금칙어를 입력해주세요.\",\n        NotificationType.Error,\n        5000\n    );,\n\n    !IsBlank(TextInput_BadWord_BWM_1.Text) && !IsBlank(TextInput_BadWordType_BWM_1.Text) && CountRows(Filter(Gallery_BadWordGallery_BWM_1.AllItems, BadWords = TextInput_BadWord_BWM_1.Text)) > 0,\n    Notify(\n        \"중복된 값이 있습니다.\",\n        NotificationType.Error,\n        5000\n    );,\n\n\n    Collect(\n        똑실이_BadWords_table,\n        {\n            제목: \".\",\n            BadWords: TextInput_BadWord_BWM_1.Text,\n            BadWords_Type: TextInput_BadWordType_BWM_1.Text,\n            Edit_Date: Now(),\n            Adder_Name: Office365사용자.MyProfile().DisplayName\n        }\n    );\n    Notify(\n        \"금칙어가 등록되었습니다.\",\n        NotificationType.Success,\n        2000\n    );\n    Set(\n        EditBadWord,\n        false\n    );\n    Set(\n        delPopupBackground_BWM,\n        false\n    );\n\n    ClearCollect(\n        BadWordsType,\n        {Value: \"직접입력\"},\n        Distinct(\n            똑실이_BadWords_table,\n            BadWords_Type\n        )\n    );\n    \n);",
+          "InvariantPropertyName": "OnSelect",
+          "IsLockable": false,
+          "NameMapSourceSchema": "?"
+        },
         "AutoDisableOnSelect",
         "Text",
         "Tooltip",
@@ -3580,7 +3594,7 @@
         {
           "Category": "Behavior",
           "PropertyName": "OnSelect",
-          "RuleProviderType": "Unknown"
+          "RuleProviderType": "User"
         }
       ],
       "StyleName": "defaultButtonStyle",
