@@ -491,7 +491,7 @@
                 ClearCollect(
                     CategoryOnlyLv1List, 
                     {Category_LV1: DEFAULT_SELECT_CATEGORY_VALUE},
-                    AssignedCategoryManagerTable
+                    Filter(AssignedCategoryManagerTable,IsBlank(CategoryType))
                     
                 );
             PaddingLeft: =25
@@ -5586,7 +5586,22 @@
                     RemoveIf(
                         똑실이_Category_table,
                         ID = AddPopUpID
-                    )
+                    );
+                
+                        // 카테고리 LV2 드롭다운 항목 생성
+                    ClearCollect(
+                        Col_CategoryLV2Dropdown,
+                        {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
+                        SortByColumns(
+                            Filter(
+                                똑실이_Category_table,
+                                Category_LV1 = Var_CategoryLV1
+                            ),
+                            "Category_LV2",
+                            SortOrder.Ascending
+                        ).Category_LV2
+                    ); 
+                
                 );
                 
                 UpdateContext({delPopVi: false});
