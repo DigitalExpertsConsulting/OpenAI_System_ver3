@@ -6,45 +6,19 @@ AICategoryManagement As screen:
     OnHidden: |-
         =// 팝업창 닫기
         UpdateContext({ShowCategorySettingModal:false});
-    OnVisible: |
+    OnVisible: |+
         =//0219 code+//
-        UpdateContext({locLoadingSpinner: true});
+        //UpdateContext({locLoadingSpinner: true});
         Refresh(똑실이_Category_table);
         Reset(Dropdown_SearchCategoryLV1_AICM);
         Reset(Dropdown_SearchCategoryLV2_AICM);
-        // colAICategory : AI 카테고리 조회 목록 가져오기
-        ClearCollect(
-            colAICategory,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, LV1Order:"-1", ID:"-3"},
-            SortByColumns(
-                Filter(
-                ForAll(
-                    Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
-                    {
-                        Category_LV1: Text(ThisRecord.Value.Category_LV1),
-                        Category_LV2: Text(ThisRecord.Value.Category_LV2),
-        				LV1Order: Text(ThisRecord.Value.LV1Order),
-                        LV2Order: Text(ThisRecord.Value.LV2Order),
-                        ID: Text(ThisRecord.Value.ID),
-                        CategoryType: Text(ThisRecord.Value.CategoryType),
-        				AnswerModel: Text(ThisRecord.Value.AnswerModel),
-        				AnswerMode: Text(ThisRecord.Value.AnswerMode),
-        				ChatMode: Text(ThisRecord.Value.ChatMode),
-        				DocumentLanguage: Text(ThisRecord.Value.DocumentLanguage)
-        				
-                    }
-                ), 
-                CategoryType = "system" || IsBlank(CategoryType)),
-                "LV1Order",
-                SortOrder.Ascending,
-                "LV2Order",
-                SortOrder.Ascending
-            )
-        );
         
-        UpdateContext({SettingLv2Category: false});
+        
+        //UpdateContext({SettingLv2Category: false});
         Select(Button_Refresh_CategoryMenu_AICM);
-        UpdateContext({locLoadingSpinner: false});
+        //UpdateContext({locLoadingSpinner: false});
+        
+        
 
     Button_Refresh_CategoryMenu_AICM As button:
         BorderColor: |-
@@ -79,7 +53,7 @@ AICategoryManagement As screen:
                 SortByColumns(
                     Filter(
                     ForAll(
-                        Table(ParseJSON('똑실이-[Apps]Lv2권한할당카테고리목록'.Run(User().Email).output_category)),
+                        Table(ParseJSON('똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email).assigned_categories)),
                         {
                             Category_LV1: Text(ThisRecord.Value.Category_LV1),
                             Category_LV2: Text(ThisRecord.Value.Category_LV2),
