@@ -66,7 +66,31 @@
         );
         
         
+        // 카테고리LV1 검색 필터 드롭다운 아이템 생성
+        ClearCollect(Col_CategoryLV1Dropdown,
+                        {Category_LV1:DEFAULT_MAIN_CATEGORY_VALUE},
         
+                            SortByColumns(
+                                Filter(AssignedCategoryManagerTable,!IsBlank(Category_LV1)),"Category_LV1",SortOrder.Ascending
+                            ).Category_LV1
+        ); 
+        
+        // 초기 카테고리 LV1 검색 드롭다운 아이템 설정
+        Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
+        
+        // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
+        ClearCollect(
+            Col_CategoryLV2Dropdown,
+            {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
+            SortByColumns(
+                Filter(
+                    똑실이_Category_table,
+                    Category_LV1 = Var_CategoryLV1
+                ),
+                "Category_LV2",
+                SortOrder.Ascending
+            ).Category_LV2
+        );
         
         UpdateContext({locLoadingSpinner: false});
         
@@ -1919,7 +1943,6 @@
                     Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And CategoryType = Blank() || CategoryType= "system"), LV1Order)
                 );
             );
-            
             // 카테고리LV1 검색 필터 드롭다운 아이템 생성
             ClearCollect(Col_CategoryLV1Dropdown,
                             {Category_LV1:DEFAULT_MAIN_CATEGORY_VALUE},
@@ -1930,7 +1953,7 @@
             ); 
             
             // 초기 카테고리 LV1 검색 드롭다운 아이템 설정
-            Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
+            //Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
             
             // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
             ClearCollect(
@@ -1944,7 +1967,7 @@
                     "Category_LV2",
                     SortOrder.Ascending
                 ).Category_LV2
-            ); 
+            );
             
             
             UpdateContext({locLoadingSpinner_Onvisible: false});
@@ -2134,7 +2157,7 @@
             FontWeight: =FontWeight.Semibold
             Size: =18
             Text: |
-                =CountRows(Filter(똑실이_Category_table, (CategoryType = "system" || IsBlank(CategoryType)) && IsEmpty(Users) && IsEmpty(Teams))) //&& IsEmpty(Split(TeamName,","))))
+                =CountRows(Filter(똑실이_Category_table, (CategoryType = "system" || IsBlank(CategoryType)) && IsEmpty(Users) && IsEmpty(Teams) && IsEmpty(RegularTeam) && IsEmpty(RegularUser))) //&& IsEmpty(Split(TeamName,","))))
             Width: =53
             X: =315
             Y: =15
@@ -2498,9 +2521,8 @@
                 =ColorValue("#FAFAFA")
             FocusedBorderThickness: =2
             Height: =320
-            Items: |-
-                =Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams) && (IsBlank(CategoryType) || CategoryType = "system") )
-                //Filter(Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Split(TeamName,",")))
+            Items: |
+                =Filter(똑실이_Category_table, !IsBlank(LV2Order) && IsEmpty(Users) && IsEmpty(Teams) && IsEmpty(RegularTeam) && IsEmpty(RegularUser) && (IsBlank(CategoryType) || CategoryType = "system") )
             Layout: =Layout.Vertical
             ShowScrollbar: =false
             TemplateFill: |-
@@ -6462,7 +6484,8 @@
                 );
                 
                 Refresh(똑실이_Category_table);
-                Select(Button_Refresh_CTM);
+                
+                //Select(Button_Refresh_CTM);
                 
                 UpdateContext({
                     ShowCategorySettingModal: false,
