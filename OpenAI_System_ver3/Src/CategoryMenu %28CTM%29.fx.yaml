@@ -23,34 +23,49 @@
     OnVisible: |+
         =UpdateContext({locLoadingSpinner: true});
         
+        //초기화
         Concurrent(
-        //DB Refresh
-        Refresh(똑실이_Category_table);,
-        Refresh(똑실이_Category_Manager_table);,
-        //사용 변수 초기화
-        UpdateContext({activeCategoryLv1:""}),
-        UpdateContext({DEFAULT_MAIN_CATEGORY_VALUE: "메인카테고리"}), // 메인카테고리 텍스트
-        UpdateContext({DEFAULT_SUB_CATEGORY_VALUE: "서브카테고리"}), // 서브카테고리 텍스트
+            //DB Refresh
+            Refresh(똑실이_Category_table);,
+            Refresh(똑실이_Category_Manager_table);,
         
-        //visible 변수 초기화
-        Set(AddPopUpBackground,false);,
-        UpdateContext({AddPopUp:false});,//파일업로드 권한 사용자 추가팝업 visible 변수 초기화
-        UpdateContext({lookUserVi:false});,//파일업로드 사용자 추가 팝업 visible 변수 초기화
-        UpdateContext({AddTeamPopUpVi: false});,////파일업로드 그룹할당 팝업 visible 변수 초기화
-        UpdateContext({lookTeamVi:false});,//파일업로드 그룹할당 뷰 팝업 visible 변수 초기화
-        UpdateContext({AddPopUpRegularUser:false}),//챗봇권한 사용자 추가 팝업 visible 변수 초기화
-        UpdateContext({AddRegularTeamPopUpVi:false}),//챗봇권한 그룹 추가 팝업 visible 변수 초기화
-        UpdateContext({HisVi:false}),//카테고리 lv2 내역(histiry) 편집 팝업 초기화
-        Set(CategoryPopup_Blank, false), //인원 미할당 카테고리 팝업 visible 변수 초기화
-        UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 팝업 visible 변수 초기화
-        UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 팝업 visible 변수 초기화
-        Set(Var_CategoryLV2Fill,Blank());// 카테고리 LV2 선택영역 Fill visible 변수 초기화
+            //사용 변수 초기화
+            UpdateContext({activeCategoryLv1:""}),
+            Set(Var_CategoryLV2Fill,Blank());,// 카테고리 LV2 선택영역 변수 초기화
+            UpdateContext({DEFAULT_MAIN_CATEGORY_VALUE: "메인카테고리"}), // 메인카테고리 텍스트
+            UpdateContext({DEFAULT_SUB_CATEGORY_VALUE: "서브카테고리"}), // 서브카테고리 텍스트
+        
+            //visible 변수 초기화
+            Set(AddPopUpBackground,false);,
+            Set(CategoryPopup_Blank, false), //인원 미할당 확인 카테고리 팝업
+            UpdateContext({AddLv1Category: false}), // 메인카테고리 추가 팝업 
+            UpdateContext({AddLv2Category: false}), // 서브 카테고리 추가 팝업 
+            UpdateContext({delPopVi : false}), // LV1, LV2 카테고리 삭제 팝업
+            UpdateContext({HisVi:false}),//카테고리 lv2 내역(histiry) 편집 팝업 초기화
+            UpdateContext({ShowCategorySettingModalAIWorker : false}), // AIWorker 카테고리 수정 팝업 visible 변수 초기화
+            UpdateContext({ShowCategorySettingModal : false}), // 카테고리 수정 팝업 visible 변수 초기화
+        
+            //LV1 카테고리 및 파일 업로드 권한
+                //인원 할당
+                UpdateContext({AddPopUp:false});,//추가 팝업 
+                UpdateContext({lookUserVi:false});,//뷰 팝업  
+                //그룹 할당
+                UpdateContext({AddTeamPopUpVi: false});,//추가 팝업 
+                UpdateContext({lookTeamVi:false});,//뷰 팝업 
+            //챗봇 권한 
+                //인원 할당
+                UpdateContext({AddPopUpRegularUser:false}),//추가 팝업
+                UpdateContext({lookRegularUserVi:false}),//뷰 팝업
+                //그룹 할당
+                UpdateContext({AddRegularTeamPopUpVi:false}),//추가 팝업
+                UpdateContext({lookRegularTeamVi : false})//뷰 팝업
         );
         
         // 카테고리 컬렉션 생성
         Set(PA_Result,'똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
         Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
         Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
+        
         Concurrent(
             Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴
                 AssignedCategoryLv2Ids, 
@@ -119,8 +134,8 @@
         );
         
         
-        // 로딩팝업 해제
-        UpdateContext({locLoadingSpinner: false});
+        
+        UpdateContext({locLoadingSpinner: false}); // 로딩팝업 해제
         
         
 
