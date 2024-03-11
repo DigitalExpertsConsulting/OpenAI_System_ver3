@@ -660,21 +660,7 @@ BadWordManage As screen:
             HoverFill: |-
                 =ColorValue("#1141A3")
             OnSelect: |
-                =Set(
-                    CategoryVal6,
-                    Split(
-                        TextInput_BadWord_BWM_1.Text,
-                        ""
-                    )
-                );
-                Set(
-                    CategoryVal7,
-                    Split(
-                        TextInput_BadWordType_BWM_1.Text,
-                        ""
-                    )
-                );
-                If(
+                =If(
                     IsBlank(TextInput_BadWord_BWM_1.Text) && IsBlank(TrimEnds(TextInput_BadWordType_BWM_1.Text)),
                     Notify(
                         "금칙어와 유형을 모두 입력해주세요.",
@@ -708,55 +694,36 @@ BadWordManage As screen:
                         5000
                     );
                     ,
-                    If(
-                        CountRows(
-                            Filter(
-                                CategoryVal6,
-                                Value in CategoryVal.Value
-                            )
-                        ) > 0 || CountRows(
-                            Filter(
-                                CategoryVal7,
-                                Value in CategoryVal.Value
-                            )
-                        ) > 0,
-                        Notify(
-                            Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
-                            NotificationType.Error,
-                            5000
-                        );
-                        ,
-                        Collect(
+                    Collect(
+                        똑실이_BadWords_table,
+                        {
+                            제목: ".",
+                            BadWords: TrimEnds(TextInput_BadWord_BWM_1.Text),
+                            BadWords_Type: TrimEnds(TextInput_BadWordType_BWM_1.Text),
+                            Edit_Date: Now(),
+                            Adder_Name: Office365사용자.MyProfile().DisplayName
+                        }
+                    );
+                    Notify(
+                        "금칙어가 등록되었습니다.",
+                        NotificationType.Success,
+                        2000
+                    );
+                    Set(
+                        EditBadWord,
+                        false
+                    );
+                    Set(
+                        delPopupBackground_BWM,
+                        false
+                    );
+                    ClearCollect(
+                        BadWordsType,
+                        {Value: "직접입력"},
+                        Distinct(
                             똑실이_BadWords_table,
-                            {
-                                제목: ".",
-                                BadWords: TrimEnds(TextInput_BadWord_BWM_1.Text),
-                                BadWords_Type: TrimEnds(TextInput_BadWordType_BWM_1.Text),
-                                Edit_Date: Now(),
-                                Adder_Name: Office365사용자.MyProfile().DisplayName
-                            }
-                        );
-                        Notify(
-                            "금칙어가 등록되었습니다.",
-                            NotificationType.Success,
-                            2000
-                        );
-                        Set(
-                            EditBadWord,
-                            false
-                        );
-                        Set(
-                            delPopupBackground_BWM,
-                            false
-                        );
-                        ClearCollect(
-                            BadWordsType,
-                            {Value: "직접입력"},
-                            Distinct(
-                                똑실이_BadWords_table,
-                                BadWords_Type
-                            )
-                        );
+                            BadWords_Type
+                        )
                     );
                     
                 );
@@ -1054,11 +1021,7 @@ BadWordManage As screen:
             HoverFill: |-
                 =ColorValue("#1141A3")
             OnSelect: |
-                =Set(CategoryVal4, Split(TextInput_EditBadWord_BWM_1.Text, "")); 
-                Set(CategoryVal5, Split(TextInput_EditBadWordType_BWM_1.Text, ""));
-                
-                
-                If(
+                =If(
                     IsBlank(TrimEnds(TextInput_EditBadWord_BWM_1.Text)) && IsBlank(TrimEnds(TextInput_EditBadWordType_BWM_1.Text)),
                     Notify(
                         "금칙어와 유형을 모두 입력해주세요.",
@@ -1081,66 +1044,52 @@ BadWordManage As screen:
                     );
                     ,
                     If(
-                        CountRows(
+                //BadWords가 BadWords_Type에 종속되도록 수정
+                        !IsBlank(TrimEnds(TextInput_EditBadWord_BWM_1.Text)) && !IsBlank(TrimEnds(TextInput_EditBadWordType_BWM_1.Text)) && CountRows(
                             Filter(
-                                CategoryVal4,
-                                Value in CategoryVal.Value
-                            )
-                        ) > 0 || CountRows(
-                            Filter(
-                                CategoryVal5,
-                                Value in CategoryVal.Value
+                                Gallery_BadWordGallery_BWM_1.AllItems,
+                                BadWords = TrimEnds(TextInput_EditBadWord_BWM_1.Text) && BadWords_Type = TrimEnds(TextInput_EditBadWordType_BWM_1.Text)
                             )
                         ) > 0,
                         Notify(
-                            Char(34) & "* : < > ? / \ | 문자 중 어느 것도 포함되지 않는 이름을 입력하세요",
+                            "중복된 값이 있습니다.",
                             NotificationType.Error,
                             5000
-                        );
-                        ,
-                        If(
-                //BadWords가 BadWords_Type에 종속되도록 수정
-                            !IsBlank(TrimEnds(TextInput_EditBadWord_BWM_1.Text)) && !IsBlank(TrimEnds(TextInput_EditBadWordType_BWM_1.Text)) && CountRows(
-                                Filter(
-                                    Gallery_BadWordGallery_BWM_1.AllItems,
-                                    BadWords = TrimEnds(TextInput_EditBadWord_BWM_1.Text) && BadWords_Type = TrimEnds(TextInput_EditBadWordType_BWM_1.Text)
-                                )
-                            ) > 0,
-                            Notify(
-                                "중복된 값이 있습니다.",
-                                NotificationType.Error,
-                                5000
-                            ),
-                            Patch(
+                        ),
+                        Patch(
+                            똑실이_BadWords_table,
+                            LookUp(
                                 똑실이_BadWords_table,
-                                LookUp(
-                                    똑실이_BadWords_table,
-                                    ID = Gallery_BadWordGallery_BWM_1.Selected.ID
-                                ),
-                                {
-                                    제목: ".",
-                                    BadWords: TrimEnds(TextInput_EditBadWord_BWM_1.Text),
-                                    BadWords_Type: TrimEnds(TextInput_EditBadWordType_BWM_1.Text),
-                                    Edit_Date: Now(),
-                                    Adder_Name: Office365사용자.MyProfile().DisplayName
-                                }
-                            );
-                            Set(
-                                EditPopUpBadWord,
-                                false
-                            );
-                            Set(
-                                delPopupBackground_BWM,
-                                false
-                            );
-                            ClearCollect(
-                                BadWordsType,
-                                {Value: "직접입력"},
-                                Distinct(
-                                    똑실이_BadWords_table,
-                                    BadWords_Type
-                                )
-                            );
+                                ID = Gallery_BadWordGallery_BWM_1.Selected.ID
+                            ),
+                            {
+                                제목: ".",
+                                BadWords: TrimEnds(TextInput_EditBadWord_BWM_1.Text),
+                                BadWords_Type: TrimEnds(TextInput_EditBadWordType_BWM_1.Text),
+                                Edit_Date: Now(),
+                                Adder_Name: Office365사용자.MyProfile().DisplayName
+                            }
+                        );
+                        Notify(
+                            "금칙어가 수정되었습니다.",
+                            NotificationType.Success,
+                            2000
+                        );
+                        Set(
+                            EditPopUpBadWord,
+                            false
+                        );
+                        Set(
+                            delPopupBackground_BWM,
+                            false
+                        );
+                        ClearCollect(
+                            BadWordsType,
+                            {Value: "직접입력"},
+                            Distinct(
+                                똑실이_BadWords_table,
+                                BadWords_Type
+                            )
                         );
                     );
                     
