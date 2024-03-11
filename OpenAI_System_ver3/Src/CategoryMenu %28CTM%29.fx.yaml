@@ -24,6 +24,8 @@
         =UpdateContext({locLoadingSpinner: true});
         
         Concurrent(
+        Refresh(똑실이_Category_table);,
+        Refresh(똑실이_Category_Manager_table);,
         Set(AddPopUpBackground,false);,
         UpdateContext({ AddPopUp:false });,
         UpdateContext({lookUserVi:false});,
@@ -41,13 +43,40 @@
         UpdateContext({DEFAULT_MAIN_CATEGORY_VALUE: "메인카테고리"}), // 메인카테고리 텍스트
         UpdateContext({DEFAULT_SUB_CATEGORY_VALUE: "서브카테고리"}), // 서브카테고리 텍스트
         
-        
-        
         // 카테고리 LV2 선택영역 Fill(사각형 visible) 초기화
         Set(Var_CategoryLV2Fill,Blank());
-        
-        
         );
+        
+        // 카테고리 컬렉션 생성
+        Set(PA_Result,'똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
+        Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
+        Set(PA_CategoryLv2_User_List, PA_Result.assigned_categories); //PA_Result의 Output 불러오기 //Lv1, Lv2(전체 레벨, Category_Table에서) 불러오기 위한 용도
+        Concurrent(
+            Set( //[일반관리자] PA에서 권한이 할당된 Lv2 카테고리의 ID 값을 불러옴
+                AssignedCategoryLv2Ids, 
+                ForAll( 
+                    Table(ParseJSON(PA_CategoryLv2_User_List)),
+                    Int(ThisRecord.Value.ID
+                    )
+            ));
+            Set( //[일반관리자] 불러온 Lv2 ID 값을 데이터 원본(똑실이_Category_table)과 비교하여 해당하는 Lv2 카테고리만 불러옴
+                AssignedCategoryTable,
+                Filter(똑실이_Category_table, ID in AssignedCategoryLv2Ids)
+            );,
+        
+            Set( //[일반관리자] PA에서 권한이 할당된 Lv1 카테고리의 ID 값을 불러옴
+                AssignedCategoryLv1Ids, 
+                ForAll(
+                    Table(ParseJSON(PA_CategoryLv1_User_List)),
+                    Int(ThisRecord.Value.ID
+                    )
+            ));
+            Set( //[일반관리자] 불러온 Lv1 ID 값을 데이터 원본(똑실이_Category_Manager_table)과 비교하여 해당하는 Lv1 카테고리만 불러옴
+                AssignedCategoryManagerTable,
+                Sort(Filter(똑실이_Category_Manager_table, ID in AssignedCategoryLv1Ids And (CategoryType = Blank() || CategoryType= "system")), LV1Order)
+            );
+        );
+        
         
         ClearCollect(
             Groups,
@@ -61,12 +90,6 @@
                 }
             )
         );
-        
-        
-        
-        
-        // 초기 카테고리 LV1 아이템 설정 변수 초기화
-        Set(Var_CategoryLV1,Blank());
         
         // 초기 카테고리 LV1 아이템 설정
         Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
@@ -95,15 +118,6 @@
             ).Category_LV2
         );
         
-        
-        //LV1 검색드롭다운 리셋
-        Reset(Dropdown_CategoryMenu_LV1_CTM);
-        
-        //LV2 검색드롭다운 리셋
-        Reset(Dropdown_CategoryMenu_LV2_CTM);
-        
-        
-        Select(Button_Refresh_CTM);
         
         // 로딩팝업 해제
         UpdateContext({locLoadingSpinner: false});
@@ -1911,23 +1925,6 @@
             Refresh(똑실이_Category_table);
             Refresh(똑실이_Category_Manager_table);
             
-            ClearCollect(
-                CategoryTable,
-                ShowColumns(
-                    똑실이_Category_table,
-                    "Title",
-                    "Category_LV1",
-                    "Category_LV2",
-                    "LV1Order",
-                    "LV2Order",
-                    "Users",
-                    "ID",
-                    "History",
-                    "Teams",
-                    "FileCount",
-                    "DocumentLanguage"
-                )
-            );
             
             Set(PA_Result,'똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email)); // PA '[DEV]똑실이-[Apps]일반관리자카테고리목록' 실행하는 변수 'PA_Result'
             Set(PA_CategoryLv1_User_List, PA_Result.assigned_categorylv1); //이거맞나 //PA_Result의 Output 불러오기 //Lv1만 (Category_Manager_Table에서) 불러오기 위한 용도
@@ -2300,7 +2297,7 @@
             FontWeight: =FontWeight.Bold
             PaddingLeft: =12
             Size: =20
-            Text: =LookUp(CategoryTable,ID=AddPopUpID).Category_LV1
+            Text: =LookUp(똑실이_Category_table,ID=AddPopUpID).Category_LV1
             Width: =300
             X: =9
             Y: =25
@@ -6454,6 +6451,21 @@
             Y: =723
             ZIndex: =125
 
+    Label6 As label:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(51, 51, 51, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(166, 166, 166, 1)
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        Size: =13
+        Text: =Var_CategoryLV1
+        X: =667
+        Y: =35
+        ZIndex: =144
+
     Button1 As button:
         BorderColor: =RGBA(0, 0, 0, 0)
         DisabledBorderColor: =RGBA(0, 0, 0, 0)
@@ -7252,36 +7264,6 @@
                     X: =390
                     Y: =17
                     ZIndex: =6
-
-    Label6 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =Var_CategoryLV1
-        X: =667
-        Y: =35
-        ZIndex: =144
-
-    Label5 As label:
-        BorderColor: =RGBA(0, 0, 0, 0)
-        BorderStyle: =BorderStyle.None
-        BorderThickness: =2
-        Color: =RGBA(51, 51, 51, 1)
-        DisabledBorderColor: =RGBA(0, 0, 0, 0)
-        DisabledColor: =RGBA(166, 166, 166, 1)
-        FocusedBorderThickness: =4
-        Font: =Font.'Segoe UI'
-        Size: =13
-        Text: =Var_CategoryLV1
-        X: =1216
-        Y: =41
-        ZIndex: =145
 
     Group_AIWorkerCategoryEdit_PopUp_CTM As group:
         Height: =5
