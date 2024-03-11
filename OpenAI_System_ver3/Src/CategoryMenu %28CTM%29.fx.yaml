@@ -104,6 +104,8 @@
         //LV2 검색드롭다운 리셋
         Reset(Dropdown_CategoryMenu_LV2_CTM);
         
+        Select(Button1);
+        
         // 로딩팝업 해제
         UpdateContext({locLoadingSpinner: false});
         
@@ -6467,8 +6469,35 @@
         HoverColor: =RGBA(255, 255, 255, 1)
         HoverFill: =ColorFade(RGBA(105, 121, 126, 1), -10%)
         OnSelect: |-
-            =// 초기 카테고리 LV1 아이템 설정
+            =// 초기 카테고리 LV1 아이템 설정 변수 초기화
+            Set(Var_CategoryLV1,Blank());
+            
+            // 초기 카테고리 LV1 아이템 설정
             Set(Var_CategoryLV1,First(AssignedCategoryManagerTable).Category_LV1);
+            
+            
+            // 카테고리LV1 검색 필터 드롭다운 아이템 생성
+            ClearCollect(Col_CategoryLV1Dropdown,
+                            {Category_LV1:DEFAULT_MAIN_CATEGORY_VALUE},
+            
+                                SortByColumns(
+                                    Filter(AssignedCategoryManagerTable,!IsBlank(Category_LV1)),"Category_LV1",SortOrder.Ascending
+                                ).Category_LV1
+            ); 
+            
+            // 초기 카테고리 LV2 검색 드롭다운 아이템 설정
+            ClearCollect(
+                Col_CategoryLV2Dropdown,
+                {Category_LV2: DEFAULT_SUB_CATEGORY_VALUE},
+                SortByColumns(
+                    Filter(
+                        똑실이_Category_table,
+                        Category_LV1 = Var_CategoryLV1
+                    ),
+                    "Category_LV2",
+                    SortOrder.Ascending
+                ).Category_LV2
+            );
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
         PressedColor: =RGBA(255, 255, 255, 1)
         PressedFill: =ColorFade(RGBA(105, 121, 126, 1), -30%)
