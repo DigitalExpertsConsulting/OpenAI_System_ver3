@@ -961,8 +961,9 @@
     Toggle_CategroySearch_CM As 토글:
         BasePaletteColor: =
         Checked: |-
-            =// 똑실이_ChatbotText_table에 있는 UseDefaultCategory의 값이 true 경우 토글의 값을 true로 반환
-            If(LookUp(똑실이_ChatbotText_table, UseDefaultCategory = true, true), true)
+            =If(First(똑실이_ChatbotText_table).UseDefaultCategory,true)
+                // 똑실이_ChatbotText_table에 있는 UseDefaultCategory의 값이 true 경우 토글의 값을 true로 반환
+            //If(LookUp(똑실이_ChatbotText_table, UseDefaultCategory = true, true), true)
         DisplayMode: =DisplayMode.Edit
         FontColor: =
         Height: =35
@@ -976,6 +977,7 @@
                 First(똑실이_ChatbotText_table),
                 {UseDefaultCategory: Toggle_CategroySearch_CM.Checked}
                 );
+                Refresh(똑실이_ChatbotText_table); //DB REFRESH
             
                 Notify(
                     "카테고리 전체검색이 " & Char(34) & "활성화" & Char(34) & "되었습니다.",
@@ -989,6 +991,9 @@
                 First(똑실이_ChatbotText_table),
                 {UseDefaultCategory: Toggle_CategroySearch_CM.Checked}
                 );
+                
+                Refresh(똑실이_ChatbotText_table); //DB REFRESH
+            
             
                 Notify(
                     "카테고리 전체검색이 " & Char(34) & "비활성화" & Char(34) & "되었습니다.",
@@ -1066,7 +1071,8 @@
         BasePaletteColor: =
         Checked: |-
             =// 똑실이_ChatbotText_table에 있는 UseUserFeedback의 값이 true 경우 토글의 값을 true로 반환
-            If(LookUp(똑실이_ChatbotText_table, UseUserFeedback = true, true), true)
+            //If(LookUp(똑실이_ChatbotText_table, UseUserFeedback = true, true), true)
+            If(First(똑실이_ChatbotText_table).UseUserFeedback,true)
         DisplayMode: =DisplayMode.Edit
         FontColor: =
         Height: =35
@@ -1080,6 +1086,7 @@
                 First(똑실이_ChatbotText_table),
                 {UseUserFeedback: Toggle_UsersFeedback_CM.Checked}
                 );
+                Refresh(똑실이_ChatbotText_table); //DB REFRESH
             
                 Notify(
                     "응답 만족도가 " & Char(34) & "활성화" & Char(34) & "되었습니다.",
@@ -1093,6 +1100,7 @@
                 First(똑실이_ChatbotText_table),
                 {UseUserFeedback: Toggle_UsersFeedback_CM.Checked}
                 );
+                Refresh(똑실이_ChatbotText_table); //DB REFRESH
             
                 Notify(
                     "응답 만족도가 " & Char(34) & "비활성화" & Char(34) & "되었습니다.",
@@ -1558,10 +1566,13 @@
     RadioGroupCanvas_AnswerMode_CM As 라디오.pcfdataset:
         DefaultSelectedItems: |-
             ={Value : "생성형 답변"}
-        DisplayMode: |
-            =// 라이센스가 있을시에만 답변방식 선택 가능
-            If(Last(똑실이_License_table).RetrievalAnswer = false,
-            DisplayMode.Disabled,DisplayMode.Edit)
+        DisplayMode: |-
+            =// 라이센스가 있고 카테고리 전체 검색 토글이 켜져있을 시에만 답변방식 선택 가능
+            If(
+                Toggle_CategroySearch_CM.Checked = true && Last(똑실이_License_table).RetrievalAnswer = true,
+                DisplayMode.Edit,
+                DisplayMode.Disabled
+            )
         Height: =40
         Items: =["생성형 답변", "정해진 답변"]
         Layout: ='RadioGroupCanvas.Layout'.Horizontal
