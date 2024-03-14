@@ -41,8 +41,7 @@ QALog As screen:
         
         // 검색 필터에 적용되는 Category 목록 가져오기
         ClearCollect(
-            colCategoryAdmin,
-            {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Category_LV1LV2: Blank(), CategoryType: Blank()},
+            colCategoryAd,
             SortByColumns(
                 ForAll(
                     Table(ParseJSON('똑실이-[Apps]Lv1권한할당카테고리목록'.Run(User().Email).assigned_categories)),
@@ -59,11 +58,25 @@ QALog As screen:
         );
         
         // 검색 필터에 적용되는 Category 목록 CategoryType 필터 (default, 빈칸만)
-        ClearCollect(
-            colCategoryAdmin,
-            Filter(
+        If(
+            "system" in colCategoryAd[@CategoryType],
+            ClearCollect(
                 colCategoryAdmin,
-                CategoryType = "default" || CategoryType = Blank()
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Category_LV1LV2: Blank(), CategoryType: Blank()},
+                {Category_LV1: "AI Worker", Category_LV2: "업무 도우미(OpenAI)", Category_LV1LV2: "AI Worker/업무 도우미(OpenAI)", CategoryType: "system"},
+                {Category_LV1: "AI Worker", Category_LV2: "외부 검색(Bing)", Category_LV1LV2: "AI Worker/외부 검색(Bing)", CategoryType: "system"},
+                Filter(
+                    colCategoryAdmin,
+                    CategoryType = "default" || CategoryType = Blank() || CategoryType = "system"
+                )
+            ),
+            ClearCollect(
+                colCategoryAdmin,
+                {Category_LV1: DEFAULT_CATEGORY_VALUE, Category_LV2: DEFAULT_CATEGORY_VALUE, Category_LV1LV2: Blank(), CategoryType: Blank()},
+                Filter(
+                    colCategoryAdmin,
+                    CategoryType = "default" || CategoryType = Blank()
+                )
             )
         );
         
