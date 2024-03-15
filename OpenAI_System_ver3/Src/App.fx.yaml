@@ -1,7 +1,12 @@
 App As appinfo:
     BackEnabled: =false
     OnStart: |
-        =//라이센스 값 할당, 팝업 내 답변방식 displaymode값
+        =//SuperAdmin 검사
+        Set(IsSuperAdmin,false);
+        Refresh(똑실이_SuperAdmin_table);
+        Set(IsSuperAdmin,Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email);
+        
+        //라이센스 값 할당, 팝업 내 답변방식 displaymode값
         Set(Var_RetrievalAnswer,Last(똑실이_License_table).RetrievalAnswer);
         
         //디자인
@@ -106,9 +111,6 @@ App As appinfo:
         );
         
         Concurrent(
-            Set(IsSuperAdmin,false);
-            Refresh(똑실이_SuperAdmin_table);
-            Set(IsSuperAdmin,Office365사용자.MyProfile().Mail in LookUp(똑실이_SuperAdmin_table,  Office365사용자.MyProfile().Mail in SuperUsers.Email).SuperUsers.Email);,
             Set(
                 AIGraph_ColorLists, 
                 [
