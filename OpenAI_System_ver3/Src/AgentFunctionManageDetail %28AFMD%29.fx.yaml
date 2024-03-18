@@ -773,42 +773,50 @@
                 =ColorValue("#115EA3")
             OnSelect: |+
                 =
+                //Validation PA 실행
+                Set(gblIsValidate,'[DEV]똑실이-[Apps]ValidateAgentFunction'.Run(TextInput_SelectedAgentFunctionModify_Type_AFMD_2.Text,TextInput_SelectedAgentFunctionModify_Config_AFMD_2.Text).isvalidate);
                 
-                // ========================= << Agent 기능 추가 >> =========================
+                //PA 출력값이 false인 경우 알림 메시지 로드
+                If(gblIsValidate=false,
+                    Notify("올바른 Schema를 입력하세요.",NotificationType.Error,5000);,
                 
-                If(
-                    // 조건1: 모든 항목이 비어있지 않음
-                    !IsBlank(TextInput_SelectedAgentFunctionModify_Name_AFMD_2.Text)&&
-                    !IsBlank(TextInput_SelectedAgentFunctionModify_Description_AFMD_2.Text)&&
-                    !IsBlank(TextInput_SelectedAgentFunctionModify_Config_AFMD_2.Text)
+                    //PA 출력값이 true일 경우에 각 조건에 대한 검사 실행
+                
+                    If(
+                        // 조건1: 모든 항목이 비어있지 않음
+                        !IsBlank(TextInput_SelectedAgentFunctionModify_Name_AFMD_2.Text)&&
+                        !IsBlank(TextInput_SelectedAgentFunctionModify_Description_AFMD_2.Text)&&
+                        !IsBlank(TextInput_SelectedAgentFunctionModify_Config_AFMD_2.Text)
+                        ,
+                        
+                        // 조건을 모두 만족할 경우  
+                        Patch(똑실이_AgentFunction_table​, LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID),        
+                        {
+                            Name:TextInput_SelectedAgentFunctionModify_Name_AFMD_2.Text,
+                            Description:TextInput_SelectedAgentFunctionModify_Description_AFMD_2.Text,
+                            Config:TextInput_SelectedAgentFunctionModify_Config_AFMD_2.Text
+                            }
+                        );
+                        
+                        // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
+                
+                        Concurrent(
+                            
+                            Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2);,
+                            Reset(TextInput_SelectedAgentFunctionModify_Description_AFMD_2);,
+                            Reset(TextInput_SelectedAgentFunctionModify_Config_AFMD_2);
+                        );
+                        
                     ,
-                    
-                    // 조건을 모두 만족할 경우  
-                    Patch(똑실이_AgentFunction_table​, LookUp(똑실이_AgentFunction_table​,ID=gblSelectedAgentFunctionItemID),        
-                    {
-                        Name:TextInput_SelectedAgentFunctionModify_Name_AFMD_2.Text,
-                        Description:TextInput_SelectedAgentFunctionModify_Description_AFMD_2.Text,
-                        Config:TextInput_SelectedAgentFunctionModify_Config_AFMD_2.Text
-                        }
-                    );
-                    
-                    // ============== 패치 후 컨트롤 리셋 및 팝업 창 비활성화 ==================
                 
-                    Concurrent(
-                  
-                        Reset(TextInput_SelectedAgentFunctionModify_Name_AFMD_2);,
-                        Reset(TextInput_SelectedAgentFunctionModify_Description_AFMD_2);,
-                        Reset(TextInput_SelectedAgentFunctionModify_Config_AFMD_2);
-                    );
-                ,
-                
-                    // 조건을 모두 만족하지 않을 경우 안내 문구 출력
-                    Notify("비어있는 항목이 존재합니다.",NotificationType.Error,5000)
+                        // 조건을 모두 만족하지 않을 경우 안내 문구 출력
+                        Notify("비어있는 항목이 존재합니다.",NotificationType.Error,5000)
                     
+                    );
                 );
-                
-                
                 Refresh(똑실이_AgentFunction_table​); //DB Refresh
+                //Set(gblIsValidate,false); //사용 변수 초기화
+                
                 
                 
             PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
