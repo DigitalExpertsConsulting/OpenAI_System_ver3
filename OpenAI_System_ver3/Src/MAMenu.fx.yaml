@@ -878,45 +878,6 @@ MAMenu As screen:
             Set(SelectedLV1, "");
             Set(SelectedLV2, "");
             
-            Clear(gnbdist);
-            Clear(gnbgru);
-            ForAll(
-                똑실이_GNB_MENU,
-                Collect(
-                    gnbdist,
-                    ThisRecord.Teams
-                )
-            );
-            
-            ForAll(
-                gnbdist,
-                If(
-                    CountRows(
-                        Filter(
-                            Office365그룹.ListGroupMembers(
-                                /*Mid( 삭제예정
-                                    ThisRecord.Claims,
-                                    40
-                                )*/
-                                Mid(
-                                // Claims값에 c:0o.c|federateddirectoryclaimprovider|가 포함되는 경우 40번째 글자부터 Claims값 가져오기
-                                // Claims값에 c:0t.c|tenant|가 포함되는 경우 15번째 글자부터 Claims값 가져오기
-                                ThisRecord.Claims,If("c:0o.c|federateddirectoryclaimprovider|" in ThisRecord.Claims,40,15)
-                                )
-                            ).value,
-                            User().Email in mail
-                        )
-                    ) > 0,
-                    Collect(
-                        gnbgru,
-                        {Email: ThisRecord.Email}
-                    )
-                )
-            );
-            Distinct(
-                gnbgru,
-                ThisRecord
-            )
             
         PaddingLeft: =40
         PressedBorderColor: =ColorFade(RGBA(105, 121, 126, 1), -50%)
@@ -1504,20 +1465,6 @@ MAMenu As screen:
             Height: =488
             Items: |
                 =Filter(MAMenu_Groups,securityEnabled="true" || is365 = "true")
-                
-                
-                /*삭제 예정
-                If(
-                    IsBlank(TextInput_AddGroup_MAMenu.Text),
-                    Office365그룹.ListGroups({'$top': 999}).value,
-                    Office365그룹.ListGroups(
-                        {
-                             '$filter': "startswith(displayName, '" & TextInput_AddGroup_MAMenu.Text & "')",
-                            '$top': 999
-                        }
-                    ).value
-                )
-                */
             Layout: =Layout.Vertical
             OnSelect: =
             ShowScrollbar: =false
