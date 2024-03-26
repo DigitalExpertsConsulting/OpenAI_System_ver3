@@ -877,27 +877,7 @@
         Height: =675
         HoverBorderColor: =RGBA(0, 0, 0, 0)
         ItemColorSet: =AIGraph_ColorLists
-        Items: |-
-            =If(
-                DatePickerSetting = false,
-                If(
-                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1개월" Or Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "3개월",
-                    Filter(
-                        AIGraphTokenDailyUsage,
-                        (
-                            Token_Date >= Switch(
-                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value,
-                                    "1개월",
-                                DateAdd(Today(),-1,TimeUnit.Months),
-                                    "3개월",
-                                DateAdd(Today(),-3,TimeUnit.Months)
-                            )
-                        ) && (
-                            Token_Date <= DateAdd(Today(),-0,TimeUnit.Months) //DatePicker_LastDate_AIGraph_DEV_1.SelectedDate
-                        )
-                    )
-                )
-            )
+        Items: =AIGraphToken
         Markers: |-
             =/*If(
                 CountRows(
@@ -4646,4 +4626,480 @@
         X: =977
         Y: =474
         ZIndex: =67
+
+    ButtonCanvas3 As 버튼:
+        DisplayMode: =DisplayMode.Edit
+        Height: =32
+        OnSelect: |+
+            =UpdateContext({ 
+                locLoadingSpinner: true
+            });
+            
+            Concurrent(
+                Set(AIGraphStartDate,
+                    Text(If(
+                            DatePickerSetting = false,
+                            Switch(
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value,
+                                "1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                "3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                "6개월", DateAdd(Today(),-6,TimeUnit.Months),
+                                "1년", DateAdd(Today(),-12,TimeUnit.Months)
+                            ), DatePicker_FirstDate_AIGraph_TokenUsage_1.SelectedDate
+                        ), "yyyy-mm-dd"
+                    )
+                ),
+                Set(AIGraphEndDate,
+                    Text(If(
+                        DatePickerSetting = false,
+                        DateAdd(Today(),-0,TimeUnit.Months),
+                        DatePicker_LastDate_AIGraph_TokenUsage_1.SelectedDate
+                    ), "yyyy-mm-dd")),
+                Set(AIGraphPeriodType,Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value),
+                Set(AIGraphAnalysisType,Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value)
+            );
+            
+            
+            UpdateContext({AIGraphResponse: '[DEV]똑실이-[Apps]AIGraph토큰사용성분석V2'.Run(
+                    If(
+                        // LV1=전체 LV2=전체 일경우
+                        SelectedLV1_AIGraph = DEFAULT_CATEGORY_VALUE && 
+                        SelectedLV2_AIGraph = DEFAULT_CATEGORY_VALUE,
+                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        If(
+                            // 카테고리LV1만 선택한 경우
+                            SelectedLV1_AIGraph <> DEFAULT_CATEGORY_VALUE && 
+                            SelectedLV2_AIGraph = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(
+                                    LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                    Category_LV1 = SelectedLV1_AIGraph
+                                ), Category_LV1LV2 & "?"
+                            ),"delete_point"), "?delete_point", ""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                SelectedLV1_AIGraph = DEFAULT_CATEGORY_VALUE && 
+                                SelectedLV2_AIGraph <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(
+                                        LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                        Category_LV2 = SelectedLV2_AIGraph
+                                    ), Category_LV1LV2 & "?"
+                                ), "delete_point"), "?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                SelectedLV1_AIGraph & "/" & SelectedLV2_AIGraph
+                            )
+                        )
+                    )
+                    ,AIGraphPeriodType,
+                    AIGraphAnalysisType,
+                    {
+                    // StartDate
+                    text_1: AIGraphStartDate,
+                    // EndDate
+                    text_2: AIGraphEndDate
+                }
+            
+                ).result_json
+            });
+            
+            ClearCollect(
+                AIGraphToken,
+                ForAll(
+                    Table(ParseJSON(AIGraphResponse)),
+                    {
+                        Category_LV1: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리", "카테고리 미선택", ThisRecord.Value.Category_LV1)),
+                        Category_LV2: Text(If(ThisRecord.Value.Category_LV1=Blank() Or ThisRecord.Value.Category_LV1="카테고리" Or ThisRecord.Value.Category_LV2=Blank() Or ThisRecord.Value.Category_LV2="전체선택", "카테고리 미선택", ThisRecord.Value.Category_LV2)),
+                        Token_Date_: Text(Year(ThisRecord.Value.Token_Date)&"년"&Month(ThisRecord.Value.Token_Date)&"월"&Day(ThisRecord.Value.Token_Date)&"일"),
+                        Token_Date: Date(Year(ThisRecord.Value.Token_Date), Month(ThisRecord.Value.Token_Date), Day(ThisRecord.Value.Token_Date)),
+                        Token_Input: Text(ThisRecord.Value.Token_Input),
+                        Token_Output: Text(ThisRecord.Value.Token_Output),
+                        Token_Total: Text(ThisRecord.Value.Token_Total),
+                        Token_Model: Text(ThisRecord.Value.AnswerModel),
+                        Bot_Type: Text(ThisRecord.Value.Bot_Type),
+                        ID: Int(ThisRecord.Value.ID)
+                    }
+                )
+            );
+            
+            ClearCollect(
+                chatBotVersionList,
+                AddColumns(
+                    Sort(
+                        Filter(
+                            Distinct(
+                                AIGraphToken,
+                                Token_Model
+                            ), 
+                            Value <> Blank()
+                        ),
+                        Value,
+                        SortOrder.Ascending
+                    ),
+                    "Index",0
+                )
+            );
+            
+            ClearCollect(
+                AIGraphAddColYM_All,
+                AddColumns(
+                    AIGraphToken,
+                    "YearMonth",
+                    Year(Token_Date)*100 + Month(Token_Date),
+                    "YearMonth_",
+                    Text(Year(Token_Date)) & "년 " & Text(Month(Token_Date)) &"월"
+                )
+            );
+            
+            If(
+                SelectedLV1_AIGraph = "전체",
+                Set(AIGraphAddColYM, AIGraphAddColYM_All),
+                If(
+                    SelectedLV1_AIGraph = "카테고리",
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1="카테고리 미선택")),
+                    Set(AIGraphAddColYM, Filter(AIGraphAddColYM_All, Category_LV1=SelectedLV1_AIGraph))
+                )
+            );
+            
+            If(
+                AppsBIAxis.Value = "토큰",
+            
+                Concurrent(
+                    ClearCollect(
+                        AIGraphTokenMonthlyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "6개월" Or 
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1년"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                "Token_Input",
+                                Sum(Group, Token_Input),
+                                "Token_Output",
+                                Sum(Group, Token_Output),
+                                "Token_Total",
+                                Sum(Group, Token_Total)
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphTokenDailyUsage,
+                        If(
+                            DatePickerSetting = false &&
+                            (
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1개월" Or 
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "3개월"
+                            ),
+                            AddColumns(
+                                GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
+                                "Token_Input",
+                                Sum(Group, Token_Input),
+                                "Token_Output",
+                                Sum(Group, Token_Output),
+                                "Token_Total",
+                                Sum(Group, Token_Total)
+                            )
+                        )
+                    ),
+                    ClearCollect(
+                        AIGraphTokenDailyUsage_Custom,
+                        If(
+                            DatePickerSetting = true,
+                            AddColumns(
+                                GroupBy(AIGraphToken, "Token_Date", "Group"),
+                                "Token_Input",
+                                Sum(Group, Token_Input),
+                                "Token_Output",
+                                Sum(Group, Token_Output),
+                                "Token_Total",
+                                Sum(Group, Token_Total)
+                            )
+                        )
+                    )
+                ),
+                If(
+                    AppsBIAxis.Value = "GPT 버전",
+            
+                    Concurrent(
+                        ClearCollect(
+                            AIGraphGPTvMonthlyUsage,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1년" Or 
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "6개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Token_Model", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvDailyUsage,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "3개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Token_Date", "Token_Date_", "Token_Model", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvMonthlyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1년" Or 
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "6개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "YearMonth", "YearMonth_", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvDailyXAxis,
+                            If(
+                                DatePickerSetting = false &&
+                                (
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "1개월" Or 
+                                    Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value = "3개월"
+                                ),
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Token_Date", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvDailyUsage_Custom,
+                            If(
+                                DatePickerSetting = true,
+                                AddColumns(
+                                    GroupBy(AIGraphAddColYM, "Token_Date", "Token_Date_", "Token_Model", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        ),
+                        ClearCollect(
+                            AIGraphGPTvDailyXAxis_Custom,
+                            If(
+                                DatePickerSetting = true,
+                                AddColumns(
+                                    GroupBy(AIGraphToken, "Token_Date", "Group"),
+                                    "Token_Total",
+                                    Sum(Group, Token_Total)
+                                )
+                            )
+                        )
+                    ),
+            
+                    If(
+                        AppsBIAxis.Value = "카테고리",
+                        ClearCollect(
+                            AIGraphCategoryLV1Usage,
+                            AddColumns(
+                                GroupBy(AIGraphToken, "Category_LV1", "Group"),
+                                "Token_Total",
+                                Sum(Group, Token_Total),
+                                "Token_UsageRate",
+                                IfError(Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%"),"0.0%",Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV1), Token_Total) * 10000) / 100, "#0.0#%")),
+                                "Index",
+                                0
+                            )
+                        );
+                        ClearCollect(
+                            AIGraphCategoryLV2Usage,
+                            AddColumns(
+                                GroupBy(AIGraphToken, "Category_LV2", "Group"),
+                                "Token_Total",
+                                Sum(Group, Token_Total),
+                                "Token_UsageRate",
+                                IfError(Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%"),"0.0%",Text(Int(Sum(Group, Token_Total) / Sum(Filter(AIGraphToken, Category_LV2), Token_Total) * 10000) / 100, "#0.0#%")),
+                                "Index",
+                                0
+                            )
+                        )
+                    )
+                )
+            );
+            
+            Concurrent(
+                ClearCollect(
+                    AIGraphCategoryLV1Usage,
+                    SortByColumns(
+                        Filter(
+                            AIGraphCategoryLV1Usage,
+                            Category_LV1 <> Blank(),
+                            Token_UsageRate
+                        ),"Token_Total",SortOrder.Descending
+                    )
+                ),
+                ClearCollect(
+                    AIGraphCategoryLV2Usage,
+                    SortByColumns(
+                        Filter(
+                            AIGraphCategoryLV2Usage,
+                            Category_LV2 <> Blank() Or Category_LV2 <> "카테고리 미선택",
+                            Token_UsageRate
+                        ),"Token_Total",SortOrder.Descending
+                    )
+                )
+            );
+                        
+            
+            If(
+                AppsBIAxis.Value = "GPT 버전",
+                
+                ForAll(
+                    Sequence(CountRows(chatBotVersionList)),
+                    Patch(
+                        chatBotVersionList,
+                        Index(chatBotVersionList, Value),
+                        {Index: Value}
+                    )
+                ),
+                If(
+                    AppsBIAxis.Value = "카테고리",
+                    Concurrent(
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV1Usage)),
+                            Patch(
+                                AIGraphCategoryLV1Usage,
+                                Index(AIGraphCategoryLV1Usage, Value),
+                                {Index: Value}
+                            )
+                        ),
+                        ForAll(
+                            Sequence(CountRows(AIGraphCategoryLV2Usage)),
+                            Patch(
+                                AIGraphCategoryLV2Usage,
+                                Index(AIGraphCategoryLV2Usage, Value),
+                                {Index: Value}
+                            )
+                        )
+                    )
+                )
+            );
+            
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+        Width: =96
+        X: =756
+        Y: =36
+        ZIndex: =68
+
+    ButtonCanvas5 As 버튼:
+        DisplayMode: =DisplayMode.Edit
+        Height: =32
+        OnSelect: |+
+            =UpdateContext({ 
+                locLoadingSpinner: true
+            });
+            
+            Concurrent(
+                Set(AIGraphStartDate,
+                    Text(If(
+                            DatePickerSetting = false,
+                            Switch(
+                                Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value,
+                                "1개월", DateAdd(Today(),-1,TimeUnit.Months),
+                                "3개월", DateAdd(Today(),-3,TimeUnit.Months),
+                                "6개월", DateAdd(Today(),-6,TimeUnit.Months),
+                                "1년", DateAdd(Today(),-12,TimeUnit.Months)
+                            ), DatePicker_FirstDate_AIGraph_TokenUsage_1.SelectedDate
+                        ), "yyyy-mm-dd"
+                    )
+                ),
+                Set(AIGraphEndDate,
+                    Text(If(
+                        DatePickerSetting = false,
+                        DateAdd(Today(),-0,TimeUnit.Months),
+                        DatePicker_LastDate_AIGraph_TokenUsage_1.SelectedDate
+                    ), "yyyy-mm-dd")),
+                Set(AIGraphPeriodType,Dropdown_DatePicker_AIGraph_TokenUsage_1.SelectedText.Value),
+                Set(AIGraphAnalysisType,Dropdown_AxisPicker_AIGraph_TokenUsage_1.SelectedText.Value)
+            );
+            
+            
+            UpdateContext({AIGraphResponse: '[DEV]똑실이-[Apps]AIGraph토큰사용성분석V2'.Run(
+                    If(
+                        // LV1=전체 LV2=전체 일경우
+                        SelectedLV1_AIGraph = DEFAULT_CATEGORY_VALUE && 
+                        SelectedLV2_AIGraph = DEFAULT_CATEGORY_VALUE,
+                        "/?" & Substitute(Concatenate(Concat(LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1), Category_LV1LV2 & "?"),"delete_point"),"?delete_point",""),
+                        If(
+                            // 카테고리LV1만 선택한 경우
+                            SelectedLV1_AIGraph <> DEFAULT_CATEGORY_VALUE && 
+                            SelectedLV2_AIGraph = DEFAULT_CATEGORY_VALUE,
+                            Substitute(Concatenate(Concat(Filter(
+                                    LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                    Category_LV1 = SelectedLV1_AIGraph
+                                ), Category_LV1LV2 & "?"
+                            ),"delete_point"), "?delete_point", ""),
+                            // 카테고리LV2만 선택한 경우
+                            If(
+                                SelectedLV1_AIGraph = DEFAULT_CATEGORY_VALUE && 
+                                SelectedLV2_AIGraph <> DEFAULT_CATEGORY_VALUE,
+                                Substitute(Concatenate(Concat(Filter(
+                                        LastN(colCategoryAdmin,CountRows(colCategoryAdmin)-1),
+                                        Category_LV2 = SelectedLV2_AIGraph
+                                    ), Category_LV1LV2 & "?"
+                                ), "delete_point"), "?delete_point",""),
+                                // LV1, LV2 둘다 선택한 경우
+                                SelectedLV1_AIGraph & "/" & SelectedLV2_AIGraph
+                            )
+                        )
+                    )
+                    ,AIGraphPeriodType,
+                    AIGraphAnalysisType,
+                    {
+                    // StartDate
+                    text_1: AIGraphStartDate,
+                    // EndDate
+                    text_2: AIGraphEndDate
+                }
+            
+                ).result_json
+            });
+            
+            ClearCollect(
+                AIGraphToken,
+                ForAll(
+                    Table(ParseJSON(AIGraphResponse)),
+                    {
+                        Token_Date_: Text(Year(ThisRecord.Value.group_by)&"년"&Month(ThisRecord.Value.group_by)&"월"&Day(ThisRecord.Value.group_by)&"일"),
+                        Token_Date: Date(Year(ThisRecord.Value.group_by), Month(ThisRecord.Value.group_by), Day(ThisRecord.Value.group_by)),
+                        Token_Input: Text(ThisRecord.Value.sum_prompt_tokens),
+                        Token_Output: Text(ThisRecord.Value.sum_completion_tokens),
+                        Token_Total: Text(ThisRecord.Value.sum_total_tokens)
+                        
+                    }
+                )
+            );
+            
+            
+            UpdateContext({ 
+                locLoadingSpinner: false
+            });
+            
+        Text: =
+        Width: =96
+        X: =965
+        Y: =8
+        ZIndex: =69
 
